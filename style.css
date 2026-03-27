@@ -23,57 +23,79 @@ a:hover {
 header {
   background: #4B9CD3;
   color: #fff;
-  padding: 2.5rem 1rem;
-  text-align: center;
+  padding: 2.5rem 2rem;
+}
+
+.header-content {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-photo {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.header-text {
+  text-align: left;
 }
 
 header h1 {
   font-size: 2.2rem;
   font-weight: 400;
   letter-spacing: 0.02em;
-}
-
-.about, .teaching, .tools {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-.about {
-  text-align: center;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.about .title {
-  font-size: 1.1rem;
-  color: #555;
   margin-bottom: 0.3rem;
 }
 
-.about .affiliation {
+header .title {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 0.2rem;
+}
+
+header .affiliation {
   font-size: 1rem;
-  color: #666;
-  margin-bottom: 1rem;
+  opacity: 0.8;
+  margin-bottom: 0.8rem;
 }
 
-.about .links {
+header .links {
   display: flex;
-  justify-content: center;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 
-.about .links a {
+header .links a {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   font-size: 0.95rem;
-  color: #4B9CD3;
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.9;
 }
 
-.about .links a svg {
-  width: 20px;
-  height: 20px;
-  fill: #4B9CD3;
+header .links a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+header .links a svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+.teaching {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
 h2.section-title {
@@ -85,20 +107,20 @@ h2.section-title {
   font-weight: 400;
 }
 
-.course-list, .tool-list {
+.course-list {
   list-style: none;
   padding: 0;
 }
 
-.course-list li, .tool-list li {
+.course-list li {
   margin-bottom: 0.8rem;
 }
 
-.course-list a, .tool-list a {
+.course-list a {
   font-size: 1.05rem;
 }
 
-.course-list .desc, .tool-list .desc {
+.course-list .desc {
   display: block;
   font-size: 0.9rem;
   color: #777;
@@ -115,10 +137,24 @@ footer {
 }
 
 @media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .header-text {
+    text-align: center;
+  }
+  header .links {
+    justify-content: center;
+  }
   header h1 {
     font-size: 1.6rem;
   }
-  .about, .teaching, .tools {
+  .header-photo {
+    width: 140px;
+    height: 140px;
+  }
+  .teaching {
     padding: 1.5rem 1rem;
   }
 }
