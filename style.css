@@ -1,0 +1,124 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #333;
+  background: #fff;
+  line-height: 1.6;
+}
+
+a {
+  color: #4B9CD3;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+header {
+  background: #4B9CD3;
+  color: #fff;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.about, .teaching, .tools {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.about {
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.about .title {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+
+.about .affiliation {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.about .links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.about .links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  color: #4B9CD3;
+}
+
+.about .links a svg {
+  width: 20px;
+  height: 20px;
+  fill: #4B9CD3;
+}
+
+h2.section-title {
+  font-size: 1.3rem;
+  color: #4B9CD3;
+  border-bottom: 2px solid #4B9CD3;
+  padding-bottom: 0.3rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.course-list, .tool-list {
+  list-style: none;
+  padding: 0;
+}
+
+.course-list li, .tool-list li {
+  margin-bottom: 0.8rem;
+}
+
+.course-list a, .tool-list a {
+  font-size: 1.05rem;
+}
+
+.course-list .desc, .tool-list .desc {
+  display: block;
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 0.15rem;
+}
+
+footer {
+  border-top: 3px solid #4B9CD3;
+  text-align: center;
+  padding: 1rem;
+  color: #999;
+  font-size: 0.85rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 1.6rem;
+  }
+  .about, .teaching, .tools {
+    padding: 1.5rem 1rem;
+  }
+}
