@@ -1,0 +1,554 @@
+/* Beamer Theme CSS - Crane Color Scheme */
+/* Crane uses amber accents on white background */
+
+:root {
+  /* Crane color palette (for text pages) */
+  --crane-amber: #f9a825;
+  --crane-amber-light: #ffd95a;
+  --crane-amber-dark: #c17900;
+  --crane-blue: #1565c0;
+
+  /* Solarized Light color palette (for graphs) */
+  --sol-base03: #002b36;
+  --sol-base02: #073642;
+  --sol-base01: #586e75;
+  --sol-base00: #657b83;
+  --sol-base0: #839496;
+  --sol-base1: #93a1a1;
+  --sol-base2: #eee8d5;
+  --sol-base3: #fdf6e3;
+
+  /* Solarized accent colors (for graphs) */
+  --sol-yellow: #b58900;
+  --sol-orange: #cb4b16;
+  --sol-red: #dc322f;
+  --sol-magenta: #d33682;
+  --sol-violet: #6c71c4;
+  --sol-blue: #268bd2;
+  --sol-cyan: #2aa198;
+  --sol-green: #859900;
+
+  /* Frame colors - Crane (white background, amber accents) */
+  --frame-bg: #ffffff;
+  --frame-title-bg: var(--crane-amber);
+  --frame-title-text: #000000;
+  --frame-subtitle-text: #333333;
+  --frame-border: #e0e0e0;
+
+  /* Text colors - Crane */
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  --link-color: var(--crane-blue);
+
+  /* Spacing */
+  --frame-padding: 2rem;
+  --frame-max-width: 100%;
+
+  /* Typography */
+  --font-sans: 'Computer Modern Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Computer Modern Serif', Georgia, serif;
+  --font-mono: 'Computer Modern Typewriter', 'Courier New', monospace;
+}
+
+/* Reset and base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: clamp(18px, 1.67vw, 32px);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: #ffffff;
+  line-height: 1.6;
+}
+
+/* Beamer Frame */
+.frame {
+  background: var(--frame-bg);
+  max-width: var(--frame-max-width);
+  margin: 2rem auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.frame-title-bar {
+  background: var(--frame-title-bg);
+  padding: 0.75rem var(--frame-padding);
+  border-radius: 4px 4px 0 0;
+}
+
+.frame-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--frame-title-text);
+}
+
+.frame-subtitle {
+  margin: 0 0 0 0;
+  font-size: 1.15rem;
+  color: var(--frame-subtitle-text);
+  font-weight: 600;
+}
+
+.frame-content {
+  padding: calc(var(--frame-padding) / 2);
+  min-height: 400px;
+  background: #ffffff;
+}
+
+.frame-footer {
+  background: #ffffff;
+  border-top: 1px solid var(--frame-border);
+  padding: 0.5rem var(--frame-padding);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Full-bleed mode - breaks out of frame */
+.full-bleed {
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-bleed .frame-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Title slide - Crane (white background with amber title/subtitle box) */
+.title-slide {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: #ffffff;
+}
+
+.title-slide .title-box {
+  background: var(--crane-amber);
+  padding: 1.5rem 3rem 1.25rem 3rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.title-slide h1 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.title-slide h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  padding: 0 1rem;
+  color: var(--text-primary);
+  font-weight: normal;
+}
+
+.title-slide .author {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 1rem 0 0.25rem 0;
+}
+
+.title-slide .institute {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0.125rem 0;
+}
+
+.title-slide .date {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0;
+}
+
+/* Section headers - Crane (white background with amber title) */
+.section-header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: #ffffff;
+}
+
+.section-header .section-title-box {
+  background: var(--crane-amber);
+  padding: 1.5rem 3rem;
+  border-radius: 8px;
+}
+
+.section-header h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  margin: 1rem 0 0 0;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  line-height: 1.3;
+}
+
+p {
+  margin: 0 0 1rem 0;
+}
+
+/* Lists - Beamer style */
+ul, ol {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.9rem;
+}
+
+/* Itemize bullets - triangles like Beamer */
+ul {
+  list-style: none;
+}
+
+ul > li::before {
+  content: "▸";
+  color: var(--crane-amber-dark);
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+
+ul ul > li::before {
+  content: "▹";
+}
+
+/* Enumerate - Beamer circles (drawn with drop shadow) */
+ol {
+  list-style: none;
+  counter-reset: beamer-enum;
+}
+
+ol > li {
+  counter-increment: beamer-enum;
+}
+
+ol > li::before {
+  content: counter(beamer-enum);
+  background: var(--crane-amber);
+  color: #000000;
+  font-weight: bold;
+  font-size: 0.75em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -2em;
+  margin-right: 0.5em;
+  border: 1.5px solid #000000;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Block environments - Crane theme (amber title, light yellow body, black text, no borders) */
+.block-group {
+  display: grid;
+  grid-template-columns: 1fr auto 3fr;
+  row-gap: 1rem;
+}
+.block-group > .block {
+  grid-column: 2;
+}
+.block {
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.block-title {
+  background: var(--crane-amber);
+  padding: 0.6rem 1rem;
+  font-weight: bold;
+  color: #000000;
+}
+
+.block-body {
+  background: #fff8e1;  /* Light yellow */
+  padding: 1rem;
+  color: #000000;
+}
+
+/* Definition, Example, Alert blocks - all use same Crane styling */
+
+/* Emphasis */
+.structure {
+  color: var(--crane-blue);
+  font-weight: bold;
+}
+
+.alert-text {
+  color: #c62828;
+  font-weight: bold;
+}
+
+/* Two-column layout */
+.columns {
+  display: flex;
+  gap: 2rem;
+}
+
+.column {
+  flex: 1;
+}
+
+.column-narrow {
+  flex: 0.4;
+}
+
+.column-wide {
+  flex: 0.6;
+}
+
+/* Beamer description lists — dt and dd on same line */
+dl.beamer-description {
+  margin: 0;
+}
+
+dl.beamer-description dt {
+  float: left;
+  clear: left;
+  font-weight: bold;
+  margin-right: 0.4em;
+  margin-top: 0.5rem;
+}
+
+dl.beamer-description dt::after {
+  content: "";
+}
+
+dl.beamer-description dd {
+  margin-left: 0;
+  margin-top: 0.5rem;
+  overflow: hidden; /* keeps dd beside float */
+}
+
+dl.beamer-description dd + dt:first-of-type,
+dl.beamer-description dt:first-of-type {
+  margin-top: 0;
+}
+
+dl.beamer-description dt:first-of-type + dd {
+  margin-top: 0;
+}
+
+/* LaTeX font size helpers */
+.fs-14pt { font-size: 1.27em; line-height: 1.3; }
+.fs-11pt { font-size: 1em; line-height: 1.5; }
+.fs-10pt { font-size: 0.91em; line-height: 1.4; }
+
+/* LaTeX vertical spacing helpers — \vspace after title bar */
+.vspace-neg-9mm > .frame-content { padding-top: 0; }
+.vspace-neg-5mm > .frame-content { padding-top: 0.4rem; }
+.vspace-neg-4mm > .frame-content { padding-top: 0.55rem; }
+.vspace-neg-3mm > .frame-content { padding-top: 0.7rem; }
+
+/* Reveal animations - hidden by default */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Horizontal scroll container */
+.scroll-section {
+  width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.scroll-track {
+  display: flex;
+  width: fit-content;
+}
+
+.scroll-panel {
+  width: 100vw;
+  min-height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #ffffff;
+}
+
+/* Graph container */
+.graph-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.graph-container svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Graph frame — full viewport, no beamer styling */
+.scroll-frame {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.scroll-frame.graph-frame {
+  padding: 0;
+  background: #fdf6e3;
+}
+
+.scroll-frame-inner {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 2vw;
+}
+
+/* ============================================
+   OVERLAY SYSTEM
+   For frames with Beamer overlays (\pause, \uncover, <1->)
+   ============================================ */
+
+.overlay-frame {
+  position: relative;
+}
+
+.overlay-frame .frame-title-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.overlay-frame .overlay {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.overlay-frame .overlay.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+  }
+
+  .frame {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+    margin: 1rem auto;
+  }
+
+  .full-bleed {
+    min-height: auto;
+    page-break-before: always;
+  }
+
+  .scroll-section {
+    overflow: visible;
+  }
+
+  .scroll-track {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .scroll-panel {
+    width: 100%;
+    min-height: auto;
+    page-break-inside: avoid;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .overlay-frame .overlay {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .frame {
+    margin: 1rem;
+    border-radius: 0;
+  }
+
+  .frame-content {
+    padding: 1rem;
+  }
+
+  .columns {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .title-slide h1,
+  .section-header h1 {
+    font-size: 2rem;
+  }
+
+  .title-slide .title-box,
+  .section-header .section-title-box {
+    padding: 1rem 1.5rem;
+  }
+}

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI &amp; The Teaching of Economics &mdash; S&eacute;rgio O. Parreiras</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script defer src="js/katex-macros.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background: #fff;
+      line-height: 1.8;
+      font-size: 20px;
+      overflow: hidden;
+    }
+
+    a { color: #4B9CD3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* --- Slide system --- */
+    .slide {
+      width: 100vw; height: 100vh;
+      display: none;
+      flex-direction: column;
+      position: relative;
+    }
+    .slide.active { display: flex; }
+
+    /* --- Title slide --- */
+    .slide-title {
+      background: #fff;
+      color: #13294B;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem 2rem;
+    }
+    .slide-title h1 {
+      font-size: 3.2rem;
+      font-weight: 400;
+      color: #13294B;
+      letter-spacing: 0.02em;
+      margin-bottom: 0rem;
+    }
+    .slide-title .subtitle {
+      font-size: 1.4rem;
+      color: #4B9CD3;
+      margin-bottom: 0rem;
+    }
+    .slide-title .author {
+      font-size: 1.4rem;
+      color: #333;
+      margin-bottom: 0.2rem;
+    }
+    .slide-title .affiliation {
+      font-size: 1.2rem;
+      color: #666;
+    }
+    .slide-title .principles {
+      max-width: 800px;
+      margin-top: 0.5rem;
+      text-align: left;
+    }
+    .slide-title .principles ol {
+      list-style: none;
+      counter-reset: p;
+      padding: 0;
+    }
+    .slide-title .principles ol li {
+      counter-increment: p;
+      margin-bottom: 1.2rem;
+      font-size: 1.3rem;
+      line-height: 1.7;
+      padding-left: 2rem;
+      position: relative;
+    }
+    .slide-title .principles ol li::before {
+      content: counter(p) ".";
+      position: absolute;
+      left: 0;
+      font-weight: 600;
+      color: #4B9CD3;
+    }
+
+    /* --- Content slides --- */
+    .slide-content {
+      background: #fff;
+    }
+    .slide-header {
+      background: #fff;
+      border-bottom: 3px solid #4B9CD3;
+      padding: 1.4rem 3rem;
+      flex-shrink: 0;
+    }
+    .slide-header h2 {
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: #13294B;
+      letter-spacing: 0.02em;
+    }
+    .slide-header .subtitle {
+      font-size: 1.2rem;
+      color: #4B9CD3;
+      margin-top: 0.2rem;
+    }
+    .slide-body {
+      padding: 2.5rem 3rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* --- Section title (mirrors h2.section-title) --- */
+    h3.section-label {
+      font-size: 1.4rem;
+      color: #4B9CD3;
+      border-bottom: 2px solid #4B9CD3;
+      padding-bottom: 0.3rem;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    /* --- Lists --- */
+    ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
+    ul > li { margin-bottom: 0.8rem; font-size: 1.2rem; line-height: 1.7; }
+    ul ul { margin-top: 0.4rem; }
+    ul ul > li { font-size: 1.1rem; }
+
+    ol { padding-left: 1.5rem; margin: 0.5rem 0; }
+    ol > li { margin-bottom: 1rem; font-size: 1.2rem; line-height: 1.7; }
+
+    strong { font-weight: 600; }
+
+    /* --- Placeholder box --- */
+    .placeholder {
+      background: #f5f8fb;
+      border: 2px dashed #4B9CD3;
+      border-radius: 6px;
+      padding: 2rem;
+      text-align: center;
+      color: #999;
+      font-size: 1rem;
+      font-style: italic;
+      margin: 1rem 0;
+    }
+
+    /* --- Launch button --- */
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #4B9CD3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 1.4rem;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.8rem;
+      opacity: 0.5;
+    }
+
+    /* --- Two-column --- */
+    .columns { display: flex; gap: 2.5rem; width: 100%; }
+    .column { flex: 1; }
+
+    /* --- Footer bar --- */
+    .slide-footer {
+      border-top: 3px solid #4B9CD3;
+      padding: 0.6rem 2.5rem;
+      font-size: 0.85rem;
+      color: #999;
+      display: flex;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    /* --- Nav hint & counter --- */
+    .slide-counter {
+      position: fixed; bottom: 1rem; right: 1.5rem;
+      font-size: 0.85rem; color: #999;
+      z-index: 100;
+    }
+    .nav-hint {
+      position: fixed; bottom: 1rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem; color: #bbb;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== SLIDE 1: Title + Philosophy ==================== -->
+  <div class="slide slide-title active" id="slide-1">
+    <h1>AI &amp; The Teaching of Economics</h1>
+    <h2 class="subtitle">Departmental Informal Discussion</h2>
+    <h3 class="author">S&eacute;rgio O. Parreiras</h3>
+    <div class="principles">
+      <h3 style="color: #333; font-weight: 400; margin-bottom: 0.8rem;">My approach:</h3>
+      <ol>
+        <li><strong>I build together with AI, exactly the way I want it.</strong><br>I don't want to wait for a developer nor settle for off-the-shelf tools.</li>
+        <li><strong>I don't let AI create my content.</strong><br>No way I am giving up what I like the most about my job.</li>
+        <li><strong>I treat AI like a consultant.</strong><br>I ask for its options with pros and cons&mdash;then I decide and AI implements.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 2: Overview ==================== -->
+  <div class="slide slide-content" id="slide-2">
+    <div class="slide-header">
+      <h2>Overview</h2>
+      <p class="subtitle">Four areas where AI helped</p>
+    </div>
+    <div class="slide-body" style="font-size: 120%;">
+      <ol>
+        <li><strong>Course Utility Apps</strong>&mdash;leveraging Canvas API</li>
+        <li><strong>Scraping Tools</strong>&mdash;NPR podcasts, FRED, etc.</li>
+        <li><strong>Overhaul of Lecture Notes</strong>&mdash;PDF &rarr; HTML</li>
+        <li><strong>Practice Apps</strong>&mdash;ECON 101H and ECON 510</li>
+      </ol>
+    </div>
+    <div class="slide-footer">
+      <span>AI &amp; The Teaching of Economics</span>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 3: Participation Tracker ==================== -->
+  <div class="slide slide-content" id="slide-3">
+    <div class="slide-header">
+      <h2>Course Utility Apps</h2>
+      <p class="subtitle">Participation Tracker</p>
+    </div>
+    <div class="slide-body">
+      <ul>
+        <li><strong>Mac desktop app</strong> (PySide6/Qt): live session tracking with click-to-mark participation, student photos, year, major</li>
+        <li><strong>Color-coded warnings:</strong> magenta = low participation, red = 3 consecutive absences</li>
+        <li><strong>Canvas API upload:</strong> batches 3 sessions into one assignment, auto-creates assignment, posts grades</li>
+        <li><strong>iPad web version:</strong> GitHub Pages, reads/writes same Dropbox JSON. Tap-to-mark for walking around classroom</li>
+        <li><strong>TA recitation participation tracker:</strong> simplified version</li>
+        <li><strong>Desktop/Web versions share the same JSON data layer</strong> via Dropbox sync</li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span>AI &amp; The Teaching of Economics</span>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 4: The Librarian ==================== -->
+  <div class="slide slide-content" id="slide-4">
+    <div class="slide-header">
+      <h2>Scraping Tools</h2>
+      <p class="subtitle">The Librarian</p>
+    </div>
+    <div class="slide-body">
+      <ul>
+        <li><strong>Scraping pipeline:</strong> NPR Planet Money and This American Life. All stored as JSON.</li>
+        <li><strong>JEL classification:</strong> every episode batch-classified with JEL codes using OpenAI API</li>
+        <li><strong>Three search modes:</strong>
+          <ul>
+            <li><strong>Text search:</strong> boolean query parser (AND, OR, "exact phrase")</li>
+            <li><strong>JEL search:</strong> topic &rarr; JEL codes &rarr; matching episodes</li>
+            <li><strong>RAG search:</strong> Voyage AI embeddings + ChromaDB + Claude for Q&amp;A over transcripts</li>
+          </ul>
+        </li>
+        <li><strong>One-click Canvas push:</strong> send episode links straight into a Canvas module</li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span>AI &amp; The Teaching of Economics</span>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 5: PDF → HTML ==================== -->
+  <div class="slide slide-content" id="slide-5">
+    <div class="slide-header">
+      <h2>Overhaul of Lecture Notes</h2>
+      <p class="subtitle" id="overhaul-toggle" style="cursor: pointer;">PDF &rarr; HTML <span style="font-size: 0.7em; opacity: 0.6;">(click to swap example)</span></p>
+    </div>
+    <div class="slide-body" style="display: flex; gap: 2rem; flex: 1;">
+      <div style="flex: 1; display: flex; flex-direction: column;">
+        <h3 class="section-label">Before: Static PDF</h3>
+        <img id="static-img" src="textbook-static.png" alt="Textbook figure" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
+        <ul style="margin-top: 1.5rem;">
+          <li><strong>KaTeX-rendered math</strong>&mdash;as clean as $\LaTeX$/Beamer</li>
+          <li><strong>GSAP/ScrollTrigger animations</strong>&mdash;scroll-driven progressive disclosure</li>
+          <li><strong>Interactive components</strong>&mdash;sliders, live updates</li>
+          <li><strong>Real data visualizations</strong>&mdash;scraped FRED data animated in the browser</li>
+        </ul>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column;">
+        <h3 class="section-label">After: Interactive HTML</h3>
+        <iframe id="demo-iframe" src="monetary-policy.html" style="flex: 1; width: 100%; border: 1px solid #ddd; border-radius: 4px;"></iframe>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AI &amp; The Teaching of Economics</span>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 6: Practice Apps ==================== -->
+  <div class="slide slide-content" id="slide-6">
+    <div class="slide-header">
+      <h2>Untapped Returns</h2>
+      <p class="subtitle">Practice Apps &mdash; ECON 101H &amp; ECON 510</p>
+    </div>
+    <div class="slide-body">
+      <p style="font-size: 1.2rem; margin-bottom: 1rem; line-height: 1.7;">
+        <strong>Why are textbooks so expensive?</strong> We choose them&mdash;but we don&rsquo;t pay for them.
+        What we&rsquo;re really buying is the <strong>ancillaries</strong>: test banks, homework platforms, auto-graded exercises.
+        That&rsquo;s the moat that locks in $300 textbooks.
+      </p>
+      <p style="font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.7;">
+        <strong>AI collapses the cost of building ancillaries.</strong>
+        With AI, a single instructor can create practice apps that offer students
+        <strong>unlimited, algorithmically generated problems</strong> with instant feedback&mdash;something
+        no static textbook can match.
+      </p>
+      <div class="columns">
+        <div class="column">
+          <h3 class="section-label"><a href="https://sergio0p.github.io/E101H/Apps/index.html" target="_blank" style="color: inherit; text-decoration: none; border-bottom: 1px dashed #4B9CD3;">Cost Functions (101H)</a></h3>
+          <ul>
+            <li>Randomly generated cost table puzzles</li>
+            <li>3 difficulty levels, Firebase leaderboard</li>
+          </ul>
+        </div>
+        <div class="column">
+          <h3 class="section-label"><a href="https://sergio0p.github.io/E510/Apps/index.html" target="_blank" style="color: inherit; text-decoration: none; border-bottom: 1px dashed #4B9CD3;">Backward Induction (510)</a></h3>
+          <ul>
+            <li>Randomly generated extensive-form game trees</li>
+            <li>Animated resolution with SPNE path highlighted</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AI &amp; The Teaching of Economics</span>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 7: Not All AI Are Created Equal ==================== -->
+  <div class="slide slide-content" id="slide-7">
+    <div class="slide-header">
+      <h2>Not All AI Are Created Equal</h2>
+    </div>
+    <div class="slide-body">
+      <div class="columns">
+        <div class="column">
+          <h3 class="section-label">Chat AI (ChatGPT, Gemini, Claude.ai)</h3>
+          <ul>
+            <li>Copy-paste loop: describe &rarr; paste &rarr; breaks &rarr; repeat</li>
+            <li>AI only sees what you feed it</li>
+            <li><strong>You</strong> are the debugger and the file system</li>
+            <li>Hard to customize or extend</li>
+          </ul>
+        </div>
+        <div class="column">
+          <h3 class="section-label">Agentic AI (Claude Code, Cursor, Copilot)</h3>
+          <ul>
+            <li>Lives in your project&mdash;reads, writes, searches, and runs code directly</li>
+            <li>Breaks &rarr; sees the error &rarr; fixes it&mdash;without you lifting a finger</li>
+            <li>Teach it how you work&mdash;reusable skills and agents that learn your workflow</li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-size: 1.3rem; margin-top: 2rem; text-align: center; color: #13294B;">
+        Same intelligence. The difference is <strong>agency</strong>.
+      </p>
+    </div>
+    <div class="slide-footer">
+      <span>AI &amp; The Teaching of Economics</span>
+    </div>
+  </div>
+
+  <!-- Slide counter & nav hint -->
+  <div class="slide-counter" id="counter">1 / 7</div>
+  <div class="nav-hint">&larr; &rarr; or Space</div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let current = 0;
+
+    function showSlide(n) {
+      slides[current].classList.remove('active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      document.getElementById('counter').textContent = (current + 1) + ' / ' + slides.length;
+    }
+
+    // Toggle examples on slide 5
+    var exampleIndex = 0;
+    var examples = [
+      { img: 'textbook-static.png', iframe: 'monetary-policy.html' },
+      { img: 'textbook-tax.png', iframe: 'tax-incidence.html' }
+    ];
+    document.getElementById('overhaul-toggle').addEventListener('click', function() {
+      exampleIndex = (exampleIndex + 1) % examples.length;
+      document.getElementById('static-img').src = examples[exampleIndex].img;
+      document.getElementById('demo-iframe').src = examples[exampleIndex].iframe;
+    });
+
+    // Click outside iframe to reclaim focus for slide navigation
+    document.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'IFRAME') {
+        window.focus();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      // Don't intercept keys when iframe is focused
+      if (document.activeElement && document.activeElement.tagName === 'IFRAME') return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        showSlide(current + 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        showSlide(current - 1);
+      }
+    });
+  </script>
+
+</body>
+</html>

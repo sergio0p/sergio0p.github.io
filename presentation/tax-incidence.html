@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Incidence</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script defer src="js/katex-macros.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #fdf6e3; }
+    #graph-wrap {
+      position: relative;
+      width: 88%; max-width: 640px;
+      margin: 1rem auto;
+      padding-left: 60px;
+    }
+    .instructions {
+      margin-top: 0.5rem;
+      color: #93a1a1;
+      font-family: 'Times New Roman', serif;
+      font-size: 1.0rem;
+      font-style: italic;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="graph-wrap">
+    <div id="incidence-pb-katex" style="position: absolute; font-size: 0.9rem; color: #586e75; white-space: nowrap;">$P_B = 130$</div>
+    <div id="incidence-ps-katex" style="position: absolute; font-size: 0.9rem; color: #586e75; white-space: nowrap;">$P_S = 90$</div>
+
+    <svg id="incidence-graph" viewBox="0 0 530 395" style="width: 100%;">
+      <defs>
+        <marker id="arrowhead-incidence" markerWidth="8" markerHeight="4" refX="7" refY="2" orient="auto">
+          <polygon points="0 0, 8 2, 0 4" fill="#586e75"/>
+        </marker>
+      </defs>
+
+      <text id="incidence-title" x="250" y="18" text-anchor="middle" font-family="Times New Roman, serif" font-size="18" font-weight="bold" fill="#586e75">Tax Incidence</text>
+      <text id="incidence-passthrough" x="520" y="18" text-anchor="end" font-family="Times New Roman, serif" font-size="14" fill="#586e75">Pass-through: 50.00%</text>
+
+      <rect id="incidence-consumer-bar" x="60" y="165" width="140" height="30" fill="#dc322f" fill-opacity="0.3"/>
+      <rect id="incidence-producer-bar" x="60" y="195" width="140" height="30" fill="#268bd2" fill-opacity="0.3"/>
+
+      <line id="incidence-consumer-bracket" x1="35" y1="165" x2="35" y2="195" stroke="#dc322f" stroke-width="3"/>
+      <line id="incidence-consumer-cap-top" x1="30" y1="165" x2="40" y2="165" stroke="#dc322f" stroke-width="3"/>
+      <line id="incidence-consumer-cap-bot" x1="30" y1="195" x2="40" y2="195" stroke="#dc322f" stroke-width="3"/>
+
+      <line id="incidence-producer-bracket" x1="35" y1="195" x2="35" y2="225" stroke="#268bd2" stroke-width="3"/>
+      <line id="incidence-producer-cap-top" x1="30" y1="195" x2="40" y2="195" stroke="#268bd2" stroke-width="3"/>
+      <line id="incidence-producer-cap-bot" x1="30" y1="225" x2="40" y2="225" stroke="#268bd2" stroke-width="3"/>
+
+      <line x1="60" y1="360" x2="60" y2="30" stroke="#586e75" stroke-width="2" marker-end="url(#arrowhead-incidence)"/>
+      <line x1="60" y1="360" x2="500" y2="360" stroke="#586e75" stroke-width="2" marker-end="url(#arrowhead-incidence)"/>
+
+      <text x="60" y="17" text-anchor="middle" font-family="Times New Roman, serif" font-size="20" fill="#586e75">P</text>
+      <text x="510" y="365" font-family="Times New Roman, serif" font-size="20" font-style="italic" fill="#586e75">Q</text>
+
+      <line id="incidence-demand" x1="60" y1="60" x2="460" y2="360" stroke="#dc322f" stroke-width="4"/>
+      <text id="incidence-demand-label" x="340" y="260" font-family="Times New Roman, serif" font-size="18" font-style="italic" fill="#dc322f">D</text>
+
+      <line id="incidence-supply" x1="60" y1="330" x2="400" y2="75" stroke="#268bd2" stroke-width="4" opacity="0.25"/>
+      <text id="incidence-supply-label" x="405" y="70" font-family="Times New Roman, serif" font-size="18" font-style="italic" fill="#268bd2" opacity="0.25">S</text>
+
+      <line id="incidence-supply-new" x1="60" y1="270" x2="340" y2="60" stroke="#268bd2" stroke-width="4"/>
+      <text id="incidence-supply-label-new" x="345" y="55" font-family="Times New Roman, serif" font-size="18" font-style="italic" fill="#268bd2">S</text>
+
+      <circle id="incidence-eq-dot" cx="240" cy="195" r="5" fill="#586e75"/>
+
+      <line id="incidence-pstar-line" x1="60" y1="195" x2="240" y2="195" stroke="#586e75" stroke-width="2" stroke-dasharray="8,6"/>
+      <text id="incidence-pstar-label" x="25" y="200" text-anchor="end" font-family="Times New Roman, serif" font-size="16" fill="#586e75">110</text>
+
+      <line id="incidence-pb-line" x1="60" y1="165" x2="200" y2="165" stroke="#586e75" stroke-width="2" stroke-dasharray="8,6"/>
+      <line id="incidence-ps-line" x1="60" y1="225" x2="200" y2="225" stroke="#586e75" stroke-width="2" stroke-dasharray="8,6"/>
+      <line id="incidence-q-line" x1="200" y1="165" x2="200" y2="360" stroke="#586e75" stroke-width="2" stroke-dasharray="8,6"/>
+
+      <text id="incidence-q-label" x="200" y="380" text-anchor="middle" font-family="Times New Roman, serif" font-size="16" fill="#586e75">70</text>
+    </svg>
+  </div>
+
+  <p class="instructions">← → rotate supply &nbsp; Q/A rotate demand</p>
+
+  <script>
+    const xOrigin = 60, yOrigin = 360;
+    const xScale = 2, yScale = 1.5;
+    const toSvgX = (q) => xOrigin + q * xScale;
+    const toSvgY = (p) => yOrigin - p * yScale;
+
+    let demandSlope = 1;
+    let supplySlope = 1;
+    const taxAmount = 40;
+    const eqQ = 90;
+    const eqP = 110;
+
+    const katexOptions = {
+      delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}],
+      throwOnError: false
+    };
+
+    function getIncidenceEq(slopeD, slopeS, t) {
+      if (slopeD === Infinity) return { qStar: eqQ, pB: eqP + t, pS: eqP };
+      if (slopeS === Infinity) return { qStar: eqQ, pB: eqP, pS: eqP - t };
+      const totalSlope = slopeD + slopeS;
+      if (totalSlope < 0.001) return { qStar: eqQ, pB: eqP + t/2, pS: eqP - t/2 };
+      const qStar = eqQ - t / totalSlope;
+      const pB = eqP + slopeD * t / totalSlope;
+      const pS = eqP - slopeS * t / totalSlope;
+      return { qStar, pB, pS };
+    }
+
+    function getDemandEndpoints(slopeD) {
+      const eqSvgX = toSvgX(eqQ), eqSvgY = toSvgY(eqP);
+      if (slopeD === 0) return { x1: 60, y1: eqSvgY, x2: toSvgX(200), y2: eqSvgY };
+      if (slopeD === Infinity || slopeD >= 50) return { x1: eqSvgX, y1: toSvgY(220), x2: eqSvgX, y2: toSvgY(0) };
+      let x1, y1, x2, y2;
+      const pAtQ0 = eqP + slopeD * eqQ;
+      if (pAtQ0 <= 220) { x1 = 60; y1 = toSvgY(pAtQ0); }
+      else { x1 = toSvgX(eqQ - (220 - eqP) / slopeD); y1 = toSvgY(220); }
+      const qAtP0 = eqQ + eqP / slopeD;
+      if (qAtP0 <= 200) { x2 = toSvgX(qAtP0); y2 = toSvgY(0); }
+      else { x2 = toSvgX(200); y2 = toSvgY(Math.max(0, eqP - slopeD * (200 - eqQ))); }
+      return { x1, y1, x2, y2 };
+    }
+
+    function getSupplyEndpoints(slopeS) {
+      const eqSvgX = toSvgX(eqQ), eqSvgY = toSvgY(eqP);
+      if (slopeS === 0) return { x1: 60, y1: eqSvgY, x2: toSvgX(200), y2: eqSvgY };
+      if (slopeS === Infinity || slopeS >= 50) return { x1: eqSvgX, y1: toSvgY(220), x2: eqSvgX, y2: toSvgY(0) };
+      let x1, y1, x2, y2;
+      const pAtQ0 = eqP - slopeS * eqQ;
+      if (pAtQ0 >= 0) { x1 = 60; y1 = toSvgY(pAtQ0); }
+      else { x1 = toSvgX(eqQ - eqP / slopeS); y1 = toSvgY(0); }
+      const pAtQ200 = eqP + slopeS * (200 - eqQ);
+      if (pAtQ200 <= 220) { x2 = toSvgX(200); y2 = toSvgY(pAtQ200); }
+      else { x2 = toSvgX(eqQ + (220 - eqP) / slopeS); y2 = toSvgY(220); }
+      return { x1, y1, x2, y2 };
+    }
+
+    function getNewSupplyEndpoints(slopeS, t) {
+      const newEqP = eqP + t;
+      const eqSvgX = toSvgX(eqQ);
+      if (slopeS === 0) return { x1: 60, y1: toSvgY(newEqP), x2: toSvgX(200), y2: toSvgY(newEqP) };
+      if (slopeS === Infinity || slopeS >= 50) return { x1: eqSvgX, y1: toSvgY(220), x2: eqSvgX, y2: toSvgY(0) };
+      let x1, y1, x2, y2;
+      const pAtQ0 = newEqP - slopeS * eqQ;
+      if (pAtQ0 >= 0) { x1 = 60; y1 = toSvgY(pAtQ0); }
+      else { x1 = toSvgX(eqQ - newEqP / slopeS); y1 = toSvgY(0); }
+      const pAtQ200 = newEqP + slopeS * (200 - eqQ);
+      if (pAtQ200 <= 220) { x2 = toSvgX(200); y2 = toSvgY(pAtQ200); }
+      else { x2 = toSvgX(eqQ + (220 - newEqP) / slopeS); y2 = toSvgY(220); }
+      return { x1, y1, x2, y2 };
+    }
+
+    function updateIncidenceGraph() {
+      const eq = getIncidenceEq(demandSlope, supplySlope, taxAmount);
+      const xQ = toSvgX(eq.qStar), yPB = toSvgY(eq.pB), yPS = toSvgY(eq.pS), yPstar = toSvgY(eqP);
+
+      const demandPts = getDemandEndpoints(demandSlope);
+      document.getElementById('incidence-demand').setAttribute('x1', demandPts.x1);
+      document.getElementById('incidence-demand').setAttribute('y1', demandPts.y1);
+      document.getElementById('incidence-demand').setAttribute('x2', demandPts.x2);
+      document.getElementById('incidence-demand').setAttribute('y2', demandPts.y2);
+      document.getElementById('incidence-demand-label').setAttribute('x', demandPts.x2 - 15);
+      document.getElementById('incidence-demand-label').setAttribute('y', demandPts.y2 - 10);
+
+      const supplyPts = getSupplyEndpoints(supplySlope);
+      document.getElementById('incidence-supply').setAttribute('x1', supplyPts.x1);
+      document.getElementById('incidence-supply').setAttribute('y1', supplyPts.y1);
+      document.getElementById('incidence-supply').setAttribute('x2', supplyPts.x2);
+      document.getElementById('incidence-supply').setAttribute('y2', supplyPts.y2);
+      document.getElementById('incidence-supply-label').setAttribute('x', supplyPts.x2 + 5);
+      document.getElementById('incidence-supply-label').setAttribute('y', supplyPts.y2 - 5);
+
+      const newSupplyPts = getNewSupplyEndpoints(supplySlope, taxAmount);
+      document.getElementById('incidence-supply-new').setAttribute('x1', newSupplyPts.x1);
+      document.getElementById('incidence-supply-new').setAttribute('y1', newSupplyPts.y1);
+      document.getElementById('incidence-supply-new').setAttribute('x2', newSupplyPts.x2);
+      document.getElementById('incidence-supply-new').setAttribute('y2', newSupplyPts.y2);
+      document.getElementById('incidence-supply-label-new').setAttribute('x', newSupplyPts.x2 + 5);
+      document.getElementById('incidence-supply-label-new').setAttribute('y', newSupplyPts.y2 - 5);
+
+      document.getElementById('incidence-consumer-bar').setAttribute('y', yPB);
+      document.getElementById('incidence-consumer-bar').setAttribute('height', yPstar - yPB);
+      document.getElementById('incidence-consumer-bar').setAttribute('width', xQ - 60);
+      document.getElementById('incidence-producer-bar').setAttribute('y', yPstar);
+      document.getElementById('incidence-producer-bar').setAttribute('height', yPS - yPstar);
+      document.getElementById('incidence-producer-bar').setAttribute('width', xQ - 60);
+
+      document.getElementById('incidence-consumer-bracket').setAttribute('y1', yPB);
+      document.getElementById('incidence-consumer-bracket').setAttribute('y2', yPstar);
+      document.getElementById('incidence-consumer-cap-top').setAttribute('y1', yPB);
+      document.getElementById('incidence-consumer-cap-top').setAttribute('y2', yPB);
+      document.getElementById('incidence-consumer-cap-bot').setAttribute('y1', yPstar);
+      document.getElementById('incidence-consumer-cap-bot').setAttribute('y2', yPstar);
+      document.getElementById('incidence-producer-bracket').setAttribute('y1', yPstar);
+      document.getElementById('incidence-producer-bracket').setAttribute('y2', yPS);
+      document.getElementById('incidence-producer-cap-top').setAttribute('y1', yPstar);
+      document.getElementById('incidence-producer-cap-top').setAttribute('y2', yPstar);
+      document.getElementById('incidence-producer-cap-bot').setAttribute('y1', yPS);
+      document.getElementById('incidence-producer-cap-bot').setAttribute('y2', yPS);
+
+      document.getElementById('incidence-pb-line').setAttribute('y1', yPB);
+      document.getElementById('incidence-pb-line').setAttribute('y2', yPB);
+      document.getElementById('incidence-pb-line').setAttribute('x2', xQ);
+      document.getElementById('incidence-ps-line').setAttribute('y1', yPS);
+      document.getElementById('incidence-ps-line').setAttribute('y2', yPS);
+      document.getElementById('incidence-ps-line').setAttribute('x2', xQ);
+      document.getElementById('incidence-q-line').setAttribute('x1', xQ);
+      document.getElementById('incidence-q-line').setAttribute('x2', xQ);
+      document.getElementById('incidence-q-line').setAttribute('y1', yPB);
+      document.getElementById('incidence-q-label').textContent = Math.round(eq.qStar);
+      document.getElementById('incidence-q-label').setAttribute('x', xQ);
+
+      // KaTeX labels
+      const svg = document.getElementById('incidence-graph');
+      const svgRect = svg.getBoundingClientRect();
+      const container = svg.parentElement;
+      const containerRect = container.getBoundingClientRect();
+      const scaleY = svgRect.height / 395;
+
+      const pbKatex = document.getElementById('incidence-pb-katex');
+      const psKatex = document.getElementById('incidence-ps-katex');
+      const pbScreenY = (svgRect.top - containerRect.top) + yPB * scaleY;
+      const pbScreenX = (svgRect.left - containerRect.left) - 55;
+      pbKatex.style.top = (pbScreenY - 11) + 'px';
+      pbKatex.style.left = pbScreenX + 'px';
+      pbKatex.innerHTML = '$P_B = ' + Math.round(eq.pB) + '$';
+      psKatex.style.top = ((svgRect.top - containerRect.top) + yPS * scaleY - 11) + 'px';
+      psKatex.style.left = pbScreenX + 'px';
+      psKatex.innerHTML = '$P_S = ' + Math.round(eq.pS) + '$';
+
+      if (typeof renderMathInElement !== 'undefined') {
+        renderMathInElement(pbKatex, katexOptions);
+        renderMathInElement(psKatex, katexOptions);
+      }
+
+      const pstarLabel = document.getElementById('incidence-pstar-label');
+      if (Math.abs(eq.pB - 110) < 8 || Math.abs(eq.pS - 110) < 8) pstarLabel.style.opacity = '0';
+      else pstarLabel.style.opacity = '1';
+
+      document.getElementById('incidence-passthrough').textContent = 'Pass-through: ' + (((eq.pB - eqP) / taxAmount) * 100).toFixed(2) + '%';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      let changed = false;
+      if (e.key === 'q' || e.key === 'Q') {
+        if (demandSlope === 0) demandSlope = 0.2;
+        else if (demandSlope < 50) demandSlope *= 1.25;
+        else demandSlope = Infinity;
+        changed = true;
+      } else if (e.key === 'a' || e.key === 'A') {
+        if (demandSlope === Infinity) demandSlope = 50;
+        else { demandSlope /= 1.25; if (demandSlope < 0.15) demandSlope = 0; }
+        changed = true;
+      } else if (e.key === 'ArrowRight') {
+        if (supplySlope === 0) supplySlope = 0.2;
+        else if (supplySlope < 50) supplySlope *= 1.25;
+        else supplySlope = Infinity;
+        changed = true;
+      } else if (e.key === 'ArrowLeft') {
+        if (supplySlope === Infinity) supplySlope = 50;
+        else { supplySlope /= 1.25; if (supplySlope < 0.15) supplySlope = 0; }
+        changed = true;
+      }
+      if (changed) { e.preventDefault(); updateIncidenceGraph(); }
+    });
+
+    window.addEventListener('load', function() {
+      updateIncidenceGraph();
+    });
+
+    window.addEventListener('resize', function() {
+      updateIncidenceGraph();
+    });
+  </script>
+
+</body>
+</html>
