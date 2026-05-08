@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Form for Lock-down Browser Access</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --ink: #1a1a1a;
+      --muted: #666;
+      --accent: #1c4878;
+      --good: #2d7a3d;
+      --bad: #b3261e;
+      --border: #d0d0d0;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 30px 16px;
+      line-height: 1.5;
+    }
+    .card {
+      max-width: 540px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 28px 28px 24px;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin: 0 0 18px;
+      color: var(--accent);
+      text-align: center;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .hint {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-left: 4px;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.15s ease;
+      font-family: inherit;
+    }
+    input:focus {
+      border-color: var(--accent);
+    }
+    .field { margin-bottom: 18px; }
+    .squared-display {
+      background: #eef3fa;
+      border: 1px solid #c8d6ea;
+      border-radius: 6px;
+      padding: 14px;
+      margin: 18px 0;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    .squared-display .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+      margin-top: 4px;
+    }
+    .hidden { display: none; }
+    button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      font-family: inherit;
+    }
+    button:hover:not(:disabled) { background: #16395f; }
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.95rem;
+      min-height: 1.2em;
+    }
+    .status.error { color: var(--bad); }
+    .thank-you {
+      text-align: center;
+      padding: 12px 0;
+    }
+    .thank-you h2 {
+      color: var(--good);
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+    }
+    .thank-you p { color: var(--muted); margin: 4px 0; }
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Test Form for Lock-down Browser Access</h1>
+
+    <div id="form-view">
+      <div class="field">
+        <label for="name">Please enter your social name <span class="hint">(any name — this is a test)</span></label>
+        <input type="text" id="name" autocomplete="off" maxlength="80">
+      </div>
+
+      <div class="field">
+        <label for="number">Enter any number from 1 to 9</label>
+        <input type="number" id="number" min="1" max="9" step="1" inputmode="numeric">
+      </div>
+
+      <div id="square-block" class="hidden">
+        <div class="squared-display">
+          The square of your number is
+          <span class="value" id="square-value">—</span>
+        </div>
+
+        <div class="field">
+          <label for="square-echo">What number do you see above? <span class="hint">(please be accurate)</span></label>
+          <input type="number" id="square-echo" inputmode="numeric">
+        </div>
+      </div>
+
+      <button id="submit-btn" disabled>Submit</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div id="done-view" class="thank-you hidden">
+      <h2>Thank you!</h2>
+      <p>Your response has been recorded.</p>
+      <p>You can close this window.</p>
+    </div>
+
+    <p class="footer-note">ECON 101H — connectivity probe</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCo-mHlUsppITLg4O2vKDQXLiSYzOeKuMY",
+      authDomain: "ldb-form-test.firebaseapp.com",
+      projectId: "ldb-form-test",
+      storageBucket: "ldb-form-test.firebasestorage.app",
+      messagingSenderId: "388657929762",
+      appId: "1:388657929762:web:8025f0f3d956d436d8747b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const nameEl   = document.getElementById('name');
+    const numEl    = document.getElementById('number');
+    const sqBlock  = document.getElementById('square-block');
+    const sqValue  = document.getElementById('square-value');
+    const echoEl   = document.getElementById('square-echo');
+    const submit   = document.getElementById('submit-btn');
+    const statusEl = document.getElementById('status');
+    const formView = document.getElementById('form-view');
+    const doneView = document.getElementById('done-view');
+
+    function currentNumber() {
+      const v = parseInt(numEl.value, 10);
+      return (Number.isInteger(v) && v >= 1 && v <= 9) ? v : null;
+    }
+
+    function refreshSquare() {
+      const n = currentNumber();
+      if (n === null) {
+        sqBlock.classList.add('hidden');
+        sqValue.textContent = '—';
+        echoEl.value = '';
+      } else {
+        sqValue.textContent = String(n * n);
+        sqBlock.classList.remove('hidden');
+      }
+      updateSubmitState();
+    }
+
+    function updateSubmitState() {
+      const n = currentNumber();
+      const named = nameEl.value.trim().length > 0;
+      const echoed = echoEl.value.trim().length > 0;
+      submit.disabled = !(named && n !== null && echoed);
+    }
+
+    nameEl.addEventListener('input', updateSubmitState);
+    numEl.addEventListener('input', refreshSquare);
+    echoEl.addEventListener('input', updateSubmitState);
+
+    submit.addEventListener('click', async () => {
+      const n = currentNumber();
+      if (n === null) return;
+      const name = nameEl.value.trim();
+      const typed = parseInt(echoEl.value, 10);
+      const expected = n * n;
+
+      submit.disabled = true;
+      statusEl.classList.remove('error');
+      statusEl.textContent = 'Submitting…';
+
+      try {
+        await addDoc(collection(db, 'submissions'), {
+          name: name,
+          number: n,
+          expectedSquare: expected,
+          typedSquare: Number.isInteger(typed) ? typed : null,
+          matched: typed === expected,
+          userAgent: navigator.userAgent,
+          timestamp: serverTimestamp(),
+          clientTime: new Date().toISOString()
+        });
+        formView.classList.add('hidden');
+        doneView.classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        statusEl.classList.add('error');
+        statusEl.textContent = 'Could not save. Please check your connection and try again.';
+        submit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

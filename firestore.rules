@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Test form for LockDown Browser exemption check.
+    // No auth — allow create only on the 'submissions' collection,
+    // and never allow reads/updates/deletes from the client.
+    match /submissions/{docId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}
