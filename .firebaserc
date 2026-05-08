@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "ldb-form-test"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

@@ -130,19 +130,20 @@
     <h1>Test Form for Lock-down Browser Access</h1>
 
     <div id="form-view">
-      <div class="field">
-        <label for="name">Please enter your social name <span class="hint">(any name — this is a test)</span></label>
-        <input type="text" id="name" autocomplete="off" maxlength="80">
-      </div>
+      <div id="initial-fields">
+        <div class="field">
+          <label for="name">Name <span class="hint">(any name — this is a test)</span></label>
+          <input type="text" id="name" autocomplete="off" maxlength="80">
+        </div>
 
-      <div class="field">
-        <label for="number">Enter any number from 1 to 9</label>
-        <input type="number" id="number" min="1" max="9" step="1" inputmode="numeric">
+        <div class="field">
+          <label for="number">Enter any number from 1 to 9</label>
+          <input type="number" id="number" min="1" max="9" step="1" inputmode="numeric">
+        </div>
       </div>
 
       <div id="square-block" class="hidden">
         <div class="squared-display">
-          The square of your number is
           <span class="value" id="square-value">—</span>
         </div>
 
@@ -184,6 +185,7 @@
 
     const nameEl   = document.getElementById('name');
     const numEl    = document.getElementById('number');
+    const initialFields = document.getElementById('initial-fields');
     const sqBlock  = document.getElementById('square-block');
     const sqValue  = document.getElementById('square-value');
     const echoEl   = document.getElementById('square-echo');
@@ -199,13 +201,16 @@
 
     function refreshSquare() {
       const n = currentNumber();
-      if (n === null) {
+      const named = nameEl.value.trim().length > 0;
+      if (n === null || !named) {
         sqBlock.classList.add('hidden');
+        initialFields.classList.remove('hidden');
         sqValue.textContent = '—';
         echoEl.value = '';
       } else {
         sqValue.textContent = String(n * n);
         sqBlock.classList.remove('hidden');
+        initialFields.classList.add('hidden');
       }
       updateSubmitState();
     }
@@ -217,7 +222,7 @@
       submit.disabled = !(named && n !== null && echoed);
     }
 
-    nameEl.addEventListener('input', updateSubmitState);
+    nameEl.addEventListener('input', refreshSquare);
     numEl.addEventListener('input', refreshSquare);
     echoEl.addEventListener('input', updateSubmitState);
 
