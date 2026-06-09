@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research — Sérgio O. Parreiras</title>
+    <title>Research &mdash; S&eacute;rgio O. Parreiras</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,45 +12,24 @@
             padding: 20px;
             line-height: 1.6;
         }
-        h1 {
-            color: #13294B; /* UNC Navy Blue */
-        }
-        h2 {
-            color: #556B2F; /* Dark Olive Green */
-        }
-        .info {
-            background-color: #f4f4f4;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-        }
+        h1 { color: #13294B; }            /* UNC Navy Blue */
+        h2 { color: #556B2F; }            /* Dark Olive Green */
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
         th, td {
             border: 1px solid #ccc;
             padding: 10px 12px;
             text-align: left;
             vertical-align: top;
         }
-        thead th {
-            background-color: #556B2F; /* Dark Olive Green */
-            color: #fff;
-        }
+        thead th { background-color: #556B2F; color: #fff; }
         tbody th {
             background-color: #f4f4f4;
             color: #556B2F;
             white-space: nowrap;
         }
-        td.project {
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        td.todo {
-            color: #556B2F;
-        }
+        td.project { font-weight: bold; white-space: nowrap; }
+        td.todo { color: #556B2F; }
+        td.empty { color: #999; font-style: italic; }
         footer {
             margin-top: 50px;
             padding-top: 20px;
@@ -77,55 +56,55 @@
             <tr>
                 <th>Mon</th>
                 <td class="project">2-ElimContest</td>
-                <td>Initial setup of project rotation entry.</td>
-                <td class="todo">Review quick start summary.</td>
+                <td>Read pooling_equilibrium_notes.html and mechanism_design_fixedpoint.html; identified that F^t_i depends on (mu, nu); added project-level UserPromptSubmit hook for multi-task discipline; committed multi-task directive to global CLAUDE.md.</td>
+                <td class="todo">Full equilibrium characterization given mu and nu — explicit CDFs via Siegel or Lu-Parreiras.</td>
             </tr>
             <tr>
                 <th>Tue</th>
                 <td class="project">3-Tortoise</td>
-                <td>Tightened the introduction and streamlined the model section. Built References/ (Moulin–Vial 1978, Pavlov 2013, Siegel 2009 &amp; 2014) and Study/ notes toward the new intro.</td>
-                <td class="todo">Re-write intro with the new selling point (Moulin/Pavlov angle: &ldquo;not a Siegel headstart contest game!&rdquo;), backed by the Study/ notes.</td>
+                <td>Tightened the introduction and streamlined the model section. The prior Next was not reached this session and carries forward unchanged.</td>
+                <td class="todo">re-write intro with the new selling point (Moulin/Pavlov angle: &quot;not a Siegel headstart contest game!&quot;), now backed by the Study/ notes.</td>
             </tr>
             <tr>
                 <th>Wed</th>
                 <td class="project">5-Meritocracy</td>
                 <td>Initial setup of project rotation entry.</td>
-                <td class="todo">Re-read referee letters and discuss strategy.</td>
+                <td class="todo">re-read referee letters and discuss strategy</td>
             </tr>
             <tr>
                 <th rowspan="2">Thu</th>
                 <td class="project">1-Cartan</td>
                 <td>Initial setup of project rotation entry.</td>
-                <td class="todo">Re-think co-author relationship.</td>
+                <td class="todo">re-think co-author relationship</td>
             </tr>
             <tr>
                 <td class="project">3-Tortoise</td>
-                <td>Tightened the introduction and streamlined the model section. Built References/ and Study/ notes toward the new intro.</td>
-                <td class="todo">Re-write intro with the new selling point (Moulin/Pavlov angle: &ldquo;not a Siegel headstart contest game!&rdquo;), backed by the Study/ notes.</td>
+                <td>Tightened the introduction and streamlined the model section. The prior Next was not reached this session and carries forward unchanged.</td>
+                <td class="todo">re-write intro with the new selling point (Moulin/Pavlov angle: &quot;not a Siegel headstart contest game!&quot;), now backed by the Study/ notes.</td>
             </tr>
             <tr>
                 <th>Fri</th>
                 <td class="project">5-Meritocracy</td>
                 <td>Initial setup of project rotation entry.</td>
-                <td class="todo">Re-read referee letters and discuss strategy.</td>
+                <td class="todo">re-read referee letters and discuss strategy</td>
             </tr>
             <tr>
                 <th>Sat</th>
                 <td class="project">4-WinProb</td>
-                <td>Proved the Jacobian &nabla;W is symmetric, so W=&nabla;F; recast the odds-ratio via one global polynomial and verified unique recovery for k=2, n=4.</td>
+                <td>Proved Jacobian ∇W is symmetric (J_ij = pairwise pivot prob), so W=∇F with F=E[(S_n-(n-k))_+]; full rank ⟺ Hessian Lorentzian signature (1,n-1), one + eigenvalue free via Perron–Frobenius. Fixed Per.tex domain to sup norm (B(0,1)_++ = (0,1)^n), recompiled. Recast odds-ratio form via one global polynomial g(t)=∏(1+r_ℓt); inversion collapses to two scalars (A,G); verified unique recovery for k=2,n=4. Added Docs/odds_ratio_global_polynomial.html and Docs/recovery_k2_n4.html. (git initialized this session.)</td>
                 <td class="todo">Push the k=2 inversion to general n — does the two-scalar (A,G) reduction settle k=2 for all n?</td>
             </tr>
             <tr>
                 <th>Sun</th>
                 <td class="project">3-Tortoise</td>
-                <td>Tightened the introduction and streamlined the model section. Built References/ and Study/ notes toward the new intro.</td>
-                <td class="todo">Re-write intro with the new selling point (Moulin/Pavlov angle: &ldquo;not a Siegel headstart contest game!&rdquo;), backed by the Study/ notes.</td>
+                <td>Tightened the introduction and streamlined the model section. The prior Next was not reached this session and carries forward unchanged.</td>
+                <td class="todo">re-write intro with the new selling point (Moulin/Pavlov angle: &quot;not a Siegel headstart contest game!&quot;), now backed by the Study/ notes.</td>
             </tr>
         </tbody>
     </table>
 
     <footer>
-        &copy; 2026 Sérgio O. Parreiras
+        &copy; 2026 S&eacute;rgio O. Parreiras
     </footer>
 </body>
 </html>
