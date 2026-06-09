@@ -56,8 +56,8 @@
             <tr>
                 <th>Mon</th>
                 <td class="project">2-ElimContest</td>
-                <td>Read pooling_equilibrium_notes.html and mechanism_design_fixedpoint.html; identified that F^t_i depends on (mu, nu); added project-level UserPromptSubmit hook for multi-task discipline; committed multi-task directive to global CLAUDE.md.</td>
-                <td class="todo">Full equilibrium characterization given mu and nu — explicit CDFs via Siegel or Lu-Parreiras.</td>
+                <td>Solved Round 2 equilibrium bid CDFs given (mu, nu) — three-interval structure with explicit bbar, bhat, T, conditional atom assignment by min(mu,nu), via both Siegel and Lu-Parreiras, machine-verified (closes previous Next). Found and fixed the big error: min/max posteriors swapped in high-pool equations (5)/(7) — the constant-kappa &quot;universal&quot; ODE was an artifact; corrected coefficient is state-dependent, kappa(b) via P(b), constant kappa recovered at P=1/2 (Mathematica/highpool_correction_check.wl). New versions of both docs; new TeX/, PNGs, two_cutoff_binary_tying.html.</td>
+                <td class="todo">Fixed-point/boundary-condition analysis (TBD). Open point to flag: at the posterior</td>
             </tr>
             <tr>
                 <th>Tue</th>
