@@ -52,53 +52,65 @@
                 <th>Next / TODO</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
+        <tbody class="day" data-day="Mon">
+            <tr data-project="2-ElimContest">
                 <th>Mon</th>
                 <td class="project">2-ElimContest</td>
-                <td>Solved Round 2 equilibrium bid CDFs given (mu, nu) — three-interval structure with explicit bbar, bhat, T, conditional atom assignment by min(mu,nu), via both Siegel and Lu-Parreiras, machine-verified (closes previous Next). Found and fixed the big error: min/max posteriors swapped in high-pool equations (5)/(7) — the constant-kappa &quot;universal&quot; ODE was an artifact; corrected coefficient is state-dependent, kappa(b) via P(b), constant kappa recovered at P=1/2 (Mathematica/highpool_correction_check.wl). New versions of both docs; new TeX/, PNGs, two_cutoff_binary_tying.html.</td>
+                <td class="prior">Solved Round 2 equilibrium bid CDFs given (mu, nu) — three-interval structure with explicit bbar, bhat, T, conditional atom assignment by min(mu,nu), via both Siegel and Lu-Parreiras, machine-verified (closes previous Next). Found and fixed the big error: min/max posteriors swapped in high-pool equations (5)/(7) — the constant-kappa &quot;universal&quot; ODE was an artifact; corrected coefficient is state-dependent, kappa(b) via P(b), constant kappa recovered at P=1/2 (Mathematica/highpool_correction_check.wl). New versions of both docs; new TeX/, PNGs, two_cutoff_binary_tying.html.</td>
                 <td class="todo">Fixed-point/boundary-condition analysis (TBD). Open point to flag: at the posterior</td>
             </tr>
-            <tr>
+        </tbody>
+        <tbody class="day" data-day="Tue">
+            <tr data-project="3-Tortoise">
                 <th>Tue</th>
                 <td class="project">3-Tortoise</td>
-                <td>Verified Hirata (2014) against the primary PDF — aggregate-bid cost (no effort-substitution motive), contestant payoff-equivalence (Prop 2) with the seller revenue NON-equivalence caveat (Prop 3), and confirmed &quot;Konrad (2002, Lemma 1)&quot; is real (Hirata fn 14), not a hallucination. Drafted, softened the jab to concede revenue non-equivalence, and inserted a Hirata paragraph in the intro (line 91). Added Konrad (2002) to the head-start attribution at line 144 (&quot;first characterized by Konrad; generalized by Siegel&quot;) and added the Konrad02 bib entry.</td>
-                <td class="todo">the selling point (Moulin/Pavlov angle, &quot;not a Siegel headstart contest game!&quot;) — deferred again today but moved toward it. Carry these: (1) read Konrad (2002) Lemma 1 to confirm the line-144 &quot;first characterized by&quot; attribution before submission; (2) add the M-V/Konrad sentence (head-start contest stays strategically zero-sum → payoff-unique) when drafting the Moulin–Vial paragraph; (3) Konrad02 bib entry is in and Hirata14 already existed, so citations resolve on compile.</td>
+                <td class="prior">Read Pavlov&#x27;s published version (Rev Econ Design 2025) vs 2013 WP — results unchanged, Prop 9 sharpened to &quot;twice the BNE payoff&quot;; diff report in Study/. Read Hwang–Rey-Bellet (2020) in full: zero-sum equivalence of contests is straight Moulin–Vial; their contribution is the constructive orthogonal decomposition (continuous strategy spaces) + NE convexity/uniqueness; notes in Study/, citation inserted at intro line 87 (wording to revisit). TODO memos added: CE-payoff LP probe (Julia) and HRB citation settling. Renamed References PDFs; repaired git repo (Dropbox online-only placeholder eviction of .git/objects).</td>
+                <td class="todo">re-write intro selling point (Moulin/Pavlov angle, &quot;not a Siegel headstart contest game!&quot;)</td>
             </tr>
-            <tr>
+        </tbody>
+        <tbody class="day" data-day="Wed">
+            <tr data-project="5-Meritocracy">
                 <th>Wed</th>
                 <td class="project">5-Meritocracy</td>
-                <td>Dusted off after ~10 years: QUICKSTART.md + maestro/worker setup (2 sessions via docs). Track A report done: lit scoop-check 2011–2026 — NOT SCOOPED (pending read of Xiao 2023 JME &amp; Antsygina 2026 ET); quota-restores-participation theorem still open; cite keys resolved; must-cite gender list; flag Morgan–Tumlinson–Várdy 2022 JET &quot;Limits of Meritocracy&quot; title collision. Track B report done: rewritten Prop 1 verdict SOUND WITH GAPS (R1&#x27;s 2015 algebra error genuinely fixed; remaining gaps are regularity, closable by a density-free replacement proof); uniqueness addendum (§3) prepared for Sergio. Agreed two-tier punch line for why participation matters (small-contest missed-star bound ≤ (1−λ)^h; info destruction at any scale) → FRAMING-PUNCHLINE.md.</td>
+                <td class="prior">Dusted off after ~10 years: QUICKSTART.md + maestro/worker setup (2 sessions via docs). Track A report done: lit scoop-check 2011–2026 — NOT SCOOPED (pending read of Xiao 2023 JME &amp; Antsygina 2026 ET); quota-restores-participation theorem still open; cite keys resolved; must-cite gender list; flag Morgan–Tumlinson–Várdy 2022 JET &quot;Limits of Meritocracy&quot; title collision. Track B report done: rewritten Prop 1 verdict SOUND WITH GAPS (R1&#x27;s 2015 algebra error genuinely fixed; remaining gaps are regularity, closable by a density-free replacement proof); uniqueness addendum (§3) prepared for Sergio. Agreed two-tier punch line for why participation matters (small-contest missed-star bound ≤ (1−λ)^h; info destruction at any scale) → FRAMING-PUNCHLINE.md.</td>
                 <td class="todo">Sergio works through TRACK-B-REPORT.md §3 on uniqueness (target: uniqueness within a class).</td>
             </tr>
-            <tr>
+        </tbody>
+        <tbody class="day" data-day="Thu">
+            <tr data-project="1-Cartan">
                 <th rowspan="2">Thu</th>
                 <td class="project">1-Cartan</td>
-                <td>Initial setup of project rotation entry.</td>
+                <td class="prior">Initial setup of project rotation entry.</td>
                 <td class="todo">re-think co-author relationship</td>
             </tr>
-            <tr>
+            <tr data-project="3-Tortoise">
                 <td class="project">3-Tortoise</td>
-                <td>Verified Hirata (2014) against the primary PDF — aggregate-bid cost (no effort-substitution motive), contestant payoff-equivalence (Prop 2) with the seller revenue NON-equivalence caveat (Prop 3), and confirmed &quot;Konrad (2002, Lemma 1)&quot; is real (Hirata fn 14), not a hallucination. Drafted, softened the jab to concede revenue non-equivalence, and inserted a Hirata paragraph in the intro (line 91). Added Konrad (2002) to the head-start attribution at line 144 (&quot;first characterized by Konrad; generalized by Siegel&quot;) and added the Konrad02 bib entry.</td>
-                <td class="todo"></td>
+                <td class="prior">Read Pavlov&#x27;s published version (Rev Econ Design 2025) vs 2013 WP — results unchanged, Prop 9 sharpened to &quot;twice the BNE payoff&quot;; diff report in Study/. Read Hwang–Rey-Bellet (2020) in full: zero-sum equivalence of contests is straight Moulin–Vial; their contribution is the constructive orthogonal decomposition (continuous strategy spaces) + NE convexity/uniqueness; notes in Study/, citation inserted at intro line 87 (wording to revisit). TODO memos added: CE-payoff LP probe (Julia) and HRB citation settling. Renamed References PDFs; repaired git repo (Dropbox online-only placeholder eviction of .git/objects).</td>
+                <td class="todo">re-write intro selling point (Moulin/Pavlov angle, &quot;not a Siegel headstart contest game!&quot;)</td>
             </tr>
-            <tr>
+        </tbody>
+        <tbody class="day" data-day="Fri">
+            <tr data-project="5-Meritocracy">
                 <th>Fri</th>
                 <td class="project">5-Meritocracy</td>
-                <td>Dusted off after ~10 years: QUICKSTART.md + maestro/worker setup (2 sessions via docs). Track A report done: lit scoop-check 2011–2026 — NOT SCOOPED (pending read of Xiao 2023 JME &amp; Antsygina 2026 ET); quota-restores-participation theorem still open; cite keys resolved; must-cite gender list; flag Morgan–Tumlinson–Várdy 2022 JET &quot;Limits of Meritocracy&quot; title collision. Track B report done: rewritten Prop 1 verdict SOUND WITH GAPS (R1&#x27;s 2015 algebra error genuinely fixed; remaining gaps are regularity, closable by a density-free replacement proof); uniqueness addendum (§3) prepared for Sergio. Agreed two-tier punch line for why participation matters (small-contest missed-star bound ≤ (1−λ)^h; info destruction at any scale) → FRAMING-PUNCHLINE.md.</td>
-                <td class="todo"></td>
+                <td class="prior">Dusted off after ~10 years: QUICKSTART.md + maestro/worker setup (2 sessions via docs). Track A report done: lit scoop-check 2011–2026 — NOT SCOOPED (pending read of Xiao 2023 JME &amp; Antsygina 2026 ET); quota-restores-participation theorem still open; cite keys resolved; must-cite gender list; flag Morgan–Tumlinson–Várdy 2022 JET &quot;Limits of Meritocracy&quot; title collision. Track B report done: rewritten Prop 1 verdict SOUND WITH GAPS (R1&#x27;s 2015 algebra error genuinely fixed; remaining gaps are regularity, closable by a density-free replacement proof); uniqueness addendum (§3) prepared for Sergio. Agreed two-tier punch line for why participation matters (small-contest missed-star bound ≤ (1−λ)^h; info destruction at any scale) → FRAMING-PUNCHLINE.md.</td>
+                <td class="todo">Sergio works through TRACK-B-REPORT.md §3 on uniqueness (target: uniqueness within a class).</td>
             </tr>
-            <tr>
+        </tbody>
+        <tbody class="day" data-day="Sat">
+            <tr data-project="4-WinProb">
                 <th>Sat</th>
                 <td class="project">4-WinProb</td>
-                <td>Proved Jacobian ∇W is symmetric (J_ij = pairwise pivot prob), so W=∇F with F=E[(S_n-(n-k))_+]; full rank ⟺ Hessian Lorentzian signature (1,n-1), one + eigenvalue free via Perron–Frobenius. Fixed Per.tex domain to sup norm (B(0,1)_++ = (0,1)^n), recompiled. Recast odds-ratio form via one global polynomial g(t)=∏(1+r_ℓt); inversion collapses to two scalars (A,G); verified unique recovery for k=2,n=4. Added Docs/odds_ratio_global_polynomial.html and Docs/recovery_k2_n4.html. (git initialized this session.)</td>
+                <td class="prior">Proved Jacobian ∇W is symmetric (J_ij = pairwise pivot prob), so W=∇F with F=E[(S_n-(n-k))_+]; full rank ⟺ Hessian Lorentzian signature (1,n-1), one + eigenvalue free via Perron–Frobenius. Fixed Per.tex domain to sup norm (B(0,1)_++ = (0,1)^n), recompiled. Recast odds-ratio form via one global polynomial g(t)=∏(1+r_ℓt); inversion collapses to two scalars (A,G); verified unique recovery for k=2,n=4. Added Docs/odds_ratio_global_polynomial.html and Docs/recovery_k2_n4.html. (git initialized this session.)</td>
                 <td class="todo">Push the k=2 inversion to general n — does the two-scalar (A,G) reduction settle k=2 for all n?</td>
             </tr>
-            <tr>
+        </tbody>
+        <tbody class="day" data-day="Sun">
+            <tr data-project="3-Tortoise">
                 <th>Sun</th>
                 <td class="project">3-Tortoise</td>
-                <td>Verified Hirata (2014) against the primary PDF — aggregate-bid cost (no effort-substitution motive), contestant payoff-equivalence (Prop 2) with the seller revenue NON-equivalence caveat (Prop 3), and confirmed &quot;Konrad (2002, Lemma 1)&quot; is real (Hirata fn 14), not a hallucination. Drafted, softened the jab to concede revenue non-equivalence, and inserted a Hirata paragraph in the intro (line 91). Added Konrad (2002) to the head-start attribution at line 144 (&quot;first characterized by Konrad; generalized by Siegel&quot;) and added the Konrad02 bib entry.</td>
-                <td class="todo"></td>
+                <td class="prior">Read Pavlov&#x27;s published version (Rev Econ Design 2025) vs 2013 WP — results unchanged, Prop 9 sharpened to &quot;twice the BNE payoff&quot;; diff report in Study/. Read Hwang–Rey-Bellet (2020) in full: zero-sum equivalence of contests is straight Moulin–Vial; their contribution is the constructive orthogonal decomposition (continuous strategy spaces) + NE convexity/uniqueness; notes in Study/, citation inserted at intro line 87 (wording to revisit). TODO memos added: CE-payoff LP probe (Julia) and HRB citation settling. Renamed References PDFs; repaired git repo (Dropbox online-only placeholder eviction of .git/objects).</td>
+                <td class="todo">re-write intro selling point (Moulin/Pavlov angle, &quot;not a Siegel headstart contest game!&quot;)</td>
             </tr>
         </tbody>
     </table>
@@ -106,5 +118,37 @@
     <footer>
         &copy; 2026 S&eacute;rgio O. Parreiras
     </footer>
+
+    <script>
+        // Rotate the day-groups so today's row comes first, then show each
+        // project's prior-work/Next cells only on its first (nearest) day.
+        // Runs on the visitor's clock; without JS the page degrades to the
+        // static Mon-Sun order with content repeated on every row.
+        (function () {
+            var table = document.querySelector("table");
+            var bodies = Array.prototype.slice.call(
+                table.querySelectorAll("tbody.day"));
+            var names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            var today = names[new Date().getDay()];
+            var idx = bodies.map(function (b) {
+                return b.getAttribute("data-day");
+            }).indexOf(today);
+            if (idx > 0) {
+                bodies.slice(idx).concat(bodies.slice(0, idx))
+                    .forEach(function (b) { table.appendChild(b); });
+            }
+            var seen = {};
+            var rows = table.querySelectorAll("tbody.day tr[data-project]");
+            Array.prototype.forEach.call(rows, function (tr) {
+                var p = tr.getAttribute("data-project");
+                if (seen[p]) {
+                    tr.querySelector("td.prior").innerHTML = "";
+                    tr.querySelector("td.todo").innerHTML = "";
+                } else {
+                    seen[p] = true;
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
