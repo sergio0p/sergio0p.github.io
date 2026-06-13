@@ -101,8 +101,8 @@
             <tr data-project="4-WinProb">
                 <th>Sat</th>
                 <td class="project">4-WinProb</td>
-                <td class="prior">Proved Jacobian ∇W is symmetric (J_ij = pairwise pivot prob), so W=∇F with F=E[(S_n-(n-k))_+]; full rank ⟺ Hessian Lorentzian signature (1,n-1), one + eigenvalue free via Perron–Frobenius. Fixed Per.tex domain to sup norm (B(0,1)_++ = (0,1)^n), recompiled. Recast odds-ratio form via one global polynomial g(t)=∏(1+r_ℓt); inversion collapses to two scalars (A,G); verified unique recovery for k=2,n=4. Added Docs/odds_ratio_global_polynomial.html and Docs/recovery_k2_n4.html. (git initialized this session.)</td>
-                <td class="todo">Push the k=2 inversion to general n — does the two-scalar (A,G) reduction settle k=2 for all n?</td>
+                <td class="prior">Notation cleanup in wg-difference-recursion.html (product-weight Π→ω; odds display leads with r_ℓ). Established that M=∂W/∂G is the recovery Jacobian (verified ∂W_i/∂G_j=m_ij). New verified identity for the bubble/coupling vector b: G_i b_i − G_j b_j = (G_i − G_j) b̂^(k−2)_ij. Fit it into the (1,n−1) Lorentzian-signature picture: bordering + Haynsworth inertia additivity reduce the n→n+1 induction step to &quot;b timelike&quot; (bᵀA⁻¹b&gt;0); honest crux that b&gt;0 does NOT imply timelike. Added Docs/jacobian-coupling-recursion.html and Docs/coupling-in-signature-picture.html.</td>
+                <td class="todo">Smallest open test — at n→n+1, k=2, does comonotone b plus convex-blend A</td>
             </tr>
         </tbody>
         <tbody class="day" data-day="Sun">
