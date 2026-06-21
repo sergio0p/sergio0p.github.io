@@ -64,7 +64,7 @@
             <tr data-project="3-Tortoise">
                 <th>Tue</th>
                 <td class="project">3-Tortoise</td>
-                <td class="prior">Solved the symmetric-quadratic σ(m,n) chain (v₁=v₂=1, Δ=0, c(e)=e²) WITHOUT Gröbner — a moment change of variables linearises the FOCs and a &quot;vanishing-constant&quot; step makes every mass explicit, so the whole chain is an O(m) forward sweep closed by one monotone 1-D shoot on q₁. Wrote the pedagogical derivation Docs/symmetric_quadratic_recursion.html (both (m,m) and (m,m+1) rungs, live calculator) and a clean stdlib Julia solver Julia/converge/. Fixed transcribed q₁ values in QUICKSTART/proof_ideas/roots_and_coefficients ((2,3)→0.289, (3,3)→0.215, (3,4)→0.183, (4,4)→0.151), verified against the stored Julia solver to ~1e-16. Numerical implication: both players&#x27; step-CDFs converge to the competitive G(x)=eˣ−1 on [0,ln2] (top atom → ln2≈0.6931) — distributional convergence the paper currently leaves open.</td>
+                <td class="prior">Found the universal closed form of the symmetric-quadratic comb (off-equilibrium march, dial t=q₁): every comb gap is Gᵢ=t/(1+i·t), with all masses and cumulatives explicit. So gap-widening Gᵢ′=(1+it)⁻²&gt;0 is a one-liner — resolving in closed form the two-sided barycenter coupling nub that blocked the monotonicity proof — hence masses↑, F′(q₁)&gt;0, q₁* decreasing, i.e. the chain monotonicity theorem (symmetric quadratic). Exact over ℚ(t) through comb position 13; general-i induction still pending; not yet human-verified. Writeup Docs/symmetric_quadratic_closed_form.md (+ .html).</td>
                 <td class="todo">implement the examples-first / narrative-spine paper reorganization</td>
             </tr>
         </tbody>
@@ -85,7 +85,7 @@
             </tr>
             <tr data-project="3-Tortoise">
                 <td class="project">3-Tortoise</td>
-                <td class="prior">Solved the symmetric-quadratic σ(m,n) chain (v₁=v₂=1, Δ=0, c(e)=e²) WITHOUT Gröbner — a moment change of variables linearises the FOCs and a &quot;vanishing-constant&quot; step makes every mass explicit, so the whole chain is an O(m) forward sweep closed by one monotone 1-D shoot on q₁. Wrote the pedagogical derivation Docs/symmetric_quadratic_recursion.html (both (m,m) and (m,m+1) rungs, live calculator) and a clean stdlib Julia solver Julia/converge/. Fixed transcribed q₁ values in QUICKSTART/proof_ideas/roots_and_coefficients ((2,3)→0.289, (3,3)→0.215, (3,4)→0.183, (4,4)→0.151), verified against the stored Julia solver to ~1e-16. Numerical implication: both players&#x27; step-CDFs converge to the competitive G(x)=eˣ−1 on [0,ln2] (top atom → ln2≈0.6931) — distributional convergence the paper currently leaves open.</td>
+                <td class="prior">Found the universal closed form of the symmetric-quadratic comb (off-equilibrium march, dial t=q₁): every comb gap is Gᵢ=t/(1+i·t), with all masses and cumulatives explicit. So gap-widening Gᵢ′=(1+it)⁻²&gt;0 is a one-liner — resolving in closed form the two-sided barycenter coupling nub that blocked the monotonicity proof — hence masses↑, F′(q₁)&gt;0, q₁* decreasing, i.e. the chain monotonicity theorem (symmetric quadratic). Exact over ℚ(t) through comb position 13; general-i induction still pending; not yet human-verified. Writeup Docs/symmetric_quadratic_closed_form.md (+ .html).</td>
                 <td class="todo">implement the examples-first / narrative-spine paper reorganization</td>
             </tr>
         </tbody>
@@ -109,7 +109,7 @@
             <tr data-project="3-Tortoise">
                 <th>Sun</th>
                 <td class="project">3-Tortoise</td>
-                <td class="prior">Solved the symmetric-quadratic σ(m,n) chain (v₁=v₂=1, Δ=0, c(e)=e²) WITHOUT Gröbner — a moment change of variables linearises the FOCs and a &quot;vanishing-constant&quot; step makes every mass explicit, so the whole chain is an O(m) forward sweep closed by one monotone 1-D shoot on q₁. Wrote the pedagogical derivation Docs/symmetric_quadratic_recursion.html (both (m,m) and (m,m+1) rungs, live calculator) and a clean stdlib Julia solver Julia/converge/. Fixed transcribed q₁ values in QUICKSTART/proof_ideas/roots_and_coefficients ((2,3)→0.289, (3,3)→0.215, (3,4)→0.183, (4,4)→0.151), verified against the stored Julia solver to ~1e-16. Numerical implication: both players&#x27; step-CDFs converge to the competitive G(x)=eˣ−1 on [0,ln2] (top atom → ln2≈0.6931) — distributional convergence the paper currently leaves open.</td>
+                <td class="prior">Found the universal closed form of the symmetric-quadratic comb (off-equilibrium march, dial t=q₁): every comb gap is Gᵢ=t/(1+i·t), with all masses and cumulatives explicit. So gap-widening Gᵢ′=(1+it)⁻²&gt;0 is a one-liner — resolving in closed form the two-sided barycenter coupling nub that blocked the monotonicity proof — hence masses↑, F′(q₁)&gt;0, q₁* decreasing, i.e. the chain monotonicity theorem (symmetric quadratic). Exact over ℚ(t) through comb position 13; general-i induction still pending; not yet human-verified. Writeup Docs/symmetric_quadratic_closed_form.md (+ .html).</td>
                 <td class="todo">implement the examples-first / narrative-spine paper reorganization</td>
             </tr>
         </tbody>
