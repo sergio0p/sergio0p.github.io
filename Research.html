@@ -30,6 +30,7 @@
         td.project { font-weight: bold; white-space: nowrap; }
         td.todo { color: #556B2F; }
         td.empty { color: #999; font-style: italic; }
+        p.today { color: #556B2F; font-weight: bold; margin: 0 0 10px; }
         footer {
             margin-top: 50px;
             padding-top: 20px;
@@ -42,6 +43,7 @@
 <body>
     <h1>Research</h1>
     <h2>Weekly Rotation</h2>
+    <p class="today" id="today"></p>
 
     <table>
         <thead>
@@ -125,6 +127,15 @@
         // Runs on the visitor's clock; without JS the page degrades to the
         // static Mon-Sun order with content repeated on every row.
         (function () {
+            // Live date, rendered on the visitor's clock so the emitted HTML
+            // carries no timestamp and stays byte-for-byte deterministic.
+            var el = document.getElementById("today");
+            if (el) {
+                el.textContent = new Date().toLocaleDateString(undefined, {
+                    weekday: "long", year: "numeric",
+                    month: "long", day: "numeric"
+                });
+            }
             var table = document.querySelector("table");
             var bodies = Array.prototype.slice.call(
                 table.querySelectorAll("tbody.day"));
