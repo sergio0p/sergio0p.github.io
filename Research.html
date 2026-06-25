@@ -3,42 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Research &mdash; S&eacute;rgio O. Parreiras</title>
     <style>
+        /* Monoflow (Finaltype) — self-hosted webfont, served from this repo so
+           it renders for every visitor. Only a Regular weight is licensed, so
+           the whole page is single-weight: hierarchy comes from size, olive
+           color, uppercase and letter-spacing — never bold (which would be a
+           smeary synthetic faux-bold). IBM Plex Mono is the matched fallback. */
+        @font-face {
+            font-family: "Monoflow";
+            src: url("fonts/monoflow-regular-webfont.woff2") format("woff2"),
+                 url("fonts/monoflow-regular-webfont.woff") format("woff");
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        :root {
+            --olive: #556B2F;          /* Dark Olive Green — the one accent */
+            --olive-deep: #3f4f22;
+            --ink: #20240f;
+            --muted: #8c917c;
+            --rule: #d9dcc6;
+            --dayoff: #faf7ef;
+        }
+        html { -webkit-text-size-adjust: 100%; }
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Monoflow", "IBM Plex Mono", ui-monospace,
+                         SFMono-Regular, Menlo, monospace;
+            color: var(--ink);
             max-width: 1000px;
-            margin: 50px auto;
-            padding: 20px;
+            margin: 44px auto;
+            padding: 0 24px;
             line-height: 1.6;
         }
-        h1 { color: #13294B; }            /* UNC Navy Blue */
-        h2 { color: #556B2F; }            /* Dark Olive Green */
-        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        /* Tight heading stack (Research / eyebrow / date), then air before the
+           table. Single weight throughout — emphasis is size + tracking. */
+        h1 {
+            color: var(--olive);
+            font-weight: normal;
+            font-size: 2.5rem;
+            letter-spacing: 0.04em;
+            margin: 0 0 2px;
+        }
+        h2 {
+            color: var(--olive);
+            font-weight: normal;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.34em;
+            margin: 0 0 8px;
+        }
+        p.today {
+            color: var(--muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            margin: 0 0 30px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0;
+            font-size: 0.88rem;
+        }
         th, td {
-            border: 1px solid #ccc;
-            padding: 10px 12px;
+            border: 1px solid var(--rule);
+            padding: 11px 14px;
             text-align: left;
             vertical-align: top;
         }
-        thead th { background-color: #556B2F; color: #fff; }
-        tbody th {
-            background-color: #f4f4f4;
-            color: #556B2F;
-            white-space: nowrap;
+        thead th {
+            background-color: var(--olive);
+            color: #fff;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.74rem;
         }
-        td.project { font-weight: bold; white-space: nowrap; }
-        td.todo { color: #556B2F; }
-        td.empty { color: #999; font-style: italic; }
-        tr.dayoff td { background-color: #faf7ef; font-style: italic; }
-        tr.dayoff td.project { color: #999; }
-        p.today { color: #556B2F; font-weight: bold; margin: 0 0 10px; }
+        tbody th {
+            background-color: #f3f5ea;
+            color: var(--olive-deep);
+            white-space: nowrap;
+            font-weight: normal;
+            letter-spacing: 0.05em;
+        }
+        td.project { color: var(--olive-deep); white-space: nowrap; }
+        td.todo { color: var(--olive); }
+        td.empty { color: var(--muted); font-style: italic; }
+        tr.dayoff td { background-color: var(--dayoff); font-style: italic; }
+        tr.dayoff td.project { color: var(--muted); }
         footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #ccc;
+            margin-top: 44px;
+            padding-top: 18px;
+            border-top: 1px solid var(--rule);
             text-align: center;
-            color: #666;
+            color: var(--muted);
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
         }
     </style>
 </head>
