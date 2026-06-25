@@ -20,18 +20,28 @@
             font-display: swap;
         }
         :root {
-            --olive: #556B2F;          /* Dark Olive Green — the one accent */
-            --olive-deep: #3f4f22;
-            --ink: #20240f;
-            --muted: #8c917c;
-            --rule: #d9dcc6;
-            --dayoff: #faf7ef;
+            /* Dark-only "olive phosphor console". Each color has ONE job:
+               moss = identity/structure, amber = action (Next/TODO + today),
+               paper = the prose you read. Single Monoflow weight throughout. */
+            --ink-0:  #12150c;   /* page background — warm olive-black */
+            --ink-1:  #181c10;   /* table surface */
+            --ink-2:  #2f3d1c;   /* raised olive band: thead + day cells */
+            --moss:   #aebb6a;   /* olive accent, lightened to read on dark */
+            --amber:  #e9d264;   /* yellow signal: Next/TODO, today marker */
+            --paper:  #ece8d8;   /* off-white body text */
+            --muted:  #8d9270;   /* secondary (the date) */
+            --rule:   #2c3119;   /* hairline borders */
+            --dayoff: #1b1d12;   /* a day off — desaturated dark */
         }
-        html { -webkit-text-size-adjust: 100%; }
+        html {
+            background: var(--ink-0);
+            -webkit-text-size-adjust: 100%;
+        }
         body {
             font-family: "Monoflow", "IBM Plex Mono", ui-monospace,
                          SFMono-Regular, Menlo, monospace;
-            color: var(--ink);
+            background: var(--ink-0);
+            color: var(--paper);
             max-width: 1000px;
             margin: 44px auto;
             padding: 0 24px;
@@ -40,19 +50,20 @@
         /* Tight heading stack (Research / eyebrow / date), then air before the
            table. Single weight throughout — emphasis is size + tracking. */
         h1 {
-            color: var(--olive);
+            color: var(--moss);
             font-weight: normal;
             font-size: 2.5rem;
             letter-spacing: 0.04em;
             margin: 0 0 2px;
         }
         h2 {
-            color: var(--olive);
+            color: var(--moss);
             font-weight: normal;
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.34em;
             margin: 0 0 8px;
+            opacity: 0.9;
         }
         p.today {
             color: var(--muted);
@@ -60,11 +71,16 @@
             letter-spacing: 0.03em;
             margin: 0 0 30px;
         }
+        p.today::before {
+            content: "\25B8  ";        /* amber console prompt */
+            color: var(--amber);
+        }
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 0;
             font-size: 0.88rem;
+            background: var(--ink-1);
         }
         th, td {
             border: 1px solid var(--rule);
@@ -73,25 +89,33 @@
             vertical-align: top;
         }
         thead th {
-            background-color: var(--olive);
-            color: #fff;
+            background-color: var(--ink-2);
+            color: var(--moss);
             font-weight: normal;
             text-transform: uppercase;
             letter-spacing: 0.12em;
             font-size: 0.74rem;
         }
         tbody th {
-            background-color: #f3f5ea;
-            color: var(--olive-deep);
+            background-color: var(--ink-2);
+            color: var(--moss);
             white-space: nowrap;
             font-weight: normal;
             letter-spacing: 0.05em;
         }
-        td.project { color: var(--olive-deep); white-space: nowrap; }
-        td.todo { color: var(--olive); }
+        td.project { color: var(--moss); white-space: nowrap; }
+        td.prior { color: var(--paper); }
+        td.todo { color: var(--amber); }
         td.empty { color: var(--muted); font-style: italic; }
-        tr.dayoff td { background-color: var(--dayoff); font-style: italic; }
+        tr.dayoff td {
+            background-color: var(--dayoff);
+            color: var(--muted);
+            font-style: italic;
+        }
         tr.dayoff td.project { color: var(--muted); }
+        /* Today's day-group (tagged by the JS below) gets a thin amber left
+           edge so the current day glows — functional, not decorative. */
+        tbody.today-group th { border-left: 3px solid var(--amber); }
         footer {
             margin-top: 44px;
             padding-top: 18px;
@@ -199,6 +223,11 @@
                 table.querySelectorAll("tbody.day"));
             var names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             var today = names[new Date().getDay()];
+            bodies.forEach(function (b) {        // amber left edge on today
+                if (b.getAttribute("data-day") === today) {
+                    b.classList.add("today-group");
+                }
+            });
             var idx = bodies.map(function (b) {
                 return b.getAttribute("data-day");
             }).indexOf(today);
