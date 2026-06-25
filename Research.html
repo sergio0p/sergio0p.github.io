@@ -30,6 +30,8 @@
         td.project { font-weight: bold; white-space: nowrap; }
         td.todo { color: #556B2F; }
         td.empty { color: #999; font-style: italic; }
+        tr.dayoff td { background-color: #faf7ef; font-style: italic; }
+        tr.dayoff td.project { color: #999; }
         p.today { color: #556B2F; font-weight: bold; margin: 0 0 10px; }
         footer {
             margin-top: 50px;
@@ -79,16 +81,11 @@
             </tr>
         </tbody>
         <tbody class="day" data-day="Thu">
-            <tr data-project="1-Cartan">
-                <th rowspan="2">Thu</th>
-                <td class="project">1-Cartan</td>
-                <td class="prior">Built QUICKSTART.md (model, two results, Example 1, SOC, positioning, EL-restructure checklist, key files, open problems) — modeled on Tortoise&#x27;s, framed for Economics Letters, no financing example. Added the &quot;missing appendix&quot; flag to TODO §2 (the Result-1 corollary cites a dim 𝒱⁽²⁾ computation absent from the file). Developed the EL selling angle: recast JMMZ generic impossibility as a constructive differential *test* on the modeller&#x27;s own preferences (det M ≠ 0 / Lie-bracket rank); crystallized &quot;the non-generic set is where economics lives&quot; with the honest twist that non-generic ≠ possible. Drafted a repositioned abstract + intro opening (voice needs rework), parked in Docs/draft_fragments.md.</td>
-                <td class="todo">attack SOC and global conditions.</td>
-            </tr>
-            <tr data-project="3-Tortoise">
-                <td class="project">3-Tortoise</td>
-                <td class="prior">Introduction finished — comb march folded in as the unifying narrative spine (builds / ranks / locates breakdown); lines 92–119 of joffrion_part_I_v12.tex rewritten. Script to generate comb-like eq. figures. TODO for the 3-round example (EXAMPLE-TODO.md).</td>
-                <td class="todo">Read Monotone_Status.html; verify correctness of the comb march and its results.</td>
+            <tr data-project="Day Off" class="dayoff">
+                <th>Thu</th>
+                <td class="project">Day Off</td>
+                <td class="prior">Catch up with sleep</td>
+                <td class="todo">resumes 1-Cartan, 3-Tortoise</td>
             </tr>
         </tbody>
         <tbody class="day" data-day="Fri">
@@ -152,6 +149,7 @@
             var rows = table.querySelectorAll("tbody.day tr[data-project]");
             Array.prototype.forEach.call(rows, function (tr) {
                 var p = tr.getAttribute("data-project");
+                if (p === "Day Off") return;   // each break keeps its reason
                 if (seen[p]) {
                     tr.querySelector("td.prior").innerHTML = "";
                     tr.querySelector("td.todo").innerHTML = "";
