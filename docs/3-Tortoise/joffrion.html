@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Joffrion — Maple worksheet view</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[
+          {left:'$$',right:'$$',display:true},
+          {left:'\\(',right:'\\)',display:false},
+          {left:'\\[',right:'\\]',display:true},
+          {left:'$',right:'$',display:false}
+        ]});"></script>
+<style>
+  :root { --fg:#1a1a1a; --muted:#666; --code-bg:#f5f5f5; --border:#e0e0e0; --accent:#7b0d1e; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; color: var(--fg); line-height: 1.55; }
+  h1 { border-bottom: 2px solid var(--accent); padding-bottom: .35em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: .25em; margin-top: 2.5em; color: var(--accent); }
+  h3 { color: #333; margin-top: 1.6em; }
+  .meta { color: var(--muted); font-size: .9em; }
+  pre.maple { background: var(--code-bg); border-left: 3px solid var(--accent);
+              padding: .7em .9em; overflow-x: auto; font-family: "SF Mono", Menlo, Consolas, monospace;
+              font-size: .88em; line-height: 1.45; border-radius: 4px; }
+  .math-block { margin: .8em 0 1em; padding: .4em 0; }
+  .note { color: var(--muted); font-style: italic; font-size: .92em; }
+  ul.compact { margin: .4em 0; }
+  ul.compact li { margin: .15em 0; }
+  code.inline { background: var(--code-bg); padding: 1px 5px; border-radius: 3px;
+                font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .92em; }
+</style>
+</head>
+<body>
+
+<h1>Continuous Support Equilibrium</h1>
+<p class="meta">Rendered from <code class="inline">joffrionnumeric.txt</code>. Math typeset with KaTeX.</p>
+
+<h2>joffrionnumeric</h2>
+
+<p class="meta">
+  Maple code to numerically compute the equilibrium candidate and evaluate its payoff.<br>
+  © Sergio O. Parreiras, 2013. Last modified 5/29/2013.<br>
+  <em>This file contains only Maple input (no stored outputs).</em>
+</p>
+
+<h3>Setup</h3>
+<p>Restart Maple, declare <span>\(\theta\)</span> as an integer parameter, and set working precision to 100 digits (crucial for the numerical solver).</p>
+<pre class="maple">restart; assume(theta, integer); interface(showassumed = 0);
+Digits := 100;</pre>
+
+<h3>Primitives</h3>
+<p>CDF of the continuous, symmetric case, the cost function, and its inverse:</p>
+<div class="math-block">
+\[
+G(x,v) \;=\; e^{x/\sqrt{v}} - 1,
+\qquad
+c(e) \;=\; e^{\theta},
+\qquad
+f(c) \;=\; c^{1/\theta}.
+\]
+</div>
+<pre class="maple">G := proc (x, v) exp(x/sqrt(v)) - 1 end proc;
+c := proc (e) e^theta end proc;
+f := proc (c) c^(1/theta) end proc;</pre>
+
+<h3>Players' utilities and marginal utilities</h3>
+<p>Player&nbsp;1's expected utility when choosing the <span>\(k\)</span>-th action level <span>\(x_k\)</span>, and its derivative with respect to <span>\(x_k\)</span>:</p>
+<div class="math-block">
+\[
+U_1(k) \;=\; \sum_{j=1}^{k} q_j\,\Bigl(v_1 - c\bigl(f(v_2) + y_j - x_k - d\bigr)\Bigr) \;-\; c(x_k),
+\qquad
+dU_1(k) \;=\; \frac{\partial U_1(k)}{\partial x_k}.
+\]
+</div>
+<p>Player&nbsp;2's expected utility at the <span>\(k\)</span>-th action <span>\(y_k\)</span>, and its derivative:</p>
+<div class="math-block">
+\[
+U_2(k) \;=\; \sum_{j=1}^{k-1} p_j\,\Bigl(v_2 - c\bigl(f(v_1) + x_j - y_k + d\bigr)\Bigr) \;-\; c(y_k),
+\qquad
+dU_2(k) \;=\; \frac{\partial U_2(k)}{\partial y_k}.
+\]
+</div>
+<pre class="maple">U1    := proc (k) : sum(q[j]*(v1 - c(f(v2) + y[j] - x[k] - d)), j = 1 .. k)     - c(x[k]) end proc;
+dU1   := proc (k) : simplify(diff(U1(k), x[k])) end proc;
+U2    := proc (k) : sum(p[j]*(v2 - c(f(v1) + x[j] - y[k] + d)), j = 1 .. k-1)   - c(y[k]) end proc;
+dU2   := proc (k) : simplify(diff(U2(k), y[k])) end proc;</pre>
+
+<h3>Equilibrium equations</h3>
+<p>Indifference / first-order conditions packaged as sequences:</p>
+<div class="math-block">
+\[
+\begin{aligned}
+\mathrm{eqU}_1(n)  &= \bigl(\,U_1(k) - U_1(1)\,\bigr)_{k=2,\dots,n}, \\
+\mathrm{eqU}_2(n)  &= \bigl(\,U_2(k)\,\bigr)_{k=2,\dots,n}, \\
+\mathrm{eqdU}_1(n) &= \bigl(\,dU_1(k)\,\bigr)_{k=1,\dots,n}, \\
+\mathrm{eqdU}_2(n) &= \bigl(\,dU_2(k)\,\bigr)_{k=2,\dots,n}.
+\end{aligned}
+\]
+</div>
+<pre class="maple">eqU1  := proc (n) : seq(U1(k) - U1(1), k = 2 .. n) end proc;
+eqU2  := proc (n) : seq(U2(k),         k = 2 .. n) end proc;
+eqdU1 := proc (n) : seq(dU1(k),        k = 1 .. n) end proc;
+eqdU2 := proc (n) : seq(dU2(k),        k = 2 .. n) end proc;</pre>
+
+<h3>Full system and monotonicity constraints</h3>
+<ul class="compact">
+  <li><code class="inline">aux(n)</code> — the basic equations of the system: <span>\(\{y_1\} \cup \mathrm{eqU}_1(n) \cup \mathrm{eqU}_2(n) \cup \mathrm{eqdU}_1(n) \cup \mathrm{eqdU}_2(n)\)</span>.</li>
+  <li><code class="inline">ord(n)</code> — monotonicity: <span>\(x_k &lt; x_{k+1}\)</span> and <span>\(y_k &lt; y_{k+1}\)</span> for all <span>\(k\)</span>.</li>
+  <li><code class="inline">sys(n,t)</code> — substitutes <span>\(\theta = t\)</span> and the closing condition <span>\(q_n = 1 - \sum_{k=1}^{n-1} q_k\)</span> into <span>\(\mathrm{aux} \cup \mathrm{ord}\)</span>.</li>
+  <li><code class="inline">nsys(n,t)</code> — same closing condition, but without the inequality constraints (the numerical solver only takes equations).</li>
+</ul>
+<pre class="maple">aux := proc (n) options operator, arrow;
+  {y[1], eqU1(n), eqU2(n), eqdU1(n), eqdU2(n)}
+end proc;
+
+ord := proc (n):
+  `union`( {seq(x[k] &lt; x[k+1], k = 1 .. n-1)},
+           {seq(y[k] &lt; y[k+1], k = 1 .. n-1)} )
+end proc;
+
+sys  := proc (n, t) :
+  subs(theta = t, q[n] = 1 - sum(q[k], k = 1 .. n-1),
+       `union`(aux(n), ord(n)))
+end proc;
+
+nsys := proc (n, t) :
+  subs(theta = t, q[n] = 1 - sum(q[k], k = 1 .. n-1), aux(n))
+end proc;</pre>
+
+<h3>Initial guess for the numerical solver</h3>
+<p>Effort levels start on a uniform grid on <span>\(\bigl[0,\,\ln(2)\sqrt{v}\,\bigr]\)</span>; probabilities are evaluated using the CDF of the symmetric quadratic-case equilibrium:</p>
+<div class="math-block">
+\[
+p_k = G\!\left(\tfrac{k\,\ln 2\,\sqrt{v}}{n},\,v\right),\quad
+q_k = G\!\left(\tfrac{(k-1)\,\ln 2\,\sqrt{v}}{n},\,v\right),\quad
+x_k = \tfrac{k\,\ln 2\,\sqrt{v}}{n},\quad
+y_k = \tfrac{(k-1)\,\ln 2\,\sqrt{v}}{n}.
+\]
+</div>
+<pre class="maple">vars := proc (n, v) options operator, arrow;
+  evalf({
+    seq(p[k] = G(k*ln(2)*sqrt(v)/n,   v), k = 1 .. n-1),
+    seq(q[k] = G((k-1)*ln(2)*sqrt(v)/n, v), k = 1 .. n-1),
+    seq(x[k] = k*ln(2)*sqrt(v)/n,           k = 1 .. n),
+    seq(y[k] = (k-1)*ln(2)*sqrt(v)/n,       k = 1 .. n)
+  })
+end proc;</pre>
+
+<h3>Solution helpers</h3>
+<p><code class="inline">spit</code> strips the right-hand sides out of a Maple solution list; <code class="inline">param</code> repackages them into the four lists <span>\([p],\,[q],\,[x],\,[y]\)</span>.</p>
+<pre class="maple">spit := proc (a)::list;
+  local k, i, s;
+  description "gets the solution of an equation and returns only the values";
+  s := NULL; k := nops(a);
+  for i to k do s := [s[], rhs(op(i, a))] end do;
+  s
+end proc;
+
+param := proc (a)::list;
+  local k, i, j, p, q, x, y, b;
+  description "gets the solution of our system and returns only the values";
+  k := (1/4)*nops(a) + 1/2;
+  b := spit(a);
+  p := NULL; q := NULL; x := NULL; y := NULL;
+  for i to k-1                do p := p, op(i, b) end do;
+  p := [p, 1 - sum(p[j], j = 1 .. k-1)];
+  for i from k    to 2*k-2    do q := q, op(i, b) end do;
+  q := [q, 1 - sum(q[j], j = 1 .. k-1)];
+  for i from 2*k-1 to 3*k-2   do x := x, op(i, b) end do;
+  for i from 3*k-1 to 4*k-2   do y := y, op(i, b) end do;
+  return [p, q, [x], [y]];
+end proc;</pre>
+
+<h3>Worked example — quadratic symmetric case, two actions each</h3>
+<p>Set <span>\(v_1 = v_2 = 1\)</span>, <span>\(d = 0\)</span>, <span>\(n = 2\)</span>, <span>\(\theta = 3\)</span>, and call <code class="inline">fsolve</code>:</p>
+<pre class="maple">S0    := subs(v1 = 1, v2 = 1, d = 0, nsys(2, 3));
+vars0 := subs(v = 1, vars(2, 3));
+sol   := fsolve(S0, vars0);
+spit(sol);</pre>
+
+<h3>Payoffs as plotting-friendly functions</h3>
+<p>Re-express <span>\(U_1, U_2\)</span> as ordinary functions of one variable (for plotting), and build the piecewise payoffs <span>\(\mathrm{PEU}_1, \mathrm{PEU}_2\)</span> that switch branch at the thresholds <span>\(y_{k+1}\)</span> and <span>\(x_k + a\)</span> respectively, where <span>\(a = d + f(v_1) - f(v_2)\)</span>:</p>
+<pre class="maple">EU2 := unapply(subs(y[k] = y, theta = t, U2(k)),
+               y, t, k, p, x, v1, v2, d);
+EU1 := unapply(subs(x[k] = x, theta = t, U1(k)),
+               x, t, k, q, y, v1, v2, d);
+
+PEU1 := proc (p, q, x, y, t, n, v1, v2, d, z)
+  local a; a := d + subs(theta = t, f(v1) - f(v2));
+  subs(q[n] = 1 - sum(q[k], k = 1 .. n-1),
+    piecewise(
+      seq([z + a &lt; y[k+1], EU1(z, t, k, q, y, v1, v2, d)][], k = 1 .. n-1),
+      EU1(z, t, n, q, y, v1, v2, d)))
+end proc;
+
+PEU2 := proc (p, q, x, y, t, n, v1, v2, d, z)
+  local a; a := d + subs(theta = t, f(v1) - f(v2));
+  subs(p[n] = 1 - sum(p[k], k = 1 .. n-1),
+    piecewise(
+      seq([z &lt; x[k] + a, EU2(z, t, k, p, x, v1, v2, d)][], k = 1 .. n),
+      EU2(z, t, n+1, p, x, v1, v2, d)))
+end proc;</pre>
+
+<pre class="maple">psol := param(sol); nops([psol]);</pre>
+
+<h3>Consistency check</h3>
+<p>Verifies that the numeric solution respects the monotonicity constraints: returns <code class="inline">"OK!"</code> if <span>\(y_1 \ge x_n + a_1\)</span> and <span>\(x_1 \ge y_n - a_2\)</span>, where <span>\(a_1 = d - f(v_2)\)</span> and <span>\(a_2 = d + f(v_1)\)</span>; otherwise <code class="inline">"ERROR!"</code>.</p>
+<pre class="maple">Cst := proc (p, q, x, y, t, n, v1, v2, d)
+  local a1, a2;
+  a1 := d - subs(theta = t, f(v2));
+  a2 := d + subs(theta = t, f(v1));
+  if y[1] &lt; x[n] + a1 or x[1] &lt; y[n] - a2
+    then "ERROR!"
+    else "OK!"
+  end if
+end proc;
+
+Cst(psol, 3, 2, 1, 1, 0);</pre>
+
+<h3>Plotting and evaluation</h3>
+<p>The numerical solution is hard-coded into single-variable handles <span>\(h_1, h_2\)</span> and plotted on <span>\([0,1]\)</span>:</p>
+<div class="math-block">
+\[
+\begin{aligned}
+p &amp;\approx (0.4467981677,\ 0.5532018323), \\
+q &amp;\approx (0.4699413513,\ 0.5300586487), \\
+x &amp;\approx (0.4067122270,\ 0.6798240376), \\
+y &amp;\approx (0.0000000000,\ 0.5635767400).
+\end{aligned}
+\]
+</div>
+<pre class="maple">h1 := proc (x) PEU1(
+        [.44679816767798357658, 1-.44679816767798357658],
+        [.46994135128036920856, 1-.46994135128036920856],
+        [.40671222697914625262, .67982403764497158139],
+        [0., .56357673998302776898],
+        3, 2, 1, 1, 0, x) end proc;
+
+h2 := proc (x) PEU2(
+        [.44679816767798357658, 1-.44679816767798357658],
+        [.46994135128036920856, 1-.46994135128036920856],
+        [.40671222697914625262, .67982403764497158139],
+        [0., .56357673998302776898],
+        3, 2, 1, 1, 0, x) end proc;
+
+plot({h1, h2}, 0 .. 1, color = [blue, red]);
+
+h1(.26153417763736277764);</pre>
+
+<p class="note">End of <code class="inline">joffrionnumeric.txt</code>.</p>
+
+</body>
+</html>

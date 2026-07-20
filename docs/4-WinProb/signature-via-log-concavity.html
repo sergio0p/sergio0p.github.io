@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A complete proof of the Lorentzian signature, via covariance and log-concavity</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">A complete proof of the Lorentzian signature — via the covariance matrix and log-concavity of $e_m$</p>
+
+<p class="note">Written so that someone comfortable with analysis and linear algebra (but
+not with matroids, strongly-Rayleigh measures, or "Lorentzian polynomials") can read every
+line and decide for themselves whether it is correct. The aim of this note is verification:
+to expose the whole argument, name every fact it leans on, and mark precisely the one place
+where an outside theorem is consumed (Fact 2 — now closed by citation, see §6). Its concise handoff is <code>signature-via-log-concavity-handoff.md</code>; this note
+supersedes the older per-$k$ congruence route (<code>signature-reduction-results.html</code>
+and its handoff <code>unifying-statement-old.md</code>).</p>
+
+<div class="box key">
+<p>One-paragraph summary. The hard core of the injectivity conjecture — the Jacobian
+signature, for every number of prizes $k$ and every number of players $n$, all at once —
+reduces to a single fact about one
+$n\times n$ matrix: that the matrix $G = D_q - \Sigma$ (a diagonal of probabilities minus a
+covariance matrix) is positive definite. Given $G\succ 0$, two short and completely rigorous
+steps then force the Jacobian to have inertia $(1,\,n-1,\,0)$ and determinant of sign
+$(-1)^{n-1}$, with no induction and no case analysis on $k$. And $G\succ 0$ is exactly the
+statement that the elementary symmetric polynomial $e_m$ is strictly log-concave on the
+positive orthant — which is a published theorem: Murai–Nagaoka–Yazawa, J. Combin. Theory
+Ser. A 181 (2021), art. 105351, Theorem 1.1(i), applied to the uniform matroid $U_{m,n}$
+(bib key <code>Muraietal2021</code>). With that citation every link is in place: the
+<span>signature conjecture</span> — $\det M\neq0$ with sign $(-1)^{n-1}$ on the whole cube —
+is proved, for all $1\le k\le n-1$ and all $n$. (The literature check that
+found this reference is recorded in §6; an exact computational certificate independently
+confirms $G\succ0$ for $n\le 6$.) One honest caveat, caught 2026-07-12: this is the
+<span>local</span> half of identifiability. A never-vanishing Jacobian makes $W$ a local
+diffeomorphism everywhere but does <span>not</span> by itself give global injectivity, even
+for polynomial maps of convex domains; the remaining local-to-global step (properness +
+one singleton fiber) is posed, with a proof plan, in <code>globalization-gap.md</code>.</p>
+</div>
+
+<p class="section">0. The object and the claim</p>
+
+<p>The contest model (full background in <code>QUICKSTART.md</code>; we only need the matrix).
+There are $n$ players and $k$ identical prizes, $1\le k\le n-1$. Player $i$ independently
+clears the in-the-money threshold ("is below the cut") with probability $x_i\in(0,1)$, and
+fails ("is above") with probability $1-x_i$. Player $i$ takes a prize exactly when at most
+$k-1$ of the other $n-1$ players are above. Writing $W_i(x)$ for player $i$'s win
+probability, the map $x\mapsto W(x)$ is the forward map; recovering the hidden $x$ from the
+observed $W$ ("identifiability") is the goal. The load-bearing ingredient is that the
+Jacobian $M = \partial W/\partial x$ never degenerates — this makes recovery locally unique
+everywhere; the further (easier-looking, still open) upgrade to global uniqueness is the
+subject of <code>globalization-gap.md</code>.</p>
+
+<p>That Jacobian is the only object we study. It is the symmetric $n\times n$ matrix with</p>
+
+$$M_{ii} = 0,\qquad
+M_{ij} = \Pr[\text{exactly } k-1 \text{ of the } n-2 \text{ players other than } i,j \text{ are above}]\ \ (i\neq j).$$
+
+<p>Written out, with $S$ ranging over the $(k-1)$-subsets of the other players,</p>
+
+$$M_{ij} \;=\; \sum_{\substack{S\subseteq[n]\setminus\{i,j\}\\ |S|=k-1}}\
+\Big(\prod_{\ell\in S}(1-x_\ell)\Big)\Big(\prod_{\ell\notin S\cup\{i,j\}}x_\ell\Big),
+\qquad [n]:=\{1,\dots,n\}.$$
+
+<p>Each entry is a strictly positive probability for $x$ in the open cube, and the diagonal is
+zero because the potential whose Hessian is $M$ is multilinear (so $\partial^2/\partial x_i^2$
+kills it). The conjecture, posed in 2016 and the subject of this whole project, is a single
+sign statement:</p>
+
+<div class="box key">
+$$\textbf{Conjecture.}\qquad \det M(x)\neq 0,\quad\text{with sign}\ (-1)^{n-1},
+\qquad\text{for every } x\in(0,1)^n \text{ and every } 1\le k\le n-1.$$
+</div>
+
+<p>A constant-sign, never-vanishing Jacobian gives local injectivity uniformly on the cube.
+An earlier version of this note claimed the upgrade to global injectivity was "a standard
+properness argument"; that was too glib. Convexity of the domain does <span>not</span> make
+the upgrade automatic — Pinchuk (1994) built a polynomial map of $\mathbb R^2$ with
+nowhere-vanishing Jacobian that is not injective, and even the symmetric-Lorentzian shape
+does not save it ($\nabla(e^x\cos y)$ has Hessian signature $(1,1)$ everywhere and is
+$2\pi$-periodic in $y$). The genuine upgrade path — properness of $W$ onto its image plus
+one singleton fiber, via the covering-map argument — is laid out as lemmas (P) and (F) in
+<code>globalization-gap.md</code>. Everything below is aimed at the determinant sign, which
+is the hard core; (P) and (F) are the remaining, more elementary, closing step.</p>
+
+<p class="section">1. The language we will use: inertia, congruence, two theorems of Sylvester</p>
+
+<p>For a real symmetric matrix $A$, all eigenvalues are real. Its <span>inertia</span> is the
+triple</p>
+
+$$\operatorname{In}(A) = (n_+,\,n_-,\,n_0),$$
+
+<p>counting, with multiplicity, the positive, negative, and zero eigenvalues. We will prove
+the conjecture in the sharp form</p>
+
+$$\operatorname{In}(M) = (1,\,n-1,\,0),$$
+
+<p>"one positive eigenvalue, $n-1$ negative, none zero" — a signature called <span>Lorentzian</span>
+(the signature of spacetime). This is strictly stronger than the determinant claim: if
+$\operatorname{In}(M)=(1,n-1,0)$ then $M$ is nonsingular and
+$\det M = (\text{product of eigenvalues})$ has the sign of $(+)(-)^{n-1} = (-1)^{n-1}$, which
+is exactly the conjecture. Working with the full signature, rather than only the determinant,
+is what makes the argument clean.</p>
+
+<p>Two classical facts, both due to Sylvester, do the heavy lifting. They sound similar but
+are different theorems; we use both, and it is worth keeping them straight.</p>
+
+<div class="box">
+<p>Sylvester's law of inertia. If $C$ is any invertible matrix, then $C^\top A C$ has the
+same inertia as $A$. (The map $A\mapsto C^\top A C$ is called a <span>congruence</span>; it is
+how the matrix of a quadratic form changes under a linear change of the variable. Inertia is
+a congruence invariant — congruence can rescale and rotate eigenvalues but cannot change
+their signs.)</p>
+<p>Sylvester's criterion. A real symmetric matrix is positive definite if and only if all of
+its leading principal minors (the determinants of the top-left $1\times1,\,2\times2,\dots,
+n\times n$ blocks) are strictly positive.</p>
+</div>
+
+<p>We will use the law of inertia three times (to replace $M$ by friendlier congruent
+matrices) and the criterion once (to certify $G\succ0$ by inspecting polynomials).</p>
+
+<p class="section">2. Rewriting $M$ as the average of a very simple quadratic form</p>
+
+<p>This is Malyshev's 2016 idea (recorded in <code>mse-2016-threads.md</code>), made
+self-contained. Introduce a random subset of the players.</p>
+
+<div class="box">
+<p>The measure $\mu$. Flip $n$ independent biased coins; coin $i$ lands "selected" with
+probability $x_i$. Let $\mathcal A\subseteq[n]$ be the selected set, and then
+<span>condition</span> on the event that exactly $m$ players were selected, where</p>
+$$m \;:=\; n-k+1 .$$
+<p>Concretely, $\mathcal A$ takes the value $A$ (for each $A$ with $|A|=m$) with probability</p>
+$$\Pr[\mathcal A = A] \;=\; \frac{p_A}{Z},\qquad
+p_A=\prod_{i\in A}x_i\prod_{i\notin A}(1-x_i),\qquad Z=\sum_{|A|=m}p_A .$$
+</div>
+
+<p>Because $k$ runs over $1,\dots,n-1$, the conditioned size $m=n-k+1$ runs over
+$2,\dots,n$. Keep that range in mind: <span>$m\ge 2$ always</span>. It is the hinge of the
+whole proof.</p>
+
+<p>To each subset $A$ attach the quadratic form (in a vector $v\in\mathbb R^n$)</p>
+
+$$Q_A(v) \;=\; \Big(\sum_{i\in A}v_i\Big)^2 - \sum_{i\in A}v_i^2
+\;=\; \sum_{\substack{i,j\in A\\ i\neq j}} v_i v_j ,$$
+
+<p>and average it over $\mu$ (weighting by $p_A$, not yet normalized):</p>
+
+$$Q(v) \;=\; \sum_{|A|=m} p_A\, Q_A(v).$$
+
+<p>Let $M_Q$ be the symmetric matrix of this form, so $Q(v)=v^\top M_Q v$. We now read off
+its entries, step by step.</p>
+
+<p>How to read a matrix off a quadratic form. If $M$ is any symmetric $n\times n$ matrix,
+expanding $v^\top Mv=\sum_{a,b}M_{ab}v_av_b$ and grouping the ordered pairs $(a,b)$ and
+$(b,a)$ (equal terms, since $M_{ab}=M_{ba}$) gives</p>
+
+$$v^\top M v \;=\; \sum_{a} M_{aa}\, v_a^2 \;+\; 2\sum_{a\lt b} M_{ab}\, v_a v_b .$$
+
+<p>So a quadratic form, viewed as a polynomial in $v$, determines its symmetric matrix by
+coefficient inspection:</p>
+
+<div class="box">
+<p>Diagonal: $M_{aa}$ = the coefficient of $v_a^2$.</p>
+<p>Off-diagonal: $M_{ab}$ = one half of the coefficient of the monomial $v_av_b$ ($a\neq b$).</p>
+<p>(Equivalently, $M_{aa}=\tfrac12\,\partial^2 Q/\partial v_a^2$ and
+$M_{ab}=\tfrac12\,\partial^2 Q/\partial v_a\partial v_b$.)</p>
+</div>
+
+<p>Step 1 — the single form $Q_A$. Fix one subset $A$ and one pair $i\neq j$. In
+$Q_A(v)=\sum_{a\neq b\in A}v_av_b$ (ordered pairs), the monomial $v_iv_j$ appears exactly
+when both $i\in A$ and $j\in A$, and then exactly twice: once as the ordered pair
+$(a,b)=(i,j)$ and once as $(a,b)=(j,i)$. So</p>
+
+$$\text{coefficient of } v_iv_j \text{ in } Q_A \;=\;
+\begin{cases}
+2, & i,j\in A,\\
+0, & \text{otherwise},
+\end{cases}
+\qquad\text{and no } v_i^2 \text{ term ever appears (the sum forces } a\neq b\text{).}$$
+
+<p>Step 2 — the average $Q$. Coefficients are linear, so the coefficient of $v_iv_j$ in
+$Q=\sum_{|A|=m}p_A\,Q_A$ is the sum of the coefficients weighted by $p_A$:</p>
+
+$$\text{coefficient of } v_iv_j \text{ in } Q
+\;=\; \sum_{|A|=m} p_A\cdot\big(2\ \text{if } i,j\in A,\ \text{else } 0\big)
+\;=\; 2\!\!\sum_{\substack{|A|=m\\ A\ni i,j}}\!\! p_A .$$
+
+<p>Step 3 — halve it. By the read-off rule, $(M_Q)_{ij}$ is half of that coefficient, and the
+factor $2$ cancels the half. The diagonal entry is the coefficient of $v_i^2$, which is $0$
+for every $Q_A$ (Step 1), hence $0$ in the average. Conclusion: $M_Q$ has zero diagonal, and
+its off-diagonal entry is the total weight of subsets containing both $i$ and $j$:</p>
+
+$$(M_Q)_{ij} \;=\; \sum_{\substack{|A|=m\\ A\ni i,j}} p_A \qquad (i\neq j),\qquad (M_Q)_{ii}=0.$$
+
+<p>The bridge to $M$ is an exact algebraic identity (Malyshev asserted it; here is the
+one-line bijection that proves it). Multiply the matrix entry $M_{ij}$ by $x_ix_j$:</p>
+
+$$x_i x_j M_{ij}
+= \sum_{\substack{S\subseteq[n]\setminus\{i,j\}\\ |S|=k-1}}
+x_i x_j \Big(\prod_{\ell\in S}(1-x_\ell)\Big)\Big(\prod_{\ell\notin S\cup\{i,j\}}x_\ell\Big).$$
+
+<p>Given the "above" set $S$ of size $k-1$, define the selected set
+$A = \{i,j\}\cup\big([n]\setminus(S\cup\{i,j\})\big)$ — that is, $i$, $j$, and everyone not in
+$S$. Then $A\ni i,j$, its size is $2+(n-2-(k-1))=n-k+1=m$, and its complement is exactly $S$.
+The product $x_ix_j\prod_{\ell\notin S\cup\{i,j\}}x_\ell\prod_{\ell\in S}(1-x_\ell)$ is
+precisely $p_A$. As $S$ ranges over $(k-1)$-subsets, $A$ ranges over the $m$-subsets
+containing $i$ and $j$ — a bijection. Hence</p>
+
+<div class="box key">
+$$x_i x_j\, M_{ij} \;=\; \sum_{\substack{|A|=m\\ A\ni i,j}} p_A \;=\; (M_Q)_{ij}
+\qquad\Longleftrightarrow\qquad M = D_{1/x}\, M_Q\, D_{1/x},\quad D_{1/x}=\operatorname{diag}(1/x_i).$$
+</div>
+
+<p class="note">Verified symbolically (exact arithmetic over $\mathbb Q$, the polynomial
+identity $x_ix_jM_{ij}=(M_Q)_{ij}$ in the variables $x_1,\dots,x_n$) for
+$(k,n)=(2,4),(3,5),(2,5),(3,6),(4,6),(2,6)$ — and proved in general by the bijection above.</p>
+
+<p>The matrix $D_{1/x}$ is diagonal with positive entries, hence invertible, so the relation
+$M = D_{1/x}M_Q D_{1/x}$ is a congruence. By Sylvester's law of inertia,
+$\operatorname{In}(M)=\operatorname{In}(M_Q)$. We have traded the win-probability matrix for
+the average of the dead-simple forms $Q_A$. Nothing has been lost or approximated.</p>
+
+<p class="section">3. The covariance matrix $G$</p>
+
+<p>Now we compute $M_Q$ probabilistically. Work with the <span>normalized</span> measure
+(divide by $Z$); since $Z\gt 0$ this only rescales $M_Q$ by a positive constant and does not
+touch inertia. Write the indicator</p>
+
+$$\chi_i = \begin{cases}1 & i\in\mathcal A\\ 0 & i\notin\mathcal A\end{cases},
+\qquad q_i=\Pr[i\in\mathcal A]=\mathbb E[\chi_i],\qquad
+q_{ij}=\Pr[i,j\in\mathcal A]=\mathbb E[\chi_i\chi_j].$$
+
+<p>The vector $q=(q_1,\dots,q_n)$ holds the <span>marginal</span> selection probabilities. The
+<span>covariance matrix</span> of the indicator vector is</p>
+
+$$\Sigma_{ij}=\operatorname{Cov}(\chi_i,\chi_j)=q_{ij}-q_iq_j\ (i\neq j),\qquad
+\Sigma_{ii}=\operatorname{Var}(\chi_i)=q_i-q_i^2=q_i(1-q_i).$$
+
+<p>Average $Q_{\mathcal A}$ under the normalized measure. Using $\chi_i\in\{0,1\}$ (so
+$\chi_i^2=\chi_i$, which is why $\sum_{i\in\mathcal A}v_i^2=\sum_i\chi_i v_i^2$), and the
+variance identity $\mathbb E[X^2]=\operatorname{Var}(X)+(\mathbb E X)^2$ applied to
+$X=\sum_i\chi_i v_i$:</p>
+
+$$\mathbb E_\mu\,Q_{\mathcal A}(v)
+= \mathbb E\Big[\big(\textstyle\sum_i\chi_i v_i\big)^2\Big] - \mathbb E\Big[\textstyle\sum_i\chi_i v_i^2\Big]
+= \underbrace{(q^\top v)^2}_{(\mathbb E X)^2} + \underbrace{v^\top \Sigma v}_{\operatorname{Var}X}
+ - \underbrace{\textstyle\sum_i q_i v_i^2}_{\mathbb E[\sum\chi_i v_i^2]} .$$
+
+<p>Collecting the three pieces into one matrix and defining</p>
+
+<div class="box key">
+$$G \;:=\; D_q - \Sigma,\qquad D_q=\operatorname{diag}(q_1,\dots,q_n),$$
+$$\text{matrix of }\ \mathbb E_\mu Q_{\mathcal A}\ =\ q q^\top + \Sigma - D_q \ =\ q q^\top - G .$$
+</div>
+
+<p>Entrywise $G$ is transparent: on the diagonal
+$G_{ii}=q_i-\Sigma_{ii}=q_i-q_i(1-q_i)=q_i^2$, and off the diagonal
+$G_{ij}=-\Sigma_{ij}=q_iq_j-q_{ij}$. (Selection of a fixed-size set is negatively associated:
+selecting $i$ makes $j$ less likely, so $q_{ij}\le q_iq_j$ and $G_{ij}\ge 0$. So $G$ has a
+positive diagonal and nonnegative off-diagonal entries — but that alone is far from positive
+definiteness; that is the work of §4.)</p>
+
+<p>Combining §2 and §3 through the two positive-scalar/positive-diagonal congruences:</p>
+
+<div class="box key">
+$$\operatorname{In}(M) \;=\; \operatorname{In}\!\big(q q^\top - G\big).$$
+</div>
+
+<p class="note">Verified numerically end-to-end: building the actual $M$ from its definition and
+$qq^\top-G$ from the measure, both have inertia $(1,n-1,0)$ and $\det M$ has sign $(-1)^{n-1}$,
+for $(k,n)=(2,4),(3,6),(4,7),(2,8),(5,9),(3,10)$.</p>
+
+<p>So the entire conjecture is now a statement about the single matrix $qq^\top-G$: a rank-one
+piece $qq^\top$ minus the matrix $G$. The next section establishes three facts about $G$ and
+$q$; together they pin the inertia at $(1,n-1,0)$.</p>
+
+<p class="section">4. Three facts that finish it</p>
+
+<p class="section" style="font-size:1rem">Fact 1 &nbsp;— &nbsp; $G\mathbf 1 = q$, and therefore $q^\top G^{-1} q = m$.</p>
+
+<p>Let $\mathbf 1=(1,\dots,1)^\top$. The $i$-th entry of $\Sigma\mathbf 1$ is
+$\sum_j\Sigma_{ij}=\sum_j\operatorname{Cov}(\chi_i,\chi_j)=\operatorname{Cov}\big(\chi_i,\sum_j\chi_j\big)
+=\operatorname{Cov}(\chi_i,\,|\mathcal A|)$. But $|\mathcal A|=m$ is <span>constant</span> under
+$\mu$ (we conditioned on it!), and the covariance of anything with a constant is zero.
+Therefore $\Sigma\mathbf 1=0$, and</p>
+
+$$G\mathbf 1 = D_q\mathbf 1 - \Sigma\mathbf 1 = q - 0 = q.$$
+
+<p>This is a remarkable simplification. Malyshev's program (and the project's "thread B")
+needed a special vector — the normal to a hyperplane on which a form is negative definite, or
+the Perron eigenvector — and called it hard to pin down. Here it is, explicitly: $G$ sends the
+all-ones vector to $q$. If $G$ is invertible (which Fact 2 guarantees), then $G^{-1}q=\mathbf 1$,
+so</p>
+
+<div class="box key">
+$$q^\top G^{-1} q \;=\; q^\top \mathbf 1 \;=\; \sum_i q_i \;=\; \mathbb E_\mu|\mathcal A| \;=\; m
+\;=\; n-k+1 .$$
+</div>
+
+<p class="note">The mechanism $G\mathbf 1=q$ was checked symbolically (exact, in the odds
+variables) for $(n,m)=(4,2),(5,3),(6,3),(7,4)$; the numeric value $q^\top G^{-1}q=m$ was
+confirmed exactly in every end-to-end trial of §3.</p>
+
+<p class="section" style="font-size:1rem">Fact 2 &nbsp;— &nbsp; $G\succ 0$ (positive definite). This is log-concavity of $e_m$.</p>
+
+<p>This is the one substantial fact, so we give both a conceptual identification and an
+elementary, checkable certificate.</p>
+
+<p>The generating polynomial. Encode the measure in a polynomial in auxiliary variables
+$z=(z_1,\dots,z_n)$:</p>
+
+$$f(z) \;=\; \mathbb E_\mu\Big[\prod_{i\in\mathcal A} z_i\Big]
+\;=\; \sum_{|A|=m}\Pr[\mathcal A=A]\prod_{i\in A}z_i .$$
+
+<p>Substituting $\Pr[A]=p_A/Z$ and factoring $\prod_i(1-x_i)$ out of every term turns each
+$x_i$ into the <span>odds</span> $s_i := x_i/(1-x_i)\gt0$, and the sum becomes the elementary
+symmetric polynomial $e_m$ evaluated at the scaled variables:</p>
+
+$$f(z) \;=\; \frac{e_m(s_1 z_1,\dots,s_n z_n)}{e_m(s)},\qquad
+e_m(y) := \sum_{|A|=m}\ \prod_{i\in A} y_i .$$
+
+<p>(Recall $e_m(y)$ is the sum of all products of $m$ distinct variables; e.g.
+$e_2(y)=\sum_{i\lt j}y_iy_j$. Here $e_m(s)=Z/\prod_i(1-x_i)$, and the normalization makes
+$f(\mathbf 1)=1$.) Two elementary properties of $f$:</p>
+
+<p>(i) $f$ is <span>multiaffine</span> — degree at most $1$ in each $z_i$ separately — because
+$e_m$ is a sum of squarefree monomials. In particular $\partial^2 f/\partial z_i^2 = 0$.</p>
+
+<p>(ii) Differentiating $f$ at $z=\mathbf 1$ reproduces the moments:
+$f(\mathbf 1)=1$, $\partial_i f(\mathbf 1)=q_i$, and $\partial_i\partial_j f(\mathbf 1)=q_{ij}$
+for $i\neq j$. (Each derivative just selects the subsets containing the differentiated
+indices.)</p>
+
+<p>Now compute the Hessian of $\log f$ at $z=\mathbf 1$. Using
+$\partial_i\partial_j\log f = \dfrac{\partial_i\partial_j f}{f}-\dfrac{(\partial_i f)(\partial_j f)}{f^2}$
+and evaluating at $\mathbf 1$ (where $f=1$):</p>
+
+$$\big(\nabla^2\log f\big|_{\mathbf 1}\big)_{ij}=
+\begin{cases}
+q_{ij}-q_iq_j=\Sigma_{ij}=-G_{ij}, & i\neq j,\\[2pt]
+\underbrace{\partial_i^2 f}_{=\,0\ \text{by (i)}} - (\partial_i f)^2 = -q_i^2 = -G_{ii}, & i=j.
+\end{cases}$$
+
+<div class="box key">
+$$\boxed{\ \nabla^2\log f\big|_{z=\mathbf 1} \;=\; -\,G\ }
+\qquad\text{so}\qquad
+G\succ 0\ \Longleftrightarrow\ \log f\ \text{is strictly concave at } \mathbf 1.$$
+</div>
+
+<p class="note">The identity $\nabla^2\log f|_{\mathbf 1}=-G$ was verified symbolically
+(coefficient-by-coefficient, exact) for $(n,m)=(4,2),(4,3),(5,2),(5,3)$.</p>
+
+<p>Since $\log f(z)=\log e_m(s_1z_1,\dots,s_nz_n)-\log e_m(s)$ and $z\mapsto s\odot z$ is a
+linear map with positive diagonal, strict concavity of $\log f$ at $\mathbf 1$ is exactly
+strict concavity of $\log e_m$ at the positive point $s$. So:</p>
+
+<div class="box key">
+$$G\succ 0\quad\text{for all }x\in(0,1)^n
+\qquad\Longleftrightarrow\qquad
+e_m\ \text{is strictly log-concave on the positive orthant } \{y\gt 0\}.$$
+</div>
+
+<p>Why this is a theorem, with the exact citation. The statement we need is, verbatim, the
+main result of Murai–Nagaoka–Yazawa, "Strictness of the log-concavity of generating
+polynomials of matroids," J. Combin. Theory Ser. A 181 (2021), art. 105351
+(bib key <code>Muraietal2021</code>; PDFs in <code>References/</code>):</p>
+
+<div class="box key">
+<p>Theorem 1.1(i) (Murai–Nagaoka–Yazawa). Let $M$ be a simple matroid on $[n]$ of rank
+$r\ge2$. Then the Hessian matrix $H_{f_M}\big|_{x=a}$ has signature $(+,-,\dots,-)$ for
+every $a\in\mathbb R^n_{\gt0}$; in particular, the basis generating polynomial $f_M$ is
+strictly log-concave on $\mathbb R^n_{\gt0}$.</p>
+</div>
+
+<p>Their §3.1 defines strict log-concavity exactly in the pointwise-Hessian sense we need:
+$\log f$ strictly concave $\iff$ the Hessian of $\log f$ is negative definite at
+<span>every</span> point (equivalently, when $f(a)\gt0$: $H_f|_{a}$ has signature
+$(+,-,\dots,-)$). No gap between "strictly concave function" and "definite Hessian" is left
+open. Application to our case: $e_m$ is the basis generating polynomial of the uniform
+matroid $U_{m,n}$ of rank $m$, and $U_{m,n}$ is simple for $m\ge2$ (no loops — every element
+lies in a basis; no parallel elements — every circuit has size $m+1\ge3$). So Theorem 1.1(i)
+applies for the whole range $2\le m\le n$, giving $\nabla^2\log e_m\prec0$ at every $s\gt0$,
+i.e. $G\succ0$. Note that $m=1$ is excluded by their rank hypothesis — exactly where our
+statement degenerates ($\log e_1$ has a rank-one Hessian). Their proof is Hodge-theoretic
+(strong Lefschetz + Hodge–Riemann relations via the Brändén–Huh Lorentzian property),
+building on the graphic-matroid case of Nagaoka–Yazawa; the result is recent (2020/21),
+which explains why the 2016 discussions could not simply quote it.</p>
+
+<p>Classical background, for orientation. (a) $e_m$ is real-stable / hyperbolic, and
+Gårding's theory gives $\log$ of a homogeneous hyperbolic polynomial concave on the
+hyperbolicity cone — but only <span>semi</span>definiteness pointwise: in Gårding 1959
+(<code>References/58061.pdf</code>) the equality case of Theorem 5 gives strictness of the
+<span>function</span> (no flat segments, since the lineality of $e_m$ is $0$ for $m\ge2$),
+while the pointwise statement — strict convexity of the level hypersurfaces — is literally
+"left to the reader" (end of his §4) and is weaker than Hessian-definiteness anyway.
+(b) The Lorentzian / completely-log-concave theory (Brändén–Huh, Anari–Oveis Gharan–Vinzant)
+gives log-concavity for all matroid basis generating polynomials. The strict pointwise
+version is precisely the Murai–Nagaoka–Yazawa theorem above.</p>
+
+<p>An elementary certificate you can check by hand. Independent of that theory, here is a
+finite, exact verification for any given $(n,m)$, using only Sylvester's criterion. Clear
+denominators: with $q_i = s_i\,e_{m-1}(s_{\hat\imath})/e_m(s)$ and
+$q_{ij}=s_is_j\,e_{m-2}(s_{\widehat{\imath\jmath}})/e_m(s)$ (here $s_{\hat\imath}$ means the
+odds with $s_i$ deleted, and $e_{m-1}(s_{\hat\imath})=\partial e_m/\partial s_i$), every entry
+of $G$ is a ratio with denominator $e_m(s)^2$. Define the integer-coefficient polynomial
+matrix $\widehat G := e_m(s)^2\,G$, with</p>
+
+$$\widehat G_{ii}=s_i^2\,e_{m-1}(s_{\hat\imath})^2,\qquad
+\widehat G_{ij}=s_is_j\Big(e_{m-1}(s_{\hat\imath})\,e_{m-1}(s_{\hat\jmath})
+- e_{m-2}(s_{\widehat{\imath\jmath}})\,e_m(s)\Big).$$
+
+<p>Because $e_m(s)^2\gt0$, the leading principal minors of $G$ and of $\widehat G$ have the
+same signs. Now form each leading principal minor $\det\widehat G_{[1]},\dots,\det\widehat
+G_{[n]}$ — these are honest polynomials in $s_1,\dots,s_n$ — and inspect their coefficients. If
+each is a nonzero polynomial with <span>no negative coefficient</span>, then each is strictly
+positive at every $s\gt 0$ (a sum of nonnegative monomials with at least one of them
+positive), so by Sylvester's criterion $\widehat G\succ0$, hence $G\succ0$, for all $s\gt0$ —
+i.e. for all $x\in(0,1)^n$.</p>
+
+<div class="box key">
+<p>This certificate succeeds (all leading principal minors of $\widehat G$ have all-positive
+coefficients) for every case computed: $n=4,5,6$ across all valid $m$. Each such case is a
+complete, exact proof of $G\succ0$ for that $(n,m)$ — and hence of the full conjecture for
+that $(k,n)$ — needing nothing beyond polynomial arithmetic and Sylvester's criterion.</p>
+</div>
+
+<p class="note">This is the same "all coefficients one sign" phenomenon the project saw in the
+older route, but on a vastly smaller and more structured object: $G$ is a covariance-type
+$n\times n$ matrix with degree-bounded entries, whereas the previous unifying statement asked
+it of a single determinant with hundreds of thousands of monomials. The uniform statement is
+now settled by the Murai–Nagaoka–Yazawa citation above; the certificate remains valuable as an
+independent, self-contained corroboration, and extending it to all $(n,m)$ — by induction / a
+Schur-complement recursion on these minors — would upgrade the whole proof to an elementary
+one (§6).</p>
+
+<p class="section" style="font-size:1rem">Fact 3 &nbsp;— &nbsp; the rank-one update: $(1,n-1,0)$ and sign $(-1)^{n-1}$.</p>
+
+<p>Assume $G\succ 0$ (Fact 2) and $q^\top G^{-1}q=m$ (Fact 1). Because $G$ is positive
+definite it has a positive-definite square root $G^{1/2}$, and $G^{-1/2}$ is invertible.
+Conjugate $qq^\top - G$ by $G^{-1/2}$ — again a congruence, so inertia is preserved:</p>
+
+$$G^{-1/2}\big(qq^\top - G\big)G^{-1/2}
+= \big(G^{-1/2}q\big)\big(G^{-1/2}q\big)^\top - I
+= w\,w^\top - I,\qquad w:=G^{-1/2}q.$$
+
+<p>The length of $w$ is set by Fact 1: $\;\|w\|^2 = w^\top w = q^\top G^{-1} q = m.$ The matrix
+$w w^\top - I$ is now trivial to diagonalize. The rank-one matrix $ww^\top$ has eigenvalue
+$\|w\|^2=m$ along the direction $w$, and eigenvalue $0$ on the $(n-1)$-dimensional subspace
+$w^\perp$. Subtracting the identity shifts every eigenvalue down by $1$:</p>
+
+$$\text{eigenvalues of } ww^\top - I:\qquad
+\underbrace{m-1}_{\text{once, along } w},\qquad \underbrace{-1,\,\dots,\,-1}_{n-1\ \text{times, on } w^\perp}.$$
+
+<p>Here is where $m\ge 2$ earns its keep: $m-1\ge 1\gt 0$, so there is exactly one positive
+eigenvalue; the other $n-1$ are $-1\lt0$; none is zero. Therefore</p>
+
+<div class="box key">
+$$\operatorname{In}(M)=\operatorname{In}(qq^\top-G)=\operatorname{In}(ww^\top-I)=(1,\,n-1,\,0),$$
+$$\det M\ \text{has the sign of}\ (m-1)\cdot(-1)^{n-1}=(-1)^{n-1}.$$
+</div>
+
+<p>(For the determinant sign directly: $\det(qq^\top-G)=\det(G)\det(ww^\top-I)
+=\det(G)\,(m-1)(-1)^{n-1}$, and $\det G\gt0$. The factor relating $\det M$ to
+$\det(qq^\top-G)$ is $\big(\prod_i x_i\big)^{-2}Z^{\,n}\gt0$, which does not affect the sign.)</p>
+
+<p>That is the entire proof. No induction on $n$, no separate treatment of small $k$, no
+Perron–Frobenius input even needed — the single positive eigenvalue is produced by the
+rank-one bump, and its being exactly one is the arithmetic fact $m\ge2$.</p>
+
+<p class="section">5. The whole argument on one page</p>
+
+<div class="box">
+<p>1. Target: $\operatorname{In}(M)=(1,n-1,0)$ (equivalently $\det M$ has sign $(-1)^{n-1}$).
+[§1]</p>
+<p>2. $M=D_{1/x}M_Q D_{1/x}$ where $M_Q$ is the matrix of $\sum_{|A|=m}p_A Q_A$,
+$Q_A(v)=\sum_{i\neq j\in A}v_iv_j$. Positive-diagonal congruence $\Rightarrow$
+$\operatorname{In}(M)=\operatorname{In}(M_Q)$. [§2, proved by a bijection]</p>
+<p>3. Normalizing, $M_Q\propto qq^\top - G$ with $q$ = marginals, $\Sigma$ = covariance,
+$G=D_q-\Sigma$. So $\operatorname{In}(M)=\operatorname{In}(qq^\top-G)$. [§3, expand a variance]</p>
+<p>4. $G\mathbf 1=q$ (because $|\mathcal A|=m$ is constant $\Rightarrow \Sigma\mathbf 1=0$), so
+$q^\top G^{-1}q=\sum q_i=m\ge2$. [§4, Fact 1]</p>
+<p>5. $G\succ0$, because $-G=\nabla^2\log f|_{\mathbf 1}$ and $f$ is (a scaling of) the
+log-concave polynomial $e_m$. [§4, Fact 2 — the one classical input]</p>
+<p>6. Conjugate by $G^{-1/2}$: $qq^\top-G\cong ww^\top-I$ with $\|w\|^2=m$; eigenvalues
+$m-1\ (\gt0)$ once and $-1$ $(n-1)$ times. Inertia $(1,n-1,0)$, sign $(-1)^{n-1}$. [§4, Fact 3]</p>
+<p>Uniform in $k$ and $n$; the boundary $k=n$ ($m=1$) is excluded precisely because there the
+lone positive eigenvalue $m-1$ would be $0$.</p>
+</div>
+
+<p>Sanity check at the extremes. For $k=1$ we have $m=n$: the conditioned set is all of $[n]$
+with probability one, so $q=\mathbf 1$, $\Sigma=0$, $G=I$, and $qq^\top-G=\mathbf 1\mathbf
+1^\top - I = J-I$, whose eigenvalues are $n-1$ (once) and $-1$ ($n-1$ times). One can check the
+true Jacobian directly here ($M_{ij}=\prod_{\ell\neq i,j}x_\ell$ when $k=1$), and indeed
+$M=(\prod_\ell x_\ell)\,D_{1/x}(J-I)D_{1/x}$ — literally congruent to $J-I$ at every $x$.
+Specializing once more to the symmetric point $x_i\equiv x$ gives $M=x^{n-2}(J-I)$, which is
+Kearnes' 2016 symmetric-point formula $M=r(J-I)$ with $r=x^{n-2}$. The same rank-one mechanism
+that drives the general proof is already visible in this simplest case.</p>
+
+<p class="section">5′. Post-hoc simplification: $M$ is congruent to the Hessian of $e_m$ itself</p>
+
+<p>Found while reading the Murai–Nagaoka–Yazawa paper (2026-07-12): their central object is
+not merely an ingredient — it <span>is</span> our Jacobian, up to an explicit positive-diagonal
+congruence. The Hessian of $e_m$ has entries
+$\partial_i\partial_j e_m(s)=e_{m-2}(s_{\widehat{\imath\jmath}})$ for $i\neq j$ and zero
+diagonal (multiaffine). Rewriting the Step-2 bijection in the odds variables,
+$p_A=\prod_\ell(1-x_\ell)\prod_{i\in A}s_i$ gives
+$x_ix_jM_{ij}=\prod_\ell(1-x_\ell)\cdot s_is_j\,e_{m-2}(s_{\widehat{\imath\jmath}})$, and
+dividing by $x_ix_j$ (note $s_i/x_i=1/(1-x_i)$):</p>
+
+<div class="box key">
+$$M \;=\; \prod_\ell(1-x_\ell)\cdot D\,H_{e_m}(s)\,D,
+\qquad D=\operatorname{diag}\!\Big(\frac{1}{1-x_i}\Big),
+\qquad \big(H_{e_m}\big)_{ij}=\partial_i\partial_j e_m .$$
+</div>
+
+<p class="note">Verified numerically for $(k,n)=(2,4),(3,5),(2,6),(4,7)$ at random interior
+points: max entrywise deviation $\sim10^{-16}$, and $H_{e_m}(s)$ has inertia $(1,n-1,0)$ in
+every trial.</p>
+
+<p>Consequence: Theorem 1.1(i) of Murai–Nagaoka–Yazawa, applied to $f_{U_{m,n}}=e_m$ at the
+point $a=s$, <span>is verbatim</span> the statement $\operatorname{In}(M)=(1,n-1,0)$ — the
+whole conjecture follows from the citation in one step, without Facts 1 and 3. Those facts
+are not wasted: the chain $M\cong qq^\top-G$ is the probabilistic unpacking of the standard
+identity $H_f\big|_{\mathbf 1}=qq^\top-G$ for the normalized $f$ (Hessian = log-Hessian plus
+rank-one gradient term), and it is what exhibits the lone positive eigenvalue explicitly as
+$m-1$, explains the $k=n$ degeneration, and identifies Malyshev's negative-definite subspace
+as $\{q\}^\perp$. For the paper: cite Theorem 1.1(i) for the signature in one line, keep the
+covariance route as the interpretation.</p>
+
+<p class="section">6. What is proved, and what remains</p>
+
+<p>Status of each link. Read this as the audit trail.</p>
+
+<div class="box">
+<p>Step 2 ($M\cong qq^\top-G$): <span>proved</span> (explicit bijection; also checked
+symbolically).</p>
+<p>Step 3 (the variance expansion, definition of $G$): <span>proved</span> (one line of
+algebra).</p>
+<p>Fact 1 ($G\mathbf 1=q$, hence $q^\top G^{-1}q=m$): <span>proved</span> (covariance with a
+constant is zero).</p>
+<p>Fact 3 (rank-one update $\Rightarrow$ $(1,n-1,0)$): <span>proved</span> (elementary linear
+algebra, given Facts 1–2).</p>
+<p>Fact 2 ($G\succ0$): <span>proved, by citation</span> — Murai–Nagaoka–Yazawa 2021,
+Theorem 1.1(i) (strict log-concavity, in the pointwise-Hessian sense, of the basis generating
+polynomial of any simple matroid of rank $\ge2$), applied to $U_{m,n}$; independently
+confirmed for $n\le 6$, all $m$, by the exact all-positive-coefficient certificate.</p>
+</div>
+
+<p>The gap is closed (2026-07-11). The literature pass recommended by an earlier version of
+this note found the exact reference for face (ii) below: Murai–Nagaoka–Yazawa, J. Combin.
+Theory Ser. A 181 (2021), art. 105351, Theorem 1.1(i) — stated and audited in §4, Fact 2.
+Applied to the uniform matroid $U_{m,n}$ (simple, of rank $m\ge2$, for the whole range
+$2\le m\le n$) it is verbatim the statement $G\succ0$ at every $s\gt0$. With this citation
+the <span>signature conjecture</span> ($\det M\neq0$, sign $(-1)^{n-1}$, local injectivity
+everywhere) is proved for all $1\le k\le n-1$ and all $n$; global injectivity additionally
+needs the local-to-global lemmas (P) and (F) of <code>globalization-gap.md</code>
+(caught 2026-07-12). For the record, the three
+equivalent faces of $G\succ0$ and their final status:</p>
+
+<p>(i) Combinatorial / self-contained: every leading principal minor of $\widehat G=e_m^2 G$
+has only nonnegative coefficients as a polynomial in the odds $s$. Proved case-by-case to
+$n=6$; <span>still open in general</span>, now as an optional project — a uniform induction or
+Schur-complement recursion (seeded by the splitting
+$e_m(s)=e_m(s_{\hat n})+s_n e_{m-1}(s_{\hat n})$) would make the entire proof elementary,
+needing nothing beyond polynomial arithmetic and Sylvester's criterion.</p>
+
+<p>(ii) Analytic: $\log e_m$ is strictly concave on $\{y\gt0\}$ for $2\le m\le n$.
+<span>Closed by citation</span> (Murai–Nagaoka–Yazawa Theorem 1.1(i), §4 Fact 2). Note that
+Gårding 1959 alone (<code>References/58061.pdf</code>) is <span>not</span> sufficient: his
+Theorem 5 with its equality case gives strict concavity of the function (the lineality of
+$e_m$ is $0$ for $m\ge2$), but the pointwise Hessian-definiteness — "the level hypersurfaces
+are strictly convex" — is left to the reader in his §4, and function-strictness is genuinely
+weaker than a kernel-free Hessian (compare $-t^4$ at $0$). The 2021 theorem supplies exactly
+the pointwise statement.</p>
+
+<p>(iii) Probabilistic: for the size-$m$-conditioned product Bernoulli measure,
+$\Sigma\prec D_q$, i.e. $\operatorname{Var}_\mu(\sum_i v_i\chi_i)\lt\sum_i v_i^2 q_i$ for all
+$v\neq0$. Now a <span>corollary</span> of (ii) via $\nabla^2\log f|_{\mathbf 1}=-G$ — and a
+clean statement worth recording in the write-up, since it reads as a variance inequality for
+negatively-associated measures.</p>
+
+<p>Next actions. (a) Close the local-to-global step — lemmas (P) properness and (F)
+singleton fiber — per the plan in <code>globalization-gap.md</code>; this is what stands
+between the proved signature statement and the global injectivity theorem. (b) Write the
+result up (<code>TeX/Parreiras26c.tex</code>), citing <code>Muraietal2021</code> for Fact 2
+(entry added to <code>bibas.bib</code>, all sibling projects synced) — structured per §5′:
+one-line citation for the signature, covariance route as interpretation, plus the
+globalization section. (c) Optionally pursue (i) for a fully self-contained, elementary
+proof.</p>
+
+<p>Caution flag for the next conjecture (mixed inversion / principal minors). The
+strengthened target — every principal minor $M[S,S]$ of size $\ge2$ is nonzero, so any
+partially-observed contest is recoverable (<code>QUICKSTART.md</code> §2) — does
+<span>not</span> fall out of the same citation for free. Two reasons. First, by §5′ the
+minor $M[S,S]$ is congruent to the Hessian in $z_S$ of the positive specialization
+$e_m(s\odot z)\big|_{z_{S^c}=\mathbf 1}$ — no longer a basis generating polynomial of a
+matroid but a weighted independent-set-type polynomial (a positive combination
+$\sum_j e_{m-j}$-like object on the ground set $S$), outside the literal scope of Theorem
+1.1(i). Second, Murai–Nagaoka–Yazawa's own Theorem 1.1(ii), about exactly such
+independent-set generating polynomials, explicitly <span>excludes uniform matroids</span> —
+and for good cause: there is a genuine kernel,
+$(-\partial_0+\partial_1+\cdots+\partial_n)\overline P_{U_{r,n}}=0$ (end of their §2). That
+kernel involves the homogenizing $\partial_0$ direction, which our minors do not contain, so
+it is not a counterexample to the principal-minor conjecture — but it shows nondegeneracy
+genuinely fails one door over in the uniform independent-set world, so the strengthening
+needs its own argument, not a reflexive citation.</p>
+
+<p>What this replaces. The earlier program (in <code>signature-reduction-results.html</code>
+and <code>unifying-statement-old.md</code>) reduced everything to "the polynomial
+$(-1)^{n-1}\det\widetilde N^{(k)}$ has all-positive coefficients," and proposed proving it by
+a Lindström–Gessel–Viennot network (blocked on darij grinberg's unproven common-sign lemma) or
+by sum-of-squares. That route is no longer needed: the present argument is uniform in $k$ (no
+per-$k$ matrix $\widetilde N^{(k)}$), and its positivity certificate lives on $G$ — an
+$n\times n$ covariance matrix — rather than on a giant determinant. Malyshev's R3 instinct (a
+single negative-definite subspace closing all $k$ at once) is vindicated: the subspace is
+$\{q\}^\perp$, $G$ is the form on it, and $G\succ0$ is the whole content.</p>
+
+<p class="section">7. Hidden-traps checklist</p>
+
+<p>The places a proof like this can secretly fail, and where each stands.</p>
+
+<div class="box">
+<p>T1. "Is $M$ really congruent to $qq^\top-G$, or only numerically close?" — Really
+congruent. The identity $x_ix_jM_{ij}=(M_Q)_{ij}$ is exact (bijection in §2, plus symbolic
+check). The two congruences use $D_{1/x}$ and $G^{-1/2}$, both invertible, so inertia transfers
+exactly.</p>
+
+<p>T2. "Does the argument secretly assume the conclusion?" (e.g. invoking 'by continuity the
+signature is $(1,n-1)$', or using Perron to put in the positive eigenvalue) — No. The signature
+is never assumed. The lone positive eigenvalue is produced, in Fact 3, by the rank-one bump
+$ww^\top$ together with $\|w\|^2=m\ge2$. Perron–Frobenius is not used at all.</p>
+
+<p>T3. "Is positive-definiteness of $G$ truly necessary, or would semidefinite do?" — Strictly
+necessary. Fact 3 needs $G^{-1/2}$ (invertibility), and Fact 1 needs $G^{-1}q$. If $G$ had a
+kernel the conjugation would be illegal and $q^\top G^{-1}q$ undefined. So the entire weight
+rests on strict $G\succ0$ — which is why the citation had to be checked to give pointwise
+Hessian-definiteness, not mere semidefiniteness or function-strictness (§4 Fact 2, §6(ii)):
+the Murai–Nagaoka–Yazawa theorem does.</p>
+
+<p>T4. "Is $G\succ0$ maybe trivially true for any measure, making the result suspiciously
+cheap?" — No, and this is reassuring. For any measure on $\{0,1\}^n$ the same computation gives
+$-\nabla^2\log f|_{\mathbf 1}=D_q-\Sigma$, but this is indefinite when there is positive
+correlation (e.g. two coordinates forced equal). Positive definiteness uses the special
+negative-association / log-concavity of the size-conditioned product measure. The proof is not
+'too good to be true' — it consumes a genuine structural input exactly once, at Fact 2.</p>
+
+<p>T5. "Does 'all coefficients nonnegative' really give a strict minor $\gt0$?" — Yes. A
+polynomial with nonnegative coefficients that is not identically zero, evaluated at a strictly
+positive point, is a sum of nonnegative terms at least one of which is strictly positive. Each
+leading principal minor is then $\gt0$ for all $s\gt0$, which is the hypothesis of Sylvester's
+criterion. (We checked 'nonzero and no negative coefficient' for each minor.)</p>
+
+<p>T6. "Are the boundary values of $k$ handled?" — Yes, and informatively. $m=n-k+1\in\{2,
+\dots,n\}$ for $k\in\{1,\dots,n-1\}$, so $m\ge2$ throughout and Fact 3 always gives one
+positive eigenvalue. The excluded $k=n$ gives $m=1$, where the positive eigenvalue $m-1$ would
+collapse to $0$ — the proof correctly predicts the one place the statement degenerates. The
+easy endpoints $k=1,\,k=n-1$ are not special-cased; they fall out of the same formula
+($k=1$ reproduces Kearnes' $J-I$, §5).</p>
+
+<p>T7. "Probability slice $x\in(0,1)$ vs. the orthant $s\gt0$?" — Equivalent, no loss. As $x_i$
+ranges over $(0,1)$ the odds $s_i=x_i/(1-x_i)$ range over all of $(0,\infty)$, and the
+certificate is stated for all $s\gt0$. (This matches Speyer's 2016 homogeneity observation that
+the determinant's sign on the slice equals its sign on the whole positive orthant.)</p>
+
+<p>T8. "Could the numerics be lying (floating-point artifacts)?" — The load-bearing checks are
+symbolic, not floating-point: the congruence identity (§2), $\nabla^2\log f=-G$ (Fact 2), and
+the positive-coefficient minors are exact computations over $\mathbb Q$. The floating-point
+runs (inertia, $q^\top G^{-1}q=m$) are only corroboration; an earlier round of false positives
+from extreme skew + a loose tolerance was diagnosed and is not present in the exact results.</p>
+
+<p>T9. "Is the generating-polynomial formula $f=e_m(s\odot z)/e_m(s)$, with the right
+normalization, correct?" — Yes: $f(\mathbf 1)=1$ and $\partial_i f(\mathbf 1)=q_i$,
+$\partial_i\partial_j f(\mathbf 1)=q_{ij}$ as required; and the downstream identity
+$\nabla^2\log f|_{\mathbf 1}=-G$ was confirmed symbolically, which would fail if the formula or
+its normalization were wrong.</p>
+</div>
+
+<p class="section">8. Reproduce it yourself</p>
+
+<p>The checks above were run in Julia (Nemo for exact polynomial arithmetic, LinearAlgebra for
+numerics). The essential pieces, in compact form:</p>
+
+<p class="note">Build the measure and $G$ for given $(k,n)$ and a point $x$ (numeric):</p>
+<div class="box"><code>
+m = n-k+1;&nbsp; over all A ⊆ [n] with |A|=m:&nbsp; p = ∏_{i∈A} x_i · ∏_{i∉A}(1-x_i)<br>
+Z = Σ p;&nbsp; q_i = (Σ_{A∋i} p)/Z;&nbsp; q_ij = (Σ_{A∋i,j} p)/Z<br>
+Σ = [q_ij - q_i q_j];&nbsp; Σ_ii = q_i(1-q_i);&nbsp; G = Diagonal(q) - Σ<br>
+# claims:&nbsp; eigvals(G) .> 0;&nbsp; qᵀ G⁻¹ q ≈ m;&nbsp; In(q qᵀ - G) = (1, n-1, 0)
+</code></div>
+
+<p class="note">The exact certificate for $G\succ0$ (symbolic, in the odds
+$s_1,\dots,s_n$ over $\mathbb Q$):</p>
+<div class="box"><code>
+e_r(vars) = Σ over r-subsets T of ∏_{i∈T} vars_i&nbsp; (elementary symmetric)<br>
+Ĝ_ii = s_i² · e_{m-1}(s without i)²<br>
+Ĝ_ij = s_i s_j · ( e_{m-1}(s\i)·e_{m-1}(s\j) − e_{m-2}(s\{i,j})·e_m(s) )<br>
+# for j = 1..n:&nbsp; d = det( Ĝ[1:j, 1:j] );&nbsp; assert (d ≠ 0) and (no coefficient of d is &lt; 0)<br>
+# all-positive ⇒ (Sylvester's criterion) Ĝ ≻ 0 ⇒ G ≻ 0 for all s &gt; 0
+</code></div>
+
+<p class="note">Symbolic congruence to the true Jacobian (the §2 bridge): build $M_{ij}$ from
+its probability definition and check the polynomial identity
+$x_i x_j M_{ij} = \sum_{A\ni i,j,\,|A|=m} p_A$ over $\mathbb Q[x_1,\dots,x_n]$.</p>
+
+<p class="note">Provenance and prior framing: <code>mse-2016-threads.md</code> (Malyshev's
+quadratic-form reformulation and negative-definite-subspace suggestion; Speyer's homogeneity;
+Kearnes' symmetric-point spectrum). Older per-$k$ route and its open "unifying statement":
+<code>signature-reduction-results.html</code>, <code>unifying-statement-old.md</code>.
+References on disk: <code>References/58061.pdf</code> (Gårding 1959);
+<code>References/1-s2.0-S0097316520301436-main.pdf</code> (Murai–Nagaoka–Yazawa, published
+version) and <code>References/MuraiNagaokaYazawa2020-strictness.pdf</code> (arXiv copy);
+bib key <code>Muraietal2021</code> in <code>TeX/bibas.bib</code>.</p>
+
+</body>
+</html>

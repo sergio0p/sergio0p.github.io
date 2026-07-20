@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>det J at σ(2,2) — the critical set {det J = 0} (ỹ-coordinates)</title>
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+      integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+      crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+        integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8"
+        crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05"
+        crossorigin="anonymous"
+        onload="renderMathInElement(document.body,{
+          delimiters:[
+            {left:'$$',right:'$$',display:true},
+            {left:'$',right:'$',display:false},
+            {left:'\\[',right:'\\]',display:true},
+            {left:'\\(',right:'\\)',display:false}
+          ],
+          throwOnError:false});"></script>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --panel: #ffffff;
+    --ink: #1c1c1c;
+    --muted: #5e5e5e;
+    --accent: #b3460e;
+    --pos: #137a00;
+    --neg: #b31818;
+    --amb: #8a6d00;
+    --crit: #6a1b9a;
+    --rule: #d8d8d4;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    max-width: 1000px;
+    margin: 2em auto;
+    padding: 0 1.5em;
+    line-height: 1.55;
+  }
+  h1 { font-size: 1.5em; border-bottom: 2px solid var(--rule); padding-bottom: .3em; }
+  h2 { font-size: 1.15em; margin-top: 2em; color: var(--accent); }
+  h3 { font-size: 1.0em; margin-top: 1.4em; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1em 1.4em;
+    margin: 1em 0;
+    overflow-x: auto;
+  }
+  .legend table { border-collapse: collapse; width: 100%; font-size: .93em; }
+  .legend td, .legend th {
+    border-bottom: 1px solid var(--rule);
+    padding: .3em .6em;
+    text-align: left;
+    vertical-align: top;
+  }
+  .legend th { background: #f1f1ec; font-weight: 600; }
+  .pos { color: var(--pos); font-weight: 600; }
+  .neg { color: var(--neg); font-weight: 600; }
+  .amb { color: var(--amb); font-weight: 600; }
+  .crit { color: var(--crit); font-weight: 600; }
+  .note {
+    background: #fff8e8;
+    border-left: 3px solid var(--amb);
+    padding: .6em 1em;
+    margin: 1em 0;
+    font-size: .94em;
+  }
+  .core {
+    background: #f1f6ff;
+    border-left: 3px solid #2855a8;
+    padding: .6em 1em;
+    margin: 1em 0;
+  }
+  .warn {
+    background: #fdecec;
+    border-left: 3px solid var(--neg);
+    padding: .6em 1em;
+    margin: 1em 0;
+    font-size: .94em;
+  }
+  .warn table { border-collapse: collapse; width: 100%; font-size: .92em; }
+  .warn td, .warn th { border-bottom: 1px solid var(--rule); padding: .35em .6em; text-align: center; }
+  .warn th { background: #f6e0e0; }
+  .warn td.lab { text-align: left; font-weight: 600; }
+  .critbox {
+    background: #f7f0fb;
+    border-left: 3px solid var(--crit);
+    padding: .6em 1em;
+    margin: 1em 0;
+  }
+  .ybox {
+    background: #eefaf0;
+    border-left: 3px solid var(--pos);
+    padding: .6em 1em;
+    margin: 1em 0;
+    font-size: .94em;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+  .grid > div {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: .8em 1em;
+  }
+  .data table { border-collapse: collapse; width: 100%; font-size: .92em; }
+  .data td, .data th { border-bottom: 1px solid var(--rule); padding: .35em .6em; text-align: center; }
+  .data th { background: #f1f1ec; }
+  .data td.lab { text-align: left; font-weight: 600; }
+  hr { border: none; border-top: 1px dashed var(--rule); margin: 2em 0; }
+  small { color: var(--muted); }
+  code { background: #f3f3ee; padding: .05em .35em; border-radius: 3px; font-size: .9em; }
+  .tag { display:inline-block; font-size:.72em; font-weight:700; letter-spacing:.04em;
+         padding:.1em .5em; border-radius:10px; vertical-align:middle; }
+  .tag-new { background:#ede7f6; color:var(--crit); }
+</style>
+</head>
+<body>
+
+<h1>det&nbsp;J at σ(2,2): the critical set $\{\det J = 0\}$ <span class="tag tag-new">ỹ-COORDINATES</span></h1>
+
+<small>
+Variables: $z = (x_1,\, x_2,\, \tilde y_2,\, u_1,\, p_1,\, p_2,\, q_1,\, q_2)$ ;
+Equations: $F = (\mathrm{FOC}_{x_1}, \mathrm{FOC}_{x_2}, \mathrm{FOC}_{\tilde y_2},
+\mathrm{IND}_{x_1}, \mathrm{IND}_{x_2}, \mathrm{IND}_{\tilde y_2}, \Sigma p - 1, \Sigma q - 1)$ ;
+$J = \partial F / \partial z$ is the $8\times 8$ Jacobian, evaluated under $\mathrm{FOC}=0$.
+</small>
+
+<div class="critbox">
+<strong>What this artifact does.</strong> It locates the <em>critical set</em> $\mathcal C = \{z : \det J(z) = 0\}$
+— the set of points where the σ(2,2) equilibrium map fails to be a local diffeomorphism — rather than
+merely asserting a sign. This is the object the Sard / generic-regularity program (Theorem&nbsp;1) actually needs:
+the equilibrium manifold $\{F=0\}$ is regular exactly where it <em>avoids</em> $\mathcal C$.
+Two changes from the previous version:
+<ul style="margin:.4em 0 0 0">
+  <li><strong>ỹ-coordinates.</strong> P2's atoms are the shifted comb atoms $\tilde y_\ell = y_\ell + f$,
+      $f = w_2 - w_1 - \Delta$. The interleaving $\tilde y_1 < x_1 < \tilde y_2 < x_2$ is the correct one;
+      the raw chain $y_1 < x_1 < y_2 < x_2$ holds only at $f = 0$.</li>
+  <li><strong>Critical set, not sign.</strong> We pull out the factor of $\det J$ that <em>never</em> vanishes,
+      so $\mathcal C$ is carried by a single bracket, and we characterise where that bracket can hit zero.</li>
+</ul>
+</div>
+
+<!-- ========================================================== -->
+<h2>0. The ỹ-coordinate setup &amp; corrected interleaving</h2>
+
+<div class="ybox">
+The change of variables $\tilde y_\ell = y_\ell + f$, with $f = w_2 - w_1 - \Delta$, pushes the entire dynamic
+asymmetry ($\Delta$ <em>and</em> the value gap) into P2's own first-round cost. After the shift:
+<ul style="margin:.4em 0 0 0">
+  <li>the comb is $f$-free: $\;\tilde y_1 < x_1 < \tilde y_2 < x_2$, with comb floor $\tilde y_1 = f$ (raw $y_1 = 0$);</li>
+  <li>every win/clinch margin is $f$-free: P1 clinches $\tilde y_\ell$ at effort $w_1 + \tilde y_\ell - x_k$,
+      P2 clinches $x_k$ at effort $w_2 + x_k - \tilde y_\ell$;</li>
+  <li>$f$ survives <strong>only</strong> in P2's own cost $c(\tilde y_\ell - f)$ — its level (indifference) and its marginal (FOC) —
+      and, through the floor $\tilde y_1 = f$, in the two clinch gaps against the floor.</li>
+</ul>
+Equivalently, P2 plays the symmetric comb game against the translated cost $\tilde c_2(\cdot) = c(\cdot - f)$.
+</div>
+
+<div class="panel legend">
+<table>
+  <tr><th>Shorthand</th><th>ỹ-coordinate definition</th><th>raw equivalent</th><th>meaning / sign</th></tr>
+  <tr><td>$s_1$</td><td>$w_1 + \tilde y_1 - x_1 = w_1 + f - x_1$</td><td>$w_2 - \Delta - x_1$</td><td class="pos">$>0$ — P1 clinch vs floor</td></tr>
+  <tr><td>$s_2$</td><td>$w_1 + \tilde y_1 - x_2 = w_1 + f - x_2$</td><td>$w_2 - \Delta - x_2$</td><td class="pos">$>0$ — P1 clinch vs floor</td></tr>
+  <tr><td>$s_3$</td><td>$w_1 + \tilde y_2 - x_2$</td><td>$w_2 - \Delta - x_2 + y_2$</td><td class="pos">$>0$ — P1 clinch vs $\tilde y_2$ ($f$-free)</td></tr>
+  <tr><td>$t$</td><td>$w_2 + x_1 - \tilde y_2$</td><td>$w_1 + \Delta + x_1 - y_2$</td><td class="pos">$>0$ — P2 clinch vs $x_1$ ($f$-free)</td></tr>
+  <tr><td>$y_2$</td><td>$\tilde y_2 - f$</td><td>$y_2$</td><td class="pos">$>0$ — P2 own effort (the lone $f$-carrier)</td></tr>
+  <tr><td>$H_{x_1}$</td><td>$q_1\, c''[s_1] + c''[x_1]$</td><td></td><td class="pos">$>0$ — $= -\partial^2 U_1/\partial x_1^2$</td></tr>
+  <tr><td>$H_{x_2}$</td><td>$q_1\, c''[s_2] + c''[x_2] + q_2\, c''[s_3]$</td><td></td><td class="pos">$>0$ — $= -\partial^2 U_1/\partial x_2^2$</td></tr>
+  <tr><td>$H_{y_2}$</td><td>$p_1\, c''[t] + c''[y_2]$</td><td></td><td class="pos">$>0$ — $= -\partial^2 U_2/\partial \tilde y_2^2$</td></tr>
+  <tr><td>$\kappa_t$</td><td>$c'[t]^2 + (v_2 - c[t])\, c''[t]$</td><td></td><td class="pos">$>0$ — $v_2 - c[t] = c[y_2]/p_1 > 0$ by IND$_{\tilde y_2}$</td></tr>
+  <tr><td>$\beta$</td><td>$c[s_1] - c[s_2] + c[s_3] - v_1$</td><td></td><td class="crit">$\pm$ — the bracket that carries $\mathcal C$</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Why the raw chain was wrong off symmetry.</strong> The branch points of Lemma&nbsp;1 are
+$w_2 - w_1$ and $w_2$ for $U^T_1$ (and $-w_1$, $w_2 - w_1$ for $U^T_2$); the two players do <em>not</em>
+share interior cuts. Writing the support as $y_1 < x_1 < y_2 < x_2$ silently assumes those cuts coincide,
+which happens only at $f = 0$ ($v_1 = v_2,\ \Delta = 0$). In ỹ-coordinates the wall positions are the
+comb nodes $x_1 = \tilde y_1$, $x_1 = \tilde y_2$, $x_2 = \tilde y_2$ — not the physical merges $y_2 = x_1$, $x_2 = y_2$,
+which sit strictly inside the comb for $f > 0$.
+</div>
+
+<!-- ========================================================== -->
+<h2>1. The determinant and its never-vanishing factor</h2>
+
+<p>Building the $8\times 8$ system in ỹ-coordinates and reducing under $\mathrm{FOC}=0$ (Wolfram, generic strictly-convex&nbsp;$c$) gives the exact factorisation</p>
+
+<div class="panel">
+$$
+\boxed{\;\det J \;=\; \underbrace{\bigl(-H_{x_2}\bigr)}_{<\,0\ \text{strictly}}\;\cdot\;\bigl(\mathcal A + \mathcal B\bigr)\;}
+$$
+with
+$$
+\mathcal A \;=\; p_1\, q_2\, c'[s_1]\, c'[s_3]\, \kappa_t,
+\qquad
+\mathcal B \;=\; \underbrace{\bigl(c[s_1] - c[s_2] + c[s_3] - v_1\bigr)}_{=\;\beta}\,\bigl(c[t] - v_2\bigr)\,H_{x_1}\, H_{y_2}.
+$$
+<small>(Verified symbolically: $\det J - (-H_{x_2})(\mathcal A + \mathcal B) = 0$. $\mathcal A$, $\mathcal B$ are the terms previously written $\mathcal A_1$, $\mathcal A_2 = B\!\cdot\! C$.)</small>
+</div>
+
+<div class="critbox">
+<strong>The first factor never vanishes.</strong> $H_{x_2} = q_1 c''[s_2] + c''[x_2] + q_2 c''[s_3]$ is a sum of
+strictly positive terms for any strictly convex $c$ and interior masses, so $-H_{x_2} < 0$ on the whole
+admissible region. It contributes <em>no</em> critical points. Therefore
+$$
+  \boxed{\;\mathcal C \;=\; \{\det J = 0\} \;=\; \{\,\mathcal A + \mathcal B = 0\,\}\;}
+$$
+— the critical set is carried entirely by the second factor. Signing $\det J$ and locating $\mathcal C$ are the
+same question; this artifact answers the second, sharper one.
+</div>
+
+<!-- ========================================================== -->
+<h2>2. The critical set lives in a single subregion</h2>
+
+<p>Two of the three pieces of $\mathcal A + \mathcal B$ have a fixed sign; only the bracket $\beta$ is free.</p>
+
+<div class="grid">
+  <div>
+    <h3 class="pos">$\mathcal A$ — strictly positive everywhere</h3>
+    $$\mathcal A = p_1\, q_2\, c'[s_1]\, c'[s_3]\, \kappa_t$$
+    <small>$p_1, q_2 > 0$; $c'[s_1], c'[s_3] > 0$ (gaps positive, $c$ convex);
+    $\kappa_t = c'[t]^2 + (v_2 - c[t])c''[t] > 0$ because
+    IND$_{\tilde y_2}$ gives $v_2 - c[t] = c[y_2]/p_1 > 0$.</small>
+  </div>
+  <div>
+    <h3 class="crit">$\mathcal B$ — sign $= -\operatorname{sign}(\beta)$</h3>
+    $$\mathcal B = \beta\,\underbrace{(c[t] - v_2)}_{=\,-c[y_2]/p_1\,<\,0}\,\underbrace{H_{x_1}H_{y_2}}_{>\,0}$$
+    $$\Longrightarrow\quad \operatorname{sign}(\mathcal B) = -\operatorname{sign}(\beta).$$
+  </div>
+</div>
+
+<div class="critbox">
+Substituting $c[t]-v_2 = -c[y_2]/p_1$ and multiplying by $p_1 > 0$, the critical equation $\mathcal A + \mathcal B = 0$ becomes
+$$
+  \boxed{\;
+    \underbrace{p_1^2\, q_2\, c'[s_1]\, c'[s_3]\, \kappa_t}_{\text{regularising term} \;>\;0}
+    \;=\;
+    \underbrace{c[y_2]\;\beta\;H_{x_1}\, H_{y_2}}_{\text{bracket term}}
+  \;}
+$$
+The left side is strictly positive, so the equation can hold <strong>only where $\beta > 0$</strong>.
+Consequently:
+<ul style="margin:.4em 0 0 0">
+  <li>On $\{\beta \le 0\}$: $\mathcal B \ge 0$, so $\mathcal A + \mathcal B \ge \mathcal A > 0$ and
+      $\det J < 0$ <em>unconditionally</em> — $\mathcal C$ is empty here.</li>
+  <li>$\mathcal C \subseteq \{\beta > 0\}$: every critical point lies in the bracket-positive half, on the
+      hypersurface where the regularising term and the bracket term exactly balance.</li>
+</ul>
+</div>
+
+<!-- ========================================================== -->
+<h2>3. The bracket $\beta$ and the $f$-rewriting</h2>
+
+<div class="panel">
+The bracket $\beta = c[s_1] - c[s_2] + c[s_3] - v_1$ is the only sign-indeterminate ingredient. Two reductions tame it.
+
+<h3>IND substitution eliminates $v_1$</h3>
+Using $\mathrm{IND}_{x_2} - \mathrm{IND}_{x_1}$ to remove $v_1$ (and $q_1 + q_2 = 1$):
+$$
+  \boxed{\; q_2\, \beta \;=\; \bigl(c[s_1] - c[s_2]\bigr) \;-\; \bigl(c[x_2] - c[x_1]\bigr) \;}
+$$
+a cross-difference of cost values: both $c[s_1]-c[s_2]>0$ ($s_1>s_2$) and $c[x_2]-c[x_1]>0$ ($x_2>x_1$),
+of the same first order $\approx c'(\cdot)(x_2-x_1)$ — hence no a-priori sign.
+
+<h3>The $\varphi$-symmetry</h3>
+Let $K := w_2 - \Delta = w_1 + f$ and $\varphi(x) := c(K - x) + c(x)$ — strictly convex, symmetric about $K/2$,
+minimised there. Since $s_i = K - x_i$,
+$$
+  q_2\, \beta \;=\; \bigl(c[s_1] + c[x_1]\bigr) - \bigl(c[s_2] + c[x_2]\bigr) \;=\; \varphi(x_1) - \varphi(x_2),
+$$
+so $\operatorname{sign}(\beta) = \operatorname{sign}\!\bigl(\varphi(x_1) - \varphi(x_2)\bigr)$ — determined by which atom is farther from $K/2$.
+On the computed equilibria the atoms always <strong>straddle</strong> the midpoint, $x_1 < K/2 < x_2$ (401 of 401), whence
+$$
+  \boxed{\;\operatorname{sign}(\beta) \;=\; \operatorname{sign}(K - x_1 - x_2) \;=\; \operatorname{sign}(w_2 - \Delta - x_1 - x_2)\;}
+$$
+The critical set therefore can only meet the equilibrium manifold where the atoms are <em>inward</em> of the midline,
+$x_1 + x_2 < w_2 - \Delta$.
+</div>
+
+<!-- ========================================================== -->
+<h2>4. Quadratic specialisation: $\mathcal C = \{T_1 = T_2\}$</h2>
+
+<div class="panel">
+For $c(e) = e^2/2$ the never-vanishing factor collapses to $-H_{x_2} = -2$, and after eliminating $v_1$ (from $\mathrm{IND}_{x_2}-\mathrm{IND}_{x_1}$) and $v_2$ (from $\mathrm{IND}_{\tilde y_2}$) the determinant is exactly
+$$
+  \boxed{\;\det J \;=\; \frac{T_1 - T_2}{p_1\, q_2}\;}
+  \qquad
+  \Longrightarrow\quad \mathcal C = \{T_1 = T_2\},\quad \operatorname{sign}(\det J) = \operatorname{sign}(T_1 - T_2),
+$$
+with
+$$
+  T_1 = (x_2 - x_1)\,(w_2 - \Delta - x_1 - x_2)\, y_2^2\, (1 + q_1)(1 + p_1),
+  \qquad
+  T_2 = 2\, p_1\, q_2^2\, s_1\, s_3\,\Bigl(p_1\, t^2 + \tfrac12 y_2^2\Bigr).
+$$
+<small>(Verified symbolically: $\det J_{\text{quad,IND}} - (T_1 - T_2)/(p_1 q_2) = 0$.)</small>
+
+<p>Both $T_1, T_2 > 0$ in the inward regime $x_1 + x_2 < w_2 - \Delta$ (this is the $\beta>0$ half again, since the
+second factor of $T_1$ is $K - x_1 - x_2$). The critical hypersurface is the polynomial equation $T_1 = T_2$:</p>
+$$
+  (x_2 - x_1)(w_2 - \Delta - x_1 - x_2)\, y_2^2\, (1+q_1)(1+p_1)
+  \;=\;
+  2\, p_1\, q_2^2\, s_1\, s_3\,\bigl(p_1\, t^2 + \tfrac12 y_2^2\bigr).
+$$
+$\det J < 0$ (the regular side) is the strict inequality $T_1 < T_2$.
+</div>
+
+<div class="note">
+<strong>Both identities are on-manifold.</strong> $\det J = (-H_{x_2})(\mathcal A + \mathcal B)$ and the quadratic
+$\det J = (T_1-T_2)/(p_1 q_2)$ hold once the stationarity relations are imposed on the determinant —
+the first-order conditions $c'(x_k) = $ (mass-weighted $c'$ at the gaps) and the indifference relations
+that fix $v_1, v_2$. A symbolic determinant compared <em>without</em> substituting these does not match:
+it carries extra off-manifold terms that cancel only at a stationary point. The clean factorisation is a
+statement about the Jacobian <em>at</em> an equilibrium — exactly what regularity needs. Verified in Wolfram
+with all relations imposed (residuals identically $0$, both signs reconciled); a naïve off-manifold symbolic
+comparison reports a spurious mismatch.
+</div>
+
+<div class="note">
+<strong>Scale-invariance.</strong> Along the equilibrium manifold $v_1, v_2$ scale with the cost (they are
+pinned by indifference, $v_2 = c[t] + c[y_2]/p_1$, etc.), so $\mathcal A$ and $\mathcal B\!\cdot\!\mathcal C$ are
+homogeneous of the same degree under $c \mapsto \lambda c$. The critical locus
+$\{\mathcal A + \mathcal B\!\cdot\!\mathcal C = 0\} = \{T_1 = T_2\}$ is therefore unchanged by an overall rescaling
+of $c$ — the sweep's pure-form costs ($e^2, e^3, \dots$) carry no special normalisation, and the
+$\det J < 0$ conclusion is not an artifact of the cost convention.
+</div>
+
+<!-- ========================================================== -->
+<h2>5. How close does the equilibrium manifold come to $\mathcal C$?</h2>
+
+<p>
+Define the dimensionless <strong>signed margin</strong> $\;m := \dfrac{\mathcal A + \mathcal B}{\mathcal A} = 1 + \dfrac{\mathcal B}{\mathcal A}$.
+The critical set is exactly $\{m = 0\}$; $\det J < 0 \iff m > 0$. Because $\operatorname{sign}(\mathcal B) = -\operatorname{sign}(\beta)$:
+on the <em>threatening</em> side $\beta > 0$ the term $\mathcal B$ pulls $m$ toward $0$ ($m = 1 - |\mathcal B|/\mathcal A$);
+on the <em>reinforcing</em> side $\beta < 0$ it pushes $m$ away ($m = 1 + |\mathcal B|/\mathcal A > 1$).
+</p>
+
+<div class="panel data">
+<table>
+  <tr><th>cost family</th><th>$c(e)$</th><th>$n$ cells</th><th>$\det J < 0$</th>
+      <th>$m$ range</th><th>closest approach $\min m$</th><th>threat-side $\max|\mathcal B|/\mathcal A$</th></tr>
+  <tr><td class="lab">quadratic</td><td>$e^2$</td><td>108</td><td class="pos">108/108</td><td>$[0.831,\,1.020]$</td><td class="pos">$0.831$</td><td>$0.169$</td></tr>
+  <tr><td class="lab">cubic</td><td>$e^3$</td><td>80</td><td class="pos">80/80</td><td>$[1.257,\,1.878]$</td><td class="pos">$1.257$</td><td>— (all reinforcing)</td></tr>
+  <tr><td class="lab">cosh1</td><td>$\cosh e - 1$</td><td>106</td><td class="pos">106/106</td><td>$[0.909,\,1.112]$</td><td class="pos">$0.909$</td><td>$0.091$</td></tr>
+  <tr><td class="lab">explin</td><td>$\tfrac12 e^2 + \tfrac{1}{10}(e^e\!-\!1\!-\!e)$</td><td>107</td><td class="pos">107/107</td><td>$[0.872,\,1.040]$</td><td class="pos">$0.872$</td><td>$0.128$</td></tr>
+  <tr style="font-weight:600"><td class="lab">all</td><td>4 families</td><td>401</td><td class="pos">401/401</td><td>$[0.831,\,1.878]$</td><td class="pos">$0.831$</td><td>$0.169$</td></tr>
+</table>
+<small>Original <strong>four standard families</strong>. Equilibrium-gated cells, $v_1, v_2 \in [0.7, 1.3]$, $\Delta \in [-0.2, 0.2]$. Source:
+<code>Julia/solver/sigma22_A1_A2.json</code> (clean by construction — see note).</small>
+</div>
+
+<div class="core">
+<strong>Reading (for the four standard families).</strong> Across these four families and all 401 gated equilibria,
+$\det J < 0$ — the manifold never touches $\mathcal C$. On these families the closest approach is $m \ge 0.831$, and on the
+threatening side ($\beta > 0$, $\mathcal B < 0$) the ratio $|\mathcal B|/\mathcal A$ never exceeds $0.169$. The largest
+ratio $|\mathcal B|/\mathcal A = 0.878$ occurs for cubic, but entirely on the <em>reinforcing</em> side ($\beta < 0$,
+$m \ge 1.26$), where $\mathcal B$ moves the manifold <em>away</em> from $\mathcal C$.
+<strong>⚠ The numbers $0.831$ and $0.169$ are specific to these four families, NOT universal — see the correction below.</strong>
+</div>
+
+<div class="warn">
+<strong>⚠ Correction 2026-06-01 — the margin is family-specific, the sign is robust.</strong>
+Re-solving genuine σ(2,2) equilibria for <strong>13 cost families</strong> and gating on no-deviation admissibility
+(<code>Julia/solver/target_counterexample_hunt.jl</code>; results
+<code>Julia/solver/target_counterexample_hunt_results.txt</code>) shows:
+<ul style="margin:.4em 0 0 0">
+  <li><strong>$\det J < 0$ is robust:</strong> 0 sign flips across all 13 families — the <em>sign</em> conclusion stands.</li>
+  <li><strong>The margin collapses:</strong> on the threatening side the normalized margin $m = (\mathcal A + \mathcal B)/\mathcal A$
+      drops to <strong>$0.33$</strong> (powers $e^{1.2}, e^{1.3}$), so $|\mathcal B|/\mathcal A$ reaches $\approx 0.67$ — the
+      $0.831 / 0.169$ bound does <em>not</em> generalize.</li>
+  <li><strong>The sufficient chain is too lossy:</strong> $D_1 := q_2 c'[s_1]c'[s_3] - \beta H_{x_1} \ge 0$ FAILS on
+      <strong>27 genuine admissible equilibria</strong> ($e^{1.1}$: 5/5, $e^{1.2}$: 14/14, $e^{1.3}$: 8/29) where $\det J < 0$
+      still holds. The TARGET inequality fails even more widely. So neither $D_1 \ge 0$ nor TARGET is load-bearing; the
+      secant bound $\beta \le c'[s_1](x_2-x_1)$ breaks whenever $c''' < 0$.</li>
+  <li><strong>Log-concavity at $y_2$ holds automatically</strong> on every admissible cell (0 failures, even globally
+      log-convex costs) — it is not a hypothesis to discharge.</li>
+</ul>
+<table style="margin-top:.5em">
+  <tr><th>family</th><th>$c(e)$</th><th>$\beta>0$ cells</th><th>$\det J<0$</th><th>$\min m$ (threat side)</th><th>$\min D_1$</th></tr>
+  <tr><td class="lab">power</td><td>$e^{1.1}$</td><td>5</td><td class="pos">5/5</td><td>$0.794$</td><td class="neg">$-0.343$</td></tr>
+  <tr><td class="lab">power</td><td>$e^{1.2}$</td><td>14</td><td class="pos">14/14</td><td class="neg">$0.330$</td><td class="neg">$-1.939$</td></tr>
+  <tr><td class="lab">power</td><td>$e^{1.3}$</td><td>29</td><td class="pos">29/29</td><td class="neg">$0.331$</td><td class="neg">$-1.369$</td></tr>
+  <tr><td class="lab">power</td><td>$e^{1.5}$</td><td>80</td><td class="pos">80/80</td><td>$0.558$</td><td>$0.051$</td></tr>
+  <tr><td class="lab">power</td><td>$e^{1.7}$</td><td>104</td><td class="pos">104/104</td><td>$0.816$</td><td>$0.612$</td></tr>
+  <tr><td class="lab">steep</td><td>$e + \tfrac{1}{10}(e^{5e}\!-\!1)$</td><td>23</td><td class="pos">23/23</td><td>$0.826$</td><td>$3.516$</td></tr>
+</table>
+<small>Admissibility-gated re-solve, seeded from the 112 genuine quadratic cells. Negative $\min D_1$ (red) on
+$e^{1.1}, e^{1.2}, e^{1.3}$ is where the $D_1 \ge 0$ sufficient condition fails yet $\det J < 0$ survives.
+Families with $\min m \ge 0.83$ ($e^{1.7}$, steep, cubic, cosh1, explin, $e^{2.5}$, exp(e²/2)−1, logconvex) omitted for brevity.</small>
+</div>
+
+<div class="note">
+<strong>What survives.</strong> The <em>sign</em> $\det J < 0$ is robust (proved unconditionally on $\{\beta \le 0\}$;
+proved for quadratic on $\{\beta > 0\}$; empirically 0 flips over 13 families on $\{\beta > 0\}$ general $c$). What is
+<em>not</em> established is the <strong>uniform margin</strong> $m \ge m_0 > 0$ — the properness ingredient for Theorem 3 —
+because $m$ is family-dependent and drops to $0.33$ on the tested data.
+</div>
+
+<div class="note">
+<strong>Provenance.</strong> Cells come from the equilibrium-gated <code>sigma22_A1_A2.json</code>:
+<code>sweep_outer.jl</code> solves each $(v_1,v_2,\Delta)$ cell through the outer Nash loop and stamps
+<code>is_interior_equilibrium</code> (converged ∧ all masses strictly interior); <code>build_sigma22_A1_A2.jl</code>
+keeps only equilibrium ∧ admissible ∧ $u_1>0$ ∧ non-CARA, computing $\mathcal A,\mathcal B,\det J$ from the shared
+formulas in <code>sigma22_detj.jl</code>. No hand-filtering on indifference.
+</div>
+
+<!-- ========================================================== -->
+<h2>6. The Sard / generic-regularity reading</h2>
+
+<div class="core">
+$\mathcal C = \{\mathcal A + \mathcal B = 0\}$ is a codimension-one semialgebraic hypersurface in the
+$(x_1, x_2, \tilde y_2, p, q)$ space (for each parameter $(w_1, w_2, \Delta)$). <strong>Theorem&nbsp;1 (generic regularity)</strong>
+asks that the equilibrium manifold $\{F = 0\}$ avoid $\mathcal C$ for a.e. parameter — equivalently that $0$ be a
+regular value of $F$, so that $\det J \ne 0$ along $\{F=0\}$. What this analysis contributes:
+<ul style="margin:.4em 0 0 0">
+  <li>$\mathcal C$ is <strong>confined</strong>: it cannot meet the equilibrium manifold anywhere in the half
+      $\{\beta \le 0\} = \{x_1 + x_2 \ge w_2 - \Delta\}$. Only the inward half can host a critical point.</li>
+  <li>On the inward half, $\mathcal C$ is the balance hypersurface
+      $p_1^2 q_2\, c'[s_1] c'[s_3] \kappa_t = c[y_2]\,\beta\, H_{x_1} H_{y_2}$ — a single scalar equation whose
+      two sides are explicit and positive.</li>
+  <li>Numerically the manifold clears $\mathcal C$ on every tested cell ($\det J < 0$, 0 sign flips over <strong>13</strong>
+      cost families) — strong evidence that $0$ is a regular value there. But the <em>margin</em> is family-dependent:
+      $m \ge 0.831$ holds only for the original four families; on near-linear powers $e^{1.2}, e^{1.3}$ it drops to
+      $m \approx 0.33$. So this is <em>not</em> yet a proof over the full $(w_1, w_2, \Delta)$ region, and in particular
+      gives no <em>uniform</em> lower bound on $m$ (the uniform-properness / boundary-non-escape obligation, Theorem&nbsp;3).</li>
+</ul>
+</div>
+
+<!-- ========================================================== -->
+<h2>7. What we have and what we don't</h2>
+
+<div class="grid">
+  <div>
+    <h3 class="pos">Have</h3>
+    <ul>
+      <li>Exact factorisation $\det J = (-H_{x_2})(\mathcal A + \mathcal B)$ in ỹ-coordinates, generic convex $c$.</li>
+      <li>Never-vanishing factor $-H_{x_2} < 0$ removed $\Rightarrow$ $\mathcal C = \{\mathcal A + \mathcal B = 0\}$.</li>
+      <li>$\mathcal A > 0$ always; $\operatorname{sign}(\mathcal B) = -\operatorname{sign}(\beta)$ $\Rightarrow$ $\mathcal C \subseteq \{\beta > 0\}$,
+          and $\det J < 0$ unconditionally on $\{\beta \le 0\}$.</li>
+      <li>$q_2\beta = \varphi(x_1) - \varphi(x_2)$; on the data $\operatorname{sign}(\beta) = \operatorname{sign}(w_2 - \Delta - x_1 - x_2)$.</li>
+      <li>Quadratic closed form $\det J = (T_1 - T_2)/(p_1 q_2)$; explicit polynomial $\mathcal C = \{T_1 = T_2\}$, and
+          $\{\beta > 0,\text{ quadratic}\}$ <strong>proved</strong> ($\det J < 0$) via TARGET-with-equality ($c'''=0$).</li>
+      <li>$\det J < 0$ <strong>empirically robust</strong>: 0 sign flips on <strong>13</strong> cost families,
+          admissibility-gated (<code>target_counterexample_hunt.jl</code>).</li>
+      <li>Exact on-manifold grouping identity
+          $p_1(\mathcal A+\mathcal B) = q_2 c'[s_1]c'[s_3](c'[y_2]^2 + p_1 c[y_2]c''[t]) - \beta H_{x_1} c[y_2](p_1 c''[t]+c''[y_2])$.</li>
+    </ul>
+  </div>
+  <div>
+    <h3 class="neg">Don't have</h3>
+    <ul>
+      <li>A proof that $\det J < 0$ on $\{\beta > 0\}$ for <em>general</em> convex $c$ — empirically true (0 flips) but
+          the secant $\to$ TARGET $\to D_1\ge 0$ chain is too lossy ($D_1 < 0$ on 27 genuine admissible equilibria,
+          $e^{1.1}$–$e^{1.3}$, where $\det J<0$ still holds). The secant bound breaks for $c''' < 0$.</li>
+      <li>Any <strong>uniform</strong> lower bound on the margin $m = (\mathcal A+\mathcal B)/\mathcal A$: it is
+          family-dependent and drops to $0.33$ ($e^{1.2}, e^{1.3}$). The $\le 0.169$ threat-side ratio is four-families-only.</li>
+      <li>The uniform-properness / boundary-non-escape lemma (Theorem&nbsp;3) that would upgrade "regular on the
+          computed box" to "regular generically over all parameters".</li>
+      <li>Generalisation of $\mathcal C$'s structure to σ$(m,n)$ beyond $(2,2)$.</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<small>
+Sources:
+<code>Mathematica/system.nb</code>, <code>Mathematica/schur_3x3.wl</code> (8×8 symbolic det in ỹ-coordinates;
+factorisation $\det J = (-H_{x_2})(\mathcal A+\mathcal B)$ and quadratic $\det J = (T_1-T_2)/(p_1q_2)$ both verified here),
+<code>Julia/solver/sigma22_detj.jl</code> (shared $\mathcal A,\mathcal B,\det J$ formulas),
+<code>Julia/solver/sigma22_A1_A2.json</code> + <code>build_sigma22_A1_A2.jl</code> (401 equilibrium-gated cells, 4 cost families),
+<code>Julia/solver/det_jacobian_sigma22.jl</code> (autodiff cross-check of the factorisation),
+<code>Docs/sard_generic_uniqueness.md</code> (the parametric-transversality program this feeds).
+Conventions and gap rules: <code>QUICKSTART.md</code> §0, §2; <code>Docs/numeric_solver_notes.md</code>.
+</small>
+
+</body>
+</html>

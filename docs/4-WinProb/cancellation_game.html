@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cancellation Game: an involution puzzle for det M at (k,n) = (2,4)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$',  right: '$',  display: false}
+    ],
+    throwOnError: false
+  });"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #141210;
+  --bg-2: #1c1a17;
+  --bg-3: #24211d;
+  --ink: #eae4d8;
+  --ink-dim: #9a928a;
+  --ink-faint: #6a635a;
+  --accent: #d4a14a;   /* warm gold */
+  --accent-2: #8fb3a3; /* pale teal */
+  --bad: #c86a5a;
+  --good: #8fb3a3;
+  --rule: #2e2a25;
+  --display: 'Cormorant Garamond', Georgia, serif;
+  --body: 'Cormorant Garamond', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 19px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse at 10% 0%, rgba(212, 161, 74, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(143, 179, 163, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 80px 32px 120px;
+}
+
+/* ============== HEADER ============== */
+
+header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 48px;
+  margin-bottom: 56px;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 24px;
+}
+
+h1 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0 0 20px;
+  color: var(--ink);
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.lede {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  font-weight: 400;
+  max-width: 620px;
+  margin: 0;
+}
+
+/* ============== SECTIONS ============== */
+
+section {
+  margin-bottom: 72px;
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+h2::before {
+  content: attr(data-num);
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 14px;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 40px 0 12px;
+  letter-spacing: -0.005em;
+}
+
+p {
+  margin: 0 0 18px;
+}
+
+a { color: var(--accent); }
+
+/* ============== CALLOUTS ============== */
+
+.callout {
+  border-left: 2px solid var(--accent);
+  padding: 6px 0 6px 24px;
+  margin: 32px 0;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+.callout strong {
+  color: var(--ink);
+  font-style: normal;
+}
+
+/* ============== MATH DISPLAY ============== */
+
+.katex { font-size: 1.02em; }
+.katex-display { margin: 28px 0; }
+
+/* ============== CONFIG / CODE BLOCKS ============== */
+
+.config {
+  font-family: var(--mono);
+  font-size: 15px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 3px 10px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.config .label {
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+
+.config.wrong { border-left: 2px solid var(--bad); }
+.config.right { border-left: 2px solid var(--good); }
+
+.config-block {
+  font-family: var(--mono);
+  font-size: 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 16px 20px;
+  margin: 20px 0;
+  color: var(--ink);
+  line-height: 1.9;
+}
+
+.config-block .config-line { display: block; }
+.config-block .tag {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-right: 12px;
+  font-weight: 500;
+  min-width: 72px;
+  text-align: center;
+}
+.config-block .tag.wrong { background: rgba(200, 106, 90, 0.15); color: var(--bad); }
+.config-block .tag.right { background: rgba(143, 179, 163, 0.15); color: var(--good); }
+
+/* ============== WORKED EXAMPLE (CLICKABLE) ============== */
+
+.example {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  margin: 40px 0;
+  overflow: hidden;
+}
+
+.example-header {
+  padding: 20px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+  border-bottom: 1px solid transparent;
+}
+
+.example-header:hover {
+  background: var(--bg-3);
+}
+
+.example.open .example-header {
+  border-bottom-color: var(--rule);
+}
+
+.example-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+
+.example-title .num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.example-toggle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.example-header:hover .example-toggle { color: var(--accent); }
+
+.example-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+
+.example.open .example-body {
+  max-height: 4000px;
+  transition: max-height 0.6s ease-in;
+}
+
+.example-content {
+  padding: 24px 28px 28px;
+}
+
+/* Step labels inside examples */
+.step {
+  margin: 20px 0;
+}
+
+.step-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+/* ============== TRANSFORM DIAGRAMS ============== */
+
+.transform {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  align-items: center;
+  margin: 24px 0;
+  background: var(--bg-3);
+  padding: 20px;
+  border-radius: 3px;
+  border: 1px solid var(--rule);
+}
+
+.transform-side {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.transform-side .slot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.transform-side .slot-label {
+  color: var(--ink-faint);
+}
+
+.transform-arrow {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-size: 20px;
+  line-height: 1;
+  text-align: center;
+}
+
+.transform-arrow .op {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+/* Highlights inside configs */
+.hl-swap { color: var(--accent); font-weight: 700; }
+.hl-change { background: rgba(212, 161, 74, 0.18); padding: 0 3px; border-radius: 2px; }
+.hl-bad { color: var(--bad); }
+.hl-good { color: var(--good); }
+
+/* ============== RULES TABLE ============== */
+
+.rules-grid {
+  display: grid;
+  gap: 2px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 24px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.rules-grid > div {
+  background: var(--bg-2);
+  padding: 14px 18px;
+}
+
+.rules-grid .hdr {
+  background: var(--bg-3);
+  color: var(--ink-faint);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.rules-grid.four { grid-template-columns: 2fr 1fr 1fr 1fr; }
+
+/* ============== FINAL CTA ============== */
+
+.finale {
+  margin-top: 88px;
+  padding: 40px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(212, 161, 74, 0.05), transparent);
+}
+
+.finale h2 { margin-top: 0; }
+.finale h2::before { color: var(--accent); }
+
+/* ============== MISC ============== */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 48px 0;
+}
+
+.numlist {
+  counter-reset: item;
+  list-style: none;
+  padding: 0;
+}
+
+.numlist li {
+  counter-increment: item;
+  position: relative;
+  padding-left: 42px;
+  margin-bottom: 16px;
+}
+
+.numlist li::before {
+  content: counter(item);
+  position: absolute;
+  left: 0;
+  top: 3px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container { padding: 56px 20px 80px; }
+  h1 { font-size: 40px; }
+  h2 { font-size: 26px; }
+  .transform { grid-template-columns: 1fr; }
+  .transform-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="eyebrow">The cancellation game · (k,n) = (2,4)</div>
+  <h1>A puzzle about <em>why things disappear</em>.</h1>
+  <p class="lede">
+    The determinant of a certain matrix is a polynomial whose coefficients are signed sums over combinatorial configurations. Most configurations cancel against each other. Some stubbornly refuse to cancel in the simple way we'd like. This is the story of those six stubborn cases — framed as a game.
+  </p>
+</header>
+
+<!-- ================= SECTION 1: WHAT IS AN INVOLUTION ================= -->
+<section>
+  <h2 data-num="Part I">The rules of the cancellation game.</h2>
+
+  <p>
+    Imagine a room. Inside, there are 144 <em>configurations</em>, each a pair $(\sigma, \vec A)$ where $\sigma$ is a derangement of four people and $\vec A$ records one extra piece of information per person. Each configuration produces a <em>monomial</em> — a specific product of variables — and carries a sign, either $+$ or $-$.
+  </p>
+  <p>
+    For the $(k, n) = (2, 4)$ case we're looking at: <strong>48 of the 144 configurations are signed "wrong"</strong> (they have sign $+$ but the determinant should end up negative), and <strong>96 are signed "right"</strong> (sign $-$). If we summed them all up with no cancellation, we'd get chaos. But something saves us.
+  </p>
+
+  <div class="callout">
+    <strong>The key fact:</strong> for every monomial that a wrong-sign configuration produces, there are enough right-sign configurations producing the same monomial to cancel it out — and leave a well-defined, always-negative surplus.
+  </div>
+
+  <p>
+    An <em>involution</em> is a rule for <em>naming partners</em>. Given a wrong-sign configuration $c$, the rule produces a right-sign configuration $\tau(c)$ such that:
+  </p>
+
+  <ol class="numlist">
+    <li><strong>Sign flip:</strong> $c$ and $\tau(c)$ have opposite signs — so they cancel when summed.</li>
+    <li><strong>Same monomial:</strong> $c$ and $\tau(c)$ produce the same monomial — so the cancellation actually happens inside a single coefficient.</li>
+    <li><strong>Mutual:</strong> $\tau(\tau(c)) = c$ — if $c$'s partner is $c'$, then $c'$'s partner must be $c$. No love triangles.</li>
+  </ol>
+
+  <p>
+    Configurations not covered by $\tau$ — called <em>fixed points</em> — are the surplus right-sign configurations that don't need to cancel. They survive and give the final coefficients their sign.
+  </p>
+
+  <h3>The game in one picture.</h3>
+  <p>
+    Pick a wrong-sign configuration. Your job is to name its partner — a right-sign configuration producing exactly the same monomial — using a rule simple enough to describe to a friend and universal enough to apply to all 48 wrong-sign configurations simultaneously.
+  </p>
+  <p>
+    That's the game. The rest of this document is about how well anyone's done at it so far.
+  </p>
+</section>
+
+<!-- ================= SECTION 2: HOW INVOLUTION PROVES IT ================= -->
+<section>
+  <h2 data-num="Part II">How the game proves the conjecture.</h2>
+
+  <p>
+    The determinant of our matrix $M^{(2,4)}$ expands, via the Leibniz formula, as a sum over configurations:
+  </p>
+
+  $$\det M^{(2,4)} = \sum_{(\sigma, \vec A)} \operatorname{sgn}(\sigma) \cdot \mu(\sigma, \vec A)$$
+
+  <p>
+    where $\mu(\sigma, \vec A)$ is the monomial produced by $(\sigma, \vec A)$.
+  </p>
+
+  <p>
+    How is that monomial built? For each position $i$, the indices $i$ and $\sigma(i)$ are excluded — they're already spoken for. Of the remaining $n-2$ indices, the subset $A_i$ contributes one $y$-variable per element, and whatever indices are left over contribute $x$-variables:
+  </p>
+
+  $$\mu(\sigma, \vec A) \;=\; \prod_{i=1}^{n}\, \left(\prod_{l \in A_i} y_l\right) \left(\prod_{l \,\notin\, A_i \cup \{i, \sigma(i)\}} x_l\right).$$
+
+  <p>
+    At $(k, n) = (2, 4)$ each $A_i$ is a single element, so each position contributes exactly one $y$ and one $x$. Three concrete examples — note that examples 1 and 3 produce the <em>same</em> monomial from different configurations, which is exactly the cancellation we're tracking:
+  </p>
+
+  <div class="config-block">
+    <span class="config-line"><strong>Example 1.</strong>&nbsp;&nbsp;$\sigma = 2143$, &nbsp; $\vec A = 3\text{-}4\text{-}2\text{-}1$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=1$: exclude $\{1,2\}$; &nbsp; $A_1=\{3\}\to y_3$; &nbsp; leftover $\{4\}\to x_4$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=2$: exclude $\{1,2\}$; &nbsp; $A_2=\{4\}\to y_4$; &nbsp; leftover $\{3\}\to x_3$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=3$: exclude $\{3,4\}$; &nbsp; $A_3=\{2\}\to y_2$; &nbsp; leftover $\{1\}\to x_1$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=4$: exclude $\{3,4\}$; &nbsp; $A_4=\{1\}\to y_1$; &nbsp; leftover $\{2\}\to x_2$</span>
+    <span class="config-line">&nbsp;&nbsp;$\mu \;=\; x_1 x_2 x_3 x_4 \, y_1 y_2 y_3 y_4$</span>
+  </div>
+
+  <div class="config-block">
+    <span class="config-line"><strong>Example 2.</strong>&nbsp;&nbsp;$\sigma = 2143$, &nbsp; $\vec A = 3\text{-}3\text{-}1\text{-}1$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=1$: exclude $\{1,2\}$; &nbsp; $A_1=\{3\}\to y_3$; &nbsp; leftover $\{4\}\to x_4$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=2$: exclude $\{1,2\}$; &nbsp; $A_2=\{3\}\to y_3$; &nbsp; leftover $\{4\}\to x_4$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=3$: exclude $\{3,4\}$; &nbsp; $A_3=\{1\}\to y_1$; &nbsp; leftover $\{2\}\to x_2$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=4$: exclude $\{3,4\}$; &nbsp; $A_4=\{1\}\to y_1$; &nbsp; leftover $\{2\}\to x_2$</span>
+    <span class="config-line">&nbsp;&nbsp;$\mu \;=\; x_2^2 \, x_4^2 \, y_1^2 \, y_3^2$</span>
+  </div>
+
+  <div class="config-block">
+    <span class="config-line"><strong>Example 3.</strong>&nbsp;&nbsp;$\sigma = 2341$, &nbsp; $\vec A = 3\text{-}4\text{-}1\text{-}2$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=1$: exclude $\{1,2\}$; &nbsp; $A_1=\{3\}\to y_3$; &nbsp; leftover $\{4\}\to x_4$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=2$: exclude $\{2,3\}$; &nbsp; $A_2=\{4\}\to y_4$; &nbsp; leftover $\{1\}\to x_1$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=3$: exclude $\{3,4\}$; &nbsp; $A_3=\{1\}\to y_1$; &nbsp; leftover $\{2\}\to x_2$</span>
+    <span class="config-line">&nbsp;&nbsp;$i=4$: exclude $\{4,1\}$; &nbsp; $A_4=\{2\}\to y_2$; &nbsp; leftover $\{3\}\to x_3$</span>
+    <span class="config-line">&nbsp;&nbsp;$\mu \;=\; x_1 x_2 x_3 x_4 \, y_1 y_2 y_3 y_4$</span>
+  </div>
+
+  <p>
+    Each monomial $\alpha$ might be produced by many configurations; its coefficient in the determinant is the signed count:
+  </p>
+
+  $$[\alpha] \det M = \sum_{(\sigma, \vec A) \mapsto \alpha} \operatorname{sgn}(\sigma) = r(\alpha) - w(\alpha)$$
+
+  <p>
+    where $r(\alpha)$ is the number of right-sign configurations producing $\alpha$ and $w(\alpha)$ is the number of wrong-sign ones. The conjecture is that every coefficient has sign $(-1)^{n-1} = -1$, which means $w(\alpha) \leq r(\alpha)$ for every monomial.
+  </p>
+
+  <p>
+    Now the punchline. Suppose we've found an involution $\tau$ as described above. What happens to the sum?
+  </p>
+
+  <ul>
+    <li>Every paired $(c, \tau(c))$ contributes $(+1) + (-1) = 0$. Paired configurations cancel entirely.</li>
+    <li>What's left is the sum over fixed points — all of sign $-$.</li>
+  </ul>
+
+  <p>
+    So the determinant becomes a sum of negative terms only. <strong>Coefficient-wise negativity is established by the existence of the involution.</strong> The conjecture follows as a corollary.
+  </p>
+
+  <div class="callout">
+    <strong>Why we care about the rule, not just the existence of partners.</strong> We already know, by brute-force enumeration, that valid partnerings <em>exist</em> at $(2,4)$. What we want is a <em>rule</em> — a simple, stateable pattern — because a rule that works for $(2,4)$, $(2,5)$, $(2,6), \ldots$ uniformly is a <em>proof</em> of the general conjecture. Brute-force pairings at each $(k, n)$ are not.
+  </div>
+</section>
+
+<!-- ================= SECTION 3: THE STUCK SIX ================= -->
+<section>
+  <h2 data-num="Part III">The six stubborn configurations.</h2>
+
+  <p>
+    Here is how we've been playing the game so far. We noticed that many wrong-sign configurations have obvious partners obtainable by a single <em>position-swap</em> — pick two positions $p, q$ in $\sigma$ and swap their values. This flips $\operatorname{sgn}(\sigma)$ for free. If we can find a $(p, q)$ that also preserves the monomial, we've found a partner.
+  </p>
+
+  <h3>The position-swap rule.</h3>
+  <p>
+    For $k = 2$, each $A_i$ is a single element $a_i$. Swapping positions $p, q$ of $\sigma$ (keeping $\vec A$ fixed) preserves derangement-ness and the monomial if and only if <em>all four</em> of the following hold:
+  </p>
+
+  $$\sigma(q) \neq p, \quad \sigma(p) \neq q, \quad \sigma(p) \notin A_q, \quad \sigma(q) \notin A_p.$$
+
+  <p>
+    The first two conditions stop the swap from creating a fixed point (breaking derangement-ness). The last two stop the swap from changing the monomial (by putting an excluded index back into the "visible" variable set).
+  </p>
+
+  <p>
+    For <strong>42 of the 48 wrong-sign configurations</strong> at $(2,4)$, some clever cascade of position-swap rules finds a valid partner. Great.
+  </p>
+
+  <p>
+    For the <strong>remaining 6 configurations</strong>, the set of valid position-swaps is <em>empty</em>. Every single pair $(p, q)$ fails at least one of the four conditions. No position-swap alone can partner these configurations.
+  </p>
+
+  <div class="callout">
+    All six stuck configurations live at the same monomial — the fully symmetric one, $\alpha = x_1 x_2 x_3 x_4 \, y_1 y_2 y_3 y_4$, where every variable appears exactly once. They are the three double-transpositions of $\{1,2,3,4\}$ in $\sigma$, each in two specific $\vec A$-flavors.
+  </div>
+
+  <p>
+    And yet — <em>partners for them exist</em>. We know this by brute force. There are 12 right-sign configurations at this same monomial, and each of the 6 stuck wrong-sign configurations has at least one valid partner among them, reachable by a richer kind of move: a <strong>joint swap</strong> on both $\sigma$ and $\vec A$.
+  </p>
+</section>
+
+<!-- ================= SECTION 4: WORKED EXAMPLE ================= -->
+<section>
+  <h2 data-num="Part IV">A puzzle you can try.</h2>
+
+  <p>
+    Below is one of the six stuck configurations, concretely. Our notation: $\sigma = 2143$ means $\sigma(1) = 2, \sigma(2) = 1, \sigma(3) = 4, \sigma(4) = 3$. And $\vec A = 3\text{-}4\text{-}2\text{-}1$ means $A_1 = \{3\}, A_2 = \{4\}, A_3 = \{2\}, A_4 = \{1\}$.
+  </p>
+
+  <div class="config-block">
+    <span class="config-line"><span class="tag wrong">wrong</span>$\sigma = 2143$ &nbsp;&nbsp;|&nbsp;&nbsp; $\vec A = 3\text{-}4\text{-}2\text{-}1$</span>
+    <span class="config-line" style="color: var(--ink-faint); font-size: 13px;">&nbsp;&nbsp; produces monomial $x_1 x_2 x_3 x_4 \, y_1 y_2 y_3 y_4$</span>
+  </div>
+
+  <p>
+    Your task: find a partner for this configuration. The partner must be a valid derangement, have sign $-$ (the opposite of this one), and produce the same monomial.
+  </p>
+
+  <!-- ========== EXAMPLE 1: NAIVE ATTEMPT ========== -->
+  <div class="example" id="ex1">
+    <div class="example-header" onclick="toggleExample('ex1')">
+      <h3 class="example-title">
+        <span class="num">Attempt 1</span>
+        Try every position-swap.
+      </h3>
+      <span class="example-toggle">▸ expand</span>
+    </div>
+    <div class="example-body">
+      <div class="example-content">
+
+        <p>
+          There are $\binom{4}{2} = 6$ possible position pairs to try. Let's check each against the four conditions. Recall $\sigma = 2143$, so $\sigma(1) = 2, \sigma(2) = 1, \sigma(3) = 4, \sigma(4) = 3$; and $\vec A = 3\text{-}4\text{-}2\text{-}1$.
+        </p>
+
+        <div class="rules-grid four">
+          <div class="hdr">pair $(p,q)$</div>
+          <div class="hdr">$c_1: \sigma(q) \neq p$</div>
+          <div class="hdr">$c_3: \sigma(p) \notin A_q$</div>
+          <div class="hdr">verdict</div>
+
+          <div>(1, 2)</div>
+          <div>$\sigma(2)=1 \neq 1$? <span class="hl-bad">no</span></div>
+          <div>—</div>
+          <div class="hl-bad">fails</div>
+
+          <div>(1, 3)</div>
+          <div>$\sigma(3)=4 \neq 1$? ok</div>
+          <div>$\sigma(1)=2 \notin \{2\} = A_3$? <span class="hl-bad">no</span></div>
+          <div class="hl-bad">fails</div>
+
+          <div>(1, 4)</div>
+          <div>$\sigma(4)=3 \neq 1$? ok</div>
+          <div>$\sigma(1)=2 \notin \{1\} = A_4$? ok, and $\sigma(4)=3 \notin \{3\} = A_1$? <span class="hl-bad">no</span></div>
+          <div class="hl-bad">fails</div>
+
+          <div>(2, 3)</div>
+          <div>$\sigma(3)=4 \neq 2$? ok</div>
+          <div>$\sigma(2)=1 \notin \{2\} = A_3$? ok, and $\sigma(3)=4 \notin \{4\} = A_2$? <span class="hl-bad">no</span></div>
+          <div class="hl-bad">fails</div>
+
+          <div>(2, 4)</div>
+          <div>$\sigma(4)=3 \neq 2$? ok</div>
+          <div>$\sigma(2)=1 \notin \{1\} = A_4$? <span class="hl-bad">no</span></div>
+          <div class="hl-bad">fails</div>
+
+          <div>(3, 4)</div>
+          <div>$\sigma(4)=3 \neq 3$? <span class="hl-bad">no</span></div>
+          <div>—</div>
+          <div class="hl-bad">fails</div>
+        </div>
+
+        <p style="margin-top: 24px;">
+          Every single position-swap fails. This configuration's set $V(\sigma, \vec A) = \varnothing$. The simple rule cannot reach it.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== EXAMPLE 2: THE JOINT SWAP ========== -->
+  <div class="example" id="ex2">
+    <div class="example-header" onclick="toggleExample('ex2')">
+      <h3 class="example-title">
+        <span class="num">Attempt 2</span>
+        A richer move: swap $\sigma$ and $\vec A$ at different positions.
+      </h3>
+      <span class="example-toggle">▸ expand</span>
+    </div>
+    <div class="example-body">
+      <div class="example-content">
+
+        <p>
+          Since pure position-swaps are exhausted, we have to allow $\vec A$ to move too. Here is one concrete partner:
+        </p>
+
+        <div class="transform">
+          <div class="transform-side">
+            <div class="slot"><span class="slot-label">$\sigma$</span><span>2&nbsp;1&nbsp;4&nbsp;3</span></div>
+            <div class="slot"><span class="slot-label">$\vec A$</span><span>3-4-2-1</span></div>
+            <div class="slot" style="color: var(--bad); margin-top: 6px;"><span class="slot-label">sign</span><span>+</span></div>
+          </div>
+          <div class="transform-arrow">
+            →
+            <span class="op">joint swap</span>
+          </div>
+          <div class="transform-side">
+            <div class="slot"><span class="slot-label">$\sigma$</span><span>2&nbsp;<span class="hl-change">3</span>&nbsp;4&nbsp;<span class="hl-change">1</span></span></div>
+            <div class="slot"><span class="slot-label">$\vec A$</span><span>3-4-<span class="hl-change">1</span>-<span class="hl-change">2</span></span></div>
+            <div class="slot" style="color: var(--good); margin-top: 6px;"><span class="slot-label">sign</span><span>−</span></div>
+          </div>
+        </div>
+
+        <p>
+          The move is: <strong>swap $\sigma$ at positions $(2, 4)$</strong> (exchanging values $1$ and $3$), <strong>and simultaneously swap $\vec A$ at positions $(3, 4)$</strong> (exchanging $A_3 = \{2\}$ and $A_4 = \{1\}$). Two separate transpositions at two different position pairs.
+        </p>
+
+        <div class="step">
+          <div class="step-label">Why the $\sigma$-swap alone wouldn't work</div>
+          <p>
+            If we swapped $\sigma$ at $(2, 4)$ but left $\vec A$ fixed, we'd get $\sigma' = 2341$ with $\vec A = 3\text{-}4\text{-}2\text{-}1$. Now look at position 4: $\sigma'(4) = 1$, but $A_4 = \{1\}$. The value $1$ appears both as $\sigma'(4)$ and as the unique $A$-value at position 4 — that means the monomial at position 4 would be missing $y_1$ and would now include $y_1$ twice elsewhere. The monomial changes. Swap invalid.
+          </p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Why the $\vec A$-swap repairs it</div>
+          <p>
+            By swapping $A_3$ and $A_4$ too, we push $A_4 = \{2\}$ instead of $\{1\}$. Now $\sigma'(4) = 1 \notin A_4 = \{2\}$, and the position-4 factor produces $y_2$ times the correct $x$'s. Meanwhile position 3 now has $A_3 = \{1\}$, and $\sigma'(3) = 4 \notin \{1\}$, so <em>that</em> position is also clean. The two swaps repair each other's damage.
+          </p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Why it's an involution</div>
+          <p>
+            Apply the move again: $\sigma$-swap at $(2, 4)$ undoes itself; $\vec A$-swap at $(3, 4)$ undoes itself. Two independent self-inverse operations commute, so the whole move is self-inverse. $\tau(\tau(c)) = c$ ✓.
+          </p>
+        </div>
+
+        <p style="margin-top: 24px;">
+          <strong>This is a valid partner.</strong> We've manually constructed it. So the partnership exists — the game is winnable for this configuration. The only thing missing is a <em>general rule</em> that picks the $\sigma$-swap positions and the $\vec A$-swap positions canonically, for any stuck configuration, in a way that remains an involution.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== EXAMPLE 3: THE HARDER QUESTION ========== -->
+  <div class="example" id="ex3">
+    <div class="example-header" onclick="toggleExample('ex3')">
+      <h3 class="example-title">
+        <span class="num">Attempt 3</span>
+        The real puzzle: name a universal rule.
+      </h3>
+      <span class="example-toggle">▸ expand</span>
+    </div>
+    <div class="example-body">
+      <div class="example-content">
+
+        <p>
+          Here are the 6 stuck configurations at $(2, 4)$, all living at monomial $\alpha = x_1 x_2 x_3 x_4 y_1 y_2 y_3 y_4$:
+        </p>
+
+        <div class="config-block" style="font-size: 13px;">
+          <span class="config-line"><span class="tag wrong">#1</span>$\sigma = 2143$, $\vec A = 3\text{-}4\text{-}2\text{-}1$</span>
+          <span class="config-line"><span class="tag wrong">#2</span>$\sigma = 2143$, $\vec A = 4\text{-}3\text{-}1\text{-}2$</span>
+          <span class="config-line"><span class="tag wrong">#3</span>$\sigma = 3412$, $\vec A = 2\text{-}1\text{-}4\text{-}3$</span>
+          <span class="config-line"><span class="tag wrong">#4</span>$\sigma = 3412$, $\vec A = 4\text{-}3\text{-}2\text{-}1$</span>
+          <span class="config-line"><span class="tag wrong">#5</span>$\sigma = 4321$, $\vec A = 2\text{-}1\text{-}4\text{-}3$</span>
+          <span class="config-line"><span class="tag wrong">#6</span>$\sigma = 4321$, $\vec A = 3\text{-}4\text{-}2\text{-}1$</span>
+        </div>
+
+        <p>
+          (The three distinct $\sigma$'s are the three double-transpositions. Each has two $\vec A$-configurations that land at the all-ones monomial and have empty position-swap set.)
+        </p>
+
+        <p>
+          Now here are the 12 right-sign configurations at the same monomial. These are the candidate partners:
+        </p>
+
+        <div class="config-block" style="font-size: 13px;">
+          <span class="config-line"><span class="tag right">12 configs</span>each $\sigma$ is a 4-cycle from $S_4$'s six 4-cycles, with two $\vec A$-flavors each that land at $\alpha$.</span>
+        </div>
+
+        <p>
+          <strong>The puzzle:</strong> propose a rule of the form
+        </p>
+
+        <div class="config-block">
+          <span class="config-line">given stuck configuration $(\sigma, \vec A)$:</span>
+          <span class="config-line">&nbsp;&nbsp;choose a position pair $(p, q)$ for the $\sigma$-swap</span>
+          <span class="config-line">&nbsp;&nbsp;choose a position pair $(r, s)$ for the $\vec A$-swap</span>
+          <span class="config-line">return joint-swap partner</span>
+        </div>
+
+        <p>
+          such that the rule (i) produces a valid right-sign partner at monomial $\alpha$ for all 6 stuck configurations, (ii) is an involution, and (iii) doesn't conflict with the existing rules handling the other 42 wrong-sign configurations.
+        </p>
+
+        <p>
+          The hope is that this rule, once found, generalizes to $(2, 5), (2, 6), \ldots$ — because the structural obstruction at the all-ones monomial is the same in every case, just bigger.
+        </p>
+
+        <p>
+          That's the open problem. Stare at the six configurations above and see if a pattern suggests itself.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINALE ================= -->
+<section class="finale">
+  <h2 data-num="Postscript">What winning looks like.</h2>
+
+  <p>
+    If someone — you, me, a computer — finds a universal joint-swap rule that closes the 6 stuck cases at $(2, 4)$ and extends cleanly to larger $(k, n)$, we have a <em>combinatorial proof</em> that the determinant is coefficient-wise negative. This is a stronger statement than "the sign of $\det M$ is $(-1)^{n-1}$" — it's a statement about the inner algebraic structure of the polynomial.
+  </p>
+
+  <p>
+    It would also be an object of independent interest: a sign-reversing involution on configurations of derangements plus subset-choices, generalizing the Lindström–Gessel–Viennot template to a new combinatorial setting.
+  </p>
+
+  <p>
+    If, instead, the rule turns out to require ever more elaborate fallbacks as $(k, n)$ grows — if the game is unwinnable by local moves — then the conjecture is still true (we've verified it up to $(3, 7)$) but its proof lies elsewhere: in Lorentzian polynomials, in the classical theory of totally nonnegative matrices, in something not yet named.
+  </p>
+
+  <p style="margin-bottom: 0;">
+    Either way, the six stuck configurations at $(2, 4)$ are the smallest example where the phenomenon shows its hand. They are, in a precise sense, the atoms of what's difficult about the problem.
+  </p>
+</section>
+
+</div>
+
+<script>
+function toggleExample(id) {
+  const el = document.getElementById(id);
+  const toggle = el.querySelector('.example-toggle');
+  el.classList.toggle('open');
+  toggle.textContent = el.classList.contains('open') ? '▾ collapse' : '▸ expand';
+}
+</script>
+
+</body>
+</html>

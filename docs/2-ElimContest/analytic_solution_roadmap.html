@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytic equilibrium construction — offline roadmap</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+  :root { --ink:#1a1a1a; --mut:#566; --bg:#fbfbf9; --box:#f1f3f4; --key:#eef6ef; --line:#d8d8d2; }
+  html { -webkit-text-size-adjust:100%; }
+  body { max-width: 50rem; margin: 2.2rem auto 6rem; padding: 0 1.1rem;
+         font: 16px/1.62 Georgia, "Iowan Old Style", "Palatino Linotype", serif; color: var(--ink); background: var(--bg); }
+  h1 { font-size: 1.7rem; line-height:1.25; margin: 0 0 .2rem; }
+  h2 { font-size: 1.22rem; margin: 2.3rem 0 .5rem; border-bottom: 1px solid var(--line); padding-bottom: .2rem; }
+  h3 { font-size: 1.04rem; margin: 1.5rem 0 .35rem; }
+  .sub { color: var(--mut); font-size: .92rem; margin: 0 0 1.4rem; }
+  p, li { color: #222; }
+  code, .mono { font-family: "SF Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: .86em; }
+  code { background: var(--box); padding: .06em .35em; border-radius: 3px; }
+  .box { background: var(--box); border: 1px solid var(--line); border-radius: 7px; padding: .7rem 1rem; margin: 1rem 0; }
+  .key { background: var(--key); border-color: #bcd6bf; }
+  .key h3 { margin-top: .2rem; }
+  table { border-collapse: collapse; width: 100%; font: .8rem/1.4 "SF Mono", Menlo, monospace; margin: .8rem 0; }
+  th, td { border: 1px solid var(--line); padding: .22rem .4rem; text-align: right; }
+  th { background: var(--box); }
+  td:first-child, th:first-child { text-align: center; }
+  .note { color: var(--mut); font-size: .9rem; }
+  ul { padding-left: 1.3rem; } li { margin: .25rem 0; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 2rem 0; }
+  a { color: #2a5d8f; }
+</style>
+</head>
+<body>
+
+<h1>Analytic construction of the binary elimination-contest equilibrium</h1>
+<p class="sub">Offline working roadmap · 4-player, 2-round all-pay <strong>pairwise</strong> elimination, IPV, full revelation ·
+binary types $v_H=3,\ v_L=1$, equal prior · written 2026-06-17.
+<br>Needs internet on first open (KaTeX loads from CDN). All numbers are reproducible from <code>Python/</code> — see §9.</p>
+
+<div class="box key">
+<h3>The one-paragraph takeaway</h3>
+<p>We feared a <em>functional fixed point</em>: the overlap ODE's coefficients are the Round-2 continuation
+values $\tilde W$, which are built from the Round-1 strategy — which is what the ODE solves for. It dissolves
+<em>exactly</em>, for a structural reason. The tournament is <strong>pairwise single elimination</strong>: you reach
+the final by beating your single Round-1 rival, and there you meet the winner of the <em>other</em> pair — whose bid
+is the $\max$ of two independent population draws. So the CDF of <em>your belief about that opponent</em> (their
+perceived-High probability) is exactly $F(\mu)=G(\mu)^2$, and it is <strong>independent of your own bid</strong>. Substituting $F=G^2$, the continuation values become explicit
+functions of the Round-1 CDF $G$ alone, and the overlap collapses to a <strong>self-contained ODE in $G$</strong> —
+no $F$ to guess, no iteration. What remains is elementary: the overlap is <strong>two quadratures</strong> and a
+single boundary scalar (the atom mass $G_0$) closes it. No grid, no tail. <em>(See the correction box below: the
+support is two regions — Low atom + overlap — and the construction is now solved, $G_0=0.2221$.)</em></p>
+</div>
+
+<div class="box key">
+<h3>Correction (2026-06-22): $b_{lo}=0$, no belief jump, no high-only tail</h3>
+<p>Two structural claims further down are <strong>superseded</strong>; the construction is simpler than written, and it is now solved.</p>
+<ul>
+<li><strong>No gap, no jump: $b_{lo}=0$, $\mu_0=0$.</strong> The overlap is flush against the atom (all-pay no-gap: a bid at $b_{lo}>0$ could slide down into an empty $(0,b_{lo})$ at the same win probability $G_0$ and the same continuation, but lower cost — a strict gain, so no $b_{lo}>0$ survives). Low's break-even $b_{lo}=G_0\tilde W_L(\mu_0)=0$ with $G_0>0$ then forces $\tilde W_L(\mu_0)=0$, i.e. $\mu_0=0$. The belief starts at $0$ <em>continuously</em>; it does not jump to a positive $\mu_0$.</li>
+<li><strong>No high-only tail.</strong> A high-only tail needs belief $\equiv1$ on it, hence the overlap reaching $\mu=1$ at its top. But integrating the §7 ODE from $\mu_0=0$, the CDF $G(\mu)$ reaches $1$ <em>before</em> $\mu$ does (numerically verified: $G_0\!=\!0.05\to G\!=\!1$ at $\mu\!\approx\!0.996$; $G_0\!=\!0.3\to$ at $\mu\!\approx\!0.92$), so the belief never reaches $1$ within $G\le1$. Since $\tilde W_H$ <em>decreases</em> in $\mu$, High has no incentive to separate upward anyway. Both types pool all the way to $b_{top}$, where $G=1$ at a belief $\mu_{\max}<1$.</li>
+</ul>
+<p>The support is therefore <strong>two regions</strong>: a pure-Low atom at $0$, then a co-mixing overlap $[0,b_{top}]$ with belief rising $0\to\mu_{\max}$. It closes with a <strong>single unknown</strong> $G_0$ (the atom mass), pinned by High's normalization $\int_{G_0}^{1}\mu(G)\,dG=\tfrac12$:</p>
+<p style="text-align:center">$G_0=0.2221,\quad a_L=0.4443,\quad \mu_{\max}=0.9525,\quad b_{top}=0.1746,\quad U_H=2G_0=0.4443,\quad U_L=0.$</p>
+<p class="note">Both indifference levels check at both ends: $U_H=2G_0$ at the atom edge equals $\tilde W_H(\mu_{\max})-b_{top}$ at the top (both $0.4443$); $U_L=0$ at the atom equals $\tilde W_L(\mu_{\max})-b_{top}$ at the top (both $0$). The §7 overlap ODE is unchanged and still correct — only the bottom boundary ($\mu_0=0$, not a free jump) and the top (no tail) are corrected. Reproduce: <code>Python/no_tail.py</code>. Sections §2 (diagram, tail bullet), §3 (tail-continuity note), §5–§6, §8 (Table 3 tail), §10 below are read through this correction.</p>
+</div>
+
+<h2>1. Setup &amp; notation</h2>
+<ul>
+<li><strong>Tournament:</strong> pairwise single elimination — four players, two Round-1 matches of two. Each match
+winner advances; the two Round-1 losers are eliminated (no consolation match). The two winners meet in the Round-2
+final, so your finalist opponent is the winner of the <em>other</em> pair (§4).</li>
+<li>Index convention: row <strong>0 = High</strong> ($v_H$), row <strong>1 = Low</strong> ($v_L$); $v$-grid descending.</li>
+<li>$\sigma_k(b)$ = Round-1 mixed strategy of type $k$. Population (single-rival) bid CDF
+$G(b)=\sum_k p_k \!\int_0^b \sigma_k$, density $g(b)=G'(b)$.</li>
+<li>Belief from a bid: $\mu(b)=\Pr(\text{High}\mid \text{bid}=b)$. Equal prior $p_H=p_L=\tfrac12$ gives the split
+$$f_H(b)=\frac{g(b)\,\mu(b)}{p_H}=2\,g\mu,\qquad f_L(b)=2\,g\,(1-\mu),$$
+where $f_k$ is type $k$'s own bid density.</li>
+<li>$\tilde W(v,\mu)$ = Round-2 continuation value of <em>advancing</em> as type $v$ when the finalist opponent
+holds belief $\mu=\Pr(\text{High})$ about you. The bid enters Round 2 <em>only</em> through $\mu$:
+$V(v,b)=\tilde W(v,\mu(b))$.</li>
+<li>Round-1 indifference (the project's established condition): an active type $v$ has
+$$U(v,b)=G(b)\,\tilde W\!\big(v,\mu(b)\big)-b=\text{const}\ \Longleftrightarrow\
+\frac{d}{db}\big[G\,\tilde W\big]=1\ \Longleftrightarrow\ g\,\tilde W + G\,\tilde W_\mu\,\mu' = 1. \tag{I}$$</li>
+</ul>
+
+<h2>2. The support structure (Round 1): Low atom + overlap</h2>
+<p>The regime map (<code>dagger_regime_map.py</code>) proved, for $v=3/1$: a <strong>single</strong> co-mixing
+interval, $G'(\mu)&gt;0$ throughout, $D$ of one sign, <strong>no interior gaps</strong>. So the bid axis is:</p>
+<div class="box mono" style="font-size:.82rem">
+&nbsp; 0 &nbsp;═══════════════════════════════════════════&nbsp; b<sub>top</sub><br>
+[ Low atom ] &nbsp;[ &nbsp;OVERLAP: both types mix, all the way to the top&nbsp; ]<br>
+&nbsp;Low concedes &nbsp; Low + High, $\mu$ rises $0\to\mu_{\max}<1$; <strong>no</strong> high-only tail
+</div>
+<p class="note">Diagram corrected per the box above: $b_{lo}=0$ (overlap flush against the atom, no gap, no belief jump) and no high-only tail (belief tops out at $\mu_{\max}\approx0.95$, not $1$). The old three-region figure — gap $(0,b_{lo})$, a belief jump to $\mu_0>0$, and a $\mu\equiv1$ tail — is superseded.</p>
+<ul>
+<li><strong>Pure-Low atom at 0</strong> — concession mass (point mass), held <em>only</em> by Low: $a_H=0$,
+$\mu(0)=0$. The conceder is revealed Low, so its continuation is $\tilde W_L(0)=0$ and its rent is $U_L=0$
+(§6). <em>Confirmed on M200: $a_H=0.0002$, $\mu(0)=0.0009$, $U_L=0$ at the atom — see §9.</em></li>
+<li><strong>Overlap</strong> $[b_{lo},b_{split}]$ — both types active ⇒ (I) holds for <em>both</em> ⇒ the (†) system below.
+There is <em>no</em> Low-only sliver below it: a Low type that bids alone is revealed ($\mu=0$), earns
+$\tilde W_L(0)=0$ in Round 2, and so nets $G\!\cdot\!0-b=-b<0$ — strictly worse than conceding. Hence Low only ever
+bids where it <em>pools</em> with High ($\mu>0$, positive bluff value) or sits in the atom. The overlap is flush
+against the atom ($b_{lo}=0$, no gap), so the belief starts at $\mu_0=0$ and rises <em>continuously</em> to
+$\mu_{\max}<1$ at $b_{top}$ — no jump (see correction box).</li>
+<li><strong>No high-only tail</strong> (corrected). Round-2 payoffs would <em>permit</em> one — a revealed-High
+finalist still earns $\pi_2(\text{High};1,\nu)=2(1-\nu)\ge0$ whereas a revealed-Low finalist earns
+$\pi_2(\text{Low};0,\nu)=0$, so the support could end in a High-only block but never a Low-only one (this asymmetry
+is still the reason there is a Low atom at the bottom but no Low-only sliver). But the High-only block does
+<em>not</em> form here: starting from $\mu_0=0$ the overlap belief reaches only $\mu_{\max}<1$ before the CDF is
+exhausted, so no bid is ever revealed-High; and because $\tilde W_H$ <em>falls</em> in $\mu$, High gains nothing by
+bidding up to separate. Both types co-mix to $b_{top}$. The support is <strong>Low-atom + overlap</strong>, full
+stop — see the correction box.</li>
+</ul>
+
+<h2>3. The heart: (†) reduces to two quadratures</h2>
+<p>On the overlap, write (I) for both types. Two linear equations in the two unknowns $g$ and $G\mu'$; Cramer with
+$D=\tilde W_L\tilde W_H'-\tilde W_H\tilde W_L'$ gives the (†) laws:</p>
+$$g=\Phi(\mu)=\frac{\tilde W_H'-\tilde W_L'}{D}\quad(\dagger.\text{a}),
+\qquad G\,\mu'=\Psi(\mu)=\frac{\tilde W_L-\tilde W_H}{D}\quad(\dagger.\text{b}).$$
+<p>Now change the independent variable from $b$ to $\mu$ (monotone on the overlap, since $\mu'=\Psi/G&gt;0$ — proved in
+<em>Why $\mu(b)$ increases</em> below).
+Dividing $(\dagger.\text a)$ by $(\dagger.\text b)$ <strong>cancels $D$</strong> and the system separates:</p>
+<div class="box key">
+$$\boxed{\ \frac{d\ln G}{d\mu}=\kappa(\mu)\equiv\frac{\tilde W_H'-\tilde W_L'}{\tilde W_L-\tilde W_H}
+\ \Longrightarrow\ G(\mu)=G_0\,\exp\!\Big(\textstyle\int_{\mu_0}^{\mu}\kappa\Big)\ }$$
+$$\boxed{\ \frac{db}{d\mu}=\frac{G(\mu)}{\Psi(\mu)}
+\ \Longrightarrow\ b(\mu)=b_0+\int_{\mu_0}^{\mu}\frac{G(s)}{\Psi(s)}\,ds\ }$$
+</div>
+<p>That is the whole overlap: <strong>one quadrature for $G(\mu)$, a second for $b(\mu)$</strong>, then read off the
+density $g=\Phi(\mu)$ and the split $f_H=2g\mu,\ f_L=2g(1-\mu)$. Invert $b(\mu)$ to get $\mu(b)$ on any bid range you like.</p>
+<p class="note"><strong>(Superseded — there is no tail.)</strong> As $\mu\to1$, $\Phi(\mu)\to 1/\tilde W_H(1)$, the
+density the uniform tail <em>would</em> have. This was read as "the overlap lands on the tail height for free," but
+the overlap never reaches $\mu=1$ (the CDF is spent at $\mu_{\max}<1$), so this limit is never attained and no tail
+attaches — see the correction box. The overlap simply ends at $b_{top}$ with $G=1$, $\mu=\mu_{\max}$.</p>
+
+<h3>Why $\mu(b)$ increases on the overlap — and why it matters</h3>
+<p>This monotonicity is not an assumption; it is forced by the two indifference conditions, and it is exactly what
+makes the change of variable above (and the $F=G^2$ of §4) legitimate. <strong>Bayes restatement.</strong> For a
+general prior $p_H\in(0,1)$,
+$$\mu(b)=\frac{p_H\,f_H(b)}{p_H\,f_H(b)+p_L\,f_L(b)},\qquad \frac{f_H}{f_L}=\frac{p_L}{p_H}\,\frac{\mu}{1-\mu},$$
+so $\mu(b)$ increasing $\iff$ the likelihood ratio $f_H/f_L$ increases $\iff$ the two types' bid distributions satisfy
+<strong>MLRP</strong> (higher bids carry relatively more High-type mass). The prior is only a constant multiplier
+$p_L/p_H$ on that ratio: it shifts the <em>level</em> of $\mu$, never whether it rises. (The equal-prior case
+$p_H=\tfrac12$ collapses this to $\mu=f_H/(f_H+f_L)$ with the split $f_H=2g\mu,\ f_L=2g(1-\mu)$.) The real question is
+why MLRP holds when both types mix over the <em>same</em> interval.</p>
+<div class="box key">
+<h3>The one-line argument: $G\cdot\Delta\tilde W$ is constant</h3>
+<p>On the overlap both types are indifferent, so for the equilibrium payoff constants $U_H,U_L$,
+$$G(b)\,\tilde W_H(\mu(b))-b=U_H,\qquad G(b)\,\tilde W_L(\mu(b))-b=U_L.$$
+Subtract — the $-b$ cancels:
+$$\boxed{\ G(b)\,\big[\tilde W_H(\mu(b))-\tilde W_L(\mu(b))\big]=U_H-U_L=\text{const}&gt;0.\ }\tag{*}$$
+As $b$ rises, $G(b)$ rises (a CDF, with positive density on the overlap), so the value gap
+$\Delta\tilde W(\mu)\equiv\tilde W_H-\tilde W_L$ must <strong>fall</strong>. And the gap is decreasing in $\mu$ (closed
+forms, §7):
+$$\Delta\tilde W'(\mu)=\tilde W_H'-\tilde W_L'=\underbrace{-2(1-G^2)}_{&lt;0}-\underbrace{\tfrac23 G^2}_{&gt;0}
+  =\tfrac23\big(2G^2-3\big)&lt;0\quad\text{on }G\in(0,1).$$
+A decreasing function that must decrease $\Rightarrow$ $\mu$ must increase. Hence $\mu(b)$ rises with $b$.</p>
+</div>
+<p>Equivalently, in differential form: subtracting the two marginal conditions $g\tilde W_v+G\tilde W_v'\mu'=1$ gives
+$\mu'=-\,g\,\Delta\tilde W\big/\big(G\,(\tilde W_H'-\tilde W_L')\big)&gt;0$.</p>
+<p><strong>The economics behind $\Delta\tilde W'&lt;0$.</strong> The two types value being <em>perceived</em> strong in
+opposite directions:</p>
+<ul>
+<li><strong>High</strong>: $\tilde W_H'=-2(1-G^2)&lt;0$ — being thought strong <em>hurts</em>. Standard all-pay logic:
+the perceived favorite has its rent competed away while the underdog extracts surplus, so High would rather be
+underestimated.</li>
+<li><strong>Low</strong>: $\tilde W_L'=\tfrac23 G^2&gt;0$ — being thought strong <em>helps</em>. A Low type that looks
+strong induces the opponent to concede (take the atom); bluffing pays.</li>
+</ul>
+<p>So as $\mu$ climbs, High's value drops and Low's rises — they converge and the gap closes. That single-crossing in
+valuations is what simultaneously sustains the co-mixing and orients the belief upward.</p>
+<p class="note"><strong>None of this uses the equal prior.</strong> Relation $(*)$ is just the difference of the two
+indifference conditions — no prior appears. And the sign $\Delta\tilde W'&lt;0$ is prior-robust: the prior enters the
+continuation values only through the equilibrium law $G$ (hence $F=G^2$), never through the functional forms
+$\tilde W_H'=-2(1-F)\le 0$ and $\tilde W_L'=\tfrac23 F\ge 0$. Since $F$ is a probability, $F\in[0,1]$ for <em>any</em>
+prior, so those two signs are locked and $\Delta\tilde W'=-2+\tfrac43 F\le-\tfrac23&lt;0$ throughout. A different $p_H$
+moves the levels — $\mu_0$, the atom masses, the split $f_H=g\mu/p_H,\ f_L=g(1-\mu)/p_L$, the §6 normalizations — but
+cannot flip the single-crossing, so $\mu(b)$ stays monotone. (What an extreme prior <em>can</em> change is the regime
+itself — whether the co-mixing (Low-atom + overlap) structure survives — but within that regime the belief is monotone
+regardless of $p_H$.)</p>
+<p><strong>The equilibrium is non-separating, not "non-monotone."</strong> Both types pool over the overlap and there
+is a concession atom, so the <em>strategy</em> is not a clean separating pure strategy. The only sense in which bidding
+is "non-monotone" is at the level of <em>realizations</em>: the supports overlap, so a High type can draw a lower bid
+than a Low type. At the levels that carry economic content the equilibrium is monotone — the posterior $\mu(b)$ is
+(weakly) increasing ($\mu_0=0$ at the atom, strictly rising on the overlap to $\mu_{\max}<1$ at the top), and the
+type-conditional bid distributions are FOSD-ordered (High FOSD Low). Pooling supports with different
+<em>proportions</em> (MLRP) is exactly what lets a non-separating equilibrium carry a monotone belief and FOSD-ordered
+bids. We therefore reserve "non-monotone" for the bid realizations and call the equilibrium <em>non-separating</em>.</p>
+<p class="note"><strong>Numerical check of $(*)$.</strong> From Table 1, $\Delta\tilde W$ runs $1.901$ at $\mu=0.05$
+down to $0.659-0.186=0.473$ at $\mu=0.95$ — a factor $1.901/0.473\approx4.02$. So $(*)$ predicts $G$ rises by the same
+factor across the overlap; Table 2 has $G(\mu)/G_0=4.023$ at $\mu=0.95$. They agree to rounding — the data really does
+hold $G\cdot\Delta\tilde W$ constant.</p>
+<p class="note"><strong>Why $F=G^2$ needs this.</strong>
+$F(\mu)=\Pr(\nu\le\mu)=\Pr(\mu(W)\le\mu)=\Pr\big(W\le b(\mu)\big)=G(b(\mu))^2$ holds only because $\mu(\cdot)$ is
+invertible — the event $\{\mu(W)\le\mu\}$ collapses to the interval $\{W\le b(\mu)\}$. Without monotonicity that step,
+and the change of variable above, would both fail.</p>
+
+<h2>4. Why there is no fixed point: the belief-about-the-opponent CDF is exactly $G^2$</h2>
+<p>The continuation value is an average of the Round-2 payoff over the opponent you might face,
+$$\tilde W(v,\mu)=\mathbb E_{\nu}\big[\pi_2\big(v;\ \mu,\ \nu\big)\big],$$
+where $\mu$ is the belief <em>your</em> bid induces (others' belief about you) and $\nu$ is the belief <em>your
+finalist opponent's</em> bid induces. The fear was that the law of $\nu$ is an endogenous functional of the whole
+Round-1 strategy $\sigma$ — so $\tilde W$ depends on $\sigma$, whose own ODE (§3) carries $\tilde W$ in its
+coefficients. The <strong>pairwise</strong> structure removes the circularity outright.</p>
+<div class="box key">
+<h3>The finalist opponent is the winner of one independent pair</h3>
+<p>Four players, two Round-1 matches of two. You advance by beating your single rival — probability $G(b)$, the
+first power of $G$ in (I). In the final you meet the winner of the <em>other</em> match. That match does not involve
+you, so its winner's bid $W=\max(b',b'')$ over two i.i.d. population draws is <strong>independent of your own
+bid</strong>, with</p>
+$$\Pr(W\le t)=G(t)^2.$$
+<p>The belief map $\mu(\cdot)$ is the same strictly-increasing function for everyone, so the belief <em>about</em> the
+opponent, $\nu=\mu(W)$, satisfies, in the belief variable,</p>
+$$\boxed{\ F(\mu)\equiv\Pr(\nu\le\mu)=\Pr\big(W\le b(\mu)\big)=G(\mu)^2\ }$$
+<p>writing $G(\mu)$ for the population CDF at the bid that induces belief $\mu$. So $F$ is <em>not a free unknown</em> —
+it is literally the square of the very $G$ the overlap ODE produces.</p>
+</div>
+<p>Two consequences make this the whole game:</p>
+<ul>
+<li><strong>The average is against a fixed law.</strong> Because $W$ is independent of your bid, $\tilde W(v,\mu)$
+integrates $\pi_2$ against a law that does not shift when you move your own bid — your bid enters $\tilde W$
+<em>only</em> through $\mu$, exactly the structure (I)/(†) assume. (In a single-pool "top-2-of-4" contest the
+opponent would be "best of the other three given you survived," coupled to your own bid, and $F\ne G^2$; the
+pairwise bracket is what buys the clean separation.)</li>
+<li><strong>The loop fuses into one ODE.</strong> Substituting $F=G^2$ into the §7 continuation-value formulas turns
+$\tilde W_H',\tilde W_L'$ into explicit functions of $G$. The Round-1$\leftrightarrow$Round-2 "fixed point" is then
+just a differential equation in $G$ — solved once, not iterated.</li>
+</ul>
+<p class="note"><strong>Why substituting $F=G^2$ is legitimate, not circular.</strong> Deriving (†) holds
+$\tilde W(\cdot)$ fixed and asks a player to be indifferent across the beliefs <em>their own</em> bid can reach;
+$\tilde W'(\mu)$ there is the response of your continuation to your own belief, with the opponents' law frozen
+(best response to others' strategies). The identity $F=G^2$ is a <em>separate</em> equilibrium-symmetry step: in a
+symmetric equilibrium the frozen opponent law equals $G^2$ of the same $G$. You never differentiate through your own
+deviation into $F$. The two steps are logically distinct; the ODE merely bundles them.</p>
+<p><strong>Numerical corroboration.</strong> The exact statement also shows up in the data. $\tilde W_H(\mu)$ computed
+from three well-converged profiles (grid M200 gap 0.04, M100 0.035, low-temp 0.02) agree to <strong>&lt;1%</strong>
+across all $\mu$ (a deliberately bad gap-0.14 profile drifts only at high $\mu$); $\tilde W_L(\mu)$ agrees to
+$\sim\!0.001$–$0.003$ absolute. And $F=G^2$ holds on the overlap to max deviation $0.045$ — within the sim's own
+non-convergence. "$\tilde W$ barely moves" was the symptom; $F=G^2$ is the cause. Economic reading: $\tilde W_H$
+<em>falls</em> in $\mu$ (being under-estimated helps High); $\tilde W_L$ <em>rises</em> from $0$ (bluffing pays for
+Low only once the opponent fears you).</p>
+
+<h2>5. The overlap construction, step by step</h2>
+<ol>
+<li>Obtain $\tilde W_H(\mu),\tilde W_L(\mu)$ in closed form from Round 2 (§7): $\tilde W_H=2-2\mu+2Y$,
+$\tilde W_L=\tfrac23 Y$ with $Y=\int_0^\mu G^2$ — or the Table-1 data as a stopgap. (Because these depend on $G$,
+the literal recipe below is the §7 ODE; with empirical $\tilde W$ as a frozen input it is a one-pass approximation.)</li>
+<li>Form $\tilde W_H',\tilde W_L'$, then $D$, $\Phi=(\tilde W_H'-\tilde W_L')/D$, $\Psi=(\tilde W_L-\tilde W_H)/D$,
+$\kappa=\Phi/\Psi$.</li>
+<li>Pick the overlap-start belief $\mu_0$ and level $G_0=G(\mu_0)$ (= the atom mass below; see §6). Integrate
+$K(\mu)=\int_{\mu_0}^\mu\kappa$ ⇒ $G(\mu)=G_0e^{K}$.</li>
+<li>Integrate $b(\mu)=b_0+\int_{\mu_0}^\mu G/\Psi$ from $\mu_0=0$ until the CDF is spent, $G=1$, at
+$\mu=\mu_{\max}<1$. The top $b_{top}=b(\mu_{\max})$ is an <em>output</em>.</li>
+<li>Density $g(b)=\Phi(\mu(b))$ on the whole overlap $[0,b_{top}]$; there is no tail (correction box).</li>
+</ol>
+<p>Table 2 (computed, $\mu_0=0.05$, units of $G_0$) shows the shape — note how little bid-width the bottom occupies and
+how the density decays from the spike to the tail level:</p>
+<table>
+<tr><th>$\mu$</th><th>$G(\mu)/G_0$</th><th>$(b-b_0)/G_0$</th><th>$g=\Phi$</th></tr>
+<tr><td>0.05</td><td>1.000</td><td>0.000</td><td>~30 *</td></tr>
+<tr><td>0.20</td><td>1.180</td><td>0.006</td><td>30.5</td></tr>
+<tr><td>0.40</td><td>1.543</td><td>0.024</td><td>17.0</td></tr>
+<tr><td>0.60</td><td>2.158</td><td>0.087</td><td>7.25</td></tr>
+<tr><td>0.80</td><td>3.199</td><td>0.310</td><td>3.02</td></tr>
+<tr><td>0.90</td><td>3.758</td><td>0.574</td><td>1.52</td></tr>
+<tr><td>0.95</td><td>4.023</td><td>0.749</td><td>1.52</td></tr>
+</table>
+<p class="note">* The very tip ($\mu\to\mu_0$) is the one number the grid cannot resolve: <code>np.gradient</code> at the edge
+gives $\Phi\approx99$ vs $\approx30$ one step in. It is governed by $D\approx-\tilde W_H\tilde W_L'$, i.e. by the
+<strong>slope of $\tilde W_L$ as it lifts off zero</strong>. A closed-form $\tilde W_L(\mu)$ near $\mu_0$ pins it exactly —
+this is the single most valuable payoff of going analytic.</p>
+
+<h2>6. Gluing — the scalars and the equations that close them</h2>
+<p class="note"><strong>Corrected (2026-06-22).</strong> With $b_{lo}=0$ and no tail (correction box), this section's
+scalar count collapses: the <em>only</em> free scalar is the atom mass $G_0$, pinned by one normalization. The
+solved values are $G_0=0.2221,\ a_L=0.4443,\ \mu_{\max}=0.9525,\ b_{top}=0.1746,\ U_H=2G_0=0.4443,\ U_L=0$.</p>
+<p>Free scalars (small set): the Low atom mass $a_L$ (with $a_H=0$, so $G_0=p_La_L$), the overlap-start belief $\mu_0$
+and bid $b_0=b_{lo}$, and the top $b_{top}$. The closing equations:</p>
+<ul>
+<li><strong>$b_{lo}=0\Rightarrow\mu_0=0$ (not a free scalar).</strong> All-pay no-gap forces the overlap flush
+against the atom, $b_{lo}=0$. Low's break-even $G_0\,\tilde W_L(\mu_0)-b_{lo}=U_L=0$ then reads
+$G_0\,\tilde W_L(\mu_0)=0$, so $\tilde W_L(\mu_0)=0$, i.e. $\mu_0=0$. The belief starts at $0$ continuously — there
+is no jump and no bluff-value offset. (The pure-Low atom fixes $U_L=\tfrac12 G_0\,\tilde W_L(0)=0$ as before.)</li>
+<li><strong>High shuns the atom (a constraint, not an equation).</strong> A High type conceding would earn only
+$\tfrac12 G_0\,\tilde W_H(0)=G_0$ (max belief, tiny win probability), which must not beat its equilibrium payoff:
+$U_H>G_0$. Verified on M200 ($U_H=0.369>G_0=0.122$, §9) — this is why $a_H=0$ is consistent, not imposed.</li>
+<li><strong>Both types top out together at $b_{top}$</strong> (no $b_{split}$, no tail). The overlap runs until the
+CDF is exhausted, $G=1$, at belief $\mu_{\max}=0.9525$ and bid $b_{top}=0.1746$. High's support is $[0,b_{top}]$,
+Low's is $\{0\}\cup[0,b_{top}]$ (atom plus overlap). No bid is revealed-High.</li>
+<li><strong>No upward deviation</strong> (replaces the old density-continuity-at-$b_{split}$ point). A type bidding
+above $b_{top}$ already wins with probability $1$ (since $G(b_{top})=1$), so it only adds cost; and any off-path
+belief there gives High $\tilde W_H\le\tilde W_H(\mu_{\max})$ (decreasing), so even a "revealed-High" reading does
+not help. Both types strictly prefer $b_{top}$ to anything above. No tail is needed to deter it.</li>
+<li><strong>Normalization — one independent equation ($a_H=0$).</strong> High carries no atom, so its whole unit
+of mass sits on the overlap:
+$$\int_{b_{lo}}^{b_{top}}\!\! f_H\,db=2\!\int_{G_0}^{1}\!\mu(G)\,dG=1\quad\Longrightarrow\quad
+\int_{G_0}^{1}\!\mu(G)\,dG=\tfrac12,$$
+which pins $G_0$. Low's normalization $a_L+\int_{b_{lo}}^{b_{top}} f_L\,db=1$ is then <em>automatic</em>: it reduces
+to $a_L=2G_0$ (using $\int_{G_0}^1(1-\mu)\,dG=\tfrac12-G_0$ and $a_L=2G_0$). So two normalizations collapse to one.</li>
+<li><strong>Indifference levels</strong> are outputs, not extra unknowns: $U_H=2G_0=0.4443$ (evaluate $G\tilde W_H-b$
+at the atom edge $\mu=0,b=0$) and $U_L=0$ — both verified to agree with the values obtained by integrating to the
+top (§correction box).</li>
+</ul>
+<p class="note">Count: <strong>one</strong> free scalar $G_0$, <strong>one</strong> equation
+$\int_{G_0}^1\mu\,dG=\tfrac12$. Solved: $G_0=0.2221$. Everything else (the closed-form §3/§7 overlap and the §7
+first integral) is explicit; no Mathematica grind and no solver call remain.</p>
+
+<h2>7. SOLVED — closed-form $\tilde W$ in $G$, and the overlap ODE</h2>
+<p class="note">Worked out and verified against the solver (<code>posteriors_to_payoffs</code>) to $\sim10^{-16}$ on
+2026-06-17; see <code>Python/_verify_closed_form.py</code> for the checks.</p>
+<p>The binary Round-2 payoff to a finalist of value $v$ whose opponent believes it is High with prob $\mu$, and who
+believes its own opponent is High with prob $\nu$, is</p>
+$$\pi_2(\text{High};\mu,\nu)=2\big(1-\min(\mu,\nu)\big),\qquad
+  \pi_2(\text{Low};\mu,\nu)=\tfrac23\,(\mu-\nu)^+,$$
+<p>with a concession atom of mass $\tfrac23|\mu-\nu|$ held by the weaker-perceived finalist. (These are the
+$v_H=3,v_L=1$ numbers; structurally $\pi_2(\text{High};\mu,\nu)=(v_H-v_L)\,\big(1-\min(\mu,\nu)\big)$.)</p>
+<p>Average over the belief about the finalist opponent, $\nu$, and apply the envelope theorem. §4 supplied the law of
+$\nu$ in closed form, $F(\mu)=G(\mu)^2$, so we substitute it on the spot and never carry $F$ as an unknown:</p>
+$$\boxed{\ \tilde W_H'(\mu)=-2\big(1-G(\mu)^2\big),\qquad \tilde W_L'(\mu)=\tfrac23\,G(\mu)^2\ }$$
+<p>Integrating from $\mu=0$ (where $\tilde W_H=2$, $\tilde W_L=0$), with $Y(\mu)=\int_0^\mu G(s)^2\,ds$,</p>
+$$\tilde W_H(\mu)=2-2\mu+2\,Y(\mu),\qquad \tilde W_L(\mu)=\tfrac23\,Y(\mu).$$
+<p>Every quantity on the right is the Round-1 CDF $G$ — there is no opponent distribution left to supply.
+Parameter-free cross-check (holds at <em>every</em> $\mu$ in the data, to $10^{-3}$):
+$\ \tilde W_H'-3\,\tilde W_L'=-2\big(1-G^2\big)-2G^2=-2=-(v_H-v_L)$.</p>
+<div class="box key">
+<h3>The (†) coefficients in $G$ — the fixed point closes</h3>
+<p>Feed these into the §3 reduction. Both pieces of $\kappa=(\tilde W_H'-\tilde W_L')/(\tilde W_L-\tilde W_H)$ carry a
+common factor $\tfrac23$:</p>
+$$\tilde W_H'-\tilde W_L'=\tfrac23\big(2G^2-3\big),\qquad
+  \tilde W_L-\tilde W_H=\tfrac23\big(3(\mu-1)-2Y\big),$$
+<p>so the $\tfrac23$ cancels and the two §3 quadratures become a closed system in $(G,Y)$:</p>
+$$\boxed{\ \frac{dG}{d\mu}=\frac{G\,(2G^2-3)}{3(\mu-1)-2Y},\qquad \frac{dY}{d\mu}=G^2,\qquad
+  \frac{db}{d\mu}=\frac{2G\big(G^2(\mu-1)-Y\big)}{3(\mu-1)-2Y}\ }$$
+<p>A self-contained 2-D ODE in $(G,Y)$ plus the bid quadrature — integrate with <code>NDSolve</code> from the boundary;
+<strong>no solver call, no iteration, no $F$</strong>. The density is
+$g(b)=\Phi=(2G^2-3)\big/\big(2(G^2(\mu-1)-Y)\big)$. On the overlap $G\in(0,1)$ makes both boxed numerators and
+denominators negative, so $G$ and $b$ both increase in $\mu$, as required.</p>
+</div>
+
+<h2>7b. Arbitrary $v_H,v_L$ — the construction is value-covariant</h2>
+<p class="note">Re-derived for general binary values on 2026-06-22; verified numerically across
+$v_H/v_L\in\{3/1,2/1,4/1,3/2,5/1,10/1\}$ and against the scale-invariance $(6,2)=2\times(3,1)$.
+The $3/1$ numbers of §7–§8 are the special case. Write $\Delta\equiv v_H-v_L$.</p>
+
+<p>The Round-2 payoffs keep their shape; only the constants move. Solving the asymmetric binary
+all-pay final (your reputation $\mu$, opponent's $\nu$) gives both High payoffs equal to
+$\Delta(1-\min(\mu,\nu))$ and the stronger-perceived Low a bluff rent
+$K(\mu-\nu)^+$ with $K=v_L\Delta/v_H$:</p>
+$$\pi_2(\text{High};\mu,\nu)=\Delta\big(1-\min(\mu,\nu)\big),\qquad
+  \pi_2(\text{Low};\mu,\nu)=\frac{v_L\Delta}{v_H}\,(\mu-\nu)^+,$$
+<p>with a concession atom of mass $\tfrac{\Delta}{v_H}|\mu-\nu|$ held by the weaker-perceived
+finalist. ($v_H=3,v_L=1$: $\Delta=2$, $K=\tfrac23$, atom $\tfrac23|\mu-\nu|$ — the §7 numbers.)
+The symmetric case $\mu=\nu=q$ gives $\pi_2(\text{High})=\Delta(1-q)$, $\pi_2(\text{Low})=0$, as a
+plain all-pay with two-point values must.</p>
+
+<p>Averaging over $\nu\sim F=G^2$ and applying the envelope theorem (exactly as in §7), with
+$Y(\mu)=\int_0^\mu G^2$:</p>
+$$\boxed{\ \tilde W_H'(\mu)=-\Delta\big(1-G^2\big),\quad \tilde W_L'(\mu)=K\,G^2,\qquad
+  \tilde W_H=\Delta(1-\mu+Y),\quad \tilde W_L=K\,Y\ }$$
+<p>Parameter-free cross-check: $\tilde W_H'-\tfrac{\Delta}{K}\tilde W_L'=-\Delta$ (at $3/1$,
+$\tfrac{\Delta}{K}=3$, recovering $\tilde W_H'-3\tilde W_L'=-2$).</p>
+
+<div class="box key">
+<h3>The overlap ODE, first integral, and closed form (general $v$)</h3>
+<p>The §3 reduction now reads, with the common factor cancelling as before,</p>
+$$\frac{dG}{d\mu}=\frac{G\,(\Delta G^2-v_H)}{v_H(\mu-1)-\Delta Y},\qquad \frac{dY}{d\mu}=G^2.$$
+<p>The §3 relation $G(\tilde W_H-\tilde W_L)=U_H-U_L$ is the first integral. With $\mu_0=0$,
+$U_L=0$, $U_H=\Delta G_0$ (all from the unchanged $b_{lo}=0$ argument), it gives
+$G\big[(1-\mu)+\tfrac{\Delta}{v_H}Y\big]=G_0$. Substituting collapses the denominator to
+$-v_H G_0/G$ and the ODE separates:</p>
+$$\frac{dG}{d\mu}=\frac{G^2\,(v_H-\Delta G^2)}{v_H\,G_0}
+\ \Longrightarrow\
+\mu(G)=1-\frac{G_0}{G}+G_0\,s\big[\operatorname{arctanh}(sG)-\operatorname{arctanh}(sG_0)\big],
+\quad s=\sqrt{\tfrac{\Delta}{v_H}}.$$
+<p>Since $\Delta<v_H$, $s<1$ and $sG<1$ on $G\in[0,1]$ — the $\operatorname{arctanh}$ never blows up,
+so $\mu(G)$ is finite and elementary throughout. Whether the resulting belief actually stays below
+$1$ as $G\to1$ — i.e. whether the no-tail picture of §7 holds — depends on the value gap; see the
+regime boundary after Table 2.</p>
+</div>
+
+<p>The closure is value-<em>independent</em> in form — High's whole mass on the overlap is pure
+probability bookkeeping — so $G_0$ is still the single unknown pinned by
+$\int_{G_0}^1\mu(G)\,dG=\tfrac12$; then $a_L=2G_0$, $U_H=\Delta G_0$, $U_L=0$, $b_{top}=
+\tilde W_H(\mu_{\max})-U_H$. Only the belief trajectory $\mu(G)$ — hence $G_0$ — carries the
+values, through $s=\sqrt{\Delta/v_H}$.</p>
+
+<h3>Table 2 — solved equilibrium in the no-tail regime</h3>
+<table>
+<tr><th>$v_H/v_L$</th><th>$s=\sqrt{\Delta/v_H}$</th><th>$K=v_L\Delta/v_H$</th><th>$G_0$</th>
+<th>$a_L=2G_0$</th><th>$\mu_{\max}$</th><th>$b_{top}$</th><th>$U_H=\Delta G_0$</th><th>$U_L$</th></tr>
+<tr><td>$3/1$</td><td>0.8165</td><td>0.6667</td><td>0.2221</td><td>0.4443</td><td>0.9525</td><td>0.1746</td><td>0.4443</td><td>0</td></tr>
+<tr><td>$2/1$</td><td>0.7071</td><td>0.5000</td><td>0.2103</td><td>0.4207</td><td>0.8985</td><td>0.1088</td><td>0.2103</td><td>0</td></tr>
+<tr><td>$4/1$</td><td>0.8660</td><td>0.7500</td><td>0.2295</td><td>0.4590</td><td>0.9922</td><td>0.2217</td><td>0.6884</td><td>0</td></tr>
+<tr><td>$3/2$</td><td>0.5774</td><td>0.6667</td><td>0.2010</td><td>0.4020</td><td>0.8619</td><td>0.1258</td><td>0.2010</td><td>0</td></tr>
+</table>
+<p class="note">$U_H=\Delta G_0$ verified at the atom edge and again as $\tilde W_H(\mu_{\max})-b_{top}$
+to 4 dp; $U_L=0$ at the top to machine epsilon, at every pair; scale-invariance $(6,2)=2\times(3,1)$
+holds exactly. Reproduce: <code>Python/general_v_solution.py</code>.</p>
+
+<p><strong>Regime boundary.</strong> The two-region (no-tail) construction is valid only while
+$\mu_{\max}<1$. Solving $\mu_{\max}(v_H/v_L)=1$ gives the threshold
+$\;v_H/v_L\approx4.23\;$ (at $v_L=1$): below it, belief reaches $\mu_{\max}<1$ exactly as $G\to1$ and
+there is no tail (the §7 regime, with $3/1$ comfortably inside); above it, the co-mixing belief would
+have to pass $1$ before $G$ reaches $1$, which is infeasible — full revelation $\mu=1$ is hit at a bid
+below $b_{top}$ and a thin genuinely-revealed-High tail re-opens above it. That wide-gap regime needs
+the tail-inclusive closure (overlap terminating at $\mu=1$ plus a high-only segment) and is <em>not</em>
+solved here; the $G_0$ for such pairs is <em>not</em> given by the no-tail equation above. Within
+$v_H/v_L<4.23$ the table is the exact equilibrium.</p>
+
+<h2>8. Reference data (canonical M200 profile, $v=3/1$)</h2>
+<h3>Table 1 — continuation values &amp; (†) coefficients</h3>
+<table>
+<tr><th>$\mu$</th><th>$\tilde W_H$</th><th>$\tilde W_L$</th><th>$\tilde W_H'$</th><th>$\tilde W_L'$</th><th>$D$</th><th>$\Phi=g$</th><th>$\Psi$</th><th>$\kappa$</th></tr>
+<tr><td>0.05</td><td>1.901</td><td>0.000</td><td>-1.908</td><td>0.031</td><td>-0.059</td><td>32.62</td><td>31.99</td><td>1.020</td></tr>
+<tr><td>0.15</td><td>1.711</td><td>0.004</td><td>-1.901</td><td>0.033</td><td>-0.063</td><td>30.54</td><td>26.96</td><td>1.133</td></tr>
+<tr><td>0.25</td><td>1.521</td><td>0.007</td><td>-1.870</td><td>0.043</td><td>-0.079</td><td>24.18</td><td>19.14</td><td>1.264</td></tr>
+<tr><td>0.35</td><td>1.339</td><td>0.013</td><td>-1.806</td><td>0.065</td><td>-0.110</td><td>17.00</td><td>12.05</td><td>1.411</td></tr>
+<tr><td>0.45</td><td>1.162</td><td>0.021</td><td>-1.710</td><td>0.097</td><td>-0.148</td><td>12.24</td><td>7.73</td><td>1.583</td></tr>
+<tr><td>0.55</td><td>0.997</td><td>0.032</td><td>-1.562</td><td>0.146</td><td>-0.196</td><td>8.70</td><td>4.91</td><td>1.770</td></tr>
+<tr><td>0.65</td><td>0.851</td><td>0.050</td><td>-1.339</td><td>0.220</td><td>-0.255</td><td>6.12</td><td>3.14</td><td>1.948</td></tr>
+<tr><td>0.75</td><td>0.733</td><td>0.078</td><td>-0.960</td><td>0.347</td><td>-0.329</td><td>3.97</td><td>1.99</td><td>1.993</td></tr>
+<tr><td>0.85</td><td>0.664</td><td>0.121</td><td>-0.324</td><td>0.559</td><td>-0.411</td><td>2.15</td><td>1.32</td><td>1.626</td></tr>
+<tr><td>0.95</td><td>0.659</td><td>0.186</td><td>-0.000</td><td>0.667</td><td>-0.439</td><td>1.52</td><td>1.08</td><td>1.411</td></tr>
+</table>
+<p class="note">$\tilde W_H$ falls $1.90\!\to\!0.66$; $\tilde W_L$ rises $0\!\to\!0.19$. $\kappa\in[1.0,2.1]$, smooth and positive.
+$\tilde W_H(0.95)=0.659\Rightarrow 1/\tilde W_H=1.518$ = the flat-tail density.</p>
+
+<h3>Table 3 — the under-converged grid sim (what to <em>beat</em>)</h3>
+<p>Empirical overlap of the M200 grid solver: $\text{supp}_L=\text{atom@0}+[0.015,0.302]$, overlap $[0.015,0.302]$,
+atom mass (pop) $=0.122$. Its density obeys (†) in shape (corr 0.83) but sits below the law — and, critically,
+spreads the overlap over $[0.015,0.302]$ where the analytic construction puts $[0.015,\approx0.10]$:</p>
+<table>
+<tr><th>$b$</th><th>$\mu_\text{emp}$</th><th>$g_\text{emp}$</th><th>$\Phi(\mu_\text{emp})$ (law)</th></tr>
+<tr><td>0.015</td><td>0.055</td><td>6.62</td><td>49.4</td></tr>
+<tr><td>0.045</td><td>0.414</td><td>5.21</td><td>14.0</td></tr>
+<tr><td>0.090</td><td>0.631</td><td>3.57</td><td>6.64</td></tr>
+<tr><td>0.151</td><td>0.757</td><td>2.45</td><td>3.88</td></tr>
+<tr><td>0.211</td><td>0.825</td><td>1.72</td><td>2.64</td></tr>
+<tr><td>0.302</td><td>0.872</td><td>0.69</td><td>1.67</td></tr>
+</table>
+<p class="note">The gap is worst at the bottom (ratio 0.13) and mildest at the top (~0.41) — the grid most under-resolves
+the spike. Median ratio 0.57 is the headline "(†) level" number, but it hides this bid-dependence.</p>
+
+<h2>9. Code pointers / reproduction</h2>
+<ul>
+<li><code>check_dagger.compute_W_tilde(sigma, prior, v_grid, mu_post, mu_values)</code> → $\tilde W(\mu)$ table (the §8 numbers).</li>
+<li><code>dagger_regime_map.py</code> → the single-interval / no-gaps verdict and sign of $\Phi,D$.</li>
+<li><code>check_dagger.py</code> → empirical overlap, the shape-corr 0.83 / level-ratio 0.57 diagnostic (Table 3).</li>
+<li><code>_check_pure_low_atom.py</code> → the §2/§6 structure check on M200: $a_H=0.0002$, $\mu(0)=0.0009$ (pure-Low atom),
+$U_L=0$ at the atom (the overlap dip to $-0.17$ is the documented over-spread / level-0.57 non-convergence, not a
+structural fault), and $U_H=0.369>G_0=0.122$ (High shuns the atom). Also confirms $\tilde W_H(\mu(0))=1.998\approx2$.</li>
+<li><code>posteriors_to_payoffs.py</code>, <code>q_function_numba.py</code>, <code>continuation_value.py</code> → the closed-form Round-2 solver behind §7.</li>
+<li>Reference profile: <code>binary_results_M200.npz</code> (keys: <code>sigma, v_grid, b_grid, prior, max_gaps</code>).</li>
+<li>Throwaway probes that produced these tables: <code>_probe_path2.py</code>, <code>_probe_Wtilde_invariance.py</code>,
+<code>_gen_offline_tables.py</code> (delete when done — they are not part of the project).</li>
+</ul>
+
+<h2>10. Cautions &amp; open questions</h2>
+<ul>
+<li><strong>The bottom spike.</strong> $\Phi$ at $\mu_0$ is set by $\tilde W_L'(\mu_0^+)$ — get $\tilde W_L$ near zero
+analytically; do not trust the grid there.</li>
+<li><strong>Which type holds the atom? (RESOLVED — pure Low.)</strong> The concession atom is held only by Low:
+$a_H=0$, $\mu(0)=0$. <em>Reason:</em> a revealed-Low finalist earns $\tilde W_L(0)=0$, so conceding costs Low nothing
+in continuation and fixes $U_L=0$; a High type would never accept the atom's tiny win probability when its bids earn
+$U_H>G_0$. Confirmed on M200 ($a_H=0.0002$, $\mu(0)=0.0009$). The old "High hides low ⇒ High carries the atom"
+guess belonged to the scrapped <em>non-monotone-belief</em> story; the current construction has a monotone belief, so
+the lowest bid (the atom) carries the lowest belief, i.e. Low.</li>
+<li><strong>The two powers of $G$ (resolved).</strong> The pairwise structure pins both: you advance by beating your
+single rival, so the advancement factor in (I) is $G(b)$ (first power); the finalist opponent is the winner of the
+<em>other</em> pair, so its belief CDF is $F=G^2$ (§4). The first power lives in (I), the square lives in $\tilde W$ —
+distinct roles, no ambiguity. (A single-pool top-2-of-4 contest would break both; the model is pairwise.)</li>
+<li><strong>Self-consistency.</strong> After solving, recompute $\tilde W$ from the analytic $\sigma$ and confirm it
+matches Table 1 (§4 predicts it will). If it drifts, iterate once.</li>
+<li><strong>Generality.</strong> Re-run §7 for $(v_L,v_H)=(1,2)$ to confirm the structure is not special to $3/1$
+(there the feasibility cap $v_L+d$ starts to bind).</li>
+</ul>
+
+<hr>
+<p class="note">Companion context (already in the repo): <code>memory/turocy-relation.md</code> (the (†) law + regime-map
+verdict), <code>docs/dagger_penalty_failure.md</code> (why the soft-penalty solver was ruled out — do not retry),
+<code>docs/turocy_findings.md</code>, <code>docs/binary_support_predictions.html</code>.</p>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$", right: "$", display: false}
+    ],
+    throwOnError: false
+  });
+</script>
+</body>
+</html>

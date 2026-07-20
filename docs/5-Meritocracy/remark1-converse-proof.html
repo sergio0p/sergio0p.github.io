@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proof of Remark 1 — drop-out implies intimidation</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Remark 1 — the converse: drop-out implies intimidation</p>
+
+<p>Remark&nbsp;1 asserts the necessity direction of Proposition&nbsp;1: when
+$F_H(v)/v$ is non-increasing, any
+equilibrium in which the L individuals drop out forces the intimidation ranking.
+No proof was ever written for it. Here is one, reconstructed from the model. The
+threshold it produces is tight, and it lands at exactly $\lambda=1/h$ — the
+$k=1$ case of the $k/h$-intimidation used in the Drop-Out Theorem.</p>
+
+<p class="note">Throughout, $h$ is the number of class-H individuals, $F_H$ the
+(atomless) H valuation distribution on $[\underline v_H,\overline v_H]$, and
+$\overline v_L$ the top L valuation. The non-increasing hypothesis forces
+$\underline v_H=0$: if $\underline v_H>0$ then $F_H(v)/v$ equals $0$ below
+$\underline v_H$ and is positive just above it, so the ratio rises — it cannot be
+non-increasing. So we take $F_H(0)=0$.</p>
+
+<p class="section">1. What a drop-out equilibrium forces on L</p>
+
+<p>Fix an equilibrium in which every L bids $0$. Conditional on the L's being
+inactive, the $h$ H individuals compete for the single prize exactly as in a
+contest among themselves, so they play the symmetric all-pay equilibrium</p>
+
+$$b_H(v)=\int_{\underline v_H}^{v}s\,dF_H^{h-1}(s),$$
+
+<p>strictly increasing from $b_H(0)=0$. On the equilibrium path an L wins only
+when every H also bids $0$, an event of probability zero because $F_H$ is
+atomless; so an L's equilibrium payoff is $0$.</p>
+
+<p>Now let an L of valuation $v_L$ deviate to a positive bid $b_H(z)$. She beats
+every other L (all at $0$) for sure, and beats a given H iff that H's valuation
+is below $z$, i.e. with probability $F_H(z)$. Against the $h$ independent H's her
+win probability is $F_H(z)^h$, and her cost is $b_H(z)$, so</p>
+
+$$U_L\!\left(b_H(z)\mid v_L\right)=F_H(z)^h\,v_L-\int_{\underline v_H}^{z}s\,dF_H^{h-1}(s).$$
+
+<p>Equilibrium requires this to be $\le 0$ for every $z$ and every
+$v_L\le\overline v_L$. The binding type is the largest, $v_L=\overline v_L$,
+which gives the necessary condition</p>
+
+<div class="box key">
+$$\int_{\underline v_H}^{z}s\,dF_H^{h-1}(s)\ \ge\ \overline v_L\,F_H(z)^h
+\qquad\text{for all }z. \qquad(\ast)$$
+</div>
+
+<p>This is the same no-deviation inequality that appears in the proof of
+Proposition&nbsp;1 — only now it is a fact we are handed by the equilibrium, to be
+mined, rather than a conclusion to be reached.</p>
+
+<p class="section">2. Rewriting the left side by parts</p>
+
+<p>Apply Stieltjes integration by parts with $u=s$, $v=F_H^{h-1}$. The lower
+boundary term vanishes because $F_H(0)=0$:</p>
+
+$$\int_{\underline v_H}^{z}s\,dF_H^{h-1}(s)
+=\Big[\,s\,F_H^{h-1}(s)\,\Big]_{0}^{z}-\int_{0}^{z}F_H^{h-1}(s)\,ds
+=z\,F_H(z)^{h-1}-\int_{0}^{z}F_H^{h-1}(s)\,ds.$$
+
+<p class="section">3. The monotone ratio collapses it to a pointwise bound</p>
+
+<p>Write the hypothesis as $F_H(s)=c(s)\,s$, where $c(s)=F_H(s)/s$ is
+non-increasing. For $s\le z$ we then have $c(s)\ge c(z)$, so</p>
+
+$$\int_{0}^{z}F_H^{h-1}(s)\,ds=\int_{0}^{z}c(s)^{h-1}s^{h-1}\,ds
+\ \ge\ c(z)^{h-1}\int_{0}^{z}s^{h-1}\,ds=c(z)^{h-1}\,\frac{z^{h}}{h}.$$
+
+<p>Feeding this lower bound on the subtracted integral into the by-parts identity
+gives an upper bound on the whole left side of $(\ast)$:</p>
+
+$$\int_{\underline v_H}^{z}s\,dF_H^{h-1}(s)
+\ \le\ z\,c(z)^{h-1}z^{h-1}-c(z)^{h-1}\frac{z^{h}}{h}
+=c(z)^{h-1}z^{h}\,\frac{h-1}{h}.$$
+
+<p>Combine with $(\ast)$, whose right side is $\overline v_L\,F_H(z)^h
+=\overline v_L\,c(z)^h z^h$:</p>
+
+$$\overline v_L\,c(z)^{h}z^{h}\ \le\ c(z)^{h-1}z^{h}\,\frac{h-1}{h}.$$
+
+<p>Divide by $c(z)^{h-1}z^{h}>0$ (any interior $z$). The result holds at
+<em>every</em> such $z$:</p>
+
+<div class="box key">
+$$\frac{F_H(z)}{z}=c(z)\ \le\ \frac{h-1}{h\,\overline v_L}\qquad\text{for all }z.$$
+</div>
+
+<p class="section">4. Reading off intimidation</p>
+
+<p>Because $F_H(v)/v$ is non-increasing, its supremum sits at the left end,
+$\sup_{v>0}F_H(v)/v=\lim_{v\searrow 0}F_H(v)/v$. The pointwise bound of
+Section&nbsp;3 holds at every $z$, so it bounds that supremum — and, in passing,
+shows the limit is finite without that being assumed:</p>
+
+$$\sup_{v>0}\frac{F_H(v)}{v}\ \le\ \frac{h-1}{h\,\overline v_L}
+=\frac{1-\lambda}{\overline v_L}\ \ \text{ at }\ \lambda=\tfrac1h.$$
+
+<p>That is exactly the intimidation ranking of Definition&nbsp;1 at $\lambda=1/h$,
+i.e. $V_H$ $(1/h)$-intimidates $V_L$. So a drop-out equilibrium forces
+intimidation, and at the very $\lambda$ where Proposition&nbsp;1's threshold
+$h\lambda\ge 1$ first binds — the single-prize instance of the $k/h$-intimidation
+in the Drop-Out Theorem.</p>
+
+<p class="note">Strict vs. weak. Sufficiency (Proposition&nbsp;1) assumes the
+strict intimidation inequality $\sup F_H/v<(1-\lambda)/\overline v_L$; necessity
+yields the weak one, $\le$. The two meet exactly at $\lambda=1/h$. This is the
+same boundary subtlety already flagged in TODO — the converse closes to an "iff"
+up to that endpoint, not through it.</p>
+
+<p class="section">Why non-increasing alone is enough</p>
+
+<p>Monotonicity does two jobs at once: it powers the bound in Section&nbsp;3 (it
+is the step $c(s)\ge c(z)$), and it places the supremum at $v\to 0$ so a bound
+near the origin controls the whole ranking. That is the only hypothesis the
+Remark needs. A finiteness condition $\lim_{v\searrow 0}F_H(v)/v<+\infty$ — which
+an earlier draft carried — is redundant: Section&nbsp;3 already shows that in any
+drop-out equilibrium $F_H(z)/z\le (h-1)/(h\overline v_L)$ at every $z$, so the
+ratio is automatically bounded. Contrapositively —</p>
+
+<div class="box key">
+<p>if $F_H(v)/v$ is non-increasing with $\lim_{v\searrow 0}F_H(v)/v=+\infty$, then
+no drop-out equilibrium exists.</p>
+</div>
+
+<p>So adding finiteness restricts nothing and proves nothing extra: where it
+fails, the antecedent — existence of a drop-out equilibrium — already fails, and
+the implication holds vacuously. The Remark is therefore stated with the single
+hypothesis that $F_H(v)/v$ be non-increasing.</p>
+
+<p class="note">Tightness check. Take the constant-ratio family
+$F_H(v)=\frac{h-1}{h\overline v_L}\,v$ on $[0,\,\frac{h\overline v_L}{h-1}]$,
+which meets the bound with equality. Then $(\ast)$ reads
+$\frac{h-1}{h}c^{\,h-1}z^h=\overline v_L\,c^{\,h}z^h$ with
+$c=\frac{h-1}{h\overline v_L}$, i.e. $\tfrac{h-1}{h}=\overline v_L c$ — an
+identity, holding with equality at every $z$. The threshold is exact: a ratio any
+larger violates $(\ast)$ and kills the drop-out equilibrium; any smaller leaves
+it slack.</p>
+
+</body>
+</html>

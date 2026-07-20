@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The W·G recursion — generalizing W_H G_H = W_L G_L to k>1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  body{max-width:840px;margin:2rem auto;padding:0 1.2rem;font:16px/1.6 Georgia,serif;color:#1a1a1a}
+  h1{font-size:1.5rem;border-bottom:2px solid #333;padding-bottom:.3rem}
+  h2{font-size:1.15rem;margin-top:2rem;color:#222}
+  .box{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:.6rem 1rem;margin:1rem 0}
+  .key{background:#fff8e6;border:1px solid #e6c200}
+  .note{font-size:.92rem;color:#444}
+  code{background:#eee;padding:.05rem .3rem;border-radius:3px;font-size:.92em}
+  .tag{font:12px/1 monospace;color:#666}
+  table{border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  td,th{border:1px solid #ccc;padding:.3rem .7rem;text-align:center}
+</style>
+</head>
+<body>
+
+<h1>The $W\!\cdot\!G$ recursion — generalizing $W_HG_H=W_LG_L$ to $k>1$</h1>
+<p class="tag">Track B · k arbitrary · derived by telescoping, Symbolics-verified for k=1..4 (residual 0)</p>
+
+<p>With one prize the win probabilities are "everyone else below me,"
+$W_H=G_H^{\,h-1}G_L^{\,\ell}$ and $W_L=G_H^{\,h}G_L^{\,\ell-1}$, and multiplying each by its
+own group CDF gives the same symmetric product:</p>
+<div class="box">
+$$W_HG_H=G_H^{\,h}G_L^{\,\ell}=W_LG_L\qquad(k=1).$$
+</div>
+<p>For $k>1$ this exact symmetry breaks, but the <em>difference</em> factors cleanly.</p>
+
+<h2>1. The identity</h2>
+<div class="box key">
+$$\boxed{\;W_L\,G_L\;-\;W_H\,G_H\;=\;(G_L-G_H)\,\widehat W^{\,(k-1)}_{\,h-1,\,\ell-1}\;}$$
+</div>
+<p>where $\widehat W^{\,(k-1)}_{\,h-1,\,\ell-1}$ is the win probability <strong>in the
+once-smaller contest</strong> — $k-1$ prizes against $h-1$ H-rivals and $\ell-1$ L-rivals.
+It is a <em>one-step recursion</em> in $(k,h,\ell)$: the gap between the two $W\!\cdot\!G$
+products at level $(k,h,\ell)$ equals the CDF gap times a win probability one level down.</p>
+
+<h2>2. Derivation (telescoping)</h2>
+<p>Write $\Pi=G_H^{\,h}G_L^{\,\ell}$ and the "odds of being above" $S_i=(1-G_i)/G_i$. With
+$k$ prizes a bidder wins iff at most $k-1$ rivals are above, so expanding "exactly $a$ H-rivals
+and $b$ L-rivals above" relative to the all-below term:</p>
+<div class="box">
+$$W_HG_H=\Pi\!\!\sum_{a+b\le k-1}\!\!\binom{h-1}{a}\binom{\ell}{b}S_H^aS_L^b,\qquad
+  W_LG_L=\Pi\!\!\sum_{a+b\le k-1}\!\!\binom{h}{a}\binom{\ell-1}{b}S_H^aS_L^b.$$
+</div>
+<p>Subtract and apply Pascal's rule $\binom{h}{a}=\binom{h-1}{a}+\binom{h-1}{a-1}$,
+$\binom{\ell}{b}=\binom{\ell-1}{b}+\binom{\ell-1}{b-1}$ to the coefficient:</p>
+<div class="box">
+$$\binom{h}{a}\binom{\ell-1}{b}-\binom{h-1}{a}\binom{\ell}{b}
+  =\binom{h-1}{a-1}\binom{\ell-1}{b}-\binom{h-1}{a}\binom{\ell-1}{b-1}.$$
+</div>
+<p>Reindex the two pieces ($a\!\mapsto\!a\!-\!1$ in the first, $b\!\mapsto\!b\!-\!1$ in the
+second); both collapse onto the simplex $a+b\le k-2$ and pull out a common factor:</p>
+<div class="box">
+$$W_LG_L-W_HG_H=\Pi\,(S_H-S_L)\!\!\sum_{a+b\le k-2}\!\!\binom{h-1}{a}\binom{\ell-1}{b}S_H^aS_L^b .$$
+</div>
+<p>Two simplifications finish it. First $S_H-S_L=\dfrac{1-G_H}{G_H}-\dfrac{1-G_L}{G_L}
+=\dfrac{G_L-G_H}{G_HG_L}$. Second, the remaining sum is exactly the once-smaller win
+probability: $\;G_H^{\,h-1}G_L^{\,\ell-1}\sum_{a+b\le k-2}\binom{h-1}{a}\binom{\ell-1}{b}S_H^aS_L^b
+=\widehat W^{\,(k-1)}_{\,h-1,\,\ell-1}$. Hence</p>
+<div class="box">
+$$W_LG_L-W_HG_H=\Pi\cdot\frac{G_L-G_H}{G_HG_L}\cdot\frac{\widehat W^{\,(k-1)}_{\,h-1,\,\ell-1}}{G_H^{\,h-1}G_L^{\,\ell-1}}
+=(G_L-G_H)\,\widehat W^{\,(k-1)}_{\,h-1,\,\ell-1}. \qquad\blacksquare$$
+</div>
+
+<h2>3. Reading it</h2>
+<ul>
+<li><b>$k=1$.</b> $\widehat W^{(0)}=0$ (zero prizes ⇒ never win), so the RHS vanishes and you
+recover the symmetric case $W_HG_H=W_LG_L=G_H^{\,h}G_L^{\,\ell}$.</li>
+<li><b>$k=2$.</b> $\widehat W^{(1)}_{h-1,\ell-1}=G_H^{\,h-1}G_L^{\,\ell-1}$ (everyone below), so
+$$W_LG_L-W_HG_H=(G_L-G_H)\,G_H^{\,h-1}G_L^{\,\ell-1}.$$</li>
+<li><b>General $k$.</b> The difference is driven by the group-CDF gap $G_L-G_H$, scaled by the
+smaller contest's win probability — a strictly positive weight on $(0,\bar b)$. So the
+<em>sign</em> of $W_LG_L-W_HG_H$ is the sign of $G_L-G_H$ throughout the support.</li>
+</ul>
+
+<h2>4. A second face: the $k$-th–highest-bid decomposition</h2>
+<p>There is a more concrete reading of what $W_iG_i$ <em>is</em>. Let
+$\Pi_k(b):=\Pr(k\text{-th highest of all }n=h+\ell\text{ bids}\le b)$ be the CDF of the
+$k$-th–highest bid — the marginal "you are in the money" threshold, and <strong>common to both
+groups</strong>. Conditioning a tagged group-$i$ bidder on below/above $b$ gives (Symbolics-verified):</p>
+<div class="box key">
+$$W_iG_i\;=\;\Pi_k\;-\;(1-G_i)\,W_i^{(k-1)},$$
+</div>
+<p>where $W_i^{(k-1)}$ is group $i$'s win probability with <em>one fewer prize</em> (same rivals).
+So $W_HG_H$ and $W_LG_L$ are the <em>same</em> object $\Pi_k$, each minus a group-specific
+<strong>tail correction</strong> $(1-G_i)W_i^{(k-1)}$ — a product of the tail $1-G_i$ and a win
+probability. The entire H–L asymmetry of §1 lives in those two corrections; subtracting the two
+instances of this identity reproduces the §1 recursion.</p>
+
+<h2>5. Participation in $G$ and $W$, not $g$</h2>
+<p>The drop-out (participation) result is usually closed by showing a bid <em>density</em> goes
+negative, $g_L<0$. One would rather argue in the integrated objects $G,W$. The point is that
+density-positivity is not an incidental technicality one swaps out — it is the economic primitive
+wearing a derivative:</p>
+<div class="box">
+$$g_i\ge0\iff G_i\text{ nondecreasing}\iff \varphi_i=F_i^{-1}(G_i)\text{ increasing}\iff
+\text{higher types bid higher (sorting).}$$
+</div>
+<p>So "participation in $G$" is the honest statement <em>"$G_L$ would have to turn down near
+$\bar b$, and a CDF cannot decrease"</em> — same content as $g_L<0$, said about $G_L$. To make
+the FOC act on $G$ rather than $g$, integrate it; the natural integrated form is the
+envelope / bid identity</p>
+<div class="box">
+$$b\;=\;\varphi_i(b)\,W_i(b)\;-\;\int_{\underline b_i}^{b}W_i(\beta)\,\varphi_i'(\beta)\,d\beta\;-\;U_i(\underline v_i).$$
+</div>
+<p>Here the only derivative is the <em>type</em> sorting rate $\varphi_i'$, and the only
+requirement is $\varphi_i'\ge0$ = sorting = $G_i$ monotone. This is as close to "$G,W$ only" as
+one can get: every derivative is pushed onto the well-behaved monotone $\varphi_i$, with $W_i,G_i$
+as the integrated actors. A fully derivative-free contradiction is presumably impossible —
+optimality is inherently first-order — but the bid density $g_i$ need never be named.</p>
+<p><b>The reframing of drop-out.</b> Combine the two faces. At a common top both
+$W_iG_i\to\Pi_k\to1$, so the corrections $(1-G_i)W_i^{(k-1)}\to0$; the whole question is
+<em>which group's tail correction dies faster</em>. Participation of $L$ up to $\bar b$ requires
+its tail $1-G_L$ to survive alongside $1-G_H$; intimidation ought to be exactly the condition
+that makes $1-G_L$ extinguish first — $L$ drops out at some $\bar b_L<\bar b_H$. That is
+"participation" as a <strong>tail-extinction</strong> statement in $G$ and $W$, with no appeal to
+the sign of a density.</p>
+<p class="note"><b>Status — honest.</b> This is a reframing plus a plausible mechanism, not yet a
+proof. The two identities (§1, §4) and the envelope form are exact; turning "L's tail
+extinguishes first under intimidation" into a contradiction is open (it is the $G,W$ counterpart
+of the $g_HN=g_LD$ kill, and would, if it closes, give a route by induction on $k$ via the
+$(k-1)$ objects appearing on the right of both identities — GAP-GEN).</p>
+
+<h2>6. Symbolic verification</h2>
+<p>Win probabilities built from the exact "$\le k-1$ above" expansion. Both identities checked
+to residual $0$ (Symbolics <code>simplify∘expand</code>): the §1 recursion
+$\;W_LG_L-W_HG_H-(G_L-G_H)\widehat W^{(k-1)}_{h-1,\ell-1}\;$ for
+$(k,h,\ell)\in\{(1,3,1),(1,4,3),(2,3,1),(2,3,2),(2,4,3),(3,4,3),(3,5,4),(4,6,5)\}$, and the §4
+decomposition $\;W_iG_i-\Pi_k+(1-G_i)W_i^{(k-1)}\;$ for <em>both</em> groups on
+$(k,h,\ell)\in\{(2,3,2),(2,4,3),(3,4,3),(3,5,4),(4,6,5)\}$. All zero.</p>
+
+<p class="tag">Track B, 2026-06-13. Companion to <code>FOC-densities-k2h3l1.html</code> and
+<code>FOC-densities-k2h3l2.html</code>.</p>
+
+</body>
+</html>

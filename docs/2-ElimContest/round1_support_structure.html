@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round-1 Support Structure — IPV, Monotone Posterior, and the Signaling Obstruction</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#5c5c5c; --line:#e2e2e2; --bg:#fbfbf9;
+    --accent:#7a1f2b; --accent2:#1f4e7a; --good:#1f6b3a; --warn:#8a5a00;
+    --panel:#f4f3ef; --code:#f0efe9;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--bg);
+    max-width:860px; margin:0 auto; padding:48px 28px 120px; line-height:1.62; font-size:18px;
+  }
+  h1{font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em}
+  h2{font-size:23px; margin:46px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); color:var(--accent)}
+  h3{font-size:19px; margin:28px 0 6px; color:var(--accent2)}
+  .sub{color:var(--muted); font-style:italic; margin:0 0 8px}
+  p{margin:10px 0}
+  code{background:var(--code); padding:1px 5px; border-radius:4px; font-size:15px; font-family:"SF Mono",Menlo,Consolas,monospace}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin:18px 0}
+  .focus{border-left:5px solid var(--accent); background:#f9f1f1}
+  .mirror{border-left:5px solid var(--accent2); background:#eef3f8}
+  .key{border-left:5px solid var(--good); background:#eef6f0}
+  .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
+       text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px}
+  .tag.focus{background:var(--accent)} .tag.mirror{background:var(--accent2)} .tag.key{background:var(--good)}
+  table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
+  th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
+  th{background:var(--panel)}
+  .cellbox{display:inline-block; padding:2px 7px; border-radius:5px; font-family:monospace; font-size:13px}
+  .c1{background:#d8e4f0} .c2{background:#f0dcd8}
+  .lead{font-size:19px; color:#333}
+  .footnote{color:var(--muted); font-size:15px}
+  .diag{display:block; margin:20px auto; max-width:520px}
+  ol li,ul li{margin:6px 0}
+  .badge{font-size:13px; color:var(--muted); font-family:monospace}
+  hr{border:none; border-top:1px solid var(--line); margin:32px 0}
+  .eqnum{color:var(--muted); font-family:monospace; font-size:14px}
+</style>
+</head>
+<body>
+
+<h1>Round-1 Support Structure</h1>
+<p class="sub">Why IPV gives simple supports — the monotone posterior, the mirror symmetry, and the signaling obstruction</p>
+<p class="footnote">Pedagogical companion to <code>round1_support_structure_handoff.md</code>. 4-player, 2-round all-pay elimination contest; types <span class="badge">v ∈ {L,M,H} = {1,2,3}</span>, uniform prior.</p>
+
+<p class="lead">Round&nbsp;1 looks like an ordinary all-pay contest, but it hides a twist: the prize you win for advancing depends on <em>how you bid</em>, because your bid is a signal of your type. This note explains what that twist does to the bid supports — why the private-values (IPV) structure makes them <strong>simple single intervals</strong> (unlike Turocy's multi-interval supports), where the analysis gets stuck, and how that obstruction is finally <strong>resolved</strong> (§6): the continuation is $\sigma$-invariant in three types, and the equilibrium curve is closed-form.</p>
+
+<div class="panel key">
+<span class="tag key">resolved</span>
+<p style="margin-top:4px">The open gate below — <em>does $\sigma$-invariance survive with three types?</em> — is now <strong>closed</strong>. In the coordinate $t=G(b)$ the opponent-reputation law is <strong>universally $\Psi(t)=t^2$</strong>, strategy-free, exactly as $\Psi=G^2$ in binary. The fixed point dissolves and the co-mixing curve solves in closed form (an $\operatorname{arctanh}$, §6), internally verified by $t\cdot D_{HL}\equiv\text{const}$ (with $D_{HL}$ the High-vs-Low continuation gap, defined in §6c).</p>
+</div>
+
+<h2>1. The object: a signaling all-pay auction</h2>
+
+<p>Fix a player of type <span class="badge">v</span>. Within a group, two players bid in an all-pay auction; the higher bid advances to the final. Write</p>
+
+<ul>
+<li><span class="badge">H_v(b)</span> — the CDF of type <span class="badge">v</span>'s Round-1 bid, with density <span class="badge">h_v(b)</span>;</li>
+<li>the chance of <strong>winning Round 1</strong> is the rival's bid CDF, $G(b)=\sum_u f_u\,H_u(b)$, where $f_u$ is the prior probability of type $u$ ($f_u=\tfrac13$ here); the profile of densities $\sigma=(h_L,h_M,h_H)$ is the <strong>Round-1 strategy</strong> we solve for;</li>
+<li>the bid is a <strong>signal</strong>: winning with bid $b$ induces a posterior over your own type,
+$$p_v(b)=\frac{f_v\,h_v(b)}{\sum_u f_u\,h_u(b)}=\frac{h_v(b)}{\sum_u h_u(b)}\quad(\text{uniform prior cancels}),\qquad\text{\small(post)}$$
+a point in the type simplex $\Delta^2$ (two free coordinates, since $p_L{+}p_M{+}p_H{=}1$);</li>
+<li>the <strong>continuation value</strong> of reaching the final as type $v$ with <strong>reputation</strong> $p$ (= the posterior belief vector $p=(p_L,p_M,p_H)$ your winning bid induced) is
+$$W(v,p)=\int \Pi_2\!\big(v;\,p,\,q\big)\,d\Psi(q),\qquad\text{\small(W)}$$
+where $q$ is the <em>opponent finalist's</em> reputation, $\Psi$ its distribution, and $\Pi_2$ the Round-2 payoff — a piecewise-affine function over a 10-cell complex (derived in <code>docs/tropical_cell_structure.html</code> / memory <code>three-type-r2-tropical</code>).</li>
+</ul>
+
+<p>The <strong>interim Round-1 payoff</strong> of bidding $b$ as type $v$ is</p>
+
+<div class="panel">
+$$U_v(b)\;=\;\underbrace{G(b)}_{\text{win prob}}\cdot\underbrace{W\big(v,\,p(b)\big)}_{\text{prize}}\;-\;\underbrace{b}_{\text{all-pay cost}}.\qquad\text{\small(U)}$$
+</div>
+
+<div class="panel focus">
+<span class="tag focus">the twist</span>
+<p style="margin-top:4px">The prize $W(v,p(b))$ depends on <strong>your own bid</strong> through the belief $p(b)$. This is <em>not</em> a Siegel contest, where the prize is a fixed number. It is a <strong>signaling all-pay auction</strong> — the genus of Hörner&nbsp;&amp;&nbsp;Sahuguet, <em>Costly Signalling in Auctions</em> (2007). Siegel's clean support theory does not apply off the shelf; the question is whether IPV restores enough structure to recover his conclusions anyway.</p>
+</div>
+
+<h2>2. The indifference conditions</h2>
+
+<p>Where a type mixes, every bid in its support must give the same payoff: $U_v(b)\equiv\text{const}$. Differentiating in $b$ splits the marginal incentive into two channels:</p>
+
+<div class="panel">
+$$\underbrace{G'(b)\,W\big(v,p(b)\big)}_{\text{win-probability channel}}\;+\;\underbrace{G(b)\,\nabla_p W\big(v,p(b)\big)\cdot p'(b)}_{\text{signaling channel}}\;=\;1.\qquad\text{\small($\star_v$)}$$
+</div>
+
+<p>Subtracting one type's condition from another cancels the&nbsp;$1$ and leaves the <strong>co-mixing (single-crossing) relations</strong> $(\star_{vv'})$ — the difference of $(\star_v)$ and $(\star_{v'})$ — one for each active pair, $(\star_{HL})$ and $(\star_{ML})$:</p>
+
+<div class="panel">
+$$G'(b)\,\big[W(v,p)-W(v',p)\big]\;+\;G(b)\,\big[\nabla_p W(v,p)-\nabla_p W(v',p)\big]\cdot p'(b)\;=\;0.\qquad\text{\small($\star_{vv'}$)}$$
+</div>
+
+<p>These generalize the binary single-crossing $\Delta\tilde W'<0$ from the solved binary case (roadmap §7) to three types ($\tilde W$ throughout denotes the <em>binary-case</em> continuation value — the two-type analogue of $W$, carried over only for comparison); the entire §6 solve is the two instances $(\star_{HL})$, $(\star_{ML})$ integrated. Everything below is about understanding the two ingredients in $(\star_v)$: the <strong>signaling channel</strong> (governed by the monotone posterior) and the fact that $W$ is the <strong>same unknown</strong> as the strategy (the obstruction).</p>
+
+<h2>3. The monotone posterior — what IPV buys</h2>
+
+<div class="panel focus">
+<span class="tag focus">main focus</span>
+<p style="margin-top:4px">The deep-learning Round-1 run confirms the posterior is <strong>monotone</strong>: as the bid rises, $p_H(b)$ climbs $0.05\to0.65$ and $p_L(b)$ falls $0.59\to0.10$ (the middle share $p_M(b)$ pinned by $p_L{+}p_M{+}p_H{=}1$). High bids signal high types. This single fact drives three reductions.</p>
+</div>
+
+<h3>3a. The signaling channel has a fixed sign</h3>
+<p>Because $p(b)$ traces a <em>monotone</em> curve through the type simplex, $p'(b)$ never reverses direction — the belief path does not fold back on itself. This alone does <em>not</em> fix the sign of the signaling channel $\nabla_p W(v,p)\cdot p'(b)$. What monotonicity fixes is the <em>direction of travel</em> $\hat d=p'/|p'|$ (a single fixed unit direction, with $|p'|>0$), so the channel factors as $|p'|\cdot\partial_{\hat d}W(v,\cdot)$ — magnitude $|p'|$ times a directional derivative. The <strong>sign</strong> is then supplied separately by that directional derivative $\partial_{\hat d}W(v,\cdot)$ — negative for High, positive for Low — which is the economics of §3c (and is well-defined only because $W$ is $C^1$, §3b). So: <em>monotonicity</em> is the precondition that makes the projection $\partial_{\hat d}W$ well-defined and steady across the support; <em>§3c</em> makes it signed. Together they yield a fixed-sign signaling channel — and that is what forces each support to be a connected interval rather than fragmented.</p>
+
+<h3>3b. The prize is smooth, even though <span style="font-style:normal">$\Pi_2$</span> is kinked</h3>
+<p>The Round-2 payoff $\Pi_2$ is full of kinks (the $\min(\mu,\nu)$, the $(\mu-\nu)^+$). One might fear those kinks make the indifference ODE ill-posed. They do not — because the prize is an <em>average</em>:</p>
+<div class="panel key">
+<span class="tag key">key</span>
+$$W(v,p)=\int \Pi_2(v;p,q)\,d\Psi(q)\quad\Longrightarrow\quad W(v,\cdot)\ \text{is}\ C^1,\quad \nabla_p W=\Psi\big|_{\text{kink locus}}.$$
+<p style="margin:6px 0 0">Integrating a kinked function against an atomless $\Psi$ <strong>smooths the kinks away</strong>: the <em>kink locus</em> (the set of opponent reputations $q$ where $\Pi_2$ bends — e.g. the diagonal $\mu=\nu$) has $\Psi$-measure zero, so it contributes nothing to the average; the kink cancels and only its <em>slope</em> survives, which is the content of $\nabla_p W=\Psi|_{\text{kink locus}}$ (an envelope / Leibniz computation). This matches the binary identity $\tilde W_H'(\mu)=-2\big(1-\Psi(\mu)\big)$ with $\Psi=G^2$. <em>The kinks of $\Pi_2$ never reach the bidder.</em> So $(\star_v)$ is a genuine, well-posed first-order ODE.</p>
+</div>
+
+<h3>3c. The sign is type-dependent — the engine of "hide and bluff"</h3>
+<p>Here the signaling channel earns its name. Being perceived as High <strong>hurts</strong> the High type ($\tilde W_H'<0$): a strong player would rather be <em>underestimated</em>, so the finalist across the table under-prepares. Therefore:</p>
+<table>
+<tr><th>Type</th><th>Win-prob channel as $b\uparrow$</th><th>Signaling channel as $b\uparrow$</th><th>Behavior</th></tr>
+<tr><td>High</td><td>prize-weight rises ($G'\!>0$)</td><td>prize <strong>falls</strong> (being seen High hurts)</td><td>channels conflict → <strong>hides</strong> (bids low)</td></tr>
+<tr><td>Low</td><td>prize-weight rises</td><td>prize <strong>rises</strong> (being seen High helps)</td><td>channels align → <strong>bluffs</strong> (bids high)</td></tr>
+</table>
+<p>This is the same mechanism that makes binary bidding non-monotone in realizations, now spread across three types.</p>
+
+<div class="panel key">
+<span class="tag key">why supports are single intervals (the Siegel point)</span>
+<p style="margin-top:4px">Monotone $p(b)$ + atomless $\Psi$ make the $(\star_v)$ coefficients <strong>monotone</strong> and <strong>single-crossing in $v$</strong> — precisely the hypothesis an interval-support argument needs. So each type's support is <strong>one connected interval</strong> $[0,\beta_v]$ in <em>bid</em> space, with a common floor $b_{lo}=0$ and nested ceilings $\beta_H>\beta_M>\beta_L$ (DL, approximate: $0.69>0.62>0.54$; atoms at $0$ grow as type falls: Low $0.49$, Mid $0.30$, High $\approx0$). <span class="footnote">Symbol caution: §6 works in the quantile coordinate $t=G(b)$ and writes $\beta_L=0.9746$ for the <em>same</em> Low-exit event — the $t$-coordinate of this bid ceiling, not a different number. Bid-space $\beta_L\approx0.54$ and $t$-space $\beta_L=0.9746$ are one exit point in two coordinates.</span></p>
+<p style="margin:8px 0 0"><strong>Contrast with Turocy.</strong> Turocy's rich <em>multi-interval / gapped</em> supports need a non-monotone or non-single-crossing prize (correlation / common value). IPV with atomless $\Psi$ <em>rules that out</em>. <strong>IPV is exactly what collapses the support to a single interval.</strong></p>
+</div>
+
+<h2>4. The mirror symmetry</h2>
+
+<div class="panel mirror">
+<span class="tag mirror">needed for the solve</span>
+<p style="margin-top:4px">The two groups A and B are interchangeable. Let $\tau$ be the <strong>involution that swaps the two finalist roles</strong> (own&nbsp;$\leftrightarrow$&nbsp;opponent, A&nbsp;$\leftrightarrow$&nbsp;B). On Round-2 regime words it flips every $\mathtt{A}\leftrightarrow\mathtt{B}$.</p>
+</div>
+
+<p>Under $\tau$, the two Round-2 cells the equilibrium actually visits swap into each other:</p>
+
+<div style="text-align:center; margin:14px 0; font-family:monospace; font-size:15px">
+<span class="cellbox c1">cell&nbsp;1&nbsp;&nbsp;[B,A,B,A,A]</span>
+&nbsp;&nbsp;$\xrightarrow{\ \tau\ }$&nbsp;&nbsp;
+<span class="cellbox c2">cell&nbsp;2&nbsp;&nbsp;[A,B,A,B,B]</span>
+</div>
+
+<svg class="diag" viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg" font-family="Georgia,serif">
+  <!-- axes -->
+  <line x1="50" y1="250" x2="420" y2="250" stroke="#888" stroke-width="1.5"/>
+  <line x1="50" y1="250" x2="50" y2="30" stroke="#888" stroke-width="1.5"/>
+  <text x="430" y="255" font-size="14" fill="#5c5c5c">ν</text>
+  <text x="38" y="28" font-size="14" fill="#5c5c5c">μ</text>
+  <text x="200" y="285" font-size="13" fill="#5c5c5c">opponent reputation</text>
+  <text x="20" y="150" font-size="13" fill="#5c5c5c" transform="rotate(-90 20 150)">own reputation</text>
+  <!-- diagonal -->
+  <line x1="50" y1="250" x2="370" y2="30" stroke="#1f4e7a" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="300" y="60" font-size="13" fill="#1f4e7a">μ = ν  (fixed locus of τ)</text>
+  <!-- cell 1 below diagonal (own > opp) -->
+  <polygon points="50,250 370,250 370,30" fill="#f0dcd8" opacity="0.8"/>
+  <text x="270" y="200" font-size="14" fill="#7a1f2b">cell 2</text>
+  <text x="250" y="218" font-size="11" fill="#7a1f2b" font-family="monospace">[A,B,A,B,B]</text>
+  <!-- cell 2 above diagonal (opp > own) -->
+  <polygon points="50,250 370,30 50,30" fill="#d8e4f0" opacity="0.8"/>
+  <text x="95" y="95" font-size="14" fill="#1f4e7a">cell 1</text>
+  <text x="80" y="113" font-size="11" fill="#1f4e7a" font-family="monospace">[B,A,B,A,A]</text>
+  <!-- reflection arrow -->
+  <path d="M 150 175 Q 210 130 250 95" fill="none" stroke="#444" stroke-width="1.3" marker-end="url(#ah)"/>
+  <path d="M 250 95 Q 210 140 150 175" fill="none" stroke="#444" stroke-width="1.3" marker-end="url(#ah)"/>
+  <defs>
+    <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+  <text x="185" y="150" font-size="13" fill="#444" font-style="italic">τ</text>
+</svg>
+
+<p>The <strong>diagonal $\mu=\nu$</strong> (own reputation equals opponent reputation) is the <strong>fixed locus</strong> of $\tau$. In a <strong>symmetric equilibrium</strong>, both finalists draw their reputation from the <em>same</em> distribution $\Psi$, so the whole configuration is invariant under $\tau$. Three consequences:</p>
+
+<ul>
+<li>the equilibrium payoff is invariant under own&nbsp;$\leftrightarrow$&nbsp;opponent;</li>
+<li>cells&nbsp;1 and&nbsp;2 carry the <strong>same payoff form</strong>, related by the swap:
+<table style="margin-top:8px">
+<tr><th>cell</th><th>$U_A(v_H)$&nbsp; <span class="footnote">(own aggregate reputation $A2{=}p_1{+}p_2$, $A3{=}p_2$; opponent $B2{=}q_1{+}q_2$, $B3{=}q_2$, where $p_i,q_i$ are reputation components. In the §6b shares $(m,h)/(mp,hp)$: $A2{=}m{+}h$, $A3{=}h$, $B2{=}mp{+}hp$, $B3{=}hp$ — so this High row equals the §6b cell-1/cell-2 $U_H$.)</span></th></tr>
+<tr><td><span class="cellbox c1">cell 1</span></td><td>$2 - B2 - \tfrac13 A3 - \tfrac23 B3$</td></tr>
+<tr><td><span class="cellbox c2">cell 2</span></td><td>$2 - A2 - \tfrac23 A3 - \tfrac13 B3$</td></tr>
+</table></li>
+<li>the DL run visits <strong>only</strong> these two cells (~41% each) plus the diagonal wall (~14%); the lopsided corner cells 9,10 are <strong>never</strong> visited — reputations never get extreme.</li>
+</ul>
+
+<div class="panel mirror">
+<p style="margin:0"><strong>Why it matters for solving.</strong> We can solve on <em>one side</em> of the diagonal and reflect — gluing cell&nbsp;1 and cell&nbsp;2 across $\mu=\nu$, exactly as the binary case glued its two cells across $\mu=\nu$. This collapses the Round-1 state from "full 2-D reputation per finalist over 10 cells" to a <strong>2-piece, mirror-symmetric payoff in one own-vs-opponent variable.</strong> It is the single biggest simplification available — and it is legitimate <em>only</em> because the equilibrium is symmetric and stays off the corners.</p>
+</div>
+
+<h2>5. The obstruction</h2>
+
+<div class="panel focus">
+<span class="tag focus">main focus</span>
+<p style="margin-top:4px">The trouble is <strong>not</strong> the kinks (smoothed away, §3b) and <strong>not</strong> monotonicity (clean, §3a). It is that <strong>the prize and the belief are the same unknown.</strong></p>
+</div>
+
+<p>Look again at what the prize is built from:</p>
+<div class="panel">
+$$p_v(b)=\frac{h_v(b)}{\sum_u h_u(b)}\quad\text{and}\quad \Psi=\big(\text{pushforward of }G\text{ through }p(\cdot)\big).$$
+</div>
+<p>Both the posterior $p$ and the opponent-reputation law $\Psi$ are made out of the very densities $h_v$ that the indifference ODE $(\star_v)$ is trying to solve for — and the co-mixing relations $(\star_{vv'})$ inherit the same circularity. So $(\star_v)$, and with it $(\star_{vv'})$, is a <strong>fixed-point ODE</strong>, not a quadrature: you cannot integrate $W$ as if it were an exogenous prize, because $W$ is <em>defined through</em> the unknown strategy. This circularity is the structural signature of a signaling equilibrium: the interim payoff $G(b)\,W(v,p(b))-b$ looks like an ordinary all-pay objective, but the prize $W$ silently depends on the very strategy being chosen.</p>
+
+<h3>How the binary case escaped</h3>
+<p>In the binary case the continuation turned out to be <strong>$\sigma$-invariant</strong>: $\Psi=G^2$ pinned $W$ <em>independently of the strategy</em>. The fixed point dissolved, leaving the §7 separable ODE with a first integral and a single scalar</p>
+<div class="panel">
+$$G_0=0.2221\quad\text{pinned by}\quad \int_{G_0}^{1}\mu\,dG=\tfrac12,\qquad U_H=2G_0,\quad U_L=0.$$
+</div>
+<p>The entire solvability of the binary model rested on that one fact.</p>
+
+<div class="panel key">
+<span class="tag key">the gate — now resolved (§6)</span>
+<p style="margin-top:4px"><strong>Does $\sigma$-invariance survive with three types?</strong> The 2-cell reduction (§4) makes this <em>checkable</em>: with only cells 1,2 active, $W(v,p)$ is a <strong>2-piece affine</strong> functional of $p$, and $\nabla_p W$ enters $(\star_v)$ <strong>only</strong> through $\Psi$ evaluated at the two cell boundaries. So the whole question reduces to: does the cell-1/cell-2 affine $W$, pushed through the belief map, depend on $\sigma$ only via a scalar (as $G^2$ did)?</p>
+<p style="margin:8px 0 0"><strong>Answer: yes — $\sigma$-invariant.</strong> In $t=G(b)$, $\Psi(t)=t^2$ universally, so the supports close in the binary form: a few scalars pinned by moment conditions like $\int p\,d\Psi=\text{prior}$, with $[0,\beta_v]$ in closed form. The full curve is in §6.</p>
+</div>
+
+<h2>6. Resolution — $\sigma$-invariance holds, and the curve is closed-form</h2>
+
+<p>The concrete next step — set up $(\star_v)$ in the state $t=G(b)$, substitute the cell-1/cell-2 forms and $\Psi$, and test for a first integral — was carried out in Wolfram. The verdict is affirmative.</p>
+
+<h3>6a. State, reputation curve, and the universal $\Psi$</h3>
+<p>Work in $t=G(b)\in[0,1]$ (own win-prob / bid quantile); the population position is $t\sim\text{Uniform}[0,1]$, with the atom spread on $[0,t_0]$, $t_0=G(0)$. Let $m(t),h(t)$ be the Mid/High reputation shares at position $t$ (so $\text{Low}=1-m-h$). The opponent-finalist law is</p>
+<div class="panel key">
+<span class="tag key">the $\sigma$-invariance</span>
+$$\Psi(t)=t^2\quad\text{universally — strategy-free, exactly as }\Psi=G^2\text{ in binary.}\qquad\text{\small($\Psi$)}$$
+<p style="margin:6px 0 0"><em>Why $t^2$:</em> a finalist is a Round-1 <strong>winner</strong>, so the opponent finalist's position is the population position $s\sim\text{Uniform}[0,1]$ <strong>size-biased</strong> by its win probability $G=s$ (one rival, 2-player group) — density $2s$, hence CDF $\Psi(t)=\int_0^t 2s\,ds=t^2$. This uses only the bracket structure, not $\sigma$ or the type count, so $W$ is pinned by the curve alone and the Round-1↔Round-2 fixed point dissolves.</p>
+</div>
+
+<h3>6b. Corrected Round-2 cell forms</h3>
+<p>From the exact all-pay replay (the earlier A↔B mirror <em>guess</em> for the L, M types was wrong; the H forms — the §4 table's High row — were right). Own reputation shares $(m,h)$, opponent shares $(mp,hp)$ <span class="footnote">($mp,hp$ are the opponent's $m,h$ — read them as $m'$/$h'$, not as products)</span>:</p>
+<table>
+<tr><th></th><th>own AHEAD (cell&nbsp;1)</th><th>own BEHIND (cell&nbsp;2)</th></tr>
+<tr><td>$U_H$</td><td>$2-\tfrac{h}{3}-mp-\tfrac{5hp}{3}$</td><td>$2-m-\tfrac{5h}{3}-\tfrac{hp}{3}$</td></tr>
+<tr><td>$U_M$</td><td>$1+\tfrac{h}{3}-mp-\tfrac{4hp}{3}$</td><td>$1-m-\tfrac{2h}{3}-\tfrac{hp}{3}$</td></tr>
+<tr><td>$U_L$</td><td>$\tfrac12(m-mp)+\tfrac23(h-hp)$</td><td>$\mathbf{0}$ <span class="footnote">(weak finalist's Low gets exactly nothing)</span></td></tr>
+</table>
+
+<h3>6c. Continuation differences and the first integral</h3>
+<p>Each difference $D_{vL}$ below is $W(v,p)-W(L,p)$ with the continuation $W=\int\Pi_2\,d\Psi$ (eq.&nbsp;(W)) <strong>split at the own position $t$</strong>: opponent <em>behind</em> ($s<t$, cell&nbsp;1) vs. opponent <em>ahead</em> ($s>t$, cell&nbsp;2), integrated against $d\Psi=2s\,ds$. The opponent-behind moments are $A_2(t)=\int_0^t 2s\,m\,ds$, $A_3(t)=\int_0^t 2s\,h\,ds$ (both including the atom mass at $t_0$) and $H_3=A_3(1)=\mathbb{E}_{\text{finalist}}[h]$ (integral terms verified to $\sim10^{-15}$):</p>
+<div class="panel">
+$$\begin{aligned}
+W(H)-W(L)&=:D_{HL}=2-m-\tfrac{5h}{3}+\big(\tfrac{m}{2}+\tfrac{2h}{3}\big)t^2-\tfrac{A_2}{2}-\tfrac{2A_3}{3}-\tfrac{H_3}{3},\\[2pt]
+W(M)-W(L)&=:D_{ML}=1-m-\tfrac{2h}{3}+\big(\tfrac{m}{2}+\tfrac{h}{3}\big)t^2-\tfrac{A_2}{2}-\tfrac{A_3}{3}-\tfrac{H_3}{3}.
+\end{aligned}$$
+</div>
+<p>Co-mixing of both active types means $t\,D_{HL}=k_1$ and $t\,D_{ML}=k_2$ are constant ($k_1=U_H-U_L$, $k_2=U_M-U_L$) — these are the <strong>first integrals of $(\star_{HL})$ and $(\star_{ML})$</strong>. Differentiating both in $t$ makes the integral terms $A_2,A_3,H_3$ cancel; subtracting the two eliminates $m$ (this is the $m$-free difference $D_{HM}$ of §6f, which also gives the floor relation $k_1-k_2=t_0$), leaving a clean ODE in $h$ alone:</p>
+<div class="panel key">
+<span class="tag key">the closed-form curve</span>
+$$k_1-k_2=t_0\quad(\text{floor relation}),\qquad h'(t)=\frac{3\,t_0}{t^2\,(3-t^2)},$$
+$$\boxed{\,h(t)=1-\frac{t_0}{t}+\frac{t_0}{\sqrt3}\Big(\operatorname{arctanh}\tfrac{t}{\sqrt3}-\operatorname{arctanh}\tfrac{t_0}{\sqrt3}\Big),\quad h(t_0)=0.\,}$$
+<p style="margin:6px 0 0">The $\sqrt3=\sqrt{v_H}$ turns the first integral into an <strong>$\operatorname{arctanh}$</strong> — the genuinely new feature versus binary's plain rational; the high valuation enters transcendentally. $m(t)$ follows from a second elementary quadrature (the $C^1$ condition).</p>
+</div>
+
+<h3>6d. Closure and numbers (uniform prior)</h3>
+<table>
+<tr><th>quantity</th><th>value</th><th>pinned by</th></tr>
+<tr><td>$t_0$ (floor / atom width)</td><td><strong>0.3289</strong></td><td>High prior $\int_{t_0}^1 h\,dt=\tfrac13$ — pins $t_0$ <em>alone</em></td></tr>
+<tr><td>$m_0$ (Mid share at floor)</td><td><strong>0.4046</strong></td><td>Mid prior $t_0 m_0+\int_{t_0}^1 m\,dt=\tfrac13$</td></tr>
+<tr><td>$U_H=k_1$</td><td><strong>0.4705</strong></td><td>floor relation + above</td></tr>
+<tr><td>$U_M=k_2$</td><td><strong>0.1416</strong></td><td></td></tr>
+<tr><td>$U_L$</td><td><strong>0</strong></td><td>automatic ($W(L,t_0)\equiv 0$)</td></tr>
+<tr><td>$\beta_L$ (Low ceiling)</td><td><strong>0.9746</strong></td><td>where $1-m-h=0$</td></tr>
+<tr><td>atoms (cond., $\alpha_H=0$)</td><td>$\alpha_L=0.587,\ \alpha_M=0.399$</td><td>$\alpha_L+\alpha_M=3t_0$</td></tr>
+</table>
+<p class="footnote">$\alpha_v$ = fraction of type $v$ atomed at bid&nbsp;0, conditional on being type $v$. These are the closed-form reference values; the DL figures quoted in §3c (Low&nbsp;$0.49$, Mid&nbsp;$0.30$) are the approximate warm-start estimates of the same quantities — same ordering, magnitudes underestimated.</p>
+
+<div class="panel key">
+<span class="tag key">the gate check</span>
+<p style="margin-top:4px">Along the NDSolve curve, $t\,D_{HL}(t)=0.4705$ and $t\,D_{ML}(t)=0.1416$ are <strong>exactly constant</strong> at every $t\in[0.4,1.0]$ — confirming a genuine co-mixing equilibrium, not a fit.</p>
+</div>
+
+<h3>6e. Support structure</h3>
+<p>Three regions above the atom: atom $[0,0.329]$ (Low+Mid pool, $h=0$); 3-type co-mix $[0.329,\beta_L]$; 2-type (High,&nbsp;Mid) co-mix $[\beta_L,1]$. So the DL-observed <strong>nested ceilings are real</strong>, not solver noise — just compressed near the top. Since $\text{Mid}(1)=0.240>0$, Mid reaches the very top: <strong>no pure-High tail.</strong> Reputation: High $0\to0.76$, Mid $0.40\to0.24$, Low $0.60\to0$. (DL was the warm-start approximation — same orderings, magnitudes underestimated; the closed form is now the reference.)</p>
+
+<h3>6f. The $[\beta_L,1]$ sliver — closed exactly</h3>
+<p>On $(\beta_L,1]$ Low has exited, so only High and Mid co-mix and the population constraint becomes $m=1-h$ (Low $=0$). The decisive simplification is that the H–M difference</p>
+<div class="panel key">
+<span class="tag key">$m$-free difference</span>
+$$D_{HM}=D_{HL}-D_{ML}=1-h+\tfrac{h}{3}t^2-\tfrac{A_3}{3}$$
+<p style="margin:6px 0 0">has its $m$ and $A_2$ terms <strong>cancel</strong> — it depends on $h$ alone. So the H–M co-mixing relation $(\star_{HM})=(\star_{HL})-(\star_{ML})$, in integrated form $t\,D_{HM}=k_1-k_2=t_0$, is an ODE in $h$ only, <strong>identical in both regions</strong>. Hence $h(t)$ is one global $\operatorname{arctanh}$ curve, $C^1$ across $\beta_L$; $t_0$ and $H_3$ (which see only $h$) are exact and unchanged. Only $m(t)$ switches — to $1-h$ — on the sliver.</p>
+</div>
+<p>Verified in Wolfram with the piecewise $m$:</p>
+<ul>
+<li><strong>$t\,D_{HM}\equiv t_0=0.328834$</strong> exactly at $t=0.4,0.7,\beta_L,0.99,1.0$ — the co-mixing carries across $\beta_L$ into the sliver. ✓</li>
+<li><strong>Admissibility:</strong> on $(\beta_L,1]$, $t\,D_{ML}$ <em>rises above</em> $k_2$ ($0.1415\to0.1474$), so $U_L(t)=k_2-t\,D_{ML}(t)<0$ there — the Low type <strong>strictly prefers to stay out</strong>. A genuine equilibrium feature, not a patch. ✓</li>
+<li><strong>Top:</strong> $m(1)=1-h(1)=0.2403$, $\text{Low}(1)=0$ exactly (the $-0.011$ artifact gone), $h(1)=0.7597$. ✓</li>
+</ul>
+<div class="panel key">
+<span class="tag key">fully closed-form</span>
+<p style="margin-top:4px">Net effect of the correction (tiny, as the thin sliver implied): $m_0:0.4046\to0.40484$, $U_H:0.4705\to0.4704$, $U_M:0.1416\to0.1415$, $\beta_L:0.9746\to0.97447$; $t_0$, the $h$-curve, and the atoms unchanged. <strong>The Round-1 equilibrium is now closed-form on all of $[0,1]$, with no pure-High tail.</strong></p>
+</div>
+
+<hr>
+<p class="footnote">References: Hörner &amp; Sahuguet, <em>Costly Signalling in Auctions</em> (2007); Siegel, <em>All-Pay Contests</em> (2009); Zhang &amp; Wang (2009). Companion memory: <code>three-type-r1-dl-features</code>, <code>three-type-r2-tropical</code>, <code>blo-zero-no-tail-solved</code>. Roadmap: <code>docs/analytic_solution_roadmap.html</code>.</p>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  renderMathInElement(document.body,{
+    delimiters:[
+      {left:"$$",right:"$$",display:true},
+      {left:"$",right:"$",display:false}
+    ],
+    throwOnError:false
+  });
+});
+</script>
+</body>
+</html>

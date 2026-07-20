@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chain monotonicity via the q_1-dial: a one-lemma reduction</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Chain monotonicity via the $q_1$-dial: a one-lemma reduction</p>
+
+<p class="note">Tortoise (Joffrion &amp; Parreiras), symmetric quadratic case $v_1=v_2=1$, $\Delta=0$, $c(e)=e^2$. Builds on the explicit forward recursion of <code>Docs/symmetric_quadratic_recursion.md</code> (and its HTML twin). Goal: reduce the main monotonicity result — $u_1^\ast(m,n)$ strictly decreasing along the chain — to a single scalar sign lemma. Status of Part I (§1–§6): the reduction (§2–§4) is an exact identity; the surviving lemma (§5–§6) — "every comb gap widens in the dial" — was <em>open when this file was first written (2026-06-19)</em> but is now <strong>proved for the quadratic case</strong> (two independent ways; see the banner at §5). <strong>Part II (§7 onward), added 2026-07-07, carries the whole reduction to general convex cost</strong>, states the crux there, proves it for cubic cost ($\theta=3$), and lays out exactly how the remaining cases are being attacked. Part II is written for a human referee: every symbol is defined on first use, and every step of the argument in <code>rg2_positivity_attack.md</code> is spelled out. It takes the numerical verifications in that file as ground truth and does not re-derive them.</p>
+
+<div class="box key">
+<p>Summary: The recursion is driven by the single dial $q_1$ (P2's boundary mass at $y_1=0$); everything downstream is explicit. The chain's main result reduces, via the closed form $u_1^\ast=(q_1^\ast)^2/(1+q_1^\ast)$, to: $q_1^\ast$ is strictly decreasing along the chain. Dialing the new atom's mass instead of $q_1$ exposes an exact identity — the new atom's mass, as a function of $q_1$ along the next rung's recursion, equals minus the previous rung's residual, $q_{n+1}(q_1)=-F_{\mathrm{prev}}(q_1)$. This identity makes "born at zero mass" a tautology and collapses the entire monotonicity proof to one universal statement: each rung's shooting residual $F(q_1)$ is strictly increasing (single-crossing). That is the same scalar that is the Schur complement of the full equilibrium Jacobian, so this one lemma also delivers Theorem 1 (regularity) and Theorem 3 (uniqueness) in the symmetric-quadratic regime.</p>
+</div>
+
+<p class="section">1. Setup: the dial and the residual</p>
+
+<p>Notation follows <code>Docs/symmetric_quadratic_recursion.md</code>: P1 mixes over atoms $x_1&lt;\cdots&lt;x_m$ with masses $p_1,\ldots,p_m$; P2 over $y_1=0&lt;\cdots&lt;y_n$ with masses $q_1,\ldots,q_n$; supports interleave. The recursion <code>march(q_1, m, n)</code> is triangular with single source $q_1$:</p>
+
+$$q_1 \to x_1, u_1 \to p_1 \to y_2 \to q_2 \to x_2 \to p_2 \to y_3 \to \cdots$$
+
+<p>every entry an explicit rational map of $q_1$ (quadratic cost). It enforces all FOCs and all indifference conditions by construction, leaving one scalar slack — the closing normalization. Per rung:</p>
+
+<div class="box">
+<p>$\sigma(m,m)$: every $q_\ell$ ($\ell=1,\ldots,m$) is recursion-determined; the leftover is P1's top mass $p_m$, fixed by $\sum p=1$. The residual is $F_{m,m}(q_1) = \sum_{\ell=1}^m q_\ell(q_1) - 1$.</p>
+<p>$\sigma(m,m+1)$: every $p_k$ ($k=1,\ldots,m$) is recursion-determined; the leftover is P2's top mass $q_{m+1}$, fixed by $\sum q=1$. The residual is $F_{m,m+1}(q_1) = \sum_{k=1}^m p_k(q_1) - 1$.</p>
+</div>
+
+<p>The equilibrium is the root $q_1^\ast$ of $F$. By $u_1^\ast=(q_1^\ast)^2/(1+q_1^\ast)$ (strictly increasing in $q_1^\ast$), the main result</p>
+
+$$u_1^\ast \text{ strictly decreasing along the chain} \iff q_1^\ast \text{ strictly decreasing along the chain}.$$
+
+<p>The chain alternates step types: $(m,m)\to(m,m+1)$ adds a P2 atom (an "n-step"); $(m,m+1)\to(m+1,m+1)$ adds a P1 atom (an "m-step").</p>
+
+<p class="section">2. The key identity: new atom mass $=-(\text{previous residual})$</p>
+
+<p>Take an n-step $(n,n)\to(n,n+1)$ (P2 gains the top atom $y_{n+1}$). The interior sweep is driven only by $q_1$ and is identical for both rungs up to the point of closure, so at the same $q_1$ the two recursions share $q_1,\ldots,q_n$ bit-for-bit (verified: $\max|\Delta|=0$ across the shared block; see <code>symmetric_quadratic_recursion.md</code> §10 and the warm-start experiments). In the $(n,n+1)$ recursion the new mass $q_{n+1}$ is the leftover:</p>
+
+$$q_{n+1}(q_1) = 1 - \sum_{\ell=1}^{n} q_\ell(q_1) = 1 - \big(F_{n,n}(q_1) + 1\big) = -\,F_{n,n}(q_1).$$
+
+<p>By the mirror argument an m-step $(m,m+1)\to(m+1,m+1)$ shares $p_1,\ldots,p_m$ bit-for-bit, and the new P1 mass is</p>
+
+$$p_{m+1}(q_1) = 1 - \sum_{k=1}^{m} p_k(q_1) = -\,F_{m,m+1}(q_1).$$
+
+<p>So in both cases, with $R$ the previous rung and $\widetilde R$ its successor (tilde = successor rung; a prime is never used for succession in this document):</p>
+
+$$\boxed{\ (\text{new atom's mass along the } \tilde R \text{ recursion})(q_1) \;=\; -\,F_R(q_1).\ }$$
+
+<p>The new atom belongs to whichever player gains it; its mass-as-a-function-of-$q_1$ is literally minus the previous rung's shooting residual. (Symbolically verified over $\mathbb{Q}(q_1)$ for the first several rungs — §6.)</p>
+
+<p class="section">3. The reduction to a single sign lemma</p>
+
+<p>Three consequences, each immediate from the boxed identity.</p>
+
+<p>(i) Born at zero is a tautology. At $q_1=q_1^\ast(R)$ we have $F_R=0$, so the new atom's mass is exactly 0. The "new atom is born with zero mass" degeneracy seen in the warm-start experiments is not a coincidence requiring proof — it is the identity evaluated at the previous root.</p>
+
+<p>(ii) The new atom carries positive mass at the successor equilibrium. $\sigma(\widetilde R)$ is a genuine equilibrium with a real atom, so its new mass is positive: with $q_1=q_1^\ast(\widetilde R)$,</p>
+
+$$-\,F_R(q_1^\ast(\tilde R)) \;=\; (\text{new mass at } \tilde R) \;>\; 0 \quad\Longrightarrow\quad F_R(q_1^\ast(\tilde R)) < 0.$$
+
+<p>(iii) Root ordering. We have $F_R(q_1^\ast(R))=0$ and $F_R(q_1^\ast(\widetilde R))&lt;0$. If $F_R$ is strictly increasing, then</p>
+
+$$F_R(q_1^\ast(\tilde R)) &lt; 0 = F_R(q_1^\ast(R)) \quad\Longrightarrow\quad q_1^\ast(\tilde R) &lt; q_1^\ast(R).$$
+
+<p>That is the chain step. Note it is the previous rung's residual F_R whose monotonicity is used — so to order every consecutive pair we need F strictly increasing for every rung R. Conditional on existence of the family with positive atom masses (input (ii)), the entire main result is therefore equivalent to:</p>
+
+<div class="box">
+<p>Lemma (single-crossing). For every rung, the shooting residual $F(q_1)$ is strictly increasing on the relevant interval. $\big(F'(q_1) > 0.\big)$</p>
+</div>
+
+<p class="section">4. What the reduction consolidates</p>
+
+<div class="box">
+<p>The single lemma $F'(q_1)&gt;0$ is the <strong>Schur complement of the full equilibrium Jacobian</strong>. Solve all but one of the equilibrium equations triangularly (the march does exactly this); the determinant of the full system then factors as $\det(\partial H/\partial z)=(\prod\text{ explicit pivots})\cdot F'(q_1)$, with the pivots manifestly nonzero in the interior cone. So the scalar $F'(q_1)$ alone governs the whole Jacobian — which turns the per-rung reduction into two global results. These hold for <strong>every rung $\sigma(m,n)$ of the chain</strong>, not merely the $\sigma(2,2)$ base case where they were first isolated:</p>
+
+<p style="border-left:3px solid #b8860b;padding-left:.7rem;margin:.7rem 0"><strong>Theorem 1 (Regularity).</strong> At every rung $\sigma(m,n)$, the equilibrium $z^\ast$ is a <em>regular</em> zero of the equilibrium map $H$: $\det(\partial H/\partial z)(z^\ast)\ne0$. Equivalently — since the pivots never vanish in the interior cone — $F'(q_1^\ast)\ne0$ at the equilibrium seed.</p>
+
+<p style="border-left:3px solid #b8860b;padding-left:.7rem;margin:.7rem 0"><strong>Theorem 3 (Uniqueness).</strong> Each rung $\sigma(m,n)$ carries <em>at most one</em> equilibrium. Because $F$ is strictly increasing ($F'&gt;0$), its shooting residual has at most one zero $q_1^\ast$, so the triangular march $q_1\mapsto(x,y,q,p,u_1)$ has at most one admissible seed; with existence supplied separately, the rung's equilibrium is unique.</p>
+
+<p>So one scalar inequality yields three things at once: chain monotonicity of $u_1^\ast$ (§3), regularity (Theorem 1), and uniqueness (Theorem 3). The same $F'&gt;0$ this document reduces to — established for the symmetric-quadratic chain at all $n$, and now for the cubic ($\theta=3$) cost — is what carries all three.</p>
+</div>
+
+<div class="box" style="border-left:4px solid #b8860b">
+<p><strong>Banner (added 2026-07-07 — read before §5–§6).</strong> Sections 5 and 6 record the state of 2026-06-19: they reduce quadratic chain monotonicity to the single lemma "every comb gap widens in the dial $q_1$" and leave that lemma <em>open</em> (here $d_j=y_{j+1}-x_j$ and $\delta_j=x_j-y_j$ are the two interleaving comb gaps, both positive — defined in §5 — and a prime denotes the derivative in the dial ($d/dq_1$); so the lemma is $d_j'>0,\ \delta_j'>0$: every gap strictly widens as $q_1$ increases), sketching a barycenter/log-convexity route to it. That lemma is <strong>now proved for the quadratic case</strong>, and by a cleaner route than §5–§6 propose: (i) the s-deformed log-derivative gap ladder of <code>Docs/asymmetric_quadratic_monotonicity.md</code> (all rungs, all $v_1\ge v_2$, all $\Delta<1$), and (ii) an independent ~15-line "$\theta=2$ compression proof" reproduced as <b>§13.2</b> below. §5–§6 are kept unchanged as the historical prototype — they are the quadratic special case of the general-cost program that Part II (§7 onward) builds. The one thing to carry forward from them is the <em>shape</em> of the argument: $\text{gap-widening}\Longrightarrow\text{mass-widening}\Longrightarrow F'>0\Longrightarrow\text{chain monotone}$. Part II shows that exact chain survives for every convex cost; only the proof that the gaps widen has to be rebuilt.</p>
+</div>
+
+<p class="section">5. The surviving lemma and a route to it</p>
+
+<p>Target: $F'(q_1) > 0$ for every rung, on $(0, q_1^\ast]$ (or all of (0,1)).</p>
+
+<p>A sufficient condition that is cleaner than $F'$ directly. Since $F_{n,n} = \sum_\ell q_\ell - 1$ and $F_{n,n+1} = \sum_k p_k - 1$, it suffices that every marginal mass is individually increasing in $q_1$:</p>
+
+$$\frac{dq_\ell}{dq_1} > 0 \ (\forall \ell), \qquad \frac{dp_k}{dq_1} > 0 \ (\forall k).$$
+
+<p>Then $F'=\sum(\text{positive})&gt;0$ term by term, for both rung types at once.</p>
+
+<p>Gap-coordinate tangent recursion. In interleaving gaps $d_j=y_{j+1}-x_j&gt;0$, $\delta_j=x_j-y_j&gt;0$ the mass laws are</p>
+
+$$q_{j+1} = (1+Q_j)\,d_j(d_j+2), \qquad p_j = (1+P_{j-1})\,\delta_j(\delta_j+2),$$
+
+<p>each strictly increasing in its own gap (gap &gt; 0). Differentiating the four explicit maps w.r.t. $q_1$ gives a linear forward recursion in the tangents $(x_k',y_\ell',p_j',q_k',Q_k',\ldots)$, triangular in the same order, driven by $q_1'=1$. The whole question becomes a sign-propagation induction:</p>
+
+<div class="box">
+<p>Induction target. Along the sweep, every gap derivative is positive: $d_j'&gt;0$ and $\delta_j'&gt;0$. Then $1+Q_j$ and $1+P_{j-1}$ have positive derivatives (sums of positive mass derivatives), and the gap laws give $q_{j+1}'&gt;0$, $p_j'&gt;0$.</p>
+</div>
+
+<p>The crux to stress-test. The induction must close on the gaps. The danger: $q_{j+1}'$ mixes the (positive) derivative of $1+Q_j$ with the derivative of the gap; whether the gap map is monotone in the right direction — i.e. whether feeding a larger $q_1$ widens every subsequent comb gap — is the real content. The base step is clean ($q_1=q_1$, $x_1=q_1/(1+q_1)$ increasing, first gap increasing); the inductive step is the open work.</p>
+
+<p class="section">6. Exploration log</p>
+
+<p class="note">(Appended during autonomous exploration after the doc was written. Each entry dated; methods are exact symbolic over $\mathbb{Q}(q_1)$ unless noted.)</p>
+
+<p class="section">2026-06-19 — $F'(q_1)&gt;0$ confirmed exactly; lemma reduced to one nub ("gaps widen")</p>
+
+<p>Ran the recursion symbolically over the exact rational-function field $\mathbb{Q}(t)$, $t=q_1$ (Nemo/AbstractAlgebra), for both families through $(5,5)$. Everything below is exact arithmetic, not floating point.</p>
+
+<p>Identity (§2) verified exactly. The shared-block fact <code>q[1:n]</code> (resp. <code>p[1:m]</code>) is bit-for-bit identical across the adjacent rungs holds as an identity in $\mathbb{Q}(t)$; hence $\text{leftover}=1-\sum=-F_{\mathrm{prev}}$ exactly, for every rung tested.</p>
+
+<p>The residual factors cleanly. Write F = N(t)/D(t). The denominators are manifestly positive on t&gt;0:</p>
+
+$$D_{n,n} \propto \prod_{k=1}^{n-1}(2k\,t+1)^2, \qquad D_{m,m+1} \propto \prod_{k=1}^{m}\big((2k-1)t+1\big)^2.$$
+
+<p>So $\operatorname{sign}F=\operatorname{sign}N$. Universal facts: $F(0)=-1$ (every rung) and $N$ has positive leading coefficient with $\deg N = \deg D + 1$, so $F\to+\infty$. For $(n,n)$, lead $N=((2n-1)!!)^2$, lead $D=((2n-2)!!)^2$.</p>
+
+<p>Every numerator $N$ has exactly one sign change in its coefficient sequence — a block of positive high-degree coefficients followed by a block of negatives ending in $-1$. By Descartes that is exactly one positive root. With $F(0)&lt;0$, $F(\infty)&gt;0$ this forces the sign pattern $-/+$: $F&lt;0$ left of the root, $F&gt;0$ right. That is precisely the §3(iii) hypothesis, and it is weaker than global monotonicity — single upward crossing is all the chain argument needs.</p>
+
+<p>But the stronger claim is also true: $F'(t)&gt;0$ for all $t&gt;0$. Writing $F'=G/D^2$ with $G=N'D-ND'$, in every rung $G$ has all-nonnegative coefficients (#negative coeffs = 0), and moreover factors as</p>
+
+$$G \;=\; (\text{positive const})\times\Big(\textstyle\prod (\text{linear } kt{+}1)\Big)\times P(t),$$
+
+<p>with $P$ a polynomial having strictly positive coefficients. For $(n,n)$: the linear block is $\prod_{k=2}^{2n-1}(kt+1)$ and $P$ has degree $2n-2$, leading coeff $(2n-1)!$, constant term $(2n-1)$. So $F'&gt;0$ termwise on $t&gt;0$ — $F$ is globally strictly increasing, single crossing a fortiori.</p>
+
+<p>Why $F'&gt;0$ — the structural engine (exact through $(5,5)$, both families). As $q_1$ increases:</p>
+
+<div class="box">
+<p>every atom moves right: $x_k'>0$, $y_\ell'>0$ (only $y_1\equiv0$ is fixed);</p>
+<p>every comb gap widens: $\delta_j' = (x_j-y_j)'>0$ and $d_j' = (y_{j+1}-x_j)'>0$;</p>
+<p>hence every recursion-determined mass increases: $q_{j+1}=(1{+}Q_j)\,d_j(d_j{+}2)$ and $p_j=(1{+}P_{j-1})\,\delta_j(\delta_j{+}2)$ are products of positive, increasing factors, so $q_\ell'>0,\ p_k'>0$;</p>
+<p>the residual is the sum of exactly the recursion-determined masses minus 1, so $F'=\sum(\cdot)'>0$;</p>
+<p>the one leftover atom $=1-\sum(\cdot)$ therefore decreases. This is the same fact as "$-F_{\mathrm{prev}}$ grows from 0 as $q_1$ drops below the previous root" — the chain step, seen from the mass side.</p>
+</div>
+
+<p>A provable sub-lemma (atom monotonicity by a phantom-zero barycenter). Each atom is a weighted average with a point pinned at 0:</p>
+
+$$y_{j+1}=\frac{\sum_{k\le j} p_k\,(1+x_k)}{1+\sum_{k\le j} p_k},\qquad x_{k}=\frac{\sum_{\ell\le k} q_\ell\,(1+y_\ell)}{1+\sum_{\ell\le k} q_\ell},$$
+
+<p>(the "1" in the denominator is unit weight on a phantom point of value 0). Differentiate $y_{j+1}$: its numerator over $(1{+}\sum p)$ equals $\sum_k p_k'\,[(1+x_k)-y_{j+1}] + \sum_k p_k\,x_k'$. Since atoms lie in $[0,1)$ (reach $w=1$), $1+x_k>1>y_{j+1}$, so the first sum is $\ge0$ when $p_k'\ge0$, and the second is $\ge0$ when $x_k'\ge0$. Both the moving points rising and the weights on those above-average points rising push the average up. So $y_{j+1}'>0$ follows from $\{p_k',x_k'\ge0\}_{k\le j}$; mirror argument gives $x_k'>0$ from $\{q_\ell',y_\ell'\ge0\}$. Atom-monotonicity thus propagates given mass-monotonicity.</p>
+
+<p>The single remaining nub. Mass-monotonicity needs the gaps to widen, $d_j'=y_{j+1}'-x_j'>0$ (and $\delta_j'>0$) — a difference of two positive atom-derivatives, which the barycenter lemma does not by itself sign. Two difference-identities the induction can lean on:</p>
+
+$$A_{j-1}\,(x_j-x_{j-1}) = q_j\,(1-\delta_j),\qquad B_{j-1}\,(y_{j+1}-y_j) = p_j\,(1-d_j),$$
+
+<p>with $A_k=1+Q_k$, $B_k=1+P_k$ (these give comb ordering / $\delta_j,d_j\in(0,1)$). Closing $d_j'>0,\ \delta_j'>0$ by induction along the sweep is the one open step; everything else ($\text{atoms}\uparrow\Longrightarrow\text{masses}\uparrow\Longrightarrow F'&gt;0\Longrightarrow\text{single crossing}\Longrightarrow\text{chain monotone}$) then follows.</p>
+
+<p>Net status. §5's lemma is no longer conjectural for any tested rung: $F'&gt;0$ holds exactly through $(5,5)$ on both families, with an explicit positive-coefficient factorization. The general-$n$ proof is reduced to the lone statement "every comb gap is increasing in $q_1$," with atom-monotonicity already handled by the phantom-zero barycenter lemma. The $G$-coefficient-nonnegativity ("$G_n$ has no negative coefficient") is an equivalent, fully concrete polynomial target for an alternative proof.</p>
+
+<p>A telescoping identity for the gaps, and why the crux is irreducible. Rearranging the mass laws gives, exactly,</p>
+
+$$(1+d_j)^2 = \frac{A_{j+1}}{A_j},\qquad (1+\delta_j)^2 = \frac{B_j}{B_{j-1}},\qquad A_k=1+\textstyle\sum_{\ell\le k}q_\ell,\ \ B_k=1+\sum_{i\le k}p_i$$
+
+<p>(verified exactly; on each rung the identity holds for the side whose masses are recursion-determined — the other side's top cumulative carries the leftover). Consequences: the comb telescopes, $A_k=(1+t)\prod_{j&lt;k}(1+d_j)^2$, and</p>
+
+$$d_j'>0 \iff \big(\log A_{j+1}\big)' > \big(\log A_j\big)' \iff \frac{q_{j+1}'}{q_{j+1}} > \frac{A_j'}{A_j}$$
+
+<p>— gap-widening is exactly log-convexity of the cumulative mass sequence. This is elegant but not a reduction: since $q_{j+1}=A_j\,d_j(d_j+2)$,</p>
+
+$$\frac{q_{j+1}'}{q_{j+1}} - \frac{A_j'}{A_j} \;=\; d_j'\Big(\tfrac1{d_j}+\tfrac1{d_j+2}\Big),$$
+
+<p>so "new mass's log-derivative beats the cumulative's" is equivalent to $d_j'>0$, not weaker. The genuine obstruction is the two-sided barycenter coupling: $x_k A_k=\sum_{\ell\le k}q_\ell(1+y_\ell)$ needs the y's, $y_{j+1}B_j=\sum_{i\le j}p_i(1+x_i)$ needs the x's, and $d_j=y_{j+1}-x_j$ straddles both. Closing $d_j'>0,\ \delta_j'>0$ requires a joint invariant on the coupled (A,B)/(x,y) sweep — a real induction, not a one-liner. That joint invariant is the precise open problem; all the scaffolding (telescoping, phantom-zero barycenter, log-convexity equivalence, exact tangent recursion in the warm workspace) is in place to attack it.</p>
+
+<p class="note">Resume state for next session: §2–§4 are an exact, symbolically-verified reduction. §6 (2026-06-19) establishes $F'(q_1)&gt;0$ exactly through $(5,5)$ on both families (three independent confirmations), and reduces the general-$n$ proof to a single open step — "every comb gap widens in $q_1$" ($d_j'>0,\ \delta_j'>0$) — with atom-monotonicity already proved (phantom-zero barycenter lemma) and mass-monotonicity following from gap-widening. Next attack: close gap-widening by induction along the sweep using the two difference-identities, OR prove the equivalent concrete claim "the $F'$-numerator $G_n$ has no negative coefficient." The exact symbolic march over $\mathbb{Q}(t)$ is in the warm Julia workspace (<code>nmarch(ntt,m,n)</code>); <code>dsign</code>/<code>combcheck</code> helpers check derivative signs. Companion files: <code>Docs/symmetric_quadratic_recursion.md</code> (the recursion), <code>Docs/proof_ideas.md</code> ($\alpha$-homotopy / $\det J$ / Sard program), <code>QUICKSTART.md</code> §2 (cost-general system), <code>Julia/converge/solver.jl</code> (numeric solver).</p>
+
+<hr style="margin:3em 0">
+
+<p class="title" style="font-size:1.35em">Part II — The same reduction for a general convex cost</p>
+
+<p class="note">Added 2026-07-07. This part assumes the reader knows the model and the comb-march logic of Part I (a dial <span>$t=q_1$</span> is fixed; the march then fills in every atom, mass and value of the rung one node at a time, in a fixed triangular order). It does <strong>not</strong> assume any of Part I's quadratic-specific algebra. Everything that Part I did over the rational-function field $\mathbb{Q}(q_1)$ has to be redone with a cost $c$ whose atoms are no longer rational in the dial; this part explains, in full and in order, how that is done — following <code>Docs/general_cost_monotonicity_handoff.md</code> (the reduction) and <code>Docs/rg2_positivity_attack.md</code> (the crux and the attack), whose numerical verifications are taken as given.</p>
+
+<div class="box key">
+<p>Summary of Part II. The reduction of Part I is <em>cost-general in its skeleton</em>: for any strictly convex $c$, "chain monotonicity" still reduces to "every comb gap widens as the dial $t$ increases," which still reduces to "every mass derivative is $\ge 0$." What is <em>not</em> cost-general is the proof of that last statement. For quadratic cost the atoms are rational in $t$ and a telescoping ladder proves it in one line. For any other cost the atoms are genuine algebraic functions of $t$, there is no closed recursion, and the mass-widening inequality — packaged as a single scalar $\mathrm{RG2}_k\ge 0$ per node — has to be proved by hand. The current attack rewrites $\mathrm{RG2}_k$ as the integral of a pointwise <em>dominance margin</em> $D_k(z)$ over one inter-atom interval, and reduces mass-widening to "$D_k\ge 0$ on the interval." That is proved completely for <strong>cubic cost</strong> ($\theta=3$, §13): $D_k$ is concave with non-negative endpoints. For $\theta\in(2,3)$ and $\theta>3$ the same margin is the object of study; §14 states exactly which one inequality is left open in each regime and why it is expected to hold.</p>
+</div>
+
+<p class="section">7. Why the quadratic proof does not port, and the reframing that does</p>
+
+<p>Part I's engine was that each P1 atom is a <em>barycenter</em>,
+$x_k=\big(\sum_{\ell\le k}q_\ell(1+y_\ell)\big)/\big(1+\sum_{\ell\le k}q_\ell\big)$, a <strong>rational function of the dial</strong> $t=q_1$. Rational atoms make the gaps $\delta_k,d_k$ rational, which gives a closed gap recursion over $\mathbb{Q}(t)$, which a log-derivative ladder telescopes into manifestly positive multipliers. The barycenter form is special: it comes from the indifference equation being <em>linear</em> in the atom, which happens exactly when $c'$ is affine.</p>
+
+<div class="box">
+<p><strong>Sharp obstruction.</strong> The comb atom is a rational function of $t$ <em>if and only if</em> $c'$ is affine <em>if and only if</em> $c$ is a convex quadratic $c(e)=ae^2+be$ ($a>0,\ b\ge0$) — the antiderivative, with $c(0)=0$, of an affine marginal cost $c'(e)=2ae+b$. The class keeps the linear term: $b=c'(0)$ may be strictly positive, and pure $c=\tfrac12ae^2$ is only the $b=0$ corner. (The term that must <em>not</em> be dropped is exactly that one: writing "$c'(e)=ae$ forces $c=\tfrac12ae^2$" silently imposes $c'(0)=0$ and collapses affine to linear — it is the <em>affinity</em> of $c'$, not homogeneity or a vanishing intercept, that keeps the atoms rational.) For any other convex cost — a power $c(e)=e^\theta$ with $\theta\ne 2$, or any mixed polynomial of degree $\ge 3$ — the atom is the root of a genuine degree-$\theta$ indifference equation, an algebraic (not rational) function of $t$. So there is <em>no</em> closed gap recursion to feed the ladder, and Part I's whole method stops. (Handoff §1–§3.) Power-cost homogeneity does not rescue it: a degree-$\theta$ power is homogeneous yet has $c'(e)=\theta e^{\theta-1}$ nonlinear, so its atoms stay algebraic. Homogeneity buys weaker gifts — a scale symmetry, a $\theta$-homotopy handle off $\theta=2$, single-power per-node equations — which is why power costs, not mixed polynomials, are the right next target.)</p>
+<p class="note">The whole affine-$c'$ class — the general quadratic $ae^2+be$ — therefore sits on the rational, ladder-provable side of this dichotomy, not just pure $e^2$. Chain monotonicity for it is proved in <code>Docs/general_quadratic_monotonicity.md</code>: the flat-field margin argument of §13.2 carries through verbatim (the constant term rides along inside $c'$-differences, where it cancels), with $c''\equiv 2a$ and $c'''\equiv0$ still supplying flat stiffness, centroid $\tfrac12$, and an affine margin $D_k$. The one new feature is the MC(0) floor $c'(0)=b>0$ — an existence constraint ($q_1^\ast>b/(2aw+b)$), not a monotonicity one; for symmetric values it degenerates rather than truncates the comb (<code>Docs/mc0_dial.md</code>).</p>
+</div>
+
+<p><strong>The reframing.</strong> Do not chase a closed recursion. Observe instead that one structural fact <em>is</em> cost-general: the march is a <strong>triangular chain of $2\times 2$ root-finds</strong>. Each node consumes only already-settled quantities and produces exactly one new atom and one new mass. If we differentiate every defining equation of the march with respect to the dial $t$, the triangularity is inherited: we get a <strong>triangular linear system</strong> for the derivatives $(x_k',Y_k',p_k',q_k',\dots)$, solvable one node at a time by back-substitution, whose coefficients are values of $c'$ and $c''$ at the win-margins — no closed-form atom ever required. The quadratic ladder is simply the special case where this triangular solve has rational, sign-transparent entries. So the question "do the gaps widen?" becomes:</p>
+
+<div class="box">
+<p><strong>Cost-general target.</strong> Does the triangular $t$-Jacobian of the march have a sign pattern forcing $\delta_k'>0,\ \gamma_k'>0$ (hence $q_k',p_k'\ge0$, hence $F'>0$) using only $c''>0$ at the atoms? (Handoff §4.) The rest of Part II is the reduction of this to one scalar inequality per node, and the attack on that inequality.</p>
+</div>
+
+<p class="section">8. Notation for the general-cost program (defined once, used throughout)</p>
+
+<p>Everything below is at a <em>fixed</em> dial value $t$; primes denote $d/dt$. The reader should treat the comb as a function of $t$ and differentiate it. All symbols Part II uses:</p>
+
+<div class="box">
+<p><strong>Model constants.</strong> Values $v_1\ge v_2$; convex cost $c$ with $c(0)=0,\ c'>0,\ c''\ge0$. <em>Reaches</em> $w_i=c^{-1}(v_i)$ (the round-2 effort that just exhausts value $v_i$; so $c(w_i)=v_i$). Lead $\Delta$. The comb is written in <em>shifted</em> P2 coordinates with <em>shift</em> $f=w_2-w_1-\Delta$; we write $Y$ for the shifted P2 atom $\tilde y$ throughout, so $f$ appears only inside P2's own cost (Part I §2, "$f$ enters in exactly two places").</p>
+
+<p><strong>The comb.</strong> P2 plays atoms $Y_1=f&lt;Y_2&lt;\cdots$ with masses $q_1,q_2,\dots$; P1 plays atoms $x_1&lt;x_2&lt;\cdots$ with masses $p_1,p_2,\dots$. They <em>interleave</em>: $Y_1&lt;x_1&lt;Y_2&lt;x_2&lt;\cdots$. The dial is $t=q_1$ (P2's boundary mass), exactly as in Part I.</p>
+
+<p><strong>Win-margins</strong> (the round-2 lead that a player's atom concedes to, or takes from, a rival atom — the argument that goes inside $c$):
+$$\begin{aligned}
+r_l^{(j)} &:= w_1+Y_l-x_j &&(\text{P1 at its atom }x_j\text{ facing P2's atom }Y_l,\ l\le j),\\[0.5ex]
+s_i^{(k)} &:= w_2+x_i-Y_{k+1} &&(\text{P2 at }Y_{k+1}\text{ facing P1's atom }x_i,\ i\le k).
+\end{aligned}$$
+These are the interior-branch arguments of Lemma 1 (QUICKSTART §0): P1's continuation against $Y_l$ is $v_1-c(r_l^{(j)})$, P2's against $x_i$ is $v_2-c(s_i^{(k)})$.</p>
+
+<p><strong>Gaps and widths.</strong> The two interleaving gaps and the two atom-spacings:
+$$\delta_j := x_j-Y_j>0\ (\text{"down-gap"}),\qquad \gamma_j := Y_j-x_{j-1}>0\ (\text{"up-gap"}),$$
+$$h_k := x_{k+1}-x_k=\gamma_{k+1}+\delta_{k+1}\ (\text{P1 spacing}),\qquad g_k := Y_{k+2}-Y_{k+1}=\delta_{k+1}+\gamma_{k+2}\ (\text{P2 spacing}).$$
+The <em>diagonal</em> margins collapse to a gap: $r_j^{(j)}=w_1-\delta_j$ and $s_k^{(k)}=w_2-\gamma_{k+1}$ (a player facing the rival atom just below its own). <span class="note">Correspondence with Part I: there the up-gap was called $d_j=y_{j+1}-x_j$; here that is $\gamma_{j+1}$. The down-gap $\delta_j$ is the same in both parts. So "$d_j'>0$ and $\delta_j'>0$" of §5–§6 is "$\gamma_{j+1}'\ge0$ and $\delta_j'\ge0$" here.</span></p>
+
+<p><strong>The march and its derivative chain.</strong> With $t=q_1$ pinned the march runs
+$$q_1=t\ \to\ x_1\ \xrightarrow{[B_1]}\ p_1,Y_2\ \xrightarrow{[C_1]}\ q_2,x_2\ \xrightarrow{[B_2]}\ p_2,Y_3\ \to\cdots$$
+Each <strong>Step $B_k$</strong> builds P2's atom $Y_{k+1}$ and mass $p_k$; each <strong>Step $C_k$</strong> builds P1's atom $x_{k+1}$ and mass $q_{k+1}$. Differentiating in $t$ (primes) gives the parallel chain $q_1'=1\to x_1'\to[B_1]\,p_1',Y_2'\to[C_1]\,q_2',x_2'\to\cdots$, each derivative computed from already-known ones.</p>
+
+<p><strong>The two node operations</strong> (from <code>Julia/converge/convex_march.jl</code>). At each node the new <em>atom</em> is the root of an indifference equation and the new <em>mass</em> is a ratio of $c'$ values (a first-order condition). For Step $C$ (P1), with $Q(X)$ the cumulative P2 mass strictly below the atom being placed:
+$$\begin{gathered}
+\underbrace{\textstyle\sum_{l\le k} q_l\,[v_1-c(r_l^{(k+1)})]+q_{k+1}[v_1-c(r_{k+1}^{(k+1)})]-c(x_{k+1})=u_1}_{\text{indifference: }x_{k+1}\text{ ties P1's value }u_1}\\[1.4ex]
+\underbrace{q_{k+1}=\frac{c'(x_{k+1})-\sum_{l\le k}q_l\,c'(r_l^{(k+1)})}{c'(r_{k+1}^{(k+1)})}}_{\text{FOC (marginal-cost balance)}}
+\end{gathered}$$
+Step $B$ (P2) is the mirror with $s,w_2,f,u_2$ in place of $r,w_1,\cdot,u_1$. Both are used below; the point to hold onto is <em>atom = indifference root (contains $c$), mass = FOC ratio (contains only $c'$)</em>.</p>
+
+<p><strong>Residual and equilibrium.</strong> The rung's one free scalar is the closing normalization; the shooting residual is $F(t)=\sum_\ell q_\ell(t)-1$ (total P2 mass minus one), and the equilibrium dial is its root $F(t^\ast)=0$. This is the same $F$ as Part I §1. $\text{Chain monotonicity}\Longleftrightarrow t^\ast\text{ moves the right way along the chain}\Longleftarrow F'(t)>0$.</p>
+
+<p><strong>The node residuals $\mathrm{RG1}_k,\mathrm{RG2}_k$ (P1) and their mirrors $\mathrm{RH1}_k,\mathrm{RH2}_k$ (P2).</strong> Differentiating the two node operations of Step $C_k$ in $t$ produces a triangular $2\times2$ linear system in the new derivatives $(x_{k+1}',q_{k+1}')$ (solved in §9.2). Isolating each unknown's own coefficient on the left, the two right-hand sides — assembled <em>entirely from atoms and masses already placed below the node and their known derivatives</em> — are named $\mathrm{RG2}_k$ (indifference row) and $\mathrm{RG1}_k$ (FOC row):
+$$q_{k+1}'\,\big(v_1-c(r_{k+1}^{(k+1)})\big)=\mathrm{RG2}_k,\qquad DX_k\,x_{k+1}'=\mathrm{RG1}_k+c'(r_{k+1}^{(k+1)})\,q_{k+1}',$$
+$$DX_k:=c''(x_{k+1})+\sum_{l\le k+1}q_l\,c''(r_l^{(k+1)})>0,\qquad
+\mathrm{RG1}_k:=\sum_{l\le k+1}q_l\,c''(r_l^{(k+1)})\,Y_l'+\sum_{l\le k}c'(r_l^{(k+1)})\,q_l'.$$
+Step $B_k$ (P2) gives $\mathrm{RH1}_k,\mathrm{RH2}_k$ verbatim with $(s,w_2,u_2)$ in place of $(r,w_1,u_1)$. <strong>Why "residual".</strong> Exactly as the shooting residual $F$ above is what the closing normalization leaves over (total mass minus one), each $\mathrm{RG}i_k$ is what the differentiated $i$-th equilibrium equation leaves over once the freshly-placed unknown's own term is moved to the left — the net push on the new atom/mass from every atom and mass already placed below it. The letters read: $\mathrm R$ = residual, $\mathrm G$ = P1's equation system (whose FOC field is the $G_k$ of §11), $\mathrm H$ = the P2 mirror; the trailing digit is the row (1 = FOC, 2 = indifference). The whole §9 reduction turns on the second one: since $v_1-c(r_{k+1}^{(k+1)})>0$, the sign of the new mass derivative $q_{k+1}'$ is precisely the sign of $\mathrm{RG2}_k$.</p>
+</div>
+
+<p class="section">9. The reduction: $\text{chain monotonicity}\Longleftarrow\text{mass-widening}\Longleftarrow\text{one scalar per node}$</p>
+
+<p>This section carries out the differentiation announced in §7 and shows that the entire monotonicity result rests on a single sign, $\mathrm{RG2}_k\ge0$ (and its mirror $\mathrm{RH2}_k\ge0$), at each node. All of it is cost-general; nothing here uses a closed atom formula.</p>
+
+<p class="section" style="font-size:1.05em">9.1 The base node and the budget $u_1'$</p>
+
+<p>The first atom $x_1$ solves the base indifference/FOC pair, which collapses to $E_0:=c'(x_1)-t\,c'(m_0)=0$, where $m_0:=w_1-\delta_1=w_1+f-x_1$ is P1's win-margin against the boundary atom $Y_1=f$. (Interpretation: at $x_1$, P1's marginal cost $c'(x_1)$ equals the dial-weighted marginal benefit of beating $Y_1$.) Differentiate $E_0=0$ in $t$:
+$$c''(x_1)\,x_1'-c'(m_0)-t\,c''(m_0)\,m_0'=0,\qquad m_0'=-x_1',$$
+so $\big(c''(x_1)+t\,c''(m_0)\big)x_1'=c'(m_0)$, giving</p>
+$$\boxed{\;x_1'=\frac{c'(m_0)}{c''(x_1)+t\,c''(m_0)}>0\;}$$
+<p>— strictly positive from $c'>0,\ c''\ge0$ <em>alone</em>, no closed form needed. (For $c(e)=e^2$ this is exactly Part I's base derivative.) This is the seed of every positivity below: the first gap already widens, $\delta_1'=x_1'>0$.</p>
+
+<p><strong>The budget.</strong> P1's equilibrium value along the base is $u_1=t\,(v_1-c(m_0))-c(x_1)$. Differentiate and use the base FOC $c'(x_1)=t\,c'(m_0)$:
+$$u_1'=(v_1-c(m_0))+x_1'\big[t\,c'(m_0)-c'(x_1)\big]=(v_1-c(m_0))+x_1'\cdot 0,$$
+so</p>
+$$\boxed{\;u_1'=v_1-c(m_0)>0\;}\qquad(\text{envelope theorem}).$$
+<p>The bracket vanishes because $x_1$ is chosen optimally (the envelope theorem: raising the dial $t$ has only the <em>direct</em> effect $v_1-c(m_0)$, P1's net win-value at the base margin). Crucially $u_1'$ is a <strong>fixed positive constant, the same at every node</strong> — it will turn out to be the entire "budget" that finances mass-widening. Verified $u_1'=1-0.7018^3=0.6539$ at symmetric $\theta=3$.</p>
+
+<p class="section" style="font-size:1.05em">9.2 An interior node is a triangular $2\times2$ solve</p>
+
+<p>Take Step $C_k$: the two defining equations (§8) are the FOC and the indifference, in the two new unknowns $(x_{k+1},q_{k+1})$. Differentiate both in $t$. Because every <em>prior</em> quantity ($x_i,Y_l,p_i,q_l$ for indices $\le k$, and $u_1$) already has a known derivative, the two differentiated equations form a linear system in $(x_{k+1}',q_{k+1}')$. Its node Jacobian is <strong>lower-triangular with positive diagonal</strong>:</p>
+
+<div class="box">
+<p>$\dfrac{\partial(\text{FOC})}{\partial\,x_{k+1}}=c''(x_{k+1})+\sum_{l\le k+1}q_l\,c''(r_l^{(k+1)})=:DX_k>0$ &nbsp;— the diagonal, a pure sum of $c''$ terms, positive by convexity.</p>
+<p>$\dfrac{\partial(\text{indiff})}{\partial\,x_{k+1}}=-(\text{FOC residual})\equiv0$ at the node &nbsp;— the off-diagonal <em>vanishes</em> (this is again the envelope: the indifference value is stationary in the atom).</p>
+<p>$\dfrac{\partial(\text{indiff})}{\partial\,q_{k+1}}=v_1-c(r_{k+1}^{(k+1)})=v_1-c(w_1-\delta_{k+1})>0$ &nbsp;— the other diagonal, P1's interior continuation value at the fresh margin.</p>
+</div>
+
+<p>$\text{Triangular with positive diagonal}\Longrightarrow\det>0$, and — this is the useful part — the <strong>mass derivative solves first</strong> (its equation, the differentiated indifference, does not contain $x_{k+1}'$ because the off-diagonal is zero), then the atom derivative by back-substitution. Recalling the two node residuals of §8 ($q_{k+1}'\cdot(v_1-c(r_{k+1}^{(k+1)}))=\mathrm{RG2}_k$ and $DX_k\,x_{k+1}'=\mathrm{RG1}_k+c'(r_{k+1})\,q_{k+1}'$):</p>
+$$q_{k+1}'=\frac{\mathrm{RG2}_k}{\,v_1-c(w_1-\delta_{k+1})\,},\qquad
+x_{k+1}'=\frac{\mathrm{RG1}_k+c'(r_{k+1})\,q_{k+1}'}{DX_k}.$$
+
+<p>The point of writing it this way: <strong>the denominator $v_1-c(w_1-\delta_{k+1})$ is positive</strong>, so the sign of the new mass derivative $q_{k+1}'$ is <em>exactly the sign of the scalar $\mathrm{RG2}_k$</em>. Everything reduces to that one scalar.</p>
+
+<p class="section" style="font-size:1.05em">9.3 Gap-widening and $F'$ both follow from mass-widening</p>
+
+<p>Recall the FOC residual (§8)
+$$\mathrm{RG1}_k=\sum_{l\le k+1}q_l\,c''(r_l^{(k+1)})Y_l'+\sum_{l\le k}c'(r_l^{(k+1)})\,q_l'\;>\;0,$$
+a sum of products of <em>prior</em> derivatives, all $\ge0$ under the running induction. Hence from the boxed $x_{k+1}'$ formula, with $DX_k>0,\ \mathrm{RG1}_k>0,\ c'>0$:</p>
+
+<div class="box key">
+<p><strong>$x_{k+1}'>0$ the instant $q_{k+1}'\ge0$; and (mirror, Step $B$) $Y_{k+1}'>0$ the instant $p_k'\ge0$.</strong> Therefore:</p>
+<ul>
+<li><strong>Gap-widening.</strong> $\delta_{k+1}'=x_{k+1}'-Y_{k+1}'$ and $\gamma_{k+1}'=Y_{k+1}'-x_k'$ are differences of positive atom-derivatives, and (as §11 makes precise) come out $\ge0$ once the masses widen.</li>
+<li><strong>$F'>0$.</strong> $F=\sum_\ell q_\ell-1$, so $F'=\sum_\ell q_\ell'$; if every $q_\ell'\ge0$ and $q_1'=1$ then $F'\ge1>0$. A strictly increasing $F$ crosses zero at most once — the equilibrium dial is unique <em>and</em> moves monotonically along the chain.</li>
+<li><strong>$u_1^{\ast\prime}>0$</strong> by the envelope constant of §9.1, and $u_1^\ast$ increasing in $t^\ast$ then gives the payoff statement (Part I §3).</li>
+</ul>
+<p>So the whole theorem — for <em>any</em> convex $c$ — rests on: <strong>every mass derivative is non-negative</strong>, i.e. $\mathrm{RG2}_k\ge0$ and $\mathrm{RH2}_k\ge0$ at every node.</p>
+</div>
+
+<p><strong>What the two scalars are, explicitly.</strong> Writing out the differentiated indifference (P1 side) and its mirror (P2 side, which has no $u_2'$ term since $u_2^\ast\equiv0$):</p>
+$$\begin{aligned}
+\mathrm{RG2}_k=\ &\underbrace{\Big[\sum_{l\le k+1}q_l\,c'(r_l^{(k)})\,Y_l'+u_1'\Big]}_{\text{positive group: own-drift}+\text{budget}}\\[0.5ex]
+&-\underbrace{\Big[\sum_{l\le k}(v_1-c(r_l^{(k)}))\,q_l'\Big]}_{\text{rival mass-drift (fights)}}\ \ge\ 0,
+\end{aligned}$$
+$$\mathrm{RH2}_k=\Big[\sum_{i\le k}p_i\,c'(s_i^{(k)})\,x_i'\Big]-\Big[\sum_{i\le k-1}(v_2-c(s_i^{(k)}))\,p_i'\Big]\ \ge\ 0.$$
+<p>In words: at each node the <em>positive group</em> (the rate at which the already-placed atoms drift right, weighted by marginal cost, plus the fixed budget $u_1'$) must dominate the <em>negative group</em> (the rate at which the rival's masses are growing, weighted by continuation value). The first node $C_1$ has an empty rival sum (nothing below it), so its negative group is $0$ — a clean induction base. Numerically the ratio (negative/positive) is always $<1$ (worst $\approx0.94$), and it creeps toward $1$ as the node index grows — that creep is the whole difficulty.</p>
+
+<p class="section">10. Why this is genuinely hard: the circularity obstruction</p>
+
+<p>It is tempting to prove $\mathrm{RG2}_k\ge0$ from P1's indifference directly. That fails, and understanding <em>why</em> is what dictated the entire margin-field attack of §11.</p>
+
+<div class="box">
+<p><strong>The indifference identity is circular.</strong> Differentiating P1's indifference (which holds identically in $t$ at the atom $x_{k+1}$) yields
+$$(\bigstar)\qquad \sum_{l\le k+1}q_l'\,(v_1-c(r_l))=u_1'+\sum_{l\le k+1}q_l\,c'(r_l)\,Y_l'\;=\;\text{positive group}.$$
+Subtracting the negative group from both sides gives, <em>identically</em>, $\text{posGroup}-\text{negGroup}=q_{k+1}'(v_1-c(r_{k+1}))=\mathrm{RG2}_k$. So the statement "positive group $\ge$ negative group" is <em>logically identical</em> to "$q_{k+1}'\ge0$" — it is not an independent bound. Indifference alone can never close the sign.</p>
+</div>
+
+<p><strong>The FOC does not help either.</strong> One might try differencing the FOC at consecutive atoms. But the P1 FOC $c'(x_k)=\sum_{l\le k}q_l\,c'(r_l^{(k)})$ holds identically in $t$, so $\tfrac{d}{dt}[\text{FOC}_k]\equiv0$ (machine-zero, $\sim10^{-15}$, at every atom): differentiating it produces no new equation, only the relation the march already uses to back out $x_{k+1}'$. The node genuinely has two equations in two unknowns and no hidden third.</p>
+
+<div class="box" style="border-left:4px solid #b8860b">
+<p><strong>Circularity theorem (the negative result that shapes everything).</strong> Inside the closed algebra generated by the march's own identities — $(\bigstar)$, its P2 mirror, the differentiated FOC, and the mass balances — the target inequality carries <em>no sign information</em>: it rearranges to a tautology. Any proof of mass-widening <strong>must inject an inequality from outside that algebra</strong>. The only candidates are (i) convexity used as an inequality (not just $c''\ge0$ as an identity coefficient, but $c'$/$c''$/$c'''$ monotone comparisons across shifted margins), (ii) admissibility (masses positive; partial sums $<1$), (iii) the cross-player coupling, (iv) moment/Chebyshev structure of the atom distribution. The margin-field reformulation of §11 is built precisely to expose where an <em>outside</em> convexity inequality can enter — and it enters as a single term $J_k\ge0$ that is free whenever $c'''\ge0$.</p>
+</div>
+
+<p><strong>Consequence for the proof architecture.</strong> Because no rearrangement of the equalities can work, the earlier plan — "prove $\mathrm{RG2}_k$ decays monotonically in $k$ (A), then prove the terminal node is positive (B)" — was abandoned: decay (A) is exactly the kind of statement the circularity theorem forbids proving from the identity algebra. The replacement is to stop reasoning node-to-node and instead resolve $\mathrm{RG2}_k$ <em>within one interval</em>, as an integral of a pointwise quantity whose positivity can be read off from convexity. That is §11.</p>
+
+<p class="section">11. The margin field — turning each node scalar into a pointwise integral</p>
+
+<p>The idea: freeze the dial and look at P1's stage-$k$ problem as a function of a continuous effort $z$ ranging over one inter-atom interval $[x_k,x_{k+1}]$. Two "fields" on that interval — the FOC field and its $t$-derivative, the flux field — package all the node data, and the node scalar $\mathrm{RG2}_k$ turns out to be the integral over the interval of a single pointwise <em>dominance margin</em> $D_k(z)$. Positivity of the node scalar then becomes positivity of a function on an interval, attackable by endpoints + concavity. Everything in this section is an exact identity, verified in <code>rg2_positivity_attack.md</code> to the tolerances quoted; we take those as given and explain what each identity says and why it is the right object.</p>
+
+<div class="box">
+<p><strong>Prime convention (read before the fields — applies to §11 and §13).</strong> From here on a prime can mean one of <em>two</em> derivatives, and <strong>which one is fixed entirely by what it sits on</strong> — never ambiguous, because no symbol is ever both a march scalar and a spatial field:</p>
+<ul>
+<li><strong>On a march quantity</strong> — $x_k',\ q_k',\ p_k',\ \delta_k',\ \gamma_k',\ Y_k',\ u_1',\ F'$ — a prime is the <em>dial derivative</em> $d/dt$, exactly as fixed in §8. (These are scalars that depend on the dial $t$.)</li>
+<li><strong>On a field of the effort variable $z$</strong> (or $Y$, for the P2 mirror) — $\varphi_k'(z),\ W_k'(z),\ G_k'(z),\ \Phi_k'(z),\ D_k'(z),\ D_k''(z),\ V_k'(Y),\ r_l'(z)$ — a prime is the <em>spatial derivative</em> $d/dz$ (resp. $d/dY$): the slope of that field along the interval. (These are functions of $z$ at a frozen dial.)</li>
+<li><strong>Cost derivatives</strong> $c',\ c'',\ c''',\ c^{(4)}$ are derivatives of the single-variable cost $c$ in <em>its own (effort) argument</em> — so $c'(r_l(z))$ means $c'$ evaluated at the margin $r_l(z)$, not $\tfrac{d}{dz}c(r_l(z))$.</li>
+<li><strong>Explicit forms</strong> are used whenever the variable is not the argument shown: $\partial_t$ marks a dial-derivative of a $z$-field (e.g. $\Phi_k(z):=-\partial_tG_k(z)$), and the cascade slope is written out as $dR_1/d\delta$ (§11.1) rather than primed.</li>
+</ul>
+<p>So in a single expression like $D_k(z)=Y_{k+1}'\,W_k(z)-\Phi_k(z)$: the prime on $Y_{k+1}'$ is $d/dt$ (a march velocity), while $D_k''(z)$ later is $d/dz$ (a spatial curvature). The two live on different symbols and never collide.</p>
+</div>
+
+<p class="section" style="font-size:1.05em">11.1 Stiffness, the concave payoff-net, and the moment identities</p>
+
+<p>Define P1's <strong>payoff-net against the first $k$ P2 atoms</strong>, as a function of a hypothetical effort $z$:
+$$\varphi_k(z):=\sum_{l\le k}q_l\,\big(v_1-c(r_l(z))\big)-c(z),\qquad r_l(z):=w_1+Y_l-z.$$
+This is P1's expected round-continuation value from bidding $z$ when only $Y_1,\dots,Y_k$ lie below. Its derivatives:
+$$\varphi_k'(z)=\sum_{l\le k}q_l\,c'(r_l(z))-c'(z),\qquad \varphi_k''(z)=-\Big(c''(z)+\sum_{l\le k}q_l\,c''(r_l(z))\Big)=:-\,W_k(z).$$
+The quantity
+$$\boxed{\,W_k(z):=c''(z)+\sum_{l\le k}q_l\,c''(r_l(z))>0\,}\qquad(\text{the }\textit{stiffness})$$
+is strictly positive by convexity, so <strong>$\varphi_k$ is strictly concave</strong>, with its maximum exactly at the atom: $\varphi_k'(x_k)=0$ is the FOC. (The name: $W_k$ is the local curvature — the "stiffness" — of P1's objective; it is the diagonal $DX$ of §9.2 evaluated along the interval.)</p>
+
+<p>Two exact <strong>moment identities</strong> come from reading the FOC at the <em>next</em> atom $x_{k+1}$ and the indifference between $x_k$ and $x_{k+1}$. The next FOC gives $\varphi_k'(x_{k+1})=-q_{k+1}c'(r_{k+1}^{(k+1)})$, and indifference gives $\varphi_k(x_k)-\varphi_k(x_{k+1})=q_{k+1}(v_1-c(r_{k+1}^{(k+1)}))$. Since $\varphi_k'=-\!\int W_k$ from $x_k$ (where $\varphi_k'=0$), these are moments of the stiffness:</p>
+$$\begin{aligned}
+M_0&:=q_{k+1}\,c'(w_1-\delta_{k+1})=\int_{x_k}^{x_{k+1}}W_k(z)\,dz,\\[0.5ex]
+M_1&:=q_{k+1}\,(v_1-c(w_1-\delta_{k+1}))=\int_{x_k}^{x_{k+1}}(x_{k+1}-z)\,W_k(z)\,dz.
+\end{aligned}$$
+<p>$M_0$ is the zeroth moment (total stiffness mass across the interval); $M_1$ is the first moment measured <em>from the top endpoint</em> $x_{k+1}$. Note $M_1$ is exactly the indifference gap $q_{k+1}(v_1-c(w_1-\delta_{k+1}))$ — the same product $v_1-c(w_1-\delta_{k+1})$ that is the denominator of $q_{k+1}'$ in §9.2. That is the bridge between "mass" and "margin."</p>
+
+<p><strong>The cascade and its centroid.</strong> Dividing the two moments,
+$$R_1(\delta_{k+1})=h_k\,\theta_k,\qquad R_1(\delta):=\frac{v_1-c(w_1-\delta)}{c'(w_1-\delta)},\qquad
+\theta_k:=\frac{\int_{x_k}^{x_{k+1}}(x_{k+1}-z)W_k\,dz}{h_k\int_{x_k}^{x_{k+1}}W_k\,dz}=\frac{M_1}{h_kM_0}\in(0,1).$$
+$R_1$ is a fixed increasing function of the gap ($R_1(0)=0$, and $\dfrac{dR_1}{d\delta}>1$ — a derivative with respect to the gap-argument $\delta$, <em>not</em> the dial $t$; primes are reserved for $d/dt$, so this derivative is written out in full), and $\theta_k$ is the <strong>normalized stiffness centroid measured from the top</strong> — where the stiffness mass sits inside the interval, as a fraction of the interval width. This one scalar $\theta_k$ controls how gap-widening relates to mass-widening (§11.5). For quadratic cost $W_k$ is constant, so $\theta_k\equiv\tfrac12$ and the cascade $R_1(\delta_{k+1})=\tfrac12 h_k$ is exactly the harmonic gap law $1/\delta_{k+1}=1/\gamma_{k+1}+1/w_1$ of Part I. The mirror (P2) objects are $V_k(Y):=c''(Y-f)+\sum_{i\le k}p_i\,c''(s_i(Y))$, $R_2$, and centroid $\tilde\theta_k$ (tilde marks the P2 mirror, as in the base case $\tilde\theta_0=\tfrac13$ of §13.1).</p>
+
+<p class="section" style="font-size:1.05em">11.2 The FOC field and the flux field</p>
+
+<p>Now differentiate in $t$. Define the <strong>FOC field</strong> and, as minus its $t$-derivative, the <strong>flux field</strong>:
+$$G_k(z):=c'(z)-\sum_{l\le k}q_l\,c'(r_l(z))\ \big(=-\varphi_k'(z)\big),\qquad
+\Phi_k(z):=-\partial_t G_k(z)=\sum_{l\le k}\big[q_l'\,c'(r_l(z))+q_l\,c''(r_l(z))\,Y_l'\big].$$
+Read them: $G_k(z)$ is P1's <em>net marginal cost</em> at effort $z$ (own marginal cost minus the marginal benefit of beating the atoms below). It vanishes at the atom, $G_k(x_k)=0$ (FOC), rises to $G_k(x_{k+1})=q_{k+1}c'(w_1-\delta_{k+1})=M_0$ at the next atom (next FOC), with slope $G_k'(z)=W_k(z)$ — the stiffness is literally the slope of the FOC field. The flux field $\Phi_k(z)$ is the rate at which that net-marginal-cost curve is being pushed <em>down</em> as the dial rises (masses growing, $q_l'\ge0$; atoms drifting, $Y_l'\ge0$) — both effects lower P1's net marginal cost, so $-\partial_tG_k=\Phi_k\ge0$ under the induction. The scalar $\Phi_k:=\Phi_k(x_k)$ evaluated at the left endpoint is, by the differentiated FOC, exactly $x_k'\,W_k(x_k)$: the atom's velocity times the local stiffness.</p>
+
+<p class="section" style="font-size:1.05em">11.3 The two-term identity: $\mathrm{RG2}_k=\int D_k$</p>
+
+<p>Since $M_1=\int_{x_k}^{x_{k+1}}G_k(z)\,dz$ (integrate $G_k=-\varphi_k'$ by parts against the weight, using $G_k(x_k)=0$), differentiate this representation of $M_1$ in $t$. On the left, $M_1'=\mathrm{RG2}_k+M_0\,\delta_{k+1}'$ (product rule on $q_{k+1}(v_1-c(w_1-\delta_{k+1}))$). On the right, Leibniz on $\int G_k$ with the moving top endpoint $x_{k+1}$ and $G_k(x_k)=0$ gives $M_0\,x_{k+1}'-\int\Phi_k$. Since $x_{k+1}'=\delta_{k+1}'+Y_{k+1}'$, the $M_0\delta_{k+1}'$ terms cancel and one is left with the <strong>two-term identity</strong>:</p>
+$$\boxed{\ \mathrm{RG2}_k=M_0\,Y_{k+1}'-\int_{x_k}^{x_{k+1}}\Phi_k(z)\,dz\ }\qquad(\text{verified }\le2.3\times10^{-15}).$$
+<p>Because $M_0=\int_{x_k}^{x_{k+1}}W_k(z)\,dz$, the two terms combine under one integral sign:</p>
+$$\boxed{\ \mathrm{RG2}_k=\int_{x_k}^{x_{k+1}} D_k(z)\,dz,\qquad D_k(z):=Y_{k+1}'\cdot W_k(z)-\Phi_k(z)\ }$$
+<p>the <strong>dominance margin</strong>. This is the central object of the whole attack. Its meaning:</p>
+
+<div class="box">
+<p><strong>Phantom-velocity reading.</strong> Every level set of the field $G_k$ moves, as $t$ rises, at the "phantom velocity" $v_k(z):=\Phi_k(z)/W_k(z)$ (the level moves to keep $G_k$ constant: $\partial_tG_k+v_k\,G_k'=0$). The real atom $x_k$ is the zero level set, moving at $v_k(x_k)=x_k'$. So
+$$D_k(z)=W_k(z)\,\big(Y_{k+1}'-v_k(z)\big)\ge0\ \iff\ v_k(z)\le Y_{k+1}'\ \text{for all }z\in[x_k,x_{k+1}].$$
+i.e. <strong>$\mathrm{RG2}_k\ge0$ follows if P2's next atom velocity $Y_{k+1}'$ outruns every phantom level-set velocity of P1's field across the gap.</strong> Empirically this holds with room: $\max_z v_k(z)/Y_{k+1}'\le0.99$ strictly, at every node of every configuration tested.</p>
+</div>
+
+<p class="section" style="font-size:1.05em">11.4 The left endpoint is the induction hypothesis</p>
+
+<p>Evaluate $D_k$ at the left endpoint. There $\Phi_k(x_k)=x_k'W_k(x_k)$ (§11.2), so
+$$D_k(x_k)=Y_{k+1}'W_k(x_k)-x_k'W_k(x_k)=W_k(x_k)\,(Y_{k+1}'-x_k')=W_k(x_k)\,\gamma_{k+1}'.$$
+<p>That is: <strong>the left-endpoint value of the dominance margin is exactly the stiffness times the up-gap derivative $\gamma_{k+1}'$</strong> — the very gap-widening quantity the induction is trying to propagate. So "$D_k(x_k)\ge0$" <em>is</em> the induction hypothesis (that the previous gap widened), imported for free. The whole game is to get from that one endpoint to positivity of $D_k$ across the entire interval.</p>
+
+<p class="section" style="font-size:1.05em">11.5 Node identities and the shape condition (M)</p>
+
+<p>Two "fresh-injection" node identities (verified $\le1.1\times10^{-14}$) relate the <em>next</em> gap's derivative to the right endpoint of the current margin:</p>
+$$(\mathrm{N1})\quad \delta_{k+1}'\,W_{+}(x_{k+1})=q_{k+1}'\,c'(w_1-\delta_{k+1})-D_k(x_{k+1}),\qquad
+(\mathrm{N2})\quad \gamma_{k+2}'\,V_{+}(Y_{k+2})=p_{k+1}'\,c'(w_2-\gamma_{k+2})-D_k^{\text{mir}}(Y_{k+2}),$$
+<p>($W_+,V_+$ are the frontier-inclusive stiffnesses). In words: the next gap widens iff the fresh mass-injection $q_{k+1}'c'(\cdot)$ beats the right-endpoint value $D_k(x_{k+1})$ of the current margin. Substituting $q_{k+1}'=\mathrm{RG2}_k/(v_1-c)=\int D_k/(v_1-c)$ into (N1) and using the cascade $R_1(\delta_{k+1})=h_k\theta_k$, all the value-content cancels and gap-widening becomes a pure statement about the <em>shape</em> of $D_k$ on the interval:</p>
+$$\boxed{\ (\mathrm{M}_k)\qquad \delta_{k+1}'\ge0\ \iff\ \bar D_k\ \ge\ \theta_k\,D_k(x_{k+1}),\qquad \bar D_k:=\frac{1}{h_k}\int_{x_k}^{x_{k+1}}D_k=\frac{\mathrm{RG2}_k}{h_k}\ }$$
+<p>— the interval-<em>mean</em> of the margin must exceed the centroid-fraction $\theta_k$ of its <em>right-endpoint</em> value. This is pure algebra given (N1); it introduces no new inequality, but it is the right frame, because now <em>both</em> outputs we need — mass-widening ($\mathrm{RG2}_k=\int D_k\ge0$) and gap-widening ((M$_k$)) — are shape statements about the single function $D_k$ and the single centroid $\theta_k$.</p>
+
+<p class="section" style="font-size:1.05em">11.6 The three shape identities: concavity, endpoints, centroid</p>
+
+<p>These are the levers that will prove $D_k\ge0$ and (M$_k$). Each is exact.</p>
+
+<div class="box">
+<p><strong>(C) Concavity of the margin.</strong> Differentiating $D_k(z)=Y_{k+1}'W_k(z)-\Phi_k(z)$ twice in $z$ (using $W_k'=c'''(z)-\sum q_lc'''(r_l)\cdot(-1)$-type terms and $\Phi_k'(z)=-\partial_tW_k(z)$):
+$$D_k''(z)=Y_{k+1}'\,c^{(4)}(z)+\sum_{l\le k}q_l\,c^{(4)}(r_l(z))\,(Y_{k+1}'-Y_l')-\sum_{l\le k}q_l'\,c'''(r_l(z)).$$
+Under the induction ($q_l'\ge0$, and $Y_{k+1}'\ge Y_l'$ = motion-ordering), <strong>every term is $\le0$ as soon as $c'''\ge0\ge c^{(4)}$</strong> — the class $\theta\in[2,3]$. So $D_k$ is concave for that class, hence minimized at an endpoint and $\bar D_k\ge\tfrac12(D_k(x_k)+D_k(x_{k+1}))$.</p>
+</div>
+
+<div class="box">
+<p><strong>(E2) Endpoint split.</strong> The right endpoint differs from the left by
+$$D_k(x_{k+1})-D_k(x_k)=Y_{k+1}'\,\Delta W+J_0,\qquad \Delta W:=W_k(x_{k+1})-W_k(x_k),$$
+$$J_0:=\sum_{l\le k}q_l'\big[c'(r_l^{(k)})-c'(r_l^{(k+1)})\big]+\sum_{l\le k}q_lY_l'\big[c''(r_l^{(k)})-c''(r_l^{(k+1)})\big].$$
+Since $x_{k+1}>x_k$ makes every margin shrink ($r_l^{(k+1)}&lt;r_l^{(k)}$) and $c',c''$ increase, and $q_l',Y_l'\ge0$ under the IH, <strong>$J_0\ge0$ free</strong>. So $D_k(x_{k+1})\ge D_k(x_k)+Y_{k+1}'\Delta W$; the only threat to right-endpoint positivity is $\Delta W<0$ (stiffness dipping across the interval).</p>
+</div>
+
+<div class="box">
+<p><strong>(E1) Trapezoid-error identity for the centroid.</strong> Because $M_1=\int G_k$ with $G_k(x_k)=0$ and $G_k''=W_k'$, the deviation of the centroid from $\tfrac12$ is exactly a bump-weighted average of the stiffness slope:
+$$\theta_k-\tfrac12=-\frac{1}{2h_kM_0}\int_{x_k}^{x_{k+1}}(z-x_k)(x_{k+1}-z)\,W_k'(z)\,dz.$$
+The weight $(z-x_k)(x_{k+1}-z)\ge0$ is the "bump" (zero at both ends, peak in the middle). So <strong>$\theta_k\le\tfrac12$ iff the bump-averaged stiffness slope is $\ge0$</strong> — a strictly weaker condition than "$W_k$ increasing pointwise." This is the identity that decides the centroid side of (M$_k$).</p>
+</div>
+
+<p class="section" style="font-size:1.05em">11.7 The flux decomposition and the one outside inequality $J_k\ge0$</p>
+
+<p>Integrating (I2) once more by parts against $W$ (rather than $G$) gives the equivalent but more transparent <strong>flux decomposition</strong>:</p>
+$$\begin{gathered}
+\mathrm{RG2}_k=\underbrace{\vphantom{\Big|}\mathrm{lead}_k}_{M_0Y_{k+1}'}\ -\ h_k\Phi_k\ +\ J_k,\qquad
+J_k:=\int_{x_k}^{x_{k+1}}(x_{k+1}-z)\,\partial_tW_k(z)\,dz,\\[1ex]
+\partial_tW_k(z)=\sum_{l\le k}\big[q_l'\,c''(r_l(z))+q_l\,c'''(r_l(z))\,Y_l'\big].
+\end{gathered}$$
+<p>Here $\mathrm{lead}_k=q_{k+1}c'(w_1-\delta_{k+1})Y_{k+1}'$ is the fresh atom's contribution, $h_k\Phi_k$ is the left-endpoint flux scaled by the width, and $J_k$ is the first moment of the <em>stiffness drift</em> $\partial_tW_k$. This last term is where the <strong>outside inequality the circularity theorem demands</strong> enters:</p>
+
+<div class="box key">
+<p><strong>$J_k\ge0$ is free for $c'''\ge0$.</strong> Integrating $J_k$ by parts atom-wise splits it into
+$$J_k=\sum_{l\le k}q_l'\Big[\underbrace{\textstyle\int[c'(r_l^{(k)})-c'(u)]\,du}_{\ge0\text{ always }(c'\uparrow)}\Big]+\sum_{l\le k}q_lY_l'\Big[\underbrace{\textstyle\int[c''(r_l^{(k)})-c''(u)]\,du}_{\text{sign of }c'''}\Big].$$
+The first bracket is $\ge0$ for <em>any</em> convex $c$. The second has the sign of $c'''$. So for $c'''\ge0$ (marginal cost convex — all powers $\theta\ge2$), $J_k\ge0$ under the induction ($q_l',Y_l'\ge0$). This is the genuine injection of convexity <em>as an inequality</em>, exactly what §10 said any proof must supply; it is not derivable from the identity algebra. (For $\theta\in(1,2)$, $c'''<0$ and $J_k$'s sign is not free — but numerically $J_k>0$ still, the $q'c''$ part dominating; that dominance is one of the open items of §14.)</p>
+</div>
+
+<p><strong>How the pieces will be used.</strong> The two representations are equivalent ((I2) $\Leftrightarrow$ lead$-h\Phi+J$), and each suggests a sufficient condition:</p>
+<ul>
+<li>Via (I2): prove $D_k(z)\ge0$ pointwise. Enough: both endpoints $\ge0$ (left = IH by §11.4; right by (E2)) <em>and</em> concavity (C). This is the route that closes $\theta=3$ (§13).</li>
+<li>Via the flux form: prove $\mathrm{lead}_k\ge h_k\Phi_k$ (call it (G$_k$)) and add $J_k\ge0$. (G$_k$) is equivalent, since $M_0=h_k\bar W_k$, to the <em>weighted motion-ordering</em> $\bar W_k\,Y_{k+1}'\ge W_k(x_k)\,x_k'$; at quadratic cost (constant $W$) it is <em>exactly</em> gap-widening $\gamma_{k+1}'\ge0$. So the flux program is the correct cost-general lift of Part I's "gaps widen" — with the caveat (measured) that the (G) margin thins as $k$ grows while $J$ stays flat, so asymptotically $\mathrm{RG2}$ becomes $J$-carried and the honest target is the joint three-term positivity, not (G) alone.</li>
+</ul>
+
+<p>Either way, the crux has been reduced from a node-to-node accounting to <strong>a statement about one scalar field $D_k$ (equivalently one flux comparison plus $J_k$) on one interval</strong> — self-contained, no downstream motions, no cross-player coupling. That is the "well-ordered, non-circular endgame" the circularity theorem forced us toward.</p>
+
+<p class="section">12. The on-window realization and the window lemma</p>
+
+<p>Before the $\theta=3$ proof, one indispensable structural fact — discovered late, and the reason the cubic proof closes at all. Every failure of the shape identities (§11.6) ever observed numerically was <em>off-window</em>: at a dial pushed past the equilibrium, or on an asymmetric configuration where one player's partial masses had already summed past $1$. The proof only ever needs the dial on a restricted range.</p>
+
+<div class="box key">
+<p><strong>On-window realization.</strong> To locate the equilibrium dial $t^\ast$ (the root of $F$) and to run the sweep up to it, one only needs $t\le \bar t:=\min(t_q^\ast,t_p^\ast)$, where $t_q^\ast,t_p^\ast$ are the dial values at which P2's, resp. P1's, cumulative mass first reaches $1$. On this window <strong>every partial mass is $<1$</strong>:
+$$Q_k(z):=\sum_{l\le k}q_l\,\mathbf 1[r_l(z)>0]<1,\qquad P_k<1\qquad\text{for all }k,\ \text{all }z\ \text{in play}.$$
+This is not an assumption — it is <em>forced by the value of the residual</em>: on the window $F\le0$, and $Q_k=1+F-\sum_{l>k}q_l<1$ because both $F\le0$ and the tail $\sum_{l>k}q_l\ge0$. As $t\to0$, $F\to-1$ and $Q_k\to0$. (This is the "window lemma," proved from the definition of $\mathcal W=\{F\le0\}$; non-circular because it reads $Q_k$ off the <em>value</em> of $F$, not off the thing being proved.)</p>
+</div>
+
+<p>Why it matters: the cubic argument needs the stiffness to be <em>increasing</em>, $W_k'(z)\ge0$. For $c(e)=e^3$ we will see $W_k'(z)=6(1-Q_k(z))$, which is $\ge0$ <em>exactly</em> because $Q_k<1$ on-window. Off-window ($Q_k>1$) the stiffness would decrease and the endpoint/centroid controls would fail — which is precisely what the numerics showed at $1.8\,t^\ast$ and on asymmetric configurations that overshoot the $p$-window ($\sum p=1.35$ at $t_q^\ast$). Restricting to $\bar t$ removes all of that.</p>
+
+<p class="section">13. The theorem that closes: cubic cost ($\theta=3$)</p>
+
+<p>Here the entire program of §9–§12 comes together into a complete proof, for $c(e)=e^3$ (and, verbatim, any convex cubic $ae^3+be^2+ce$ with $a>0$). This is the first monotonicity result beyond quadratic. It is stated as an induction on the comb node; each step cites an identity from §11, all taken as verified.</p>
+
+<div class="box">
+<p><strong>Cubic specializations.</strong> With $c(e)=e^3$: $c'=3e^2,\ c''=6e,\ c'''\equiv6,\ c^{(4)}\equiv0$. Then the stiffness and its slope are
+$$W_k(z)=6z+\sum_{l\le k}q_l\cdot 6\,r_l(z)\quad\Rightarrow\quad W_k'(z)=6-\sum_{l\le k}q_l\cdot6=6\big(1-Q_k(z)\big),$$
+using $r_l'(z)=-1$ and the on-window count $Q_k=\sum_{l\le k}q_l$. So:</p>
+<ul>
+<li><strong>$W_k'(z)=6(1-Q_k)>0$ on-window</strong> (window lemma, §12) — the stiffness is strictly increasing.</li>
+<li><strong>$\Delta W=W_k(x_{k+1})-W_k(x_k)=6h_k(1-Q_k)>0$</strong> — the endpoint stiffness jump is positive.</li>
+<li><strong>$D_k''(z)=-6\sum_{l\le k}q_l'\le0$</strong> — from the concavity identity (C) with $c^{(4)}\equiv0$, the two motion-ordering terms vanish and only $-\sum q_l'\,c'''=-6\sum q_l'\le0$ survives. <em>The margin is concave with no appeal to motion-ordering at all</em> — this is what makes cubic clean where general cost is not.</li>
+<li><strong>$\theta_k-\tfrac12=-\dfrac{(1-Q_k)h_k^2}{2M_0}\le0$</strong> — from the trapezoid identity (E1) with $W_k'=6(1-Q_k)$ constant in $z$: the bump integral is $\int(z-x_k)(x_{k+1}-z)\,dz=h_k^3/6$, giving the closed form. So $\theta_k\le\tfrac12$ exactly (verified $10^{-15}$).</li>
+</ul>
+</div>
+
+<p class="section" style="font-size:1.05em">13.1 The induction</p>
+
+<p><strong>Base case (node $C_1$).</strong> The first P1 atom: the mirror flux is empty (no P2 atom below except the boundary), so the two-term identity (I2) at $k=0$ reads $\mathrm{RH2}_1=\tilde M_0\,x_1'$ with $\tilde M_0>0$ and $x_1'>0$ from the boxed base derivative of §9.1. The centroid is $\tilde\theta_0=\tfrac13$ exactly (an atomless linear field $V_0$ vanishing at the frontier $f$), which is $\le\tfrac12$, so the base gap widens. Base verified to $10^{-16}$.</p>
+
+<p><strong>Inductive step.</strong> Assume through node $k$: all masses widened ($q_l',p_l'\ge0$, $l\le k$), all gaps widened ($\delta_l',\gamma_l'\ge0$, $l\le k$), and the motion-ordering $Y_{k+1}'\ge Y_l'\ge0$, $x_k'\ge x_l'\ge0$. Then:</p>
+
+<ol>
+<li><strong>Left endpoint $\ge0$.</strong> $D_k(x_k)=W_k(x_k)\,\gamma_{k+1}'$ (§11.4). By the IH the previous up-gap widened, $\gamma_{k+1}'\ge0$ (this is $\gamma$ at index $k+1$, delivered by the previous node's (N2) — see step 6 of the prior node), and $W_k>0$. So $D_k(x_k)\ge0$.</li>
+<li><strong>Right endpoint $\ge0$.</strong> Endpoint split (E2): $D_k(x_{k+1})=D_k(x_k)+Y_{k+1}'\,\Delta W+J_0$. Here $\Delta W=6h_k(1-Q_k)>0$ (on-window), $Y_{k+1}'\ge0$ (IH), and $J_0\ge0$ free ($c'''=6>0$, §11.7). So $D_k(x_{k+1})\ge D_k(x_k)\ge0$.</li>
+<li><strong>Concavity.</strong> $D_k''=-6\sum_{l\le k}q_l'\le0$ (IH: $q_l'\ge0$). So $D_k$ is concave on $[x_k,x_{k+1}]$.</li>
+<li><strong>$D_k\ge0$ on the whole interval.</strong> A concave function with non-negative endpoints is $\ge0$ throughout. Hence, pointwise, $D_k(z)\ge0$.</li>
+<li><strong>Mass widens.</strong> $\mathrm{RG2}_k=\int_{x_k}^{x_{k+1}}D_k\ge0$ (identity (I2)). By §9.2, $q_{k+1}'=\mathrm{RG2}_k/(v_1-c(w_1-\delta_{k+1}))\ge0$. <em>The new P2 mass widened.</em></li>
+<li><strong>Gap widens.</strong> The shape condition (M$_k$): $\delta_{k+1}'\ge0\iff\bar D_k\ge\theta_k D_k(x_{k+1})$. Since $\theta_k\le\tfrac12$ (cubic centroid) and, by concavity, $\bar D_k\ge\tfrac12(D_k(x_k)+D_k(x_{k+1}))\ge\tfrac12 D_k(x_{k+1})\ge\theta_k D_k(x_{k+1})$, the condition holds. So $\delta_{k+1}'\ge0$; and the mirror node (N2) gives $\gamma_{k+2}'\ge0$. <em>Both new gaps widened.</em></li>
+<li><strong>Atom velocity and motion-ordering propagate.</strong> $x_{k+1}'=(\mathrm{RG1}_k+c'(r_{k+1})q_{k+1}')/DX_k>0$ (§9.2/§9.3, all inputs now $\ge0$), and $Y_{k+1}'>0$ by its mirror. The ordering $Y_{k+2}'\ge Y_{k+1}'$ follows from the fresh-injection sign in (N2). IH restored at node $k+1$.</li>
+</ol>
+
+<p>The mirror (P2) steps are verbatim with $V_k'(Y)=6(1-P_k)>0$ on-window, closing $p_k'\ge0$ and $\gamma'\ge0$ in lockstep. $\text{Induction complete}\Longrightarrow\text{every }q_\ell'\ge0\Longrightarrow F'\ge1>0\Longrightarrow$ (§9.3) chain monotonicity, regularity and uniqueness for cubic cost. $\blacksquare$</p>
+
+<div class="box">
+<p><strong>What the cubic proof rests on, honestly.</strong> (i) The exact identities (I2), (N1)/(N2), (E1), (E2), (C) of §11 — <strong>machine-verified as EXACT symbolic identities with a generic cost $c$</strong> (Wolfram residual $0$; the $10^{-14}$ numerics are now corroboration): pointwise skeleton in <code>Julia/converge/_cubic_symbolic_cas.wl</code> (2026-07-08), and since 2026-07-09 the integral glue itself — (I2)/(E1) via explicit antiderivatives checked by differentiation, the mirror pack, the base mirror, and the assembly algebra of this very induction (cascade, (M)-equivalence, exact trapezoid, endpoint-min, and the one-shot step-6 chain $D''\le0\,\wedge\,\text{endpoints}\ge0\,\wedge\,\theta\le\tfrac12\Rightarrow\bar D\ge\theta D(r)$ by quantifier elimination) — in <code>Julia/converge/_cubic_symbolic_cas2.wl</code> §G1–§G6b (worklist <code>Docs/cubic_symbolic_gaps_worklist.md</code>). Equilibrium enters only as FOC residuals + the indifference residual. (ii) The window lemma $Q_k<1$ — proved from the value of $F$, non-circular. (iii) Two <em>inequalities from outside the identity algebra</em>, both free at $c'''=6\ge0$: $J_0\ge0$ (right endpoint) and $D_k''\le0$ (concavity). No motion-ordering assumption is needed for concavity at cubic — that is the special gift of $c^{(4)}\equiv0$, and the exact place the general-cost proof still has work to do.</p>
+<p><strong>General cubic $ae^3+be^2+c_0e$ ($a>0$, $b,c_0\ge0$), base node.</strong> The base-case sentence above ("$\tilde\theta_0=\tfrac13$, an atomless linear field vanishing at the frontier") is exact for $e^3$; for the general class $\tilde\theta_0=c(\lambda)/(\lambda c'(\lambda))$ ($\lambda=Y_2-f$) can exceed $\tfrac12$ when $c'(0)=c_0>a\lambda^2$ — but the centroid route is not the operative base criterion: the base field form carries a boundary bonus $\mathrm{RH2}_1=\int\tilde D_0+c'(0)x_1'$ (interior nodes have none — the FOC kills it), and carrying it through (N2) gives the exact generic-$c$ criterion $V_+\gamma_2'=(x_1'/c(\lambda))\,[c'(\lambda)^2-c(\lambda)c''(\lambda)]$: base gap-widening $\iff$ <em>cost log-concavity</em> at $\lambda$. For the cubic class $c'^2-cc''=3a^2\lambda^4+4ab\lambda^3+2b^2\lambda^2+2bc_0\lambda+c_0^2>0$ termwise, so the extension is unconditional (<code>_cubic_symbolic_cas2.wl</code> §G6b; probe <code>_cubic_c0_base_probe.jl</code>).</p>
+</div>
+
+<p class="section" style="font-size:1.05em">13.2 The quadratic case as the degenerate margin field</p>
+
+<p>The margin field also gives a self-contained re-proof of the quadratic lemma that §5–§6 left open — the "$\theta=2$ compression proof," one line per node. It is worth seeing because it exposes what the cubic machinery is generalizing.</p>
+
+<div class="box">
+<p>At $c(e)=\tfrac12e^2$: $c''\equiv1$, $c'''\equiv0$. So the stiffness $W_k(z)\equiv 1+Q_k$ is <strong>constant in $z$</strong> (flat), the centroid is exactly $\theta_k=\tfrac12$ (flat weight), and the concavity term $D_k''=0$ — the margin $D_k$ is <em>affine</em>. An affine function with non-negative endpoints is $\ge0$; the left endpoint is $W_k\gamma_{k+1}'\ge0$ (IH) and the right endpoint is $\ge$ left (since $\Delta W=0$ and $J_0\ge0$). So $D_k\ge0$, $\mathrm{RG2}_k\ge0$, and (M$_k$) holds with equality-margin because $\theta_k=\tfrac12$ and $\bar D_k=\tfrac12(D(x_k)+D(x_{k+1}))$. Mass and gap widen; induction closes. The cascade collapses to the harmonic law $1/\delta_{k+1}=1/\gamma_{k+1}+1/w_1$, $1/\gamma_{k+1}=1/\delta_k+1/w_2$ — exactly Part I. (Verified $10^{-14}$.)</p>
+</div>
+
+<p>So quadratic is the flat-field degenerate case ($W'=0$, $\theta=\tfrac12$, $D$ affine); cubic is the next case up ($W'>0$ constant sign on-window, $\theta<\tfrac12$, $D$ concave). The margin-field frame contains both, which is exactly why it is the right general-cost object.</p>
+
+<p class="section">14. The frontier: exactly what is open, regime by regime</p>
+
+<p>The margin field reduces monotonicity, for <em>any</em> convex power cost, to controlling the single function $D_k$ on one interval via its endpoints and its curvature. Which of those controls is free, and which must be earned, flips with the exponent $\theta$. Here is the honest ledger of what remains.</p>
+
+<div class="box">
+<p><strong>$\theta>3$ (super-cubic) — one bounded-convexity lemma.</strong> The increasing-stiffness fact $W_k'\ge0$, which cubic got from $c'''=6$ and the window lemma, is <em>free for all $\theta\ge3$</em> by a Hölder argument: the FOC gives $\sum_{l\le k}q_l\,r_l^{\theta-1}\le z^{\theta-1}$, and since $(\theta-3)/(\theta-1)\in(0,1)$, Hölder yields $\sum q_l r_l^{\theta-3}\le Q_k^{2/(\theta-1)}z^{\theta-3}&lt;z^{\theta-3}$ on-window ($Q_k&lt;1$). That gives the centroid bound $\theta_k\le\tfrac12$ (via E1) and $D_k(x_{k+1})\ge D_k(x_k)$ (via E2) <em>for free</em>. The only thing that breaks is concavity: $c^{(4)}>0$ now, so $D_k''$ picks up positive terms and the chord-deficit argument of step 4 fails. So <strong>$\theta>3$ = the cubic proof minus concavity, plus a bounded-convexity replacement for step 4</strong>. Budget: the Hölder slack $1-Q_k^{2/(\theta-1)}>0$. Numerics ($\theta=4$–$7$, $m\le16$) are clean and the shape margin (M$_k$)-slack <em>grows</em> in $m$ — the easier of the two non-cubic regimes.</p>
+</div>
+
+<div class="box">
+<p><strong>$\theta\in(2,3)$ — the transfer problem (harder regime).</strong> Here $c^{(4)}<0$, so concavity (C) is <em>free</em> ($D_k''\le0$), but the increasing-stiffness/centroid side is <em>not</em>: one must transfer the FOC bound (pinning $\sum q_l\,c'(r_l)\le c'(z)$) up to the $c'''$ level, and the abstract transfer is <em>false</em> (as margins $\to0$ the $c'''$-sum can blow up). Two facts sharpen the target:
+<ul>
+<li><strong>Centroid crossing (measured).</strong> The clean bound $\theta_k\le\tfrac12$ is <em>false</em> for $\theta\in(2,3)$: the last node's centroid crosses $\tfrac12$ on-window at $m=20,\ t=t^\ast$ (excess $+2.7\times10^{-6}$ at $\theta=2.1$). It is a pure last-node-at-$t^\ast$ corner effect (at $0.7t^\ast$ everything is clean, slack $+0.95$). So the naive centroid lemma cannot be the statement.</li>
+<li><strong>The true remaining lemma is buffered, (M-buf).</strong> The honest sufficient condition is $\theta_k-\tfrac12\le D_k(x_k)/2D_k(x_{k+1})$ — a <em>buffered</em> shape condition. Via (E1) and $M_0=h_k\bar W_k$ it reduces to $\theta_k-\tfrac12\le h_k\cdot\max(-W_k')_+/(12\bar W_k)$: <strong>one free power of $h_k$</strong>. At the crossing node $h_k\approx0.024$ and shrinking, against a flat buffer $\approx0.1$ — five orders of magnitude of room. Plus a right-endpoint positivity (TR-a) $D_k(x_{k+1})\ge0$, empirically $\ge2.4$. These two — (M-buf) via the $h^2$-budget, and (TR-a) — are the entire open content for $\theta\in(2,3)$.</li>
+</ul></p>
+</div>
+
+<div class="box">
+<p><strong>$\theta\in(1,2)$ (sub-quadratic) — regime swap.</strong> Duality with the above: $c'''<0$, so the free/hard lemmas trade places. The shape/centroid condition (M) becomes <em>free</em>, but the right-endpoint positivity and the $J_k\ge0$ dominance become the hard part ($J_k$'s sign is no longer free; numerically the $q'c''$ piece still dominates the $qc'''Y'$ piece, but this must be proved). Not yet pursued in depth.</p>
+</div>
+
+<p class="section">15. Referee-status ledger — what a human must still check</p>
+
+<p>Stated plainly, for the paper. "Verified" below means "checked numerically to the tolerance shown across the configurations in <code>rg2_positivity_attack.md</code> §8; not yet a hand proof."</p>
+
+<div class="box">
+<p><strong>Established as reduction (cost-general, structural — needs a referee to read the algebra, no numerics):</strong></p>
+<ul>
+<li>$\text{Chain monotonicity}\Longleftarrow F'>0\Longleftarrow\text{all }q_\ell',p_k'\ge0\Longleftarrow\text{all }\mathrm{RG2}_k,\mathrm{RH2}_k\ge0$. (§9; Part I §3–§4 for the $F'\Rightarrow$monotone step.)</li>
+<li>Base derivative $x_1'>0$ and budget $u_1'=v_1-c(m_0)>0$ from $c'>0,c''\ge0$ and the envelope theorem. (§9.1 — clean, hand-checkable.)</li>
+<li>Triangular node Jacobian, positive diagonal, mass-derivative-solves-first. (§9.2 — clean.)</li>
+<li>Circularity theorem: the identity algebra alone cannot sign $\mathrm{RG2}_k$; an outside convexity inequality is mandatory. (§10 — this is why the margin field exists.)</li>
+</ul>
+</div>
+
+<div class="box">
+<p><strong>Identities the margin-field proofs stand on (taken as verified — a referee should re-derive or re-check):</strong></p>
+<ul>
+<li>(I2) two-term identity $\mathrm{RG2}_k=\int D_k$ and $=M_0Y_{k+1}'-\int\Phi_k$ ($\le2.3\times10^{-15}$).</li>
+<li>Left endpoint $D_k(x_k)=W_k(x_k)\gamma_{k+1}'$; node identities (N1)/(N2) ($\le1.1\times10^{-14}$).</li>
+<li>Shape condition (M$_k$), concavity identity (C), endpoint split (E2), trapezoid centroid (E1). (Exact algebra; the $\theta$-specializations verified $10^{-15}$.)</li>
+<li>Window lemma $Q_k,P_k<1$ on $\{F\le0\}$ — proved from the value of $F$, non-circular (§12).</li>
+<li>$J_k\ge0$ for $c'''\ge0$ (§11.7) — the outside inequality; hand-provable by the atom-wise by-parts split.</li>
+</ul>
+</div>
+
+<div class="box key">
+<p><strong>Proof status by cost class:</strong></p>
+<ul>
+<li><strong>$\theta=2$ (quadratic): PROVED, two independent ways</strong> — Part I's log-derivative gap ladder (all $n$, all $v_1\ge v_2$, all $\Delta<1$) and the §13.2 compression proof. Modulo the base identities, hand-complete.</li>
+<li><strong>$\theta=3$ (cubic, and convex cubics): PROVED</strong> — §13, complete induction: concavity free ($c^{(4)}=0$), both endpoints $\ge0$ ($J_0\ge0$ free, $\Delta W>0$ on-window), centroid $\le\tfrac12$ exact. Rests on the §11 identities (verified) + the window lemma (proved) + $c'''\ge0$ (an inequality, honestly used). This is the first monotonicity result beyond quadratic.</li>
+<li><strong>$\theta>3$: reduced to ONE lemma</strong> — a bounded-convexity replacement for concavity (step 4); $W'\ge0$, both endpoints, centroid all free by Hölder. Numerically clean, slack growing in $m$.</li>
+<li><strong>$\theta\in(2,3)$: reduced to TWO lemmas</strong> — the buffered shape condition (M-buf) via the $h^2$-budget, and right-endpoint positivity (TR-a). Concavity free; the naive $\theta_k\le\tfrac12$ is false (centroid crossing) so the buffer is essential. Numerically clean with 5 orders of magnitude of room at the worst node.</li>
+<li><strong>$\theta\in(1,2)$: regime swap, not yet pursued</strong> — (M) free, right endpoint and $J_k\ge0$ become the hard part.</li>
+</ul>
+<p>The frontier document is <code>Docs/rg2_positivity_attack.md</code> §0 (resume checklist) and §6i–§6k (margin field + cubic theorem); the standalone cubic proof is <code>Docs/theta3_monotonicity_theorem.md</code>; the reduction is <code>Docs/general_cost_monotonicity_handoff.md</code> §4.5–§4.9. This HTML is the human-readable consolidation of all three.</p>
+</div>
+
+<p class="note" style="margin-top:2em">End of Part II. The reduction skeleton (§1–§4, §9) is cost-general and hand-checkable; the crux (mass-widening) is closed for quadratic and cubic and reduced to one or two named margin-field lemmas for every other convex power. Everything numerical is flagged as such in §15 for a referee.</p>
+
+</body>
+</html>

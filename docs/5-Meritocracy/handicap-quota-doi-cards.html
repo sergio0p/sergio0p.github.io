@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Handicap & Quota Reading List — DOI cards</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    background: #0b0b0c;
+    color: #e8e8e8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  h1 {
+    font-size: 1.6em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: #999;
+    font-size: 0.95em;
+    margin-bottom: 32px;
+  }
+  h2 {
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #cdb4ff;
+    margin-top: 40px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #2a2a2e;
+    padding-bottom: 6px;
+  }
+  .card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #151517;
+    border: 1px solid #2a2a2e;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    transition: background 0.15s, border-color 0.15s, transform 0.05s;
+  }
+  .card:hover {
+    background: #1c1c1f;
+    border-color: #4a3f6b;
+  }
+  .card:active {
+    transform: scale(0.997);
+  }
+  .cite {
+    font-size: 0.98em;
+    line-height: 1.45;
+  }
+  .cite .authors { font-weight: 600; }
+  .cite .title { color: #d7d7d7; }
+  .cite .venue { color: #9a9a9a; }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .doi {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    color: #7fd7a0;
+  }
+  .doi.none {
+    color: #d78f7f;
+    font-style: normal;
+  }
+  .tag {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #7a7a7a;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 1px 7px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2a5a3f;
+    color: #eafff0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .hint {
+    color: #666;
+    font-size: 0.82em;
+    margin-top: -22px;
+    margin-bottom: 28px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Handicaps &amp; Quotas — MUST-read DOI cards</h1>
+<div class="subtitle">5-Meritocracy · Track A · click a card to copy its DOI suffix</div>
+<div class="hint">Cards with no DOI open a UNC Libraries search instead.</div>
+
+<h2>A. Handicaps in all-pay auctions / contests — incomplete info (our environment)</h2>
+
+<button class="card" data-doi="j.euroecorev.2013.08.007">
+  <div class="cite">
+    <span class="authors">Kirkegaard, R. (2013).</span>
+    <span class="title">Handicaps in incomplete information all-pay auctions with a diverse set of bidders.</span>
+    <span class="venue">European Economic Review 64, 98–110.</span>
+  </div>
+  <div class="meta"><span class="doi">j.euroecorev.2013.08.007</span><span class="tag">nearest neighbor</span></div>
+</button>
+
+<button class="card" data-doi="j.geb.2012.04.005">
+  <div class="cite">
+    <span class="authors">Kirkegaard, R. (2012).</span>
+    <span class="title">Favoritism in asymmetric contests: head starts and handicaps.</span>
+    <span class="venue">Games and Economic Behavior 76(1), 226–248.</span>
+  </div>
+  <div class="meta"><span class="doi">j.geb.2012.04.005</span><span class="tag">read in full</span></div>
+</button>
+
+<button class="card" data-doi="iere.12179">
+  <div class="cite">
+    <span class="authors">Pérez-Castrillo, D. &amp; Wettstein, D. (2016).</span>
+    <span class="title">Discrimination in a model of contests with incomplete information about ability.</span>
+    <span class="venue">International Economic Review 57(3), 881–914.</span>
+  </div>
+  <div class="meta"><span class="doi">iere.12179</span><span class="tag">complementary</span></div>
+</button>
+
+<h2>B. Favoritism / handicap design — complete info (the "leveling is achievable" antagonist)</h2>
+
+<button class="card" data-doi="j.euroecorev.2018.02.001">
+  <div class="cite">
+    <span class="authors">Franke, J., Leininger, W. &amp; Wasser, C. (2018).</span>
+    <span class="title">Optimal favoritism in all-pay auctions and lottery contests.</span>
+    <span class="venue">European Economic Review 104, 22–37.</span>
+  </div>
+  <div class="meta"><span class="doi">j.euroecorev.2018.02.001</span><span class="tag">primary foil</span></div>
+</button>
+
+<button class="card" data-doi="s00199-011-0657-z">
+  <div class="cite">
+    <span class="authors">Franke, J., Kanzow, C., Leininger, W. &amp; Schwartz, A. (2013).</span>
+    <span class="title">Effort maximization in asymmetric contest games with heterogeneous contestants.</span>
+    <span class="venue">Economic Theory 52(2), 589–630.</span>
+  </div>
+  <div class="meta"><span class="doi">s00199-011-0657-z</span><span class="tag">near-opposite</span></div>
+</button>
+
+<button class="card" data-doi="mic.6.3.59">
+  <div class="cite">
+    <span class="authors">Siegel, R. (2014).</span>
+    <span class="title">Asymmetric contests with head starts and nonmonotonic costs.</span>
+    <span class="venue">AEJ: Microeconomics 6(3), 59–105.</span>
+  </div>
+  <div class="meta"><span class="doi">mic.6.3.59</span><span class="tag">inactivity precedent</span></div>
+</button>
+
+<button class="card" data-doi="BF01211819">
+  <div class="cite">
+    <span class="authors">Baye, M., Kovenock, D. &amp; de Vries, C. (1996).</span>
+    <span class="title">The all-pay auction with complete information.</span>
+    <span class="venue">Economic Theory 8, 291–305.</span>
+  </div>
+  <div class="meta"><span class="doi">BF01211819</span><span class="tag">exclusion principle</span></div>
+</button>
+
+<button class="card" data-nodoi data-title="Rigging the lobbying process an application of the all-pay auction Baye Kovenock de Vries">
+  <div class="cite">
+    <span class="authors">Baye, M., Kovenock, D. &amp; de Vries, C. (1993).</span>
+    <span class="title">Rigging the lobbying process: an application of the all-pay auction.</span>
+    <span class="venue">American Economic Review 83(1), 289–294.</span>
+  </div>
+  <div class="meta"><span class="doi none">no DOI (JSTOR) — click for UNC search</span></div>
+</button>
+
+<h2>C. Affirmative action in contests — theory &amp; experiments</h2>
+
+<button class="card" data-doi="ijcai.2022/40">
+  <div class="cite">
+    <span class="authors">Elkind, E., Ghosh, A. &amp; Goldberg, P. (2022).</span>
+    <span class="title">Contests to incentivize a target group.</span>
+    <span class="venue">IJCAI-2022 Proceedings.</span>
+  </div>
+  <div class="meta"><span class="doi">ijcai.2022/40</span><span class="tag">closest scoop-risk</span></div>
+</button>
+
+<button class="card" data-doi="j.ejpoleco.2011.07.002">
+  <div class="cite">
+    <span class="authors">Franke, J. (2012).</span>
+    <span class="title">Affirmative action in contest games.</span>
+    <span class="venue">European Journal of Political Economy 28(1), 105–118.</span>
+  </div>
+  <div class="meta"><span class="doi">j.ejpoleco.2011.07.002</span><span class="tag">must-cite</span></div>
+</button>
+
+<button class="card" data-doi="mnsc.1120.1602">
+  <div class="cite">
+    <span class="authors">Niederle, M., Segal, C. &amp; Vesterlund, L. (2013).</span>
+    <span class="title">How costly is diversity? Affirmative action in light of gender differences in competitiveness.</span>
+    <span class="venue">Management Science 59(1), 1–16.</span>
+  </div>
+  <div class="meta"><span class="doi">mnsc.1120.1602</span><span class="tag">quota → participation</span></div>
+</button>
+
+<button class="card" data-doi="science.1211180">
+  <div class="cite">
+    <span class="authors">Balafoutas, L. &amp; Sutter, M. (2012).</span>
+    <span class="title">Affirmative action policies promote women and do not harm efficiency in the laboratory.</span>
+    <span class="venue">Science 335(6068), 579–582.</span>
+  </div>
+  <div class="meta"><span class="doi">science.1211180</span><span class="tag">must-cite</span></div>
+</button>
+
+<button class="card" data-doi="j.jpubeco.2012.11.003">
+  <div class="cite">
+    <span class="authors">Calsamiglia, C., Franke, J. &amp; Rey-Biel, P. (2013).</span>
+    <span class="title">The incentive effects of affirmative action in a real-effort tournament.</span>
+    <span class="venue">Journal of Public Economics 98, 15–31.</span>
+  </div>
+  <div class="meta"><span class="doi">j.jpubeco.2012.11.003</span><span class="tag">complementary</span></div>
+</button>
+
+<button class="card" data-doi="soej.12618">
+  <div class="cite">
+    <span class="authors">Chowdhury, S., Esteve-González, P. &amp; Mukherjee, A. (2023).</span>
+    <span class="title">Heterogeneity, leveling the playing field, and affirmative action in contests.</span>
+    <span class="venue">Southern Economic Journal 89(3), 924–974.</span>
+  </div>
+  <div class="meta"><span class="doi">soej.12618</span><span class="tag">survey</span></div>
+</button>
+
+<button class="card" data-doi="j.jmateco.2022.102792">
+  <div class="cite">
+    <span class="authors">Xiao, J. (2023).</span>
+    <span class="title">Ability grouping in contests.</span>
+    <span class="venue">Journal of Mathematical Economics 104, 102792.</span>
+  </div>
+  <div class="meta"><span class="doi">j.jmateco.2022.102792</span><span class="tag">complementary</span></div>
+</button>
+
+<h2>D. Quotas / reserves outside contest theory — market design</h2>
+
+<button class="card" data-doi="TE1135">
+  <div class="cite">
+    <span class="authors">Hafalir, I., Yenmez, M. B. &amp; Yildirim, M. (2013).</span>
+    <span class="title">Effective affirmative action in school choice.</span>
+    <span class="venue">Theoretical Economics 8(2), 325–363.</span>
+  </div>
+  <div class="meta"><span class="doi">TE1135</span><span class="tag">reserves &gt; quotas</span></div>
+</button>
+
+<button class="card" data-doi="699974">
+  <div class="cite">
+    <span class="authors">Dur, U., Kominers, S., Pathak, P. &amp; Sönmez, T. (2018).</span>
+    <span class="title">Reserve design: unintended consequences and the demise of Boston's walk zones.</span>
+    <span class="venue">Journal of Political Economy 126(6), 2457–2479.</span>
+  </div>
+  <div class="meta"><span class="doi">699974</span><span class="tag">amplification mirror</span></div>
+</button>
+
+<button class="card" data-doi="aer.20130929">
+  <div class="cite">
+    <span class="authors">Echenique, F. &amp; Yenmez, M. B. (2015).</span>
+    <span class="title">How to control controlled school choice.</span>
+    <span class="venue">American Economic Review 105(8), 2679–2694.</span>
+  </div>
+  <div class="meta"><span class="doi">aer.20130929</span><span class="tag">context</span></div>
+</button>
+
+<button class="card" data-doi="TE1839">
+  <div class="cite">
+    <span class="authors">Kominers, S. &amp; Sönmez, T. (2016).</span>
+    <span class="title">Matching with slot-specific priorities: theory.</span>
+    <span class="venue">Theoretical Economics 11(2).</span>
+  </div>
+  <div class="meta"><span class="doi">TE1839</span><span class="tag">context</span></div>
+</button>
+
+<h2>E. Affirmative-action / statistical-discrimination theory</h2>
+
+<button class="card" data-nodoi data-title="Will affirmative-action policies eliminate negative stereotypes Coate Loury">
+  <div class="cite">
+    <span class="authors">Coate, S. &amp; Loury, G. (1993).</span>
+    <span class="title">Will affirmative-action policies eliminate negative stereotypes?</span>
+    <span class="venue">American Economic Review 83(5), 1220–1240.</span>
+  </div>
+  <div class="meta"><span class="doi none">no DOI (JSTOR) — click for UNC search</span></div>
+</button>
+
+<button class="card" data-doi="089533005774357888">
+  <div class="cite">
+    <span class="authors">Fryer, R. &amp; Loury, G. (2005).</span>
+    <span class="title">Affirmative action and its mythology.</span>
+    <span class="venue">Journal of Economic Perspectives 19(3), 147–162.</span>
+  </div>
+  <div class="meta"><span class="doi">089533005774357888</span><span class="tag">must-cite</span></div>
+</button>
+
+<button class="card" data-doi="B978-0-444-53187-2.00005-X">
+  <div class="cite">
+    <span class="authors">Fang, H. &amp; Moro, A. (2011).</span>
+    <span class="title">Theories of statistical discrimination and affirmative action: a survey.</span>
+    <span class="venue">Handbook of Social Economics 1A, 133–200.</span>
+  </div>
+  <div class="meta"><span class="doi">B978-0-444-53187-2.00005-X</span><span class="tag">survey</span></div>
+</button>
+
+<h2>F. Political economy / empirical gender quotas — the "mediocre man" anchor</h2>
+
+<button class="card" data-doi="aer.20160080">
+  <div class="cite">
+    <span class="authors">Besley, T., Folke, O., Persson, T. &amp; Rickne, J. (2017).</span>
+    <span class="title">Gender quotas and the crisis of the mediocre man.</span>
+    <span class="venue">American Economic Review 107(8), 2204–2242.</span>
+  </div>
+  <div class="meta"><span class="doi">aer.20160080</span><span class="tag">motivation's twin</span></div>
+</button>
+
+<button class="card" data-doi="j.jpubeco.2014.06.008">
+  <div class="cite">
+    <span class="authors">Baltrunaite, A., Bello, P., Casarico, A. &amp; Profeta, P. (2014).</span>
+    <span class="title">Gender quotas and the quality of politicians.</span>
+    <span class="venue">Journal of Public Economics 118, 62–74.</span>
+  </div>
+  <div class="meta"><span class="doi">j.jpubeco.2014.06.008</span><span class="tag">must-cite</span></div>
+</button>
+
+<button class="card" data-doi="j.1468-0262.2004.00539.x">
+  <div class="cite">
+    <span class="authors">Chattopadhyay, R. &amp; Duflo, E. (2004).</span>
+    <span class="title">Women as policy makers: evidence from a randomized policy experiment in India.</span>
+    <span class="venue">Econometrica 72(5), 1409–1443.</span>
+  </div>
+  <div class="meta"><span class="doi">j.1468-0262.2004.00539.x</span><span class="tag">foundational</span></div>
+</button>
+
+<button class="card" data-doi="qjec.2009.124.4.1497">
+  <div class="cite">
+    <span class="authors">Beaman, L., Chattopadhyay, R., Duflo, E., Pande, R. &amp; Topalova, P. (2009).</span>
+    <span class="title">Powerful women: does exposure reduce bias?</span>
+    <span class="venue">Quarterly Journal of Economics 124(4), 1497–1540.</span>
+  </div>
+  <div class="meta"><span class="doi">qjec.2009.124.4.1497</span><span class="tag">context</span></div>
+</button>
+
+<button class="card" data-doi="j.jpubeco.2020.104315">
+  <div class="cite">
+    <span class="authors">Bagues, M. &amp; Campa, P. (2021).</span>
+    <span class="title">Can gender quotas in candidate lists empower women? Evidence from Spain.</span>
+    <span class="venue">Journal of Public Economics 194, 104315.</span>
+  </div>
+  <div class="meta"><span class="doi">j.jpubeco.2020.104315</span><span class="tag">skeptical counterweight</span></div>
+</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const toast = document.getElementById('toast');
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
+  }
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (card.hasAttribute('data-nodoi')) {
+        const q = encodeURIComponent(card.getAttribute('data-title')).replace(/%20/g, '+');
+        window.open('https://library.unc.edu/find/?q=' + q, '_blank');
+        return;
+      }
+      const doi = card.getAttribute('data-doi');
+      navigator.clipboard.writeText(doi).then(() => {
+        showToast('Copied: ' + doi);
+      }).catch(() => {
+        showToast('Copy failed — clipboard blocked');
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

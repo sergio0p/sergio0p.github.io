@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inverting W for k=2, n=4 — why it isn't circular</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+        integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$',  right: '$',  display: false}
+            ]
+        });"></script>
+
+<style>
+  :root { --fg:#1a1a1a; --muted:#555; --accent:#0b5; --rule:#e3e3e3; --box:#f6f9f6; --warn:#c70; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--fg);
+    max-width: 780px;
+    margin: 3rem auto;
+    padding: 0 1.25rem 4rem;
+    line-height: 1.65;
+    font-size: 18px;
+  }
+  h1 { font-size: 1.5rem; line-height: 1.3; border-bottom: 2px solid var(--rule); padding-bottom: .5rem; margin-bottom: 1.4rem; }
+  h2 { font-size: 1.2rem; margin-top: 2.2rem; margin-bottom: .6rem; color: #123; }
+  .lead { color: var(--muted); }
+  .why { font-weight: bold; }
+  ul { padding-left: 1.3rem; }
+  li { margin: .55rem 0; }
+  .note { margin-top: 1.2rem; padding: .9rem 1.1rem; background: var(--box); border-left: 4px solid var(--accent); border-radius: 4px; font-size: .97em; color: #234; }
+  .warn { margin-top: 1.2rem; padding: .9rem 1.1rem; background: #fdf8ef; border-left: 4px solid var(--warn); border-radius: 4px; font-size: .97em; color: #432; }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+  hr { border: none; border-top: 1px solid var(--rule); margin: 2.2rem 0; }
+  table { border-collapse: collapse; margin: 1rem 0; font-size: .98em; width: 100%; }
+  th, td { border: 1px solid var(--rule); padding: .4rem .7rem; text-align: center; }
+  th { background: #f4f4f4; }
+  code { background:#f3f3f3; padding:.05em .35em; border-radius:3px; font-size:.92em; }
+</style>
+</head>
+<body>
+
+<h1>Inverting $W$ for $k=2,\ n=4$ — why the recovery isn&rsquo;t circular</h1>
+
+<p class="lead">The worry: &ldquo;recover $D_i$&rdquo; sounds circular, because $D_i$ is itself built from the unknown $r$. The resolution: for a concrete $(k,n)$ the equations close on <strong>two scalar unknowns</strong>, and a finite solve returns a unique admissible point. Here is the whole thing for $k=2,\,n=4$.</p>
+
+<h2>Setup</h2>
+
+<p>Work in $a_\ell:=1+r_\ell$ (so $r_\ell>0 \iff a_\ell>1$), with the two global scalars</p>
+
+$$A:=\sum_{\ell=1}^{4}a_\ell,\qquad G:=\prod_{\ell=1}^{4}a_\ell .$$
+
+<p>For $k=2$ the numerator is $N_i=e_0+e_1(r_{-i})=1+\sum_{\ell\neq i}r_\ell$ and $D_i=\prod_{\ell\neq i}(1+r_\ell)=G/a_i$, so</p>
+
+$$W_i=\frac{N_i}{D_i}=\frac{a_i\,(A-2-a_i)}{G}.$$
+
+<p>(The factor $a_i$ cancels against the $a_i$ inside $G$, so $W_i$ really depends only on the others &mdash; e.g. $W_1=\dfrac{-2+a_2+a_3+a_4}{a_2a_3a_4}$. The form above is the convenient one for <em>inversion</em>.)</p>
+
+<h2>The inversion closes on two scalars</h2>
+
+<p>Read $W_i=\dfrac{a_i(A-2-a_i)}{G}$ as a quadratic in $a_i$:</p>
+
+$$\boxed{\,a_i^{\,2}-(A-2)\,a_i+W_i\,G=0\,}\qquad\Longrightarrow\qquad a_i=\frac{(A-2)\pm\sqrt{(A-2)^2-4\,W_iG}}{2}.$$
+
+<p>Every $a_i$ is a root of the <strong>same</strong> quadratic family &mdash; only the constant term $W_iG$ changes with $i$. The apparent self-reference collapses, because once the two numbers $(A,G)$ are fixed, each $a_i$ is an <em>explicit</em> function of the data $W_i$. The system is closed by the two definitions themselves:</p>
+
+$$\sum_{i=1}^{4}a_i(A,G)=A,\qquad \prod_{i=1}^{4}a_i(A,G)=G.$$
+
+<p>So inversion is <strong>two scalar equations in two scalar unknowns</strong> $(A,G)$ (plus a choice of $\pm$ branch per coordinate) &mdash; not a circular chase through $r$.</p>
+
+<h2>A worked point</h2>
+
+<p>Take the true odds ratios $r=\big(\tfrac12,\,1,\,\tfrac32,\,2\big)$, i.e. $a=\big(\tfrac32,\,2,\,\tfrac52,\,3\big)$. Then $A=9$, $G=\tfrac{45}{2}$, and</p>
+
+$$W=\Big(\tfrac{11}{30},\ \tfrac{4}{9},\ \tfrac12,\ \tfrac{8}{15}\Big)\approx(0.367,\ 0.444,\ 0.500,\ 0.533).$$
+
+<p>Now <em>forget</em> $r$ and invert. With $A=9,\ G=\tfrac{45}{2}$ the discriminant is $(A-2)^2-4W_iG=49-90\,W_i$, and each $a_i=\dfrac{7-\sqrt{49-90W_i}}{2}$ (smaller branch):</p>
+
+<table>
+  <tr><th>$i$</th><th>$W_i$</th><th>$49-90W_i$</th><th>$\sqrt{\;}$</th><th>$a_i=\frac{7-\sqrt{\;}}{2}$</th><th>$r_i=a_i-1$</th></tr>
+  <tr><td>1</td><td>$11/30$</td><td>$16$</td><td>$4$</td><td>$3/2$</td><td>$1/2$</td></tr>
+  <tr><td>2</td><td>$4/9$</td><td>$9$</td><td>$3$</td><td>$2$</td><td>$1$</td></tr>
+  <tr><td>3</td><td>$1/2$</td><td>$4$</td><td>$2$</td><td>$5/2$</td><td>$3/2$</td></tr>
+  <tr><td>4</td><td>$8/15$</td><td>$1$</td><td>$1$</td><td>$3$</td><td>$2$</td></tr>
+</table>
+
+<p>Consistency check: $\sum a_i=\tfrac32+2+\tfrac52+3=9=A$ and $\prod a_i=\tfrac{45}{2}=G$. ✓ The true $r$ is recovered exactly.</p>
+
+<h2>Uniqueness on the domain</h2>
+
+<p>Solving the full polynomial system (without assuming $A,G$) returns many real roots &mdash; corner points where some $a_i\in\{0,1,2\}$, plus higher algebraic branches &mdash; but <strong>exactly one</strong> with all $a_i>1$:</p>
+
+$$a=\big(\tfrac32,\,2,\,\tfrac52,\,3\big),\qquad r=\big(\tfrac12,\,1,\,\tfrac32,\,2\big).$$
+
+<div class="warn">
+The $\pm$ per coordinate gives up to $2^4$ branch combinations, and the $(A,G)$ closure has several roots; most land at corners ($a_i\le 1$) or off the positive orthant. <strong>Injectivity is exactly the statement that only one branch+root lands inside $(1,\infty)^4$.</strong> This is where the domain $B(0,1)_{++}$ does real work &mdash; it selects the admissible branch.
+</div>
+
+<div class="note">
+<b>Why this isn&rsquo;t circular, in one line.</b> $D_i$ is not recovered &ldquo;from $r$&rdquo;; it is recovered from the <em>data</em> $W$ by solving the two-scalar system in $(A,G)$. For general $(k,n)$ the same move works: each $a_i$ (or $1+r_i$) is a root of a fixed low-degree polynomial whose coefficients are the global symmetric functions $E_m$, and the equations $\sum a_i=A$, $\prod a_i=G$ (and their higher analogues for larger $k$) close the system. The research question is whether the admissible branch is always unique on $(1,\infty)^n$.
+</div>
+
+</body>
+</html>

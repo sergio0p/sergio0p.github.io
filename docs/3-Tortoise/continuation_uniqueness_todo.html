@@ -1,0 +1,401 @@
+<title>Continuation-Payoff Uniqueness — Status &amp; To-Do</title>
+<style>
+  :root{
+    --bg:#F7F6F2; --panel:#FFFFFF; --panel2:#EFEDE6; --ink:#23262B; --muted:#66696F;
+    --accent:#3D5A80; --rule:#DAD7CE;
+    --ok:#2E7D4F; --ok-bg:#E4F0E8; --num:#A16A1C; --num-bg:#F5EBDA;
+    --open:#B3403A; --open-bg:#F6E3E1; --def:#66696F; --def-bg:#E9E8E4;
+    --code-bg:#EFEDE6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#16181D; --panel:#1E2127; --panel2:#242830; --ink:#E6E4DE; --muted:#9A9DA5;
+      --accent:#92AFD4; --rule:#33373F;
+      --ok:#6FBF8F; --ok-bg:#1E3328; --num:#D8A75B; --num-bg:#332A1B;
+      --open:#E08A84; --open-bg:#3A2422; --def:#9A9DA5; --def-bg:#282B32;
+      --code-bg:#242830;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F7F6F2; --panel:#FFFFFF; --panel2:#EFEDE6; --ink:#23262B; --muted:#66696F;
+    --accent:#3D5A80; --rule:#DAD7CE;
+    --ok:#2E7D4F; --ok-bg:#E4F0E8; --num:#A16A1C; --num-bg:#F5EBDA;
+    --open:#B3403A; --open-bg:#F6E3E1; --def:#66696F; --def-bg:#E9E8E4;
+    --code-bg:#EFEDE6;
+  }
+  :root[data-theme="dark"]{
+    --bg:#16181D; --panel:#1E2127; --panel2:#242830; --ink:#E6E4DE; --muted:#9A9DA5;
+    --accent:#92AFD4; --rule:#33373F;
+    --ok:#6FBF8F; --ok-bg:#1E3328; --num:#D8A75B; --num-bg:#332A1B;
+    --open:#E08A84; --open-bg:#3A2422; --def:#9A9DA5; --def-bg:#282B32;
+    --code-bg:#242830;
+  }
+  html{background:var(--bg);}
+  body{
+    font-family:Charter,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    color:var(--ink); background:var(--bg); line-height:1.62; font-size:17px;
+    margin:0; padding:2.6rem 1.2rem 5rem;
+  }
+  main{max-width:72ch; margin:0 auto; display:flex; flex-direction:column; gap:2.2rem;}
+  h1,h2,h3{line-height:1.25; text-wrap:balance; margin:0;}
+  h1{font-size:1.9rem; font-weight:700;}
+  h2{font-size:1.35rem; font-weight:700; border-bottom:2px solid var(--rule); padding-bottom:.35rem;}
+  h3{font-size:1.05rem; font-weight:700;}
+  p{margin:.55rem 0;}
+  .eyebrow{
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:.72rem;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:600;
+  }
+  header .sub{color:var(--muted); font-size:.95rem; margin-top:.4rem;}
+  .mth{font-style:italic;}
+  .mth sub,.mth sup{font-style:normal; font-size:.72em;}
+  code,.file{
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.83em;
+    background:var(--code-bg); padding:.08em .35em; border-radius:3px; white-space:nowrap;
+  }
+  .chip{
+    display:inline-block; font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:.66rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    padding:.14em .55em; border-radius:3px; vertical-align:.12em; white-space:nowrap;
+  }
+  .chip.ok{color:var(--ok); background:var(--ok-bg);}
+  .chip.num{color:var(--num); background:var(--num-bg);}
+  .chip.open{color:var(--open); background:var(--open-bg);}
+  .chip.def{color:var(--def); background:var(--def-bg);}
+  .claim{
+    background:var(--panel); border:1px solid var(--rule); border-left:4px solid var(--accent);
+    padding:1.1rem 1.3rem; border-radius:4px;
+  }
+  .claim .stmt{font-size:1.06rem;}
+  .scoreboard{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.7rem;
+  }
+  .score{
+    background:var(--panel); border:1px solid var(--rule); border-radius:4px;
+    padding:.7rem .9rem; display:flex; flex-direction:column; gap:.15rem;
+  }
+  .score .n{
+    font-size:1.45rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent);
+  }
+  .score .lab{
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:.7rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  }
+  section{display:flex; flex-direction:column; gap:.9rem;}
+  .card{
+    background:var(--panel); border:1px solid var(--rule); border-radius:4px;
+    padding:.95rem 1.15rem; display:flex; flex-direction:column; gap:.35rem;
+  }
+  .card .how{color:var(--muted); font-size:.93rem;}
+  .card .how b{color:var(--ink); font-weight:600;}
+  .eqn{
+    text-align:center; padding:.55rem .6rem; margin:.5rem 0; background:var(--panel2);
+    border-radius:4px; font-size:1.03rem; overflow-x:auto;
+  }
+  .todo{border-left:4px solid var(--open);}
+  .todo.ready{border-left-color:var(--ok);}
+  .todo.deferred{border-left-color:var(--def);}
+  table{border-collapse:collapse; width:100%; font-size:.9rem;}
+  .tablewrap{overflow-x:auto; background:var(--panel); border:1px solid var(--rule); border-radius:4px; padding:.4rem .8rem;}
+  th,td{text-align:left; padding:.45rem .7rem .45rem 0; border-bottom:1px solid var(--rule); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  th{font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:.7rem;
+     letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
+  a{color:var(--accent);}
+  a:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .foot{color:var(--muted); font-size:.85rem; border-top:1px solid var(--rule); padding-top:.8rem;}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">3-Tortoise · n = 3 final round · 2026-07-06</div>
+  <h1>Continuation-Payoff Uniqueness — Status &amp; To-Do</h1>
+  <div class="sub">Tied-leaders final round, strictly convex costs, head starts. What is proved,
+  what is numerically established (and how), and the exact lemmas still owed for a formal proof.</div>
+</header>
+
+<div class="claim">
+  <div class="eyebrow">The claim to prove</div>
+  <p class="stmt">In <b>every</b> Nash equilibrium of the 3-player final round with tied leaders
+  (<span class="mth">r<sub>1</sub> = r<sub>2</sub> = r &gt; r<sub>3</sub></span>), strictly convex cost
+  <span class="mth">c</span> and head starts <span class="mth">h<sub>i</sub></span>, continuation payoffs are</p>
+  <div class="eqn"><span class="mth">u = (0,&nbsp;0,&nbsp;v<sub>3</sub>K)</span>,&emsp;
+  <span class="mth">K = max<sub>s</sub>&nbsp;(φ<sub>1</sub>φ<sub>2</sub> − φ<sub>3</sub>)<sup>+</sup></span></div>
+  <p class="stmt">where <span class="mth">φ<sub>i</sub>(s) = c(s − h<sub>i</sub>)/v<sub>i</sub></span>
+  (zero below the floor <span class="mth">h<sub>i</sub></span>). In the <b>floor regime</b>
+  (<span class="mth">h<sub>3</sub> &gt; max(h<sub>1</sub>, h<sub>2</sub>)</span>, <span class="mth">K &gt; 0</span>)
+  the laggard earns a strictly positive rent — the value function is discontinuous on the tie line.
+  Payoff uniqueness is what backward induction needs; equilibrium <em>structure</em> is provably
+  non-unique and is not the target.</p>
+</div>
+
+<div class="scoreboard">
+  <div class="score"><span class="n">189/189</span><span class="lab">sweep configs payoff-unique, θ ∈ {9/8, 2, 3}</span></div>
+  <div class="score"><span class="n">19 + 51</span><span class="lab">oracle unit tests + march cross-checks, all pass</span></div>
+  <div class="score"><span class="n">2</span><span class="lab">results already proved (R1, R2)</span></div>
+  <div class="score"><span class="n">3</span><span class="lab">lemmas genuinely open (T1, T3, T4)</span></div>
+</div>
+
+<section>
+  <h2>0 · Why <span class="mth">K</span> is the natural object</h2>
+  <p>Player 3 bidding score <span class="mth">s</span> wins only if <em>both</em> leaders end below
+  <span class="mth">s</span>, so his deviation payoff against CDFs
+  <span class="mth">F<sub>1</sub>, F<sub>2</sub></span> is
+  <span class="mth">v<sub>3</sub>F<sub>1</sub>(s)F<sub>2</sub>(s) − c(s − h<sub>3</sub>)
+  = v<sub>3</sub>[F<sub>1</sub>F<sub>2</sub> − φ<sub>3</sub>](s)</span>.
+  If the leaders were forced to randomize with
+  <span class="mth">F<sub>1</sub>F<sub>2</sub> = φ<sub>1</sub>φ<sub>2</sub></span> — which their own
+  zero-rent indifference nearly does — player 3's best deviation would earn exactly
+  <span class="mth">v<sub>3</sub>·max&nbsp;g</span> where
+  <span class="mth">g = φ<sub>1</sub>φ<sub>2</sub> − φ<sub>3</sub></span>.
+  <span class="mth">g</span> is the <b>crux</b>; its maximizer is
+  <span class="mth">t*</span>. In the BKV world (no head starts) <span class="mth">g ≤ 0</span>
+  automatically and the classical exclusion gives <span class="mth">u<sub>3</sub> = 0</span>;
+  a high floor <span class="mth">h<sub>3</sub></span> frees the sign, and everything below is about
+  showing <span class="mth">u<sub>3</sub> = v<sub>3</sub>K</span> is then forced.</p>
+</section>
+
+<section>
+  <h2>1 · What we already have — and how we got it</h2>
+
+  <div class="card">
+    <h3><span class="chip ok">Proved</span>&ensp;R1. Leaders earn zero: <span class="mth">u<sub>1</sub> = u<sub>2</sub> = 0</span> in any NE</h3>
+    <p class="how"><b>How:</b> the BKV (1996) support-transport argument survives the generalization
+    verbatim up to the exclusion step — two players tied at the top reach compete each other's rent
+    away; no linearity, no genericity needed. Documented in
+    <span class="file">Docs/bkv_replication_tied_leaders.md</span>. This is the launch pad: every
+    argument below may assume it.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip ok">Proved</span>&ensp;R2. The floor rent exists: equilibria with <span class="mth">u<sub>3</sub> = v<sub>3</sub>K &gt; 0</span></h3>
+    <p class="how"><b>How:</b> explicit construction (parks at own floors / three-way mix on
+    [<span class="mth">t*</span>-side band] / pair region up to <span class="mth">r</span>), verified
+    to 1e-9. This is where BKV's Lemma 8 exclusion <em>forks</em>: the conjecture
+    <span class="mth">u<sub>3</sub> = 0</span> is <b>false</b> in the floor regime. Existence gives the
+    lower half of uniqueness for free: the equilibrium payoff correspondence contains
+    <span class="mth">(0, 0, v<sub>3</sub>K)</span>; the proof must show it contains nothing else.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip num">Numerical</span>&ensp;R3. Payoff uniqueness across all candidate structures — 189/189</h3>
+    <p class="how"><b>How — the descent-tree march</b> (<span class="file">descent_tree_march.jl</span>,
+    Sergio's design): anchor at the proved top pair {1,2} just below <span class="mth">r</span>, scan
+    the score <em>downward</em>, and branch at every event — E1 (an inactive player's temptation
+    ledger hits zero: entry), E2 (a player exits to a floor park), E3 (the closed-form CDF goes
+    non-monotone: structural break). Regime labels are outputs, never inputs. Every root→leaf path is
+    a candidate equilibrium; a leaf counts only if it passes an <em>independent</em> verifier
+    (<code>verify_strong</code>: CDF validity on a grid hitting every floor/reach/atom ± ε,
+    best response including just-above-atom probes, and every atom paying exactly
+    <span class="mth">u<sub>i</sub></span>). Across 63 quadratic + 63 cubic + 63 near-linear (θ = 9/8)
+    floor-regime configs: every game has ≥ 1 genuine leaf, all genuine leaves agree, and the payoff is
+    always <span class="mth">(0, 0, v<sub>3</sub>K)</span>. Zero violations.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip num">Numerical</span>&ensp;R4. Structure is NOT unique — so the proof target must be the payoff</h3>
+    <p class="how"><b>How:</b> the march finds ≥ 2 genuine leaves in every floor-regime game — the
+    <em>swap</em> structures (one leader exits, player 3 takes over against the other); the symmetric
+    knife-edge keeps a third (the pure three-way). The naïve "pause the dipping leader" resolution
+    fails incentive compatibility (the paused leader strictly re-enters). <b>Why it matters:</b> any
+    proof strategy that tries to force the support structure is chasing a false statement. The proof
+    must be BKV-style — pin payoffs from indifference + feasibility, let structure fork. This
+    redirect is itself a product of the numerics.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip num">Numerical</span>&ensp;R5. The admissibility oracle — feasibility as a closed-form sign condition</h3>
+    <p class="how"><b>How</b> (<span class="file">admissible.jl</span>, the complete-information image
+    of Turocy's admissible-active-set test): on an interval where active set
+    <span class="mth">A</span> (|A| = k) co-randomizes, multiplicative indifference gives closed-form
+    CDFs, and monotonicity of <span class="mth">F<sub>i</sub></span> is equivalent to a
+    <b>density condition</b>:</p>
+    <div class="eqn"><span class="mth">D<sub>i</sub>(s) = <sup>1</sup>&frasl;<sub>(k−1)</sub> Σ<sub>m∈A</sub>
+    φ′<sub>m</sub>/φ̃<sub>m</sub> − φ′<sub>i</sub>/φ̃<sub>i</sub>
+    &nbsp;=&nbsp; d&#8202;log&#8202;F<sub>i</sub>/ds &nbsp;≥&nbsp; 0</span></div>
+    <p class="how">(<span class="mth">φ̃<sub>i</sub> = φ<sub>i</sub> + u<sub>i</sub>/v<sub>i</sub></span>;
+    frozen players drop out automatically.) Plus range <span class="mth">F<sub>i</sub> ∈ [0,1]</span>.
+    Validated 19/19 (finite-difference identity checks, machine-exact k = 2 case) and 51/51 against
+    the march — two fully independent codepaths agreeing on every segment, boundary, and break.
+    <b>Why it matters for the proof:</b> it converts "which active sets can an NE use where" into a
+    finite, checkable vocabulary — the case-split criteria for a proof by exhaustion. Two pieces are
+    already lemma-shaped: (i) for k = 2 the own hazard cancels analytically, so
+    <em>pairs are always admissible above both floors</em>; (ii)
+    <span class="mth">D<sub>3</sub> = 0</span> exactly at the argmax of <span class="mth">g</span>
+    (hazards equalize where <span class="mth">(φ<sub>1</sub>φ<sub>2</sub>)′ = φ′<sub>3</sub></span> and
+    <span class="mth">φ<sub>1</sub>φ<sub>2</sub> = φ<sub>3</sub> + K</span>) — a three-line computation.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip num">Numerical</span>&ensp;R6. The two-sided squeeze on <span class="mth">u<sub>3</sub></span> — falsifications that are secretly the proof</h3>
+    <p class="how"><b>How:</b> feed the oracle wrong rents. With
+    <span class="mth">u<sub>3</sub> = 0.8·v<sub>3</sub>K</span>:
+    <span class="mth">F<sub>3</sub> = √(φ<sub>1</sub>φ<sub>2</sub>/φ̃<sub>3</sub>) &gt; 1</span> on the whole
+    band — a range violation, the candidate is infeasible. With
+    <span class="mth">u<sub>3</sub> = 1.2·v<sub>3</sub>K</span>: pointwise fine, but
+    <span class="mth">F<sub>3</sub></span> tops out at 0.915 — the support <em>cannot close</em>, a
+    gluing failure invisible to any pointwise check. Too low ⇒ infeasible; too high ⇒ can't glue.
+    That two-sided squeeze <em>is</em> the payoff-pinning argument (§2 writes it as mathematics).</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip num">Numerical</span>&ensp;R7. Continuity into the linear limit (θ = 9/8 stress)</h3>
+    <p class="how"><b>How:</b> at θ = 9/8 the three-way band collapses like
+    <span class="mth">t* − h<sub>3</sub> = (κv<sub>3</sub>/θ)<sup>1/(θ−1)</sup> = (·)<sup>8</sup></span>
+    — down to 2.3e-15 on the sweep grid. The verified structure degenerates to the BKV linear-limit
+    shape (P3 a pure atom at his floor) while <span class="mth">u<sub>3</sub> = v<sub>3</sub>K</span>
+    stays order-one and exact. The oracle resolved a 2.7e-7 band matching the closed form to 3.4e-6
+    relative. <b>Why it matters:</b> the rent is not a convexity artifact, and a formal proof must not
+    assume an interior argmax — the boundary case <span class="mth">t* → h<sub>3</sub></span> is real.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="chip num">Numerical</span>&ensp;R8. A generic second <span class="mth">D<sub>3</sub></span> zero above <span class="mth">t*</span> — a live case for T3</h3>
+    <p class="how"><b>How</b> (sentinel finding, 2026-07-06): a multi-peak sentinel added to the sweep
+    driver fired on 123/189 configs; inspection showed one identical, benign shape everywhere —
+    exactly two <span class="mth">D<sub>3</sub></span> zeros: the argmax <span class="mth">t*</span>
+    (down-crossing, F<sub>3</sub> local max) plus one <em>up</em>-crossing above it, the interior
+    <em>minimum</em> of <span class="mth">F<sub>3</sub><sup>2</sup> =
+    φ<sub>1</sub>φ<sub>2</sub>/φ̃<sub>3</sub></span>. It exists because the entrant's hazard
+    <span class="mth">φ′<sub>3</sub>/φ̃<sub>3</sub></span> is hump-shaped — zero at his floor (by
+    <span class="mth">c′(0) = 0</span>), rising, then decaying like θ/s — while the leaders' hazard
+    sum decays slowly and eventually wins again. The crux <span class="mth">g</span> itself stayed
+    single-peaked in all 189 configs. <b>Why it matters:</b> above <span class="mth">t*</span> a
+    three-way mix becomes density-feasible <em>again</em> at the up-crossing. So the uniqueness case
+    analysis (T3) cannot dismiss a restarted three-way region on density grounds — it must be killed
+    by range or gluing (F<sub>3</sub> sits below 1 with nowhere to close: the
+    <span class="mth">u<sub>3</sub>·1.2</span> mechanism of R6). A case we would likely have missed
+    without the sentinel firing "wrongly."</p>
+  </div>
+</section>
+
+<section>
+  <h2>2 · The pinning argument — the proof payload, written out</h2>
+  <p>Assume R1 (<span class="mth">u<sub>1</sub> = u<sub>2</sub> = 0</span>). On any interval where
+  <b>both</b> leaders are active, their indifference conditions read
+  <span class="mth">v<sub>1</sub>F<sub>2</sub>F<sub>3</sub> = c(s−h<sub>1</sub>)</span> and
+  <span class="mth">v<sub>2</sub>F<sub>1</sub>F<sub>3</sub> = c(s−h<sub>2</sub>)</span>, i.e.
+  <span class="mth">F<sub>2</sub>F<sub>3</sub> = φ<sub>1</sub></span>,
+  <span class="mth">F<sub>1</sub>F<sub>3</sub> = φ<sub>2</sub></span>. Multiply and divide:</p>
+  <div class="eqn"><span class="mth">F<sub>1</sub>F<sub>2</sub> = φ<sub>1</sub>φ<sub>2</sub> / F<sub>3</sub><sup>2</sup></span></div>
+  <p><b>Lower bound.</b> Since <span class="mth">F<sub>3</sub> ≤ 1</span>,
+  <span class="mth">F<sub>1</sub>F<sub>2</sub> ≥ φ<sub>1</sub>φ<sub>2</sub></span> on that region. If the
+  region contains <span class="mth">t*</span>, player 3 deviating there secures
+  <span class="mth">v<sub>3</sub>(F<sub>1</sub>F<sub>2</sub> − φ<sub>3</sub>)(t*) ≥ v<sub>3</sub>g(t*) =
+  v<sub>3</sub>K</span>. Hence <span class="mth">u<sub>3</sub> ≥ v<sub>3</sub>K</span>.
+  <em>(This is R6's "0.8 rent is infeasible" made formal.)</em></p>
+  <p><b>Upper bound.</b> At the top <span class="mth">T<sub>3</sub></span> of player 3's support, if
+  <span class="mth">F<sub>3</sub>(T<sub>3</sub>) = 1</span> and both leaders are active there, then
+  <span class="mth">F<sub>1</sub>F<sub>2</sub> = φ<sub>1</sub>φ<sub>2</sub></span> at
+  <span class="mth">T<sub>3</sub></span>, so
+  <span class="mth">u<sub>3</sub> = v<sub>3</sub>g(T<sub>3</sub>) ≤ v<sub>3</sub>K</span>.
+  <em>(R6's "1.2 rent can't close its support.")</em></p>
+  <p>The argument is one page <em>conditional</em> on three support facts: the interval structure
+  itself (T1), the leaders' common region reaching <span class="mth">t*</span> (T3), and clean closure
+  at <span class="mth">T<sub>3</sub></span> (T4). Those are the to-do.</p>
+</section>
+
+<section>
+  <h2>3 · The to-do ledger — what a formal proof still owes</h2>
+
+  <div class="card todo">
+    <h3><span class="chip open">Open · Hard</span>&ensp;T1. Transport lemma (BKV L5/L7/L10 analog)</h3>
+    <p>In any NE, supports decompose into finitely many maximal intervals with constant active sets;
+    atoms only at floors (plus possibly the entrant's win-atom at closure); no gaps-with-mass-above
+    pathologies. This is the measure-theoretic step numerics <b>cannot</b> supply — the one place we
+    must write classical mathematics. Technology is standard (overbid and gap arguments transported
+    from BKV's discussion-paper proofs; note the published BKV omits them — CentER DP 9051 has them),
+    but every step must be re-checked against floors, which is exactly where L8 broke.</p>
+  </div>
+
+  <div class="card todo ready">
+    <h3><span class="chip ok">Ready to draft</span>&ensp;T2. Top anchor (Prop R)</h3>
+    <p>Just below the tied top reach <span class="mth">r</span>, the active set is {1,2} with
+    <span class="mth">F<sub>3</sub> = 1</span>. Established during the replication work; needs a
+    self-contained write-up. Combined with the oracle's k = 2 lemma (pairs always admissible), it
+    anchors every descent path.</p>
+  </div>
+
+  <div class="card todo">
+    <h3><span class="chip open">Open · Key case analysis</span>&ensp;T3. The leaders' common region reaches <span class="mth">t*</span></h3>
+    <p>The lower bound needs both leaders active at (or arbitrarily near) the crux argmax. Route:
+    exhaustion over the oracle's vocabulary — if a leader's support has a gap covering
+    <span class="mth">t*</span>, the interval must carry some other admissible active set
+    ({1,3}, {2,3}, singletons), and one shows none of these can glue upward into the anchored pair
+    region while keeping <span class="mth">u<sub>1</sub> = u<sub>2</sub> = 0</span> and
+    <span class="mth">F<sub>3</sub> ≤ 1</span>. The descent tree is precisely this case skeleton —
+    the march's event catalog becomes the proof's case list. One case is now known to be live (R8):
+    above <span class="mth">t*</span> the three-way becomes density-feasible again at the generic
+    up-crossing, so a <em>restarted</em> three-way region must be excluded by range/gluing, not
+    density. Must also cover the boundary-argmax limit
+    <span class="mth">t* → h<sub>3</sub></span> (R7) and, in principle, multi-peaked
+    <span class="mth">g</span> (T6).</p>
+  </div>
+
+  <div class="card todo">
+    <h3><span class="chip open">Open · Standard</span>&ensp;T4. Closure at player 3's support top</h3>
+    <p>No atom of <span class="mth">F<sub>3</sub></span> at <span class="mth">T<sub>3</sub></span>
+    (else a leader profitably overbids it), and both leaders active there. Standard overbid
+    technology; short once T1 exists.</p>
+  </div>
+
+  <div class="card todo ready">
+    <h3><span class="chip ok">Ready to draft</span>&ensp;T5. The pinning proposition</h3>
+    <p>Section 2 above, written as a proposition with the two-sided bound. Essentially done —
+    one page, conditional on T1 + T3 + T4. Drafting it first is recommended: it fixes exactly what
+    the support lemmas must deliver, no more.</p>
+  </div>
+
+  <div class="card todo">
+    <h3><span class="chip num">Sentinel wired · Proof side open</span>&ensp;T6. Multi-peaked crux <span class="mth">g</span></h3>
+    <p>If <span class="mth">g</span> had several local maxima, the three-way support could be
+    disconnected — the one geometry that would stress both the march's single-descent logic and T3's
+    argument. The sweep driver's sentinel (<span class="file">_march_sweep_theta.jl</span>) watches
+    for this: it classifies each <span class="mth">D<sub>3</sub></span>-zero's crossing direction and
+    flags only a second F<sub>3</sub> <em>maximum</em> — a naïve root count fires generically on
+    R8's benign up-crossing instead. Confirmed: the refined sentinel re-ran the full 189-grid with
+    <b>zero flags</b> (and 0 violations, 0 march failures) — no genuine multi-peak
+    <span class="mth">g</span> anywhere. The proof-side task: either
+    show convex <span class="mth">c</span> + power geometry forces a single peak on the relevant
+    window, or handle the multi-peak case in T3 (only the <em>global</em> argmax pins
+    <span class="mth">K</span>).</p>
+  </div>
+
+  <div class="card todo deferred">
+    <h3><span class="chip def">Deferred</span>&ensp;T7. Regime C emptiness</h3>
+    <p>(<span class="mth">h<sub>3</sub> ≤ max(h<sub>1</sub>,h<sub>2</sub>)</span> but
+    <span class="mth">K &gt; 0</span>.) Out of hypothesis for the floor-regime proposition; needed
+    only for the general tie-line value function. Empty by probe at θ = 1, 2, 3, not proven. An
+    oracle-driven enumerator (~1 day) when the paper needs the general claim.</p>
+  </div>
+
+  <p><b>Suggested order:</b> T5 first (it is the specification), then T2, T4, T3, T1 — from cheapest
+  to hardest, each step narrowing what the transport lemma must actually deliver. The 189/189 sweep
+  makes it very unlikely we are proving a false statement; it substitutes for none of T1–T4.</p>
+</section>
+
+<section>
+  <h2>4 · File map</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Artifact</th><th>What it holds</th></tr>
+    <tr><td><span class="file">Docs/bkv_replication_tied_leaders.md</span></td>
+        <td>Setting, notation (φ, g, K, regimes), the fork at L8, R1–R2. Read first.</td></tr>
+    <tr><td><span class="file">Docs/descent_tree_method.md</span> + <span class="file">…_march_results.md</span></td>
+        <td>The march (method + 189-config results, swap structures, verifier blind spots).</td></tr>
+    <tr><td><span class="file">Docs/admissible_plan.md</span> + <span class="file">admissible_results.md</span></td>
+        <td>Oracle design record + validation (19/19, 51/51, θ = 9/8 shallow crossing).</td></tr>
+    <tr><td><span class="file">Julia/converge/descent_tree_march.jl</span></td>
+        <td>Agnostic march + independent <code>verify_strong</code>.</td></tr>
+    <tr><td><span class="file">Julia/converge/admissible.jl</span> (+ tests, cross-check, sweep driver)</td>
+        <td>The oracle: <code>density_D</code>, <code>oracle_F</code>, <code>admissible</code>; multi-peak sentinel in the sweep driver.</td></tr>
+  </table>
+  </div>
+</section>
+
+<p class="foot">Status date 2026-07-06. Scope: 3 players, tied leaders, strictly convex power costs
+θ ∈ [9/8, 3] swept (machinery cost-general; linear itself out of scope). Chips:
+<span class="chip ok">Proved</span> analytic argument exists ·
+<span class="chip num">Numerical</span> machine-verified evidence ·
+<span class="chip open">Open</span> mathematics still owed.</p>
+</main>

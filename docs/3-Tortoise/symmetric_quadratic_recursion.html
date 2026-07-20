@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Symmetric quadratic σ(m,n): an explicit forward recursion (no Gröbner)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ],
+            ignoredTags: ['script','noscript','style','textarea','pre','code','option']
+        });"></script>
+<style>
+  :root{
+    --fg:#1a1a1a; --muted:#5a5a5a; --accent:#1f6feb; --bg:#fafafa;
+    --card:#ffffff; --border:#e3e3e3; --tag:#f0f4ff; --tag-border:#c8d6ff;
+    --good:#2f8a3d; --warn:#b5651d;
+  }
+  body{
+    font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--fg); background:var(--bg);
+    max-width:920px; margin:2rem auto; padding:0 1.25rem 4rem; line-height:1.6;
+  }
+  h1{font-size:1.6rem; margin-bottom:.2rem;}
+  .subtitle{color:var(--muted); margin-bottom:1.6rem;}
+  h2{font-size:1.25rem; border-bottom:1px solid var(--border); padding-bottom:.35rem; margin-top:2.4rem;}
+  h3{font-size:1.05rem; margin-top:1.6rem;}
+  .tldr{
+    background:var(--tag); border:1px solid var(--tag-border); border-radius:8px;
+    padding:1rem 1.25rem; margin:1.2rem 0 2rem;
+  }
+  .tldr strong{color:var(--accent);}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:8px;
+    padding:1rem 1.4rem; margin:1.2rem 0; box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  .keybox{border-left:4px solid var(--accent); background:#f7faff;}
+  .note{font-size:.92rem; color:var(--muted);}
+  .warnbox{border-left:4px solid var(--warn); background:#fdf8f1;}
+  code,pre{font-family:"SF Mono",Menlo,Consolas,monospace;}
+  pre{background:#f4f5f7; border:1px solid var(--border); border-radius:6px;
+      padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45;}
+  table{border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem;}
+  th,td{border:1px solid var(--border); padding:.4rem .6rem; text-align:right;}
+  th{background:#f0f2f5; text-align:center;}
+  td.lbl,th.lbl{text-align:left;}
+  .ok{color:var(--good); font-weight:600;}
+  .bad{color:#c0392b; font-weight:600;}
+  .controls{margin:1rem 0; display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;}
+  select,button{font-size:.95rem; padding:.35rem .6rem; border:1px solid var(--border);
+                border-radius:5px; background:#fff;}
+  button{cursor:pointer; background:var(--accent); color:#fff; border-color:var(--accent);}
+  .footer{margin-top:3rem; padding-top:1rem; border-top:1px solid var(--border);
+          font-size:.85rem; color:var(--muted);}
+  .step{counter-increment:step; }
+  .num{display:inline-block; min-width:1.6rem; color:var(--accent); font-weight:700;}
+  .cascade{background:#f7faff; border:1px solid var(--tag-border); border-radius:8px;
+           padding:1rem 1.2rem; margin:1.2rem 0; font-family:"SF Mono",Menlo,Consolas,monospace;
+           font-size:.88rem; line-height:1.7; overflow-x:auto;}
+  .cascade .src{color:var(--accent); font-weight:700;}
+  .cascade .why{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<h1>Symmetric quadratic $\sigma(m,n)$: an explicit forward recursion</h1>
+<div class="subtitle">Solving the discrete equilibrium family without a Gröbner basis &middot; Tortoise project &middot; 2026-06-18</div>
+
+<div class="tldr">
+<strong>Summary:</strong> In the fully symmetric quadratic case ($v_1=v_2=1$, $\Delta=0$, $c(e)=e^2$), the
+mixed equilibrium $\sigma(m,n)$ is not an irreducible algebraic tangle — it is a
+<strong>one-dimensional shooting problem</strong>. Change variables from atoms to the rival's
+<em>cumulative moments</em>; the first-order conditions become a ratio, and the indifference
+conditions — which look quadratic — collapse to <strong>explicit, closed-form mass updates</strong>
+because a telescoping kills the constant term of each quadratic. The resulting system is
+<strong>triangular</strong>: a single unknown $q_1$ feeds a forward sweep ($O(m)$ arithmetic) that
+produces every atom and mass, closed by one normalization. This reproduces the entire chain
+$(1,1),(1,2),(2,2),\dots$ — including the cases that were still pending on the cluster — to machine
+precision, in the browser.
+</div>
+
+<h2>1. Setup and notation</h2>
+
+<p>We work in the fully symmetric quadratic specialization throughout:</p>
+<ul>
+<li>values $v_1=v_2=1$, lead $\Delta=0$, cost $c(e)=e^2$, so the reach is $w=c^{-1}(1)=1$;</li>
+<li>Player 1 mixes over atoms $x_1&lt;\dots&lt;x_m$ with masses $p_1,\dots,p_m$;</li>
+<li>Player 2 mixes over atoms $y_1&lt;\dots&lt;y_n$ with masses $q_1,\dots,q_n$;</li>
+<li>WLOG labeling $u_2^*=0$, which forces $y_1=0$;</li>
+<li>the supports <em>interleave</em>: $y_1&lt;x_1&lt;y_2&lt;x_2&lt;\cdots$ (this is the $f=0$ comb).</li>
+</ul>
+
+<p>The round-2 continuation against a single rival atom is Lemma 1's kinked payoff. Against P2's atom
+$y_\ell$, Player 1's round-2 lead is $\Delta_2 = x-y_\ell$, and on the interior branch
+($0&lt;\Delta_2&lt;w=1$) the continuation is $1-c(w-\Delta_2)=1-(1-(x-y_\ell))^2$. Writing
+$g_\ell := 1+y_\ell$ for P2's <em>reach point</em>, this is $1-(g_\ell-x)^2$.</p>
+
+<p>The <strong>truncation rule</strong> (from the interleaving) selects which rival atoms are on the interior
+branch: at P1's atom $x_k$ the active rival atoms are exactly $\ell\le k$; at P2's atom $y_\ell$ the active
+rival atoms are exactly $k&lt;\ell$. (The asymmetry — $\le$ for P1, $&lt;$ for P2 — is the
+ties-to-the-leader convention; it is why $x_1&gt;0$ but $y_1=0$.)</p>
+
+<h2>2. The payoff as a function, and the change of variables</h2>
+
+<p>Fix P2's strategy. For a P1 effort $x$ lying in the cell where the active rival atoms are $\ell\le k$
+(i.e. $y_k&lt;x&lt;y_{k+1}$), P1's payoff is the single smooth function</p>
+
+$$V_1(x)\;=\;\sum_{\ell\le k} q_\ell\big[1-(g_\ell-x)^2\big]\;-\;x^2
+\;=\;Q_k-\sum_{\ell\le k} q_\ell (g_\ell-x)^2-x^2 .$$
+
+<p>This is continuous across cell boundaries: a new rival atom $\ell=k{+}1$ enters at $x=y_{k+1}$, where its
+contribution $1-(g_{k+1}-y_{k+1})^2 = 1-1 = 0$. So $V_1$ is one continuous, piecewise-quadratic curve whose
+local maxima are P1's atoms, all at the common height $u_1$.</p>
+
+<div class="card keybox">
+<p style="margin-top:0"><strong>Change of variables.</strong> Replace the atoms/masses by the
+<em>truncated cumulative moments</em> of the rival's distribution. For the P1 side these are the moments of
+P2's law (reach points $g_\ell=1+y_\ell$); by the mirror symmetry of the symmetric case the P2 side uses
+P1's moments with reach points $h_j=1+x_j$. Each has an equivalent <em>summation</em> form and
+<em>incremental</em> form:</p>
+
+$$\begin{aligned}
+Q_k&amp;=\textstyle\sum_{\ell\le k} q_\ell &amp;&amp;=Q_{k-1}+q_k, &amp;\qquad
+P_k&amp;=\textstyle\sum_{j\le k} p_j &amp;&amp;=P_{k-1}+p_k,\\[2pt]
+S_k&amp;=\textstyle\sum_{\ell\le k} q_\ell\,g_\ell &amp;&amp;=S_{k-1}+q_k g_k, &amp;\qquad
+T_k&amp;=\textstyle\sum_{j\le k} p_j\,h_j &amp;&amp;=T_{k-1}+p_k h_k,\\[2pt]
+M_k&amp;=\textstyle\sum_{\ell\le k} q_\ell\,g_\ell^{2} &amp;&amp;=M_{k-1}+q_k g_k^{2}, &amp;\qquad
+N_k&amp;=\textstyle\sum_{j\le k} p_j\,h_j^{2} &amp;&amp;=N_{k-1}+p_k h_k^{2},
+\end{aligned}$$
+<p class="note" style="margin-bottom:0">(zeroth / first / second moment; all sequences start at
+$Q_0=S_0=M_0=P_0=T_0=N_0=0$). <strong>These six sequences are derived bookkeeping, not new unknowns.</strong>
+Each is a running total of masses already in the profile; substituting the definitions back would erase them
+entirely. We carry them only so that every condition below is an $O(1)$ formula instead of a growing sum — the
+genuine unknowns remain the atoms, the masses, and $u_1$.</p>
+</div>
+
+<h2>3. First-order conditions are linear</h2>
+
+<p>Differentiating $V_1$ in the cell $\ell\le k$,</p>
+$$V_1'(x)=2\sum_{\ell\le k}q_\ell(g_\ell-x)-2x = 2\big[S_k-(1+Q_k)\,x\big],$$
+<p>so the interior maximizer is simply a ratio of moments:</p>
+$$\boxed{\,x_k=\dfrac{S_k}{1+Q_k}\,}\qquad\text{(P1 FOC)},\qquad\qquad
+  \boxed{\,y_\ell=\dfrac{T_{\ell-1}}{1+P_{\ell-1}}\,}\qquad\text{(P2 FOC).}$$
+<p>This is the sense in which "the best responses are linear": each atom is a moment-weighted average of the
+rival's reach points. The nonlinearity lives entirely in the indifference conditions — which is what we tackle next.</p>
+
+<h2>4. The value identity</h2>
+
+<p>Substitute the FOC $x_k=S_k/(1+Q_k)$ back into $V_1$. Expanding the quadratic and using
+$S_k=(1+Q_k)x_k$,</p>
+$$\sum_{\ell\le k}q_\ell(g_\ell-x_k)^2
+   = M_k-2x_kS_k+Q_kx_k^2
+   = M_k-(2+Q_k)x_k^2 ,$$
+<p>so that</p>
+$$u_1=V_1(x_k)=Q_k-\big[M_k-(2+Q_k)x_k^2\big]-x_k^2
+   = Q_k-M_k+(1+Q_k)x_k^2 .$$
+
+<div class="card keybox">
+<p style="margin:0"><strong>Value identity.</strong> For every $k$,</p>
+$$u_1 \;=\; Q_k - M_k + \frac{S_k^{2}}{1+Q_k}. $$
+<p class="note" style="margin-bottom:0">A single algebraic identity replaces P1's $m$ indifference
+equations: all $m$ right-hand sides equal the one number $u_1$.</p>
+</div>
+
+<h2>5. Why $u_1^\ast=q_1^2/(1+q_1)$ is universal</h2>
+
+<p>Evaluate the value identity at $k=1$. Because $y_1=0$ we have $g_1=1$, hence $Q_1=M_1=q_1$ and $S_1=q_1$:</p>
+$$u_1 = \underbrace{(q_1-q_1)}_{=\,0} + \frac{q_1^{2}}{1+q_1} = \frac{q_1^{2}}{1+q_1}.$$
+<p>The closed form that "holds for all $(m,n)$" is nothing but the $k=1$ slice of the identity: the
+$u_2^*=0$ labeling pins $y_1=0$, which makes the moment difference $Q_1-M_1$ vanish for <em>every</em> member
+of the family. There is no separate miracle to prove.</p>
+
+<h2>6. The vanishing-constant step: masses in closed form</h2>
+
+<p>Indifference across P1's support means $V_1(x_{k+1})=V_1(x_k)=u_1$. Write $Z=1+Q_k$ and recall
+$g_{k+1}=1+y_{k+1}$. The value identity (§4), evaluated at level $k{+}1$, reads</p>
+$$u_1 \;=\; Q_{k+1}-M_{k+1}+\frac{S_{k+1}^{2}}{1+Q_{k+1}},$$
+<p>which we treat as an equation for the single new unknown $q_{k+1}$ (everything at level $k$ is known, and
+$y_{k+1}$ is supplied by the P2 side). The new atom enters only through the increments $Q_{k+1}=Q_k+q_{k+1}$,
+$S_{k+1}=S_k+q_{k+1}g_{k+1}$, and $M_{k+1}=M_k+q_{k+1}g_{k+1}^{2}$. Clearing the denominator (multiply
+<em>this identity</em> through by $1+Q_{k+1}=Z+q_{k+1}$) and substituting these increments,</p>
+$$(Z+q_{k+1})\big[(Q_k-M_k-u_1)+q_{k+1}(1-g_{k+1}^{2})\big]
+   +S_k^{2}+2S_k g_{k+1}\,q_{k+1}+g_{k+1}^{2}\,q_{k+1}^{2}=0.$$
+<p>The new atom is still buried in the level-$(k{+}1)$ moments; isolating it means collecting powers of
+$q_{k+1}$. The $q_{k+1}^{2}$ has two sources that sum to coefficient $1$ — the $g_{k+1}^{2}q_{k+1}^{2}$ inside
+$S_{k+1}^{2}$ and the $q_{k+1}\!\cdot\!q_{k+1}(1-g_{k+1}^{2})$ cross term — leaving a quadratic in $q_{k+1}$:</p>
+$$q_{k+1}^{2}\;+\;B\,q_{k+1}\;+\;\underbrace{\big[\,Z\,(Q_k-M_k-u_1)+S_k^{2}\,\big]}_{\textstyle C}\;=\;0
+\qquad\text{with}\qquad B = Q_k+Z-M_k-g_{k+1}^{2}Z+2S_k g_{k+1}-u_1.$$
+
+<div class="card keybox">
+<p style="margin-top:0"><strong>The constant term is identically zero.</strong> The level-$k$ identity already
+gives $u_1=Q_k-M_k+S_k^2/Z$, i.e. $Q_k-M_k-u_1=-S_k^{2}/Z$. Substituting,</p>
+$$C = Z\!\left(-\frac{S_k^{2}}{Z}\right)+S_k^{2}=0.$$
+<p style="margin-bottom:0">So the quadratic factors as $q_{k+1}(q_{k+1}+B)=0$. The spurious root $q_{k+1}=0$
+is "don't add an atom"; the genuine root is $q_{k+1}=-B$.</p>
+</div>
+
+<p>Simplifying $-B$ with $u_1-(Q_k-M_k)=S_k^2/Z$ and $x_k=S_k/Z$, then factoring out $Z$ and substituting its
+value $Z=1+Q_k$ (with $g_{k+1}=1+y_{k+1}$):</p>
+$$-B=\frac{S_k^{2}}{Z}-2S_k g_{k+1}+g_{k+1}^{2}Z-Z
+   =\frac{(S_k-g_{k+1}Z)^2}{Z}-Z
+   =Z\,(x_k-g_{k+1})^2-Z
+   =Z\big[(x_k-g_{k+1})^2-1\big]
+   =(1+Q_k)\big[(1+y_{k+1}-x_k)^2-1\big].$$
+
+<div class="card keybox">
+<p style="margin:0"><strong>Explicit mass updates.</strong></p>
+$$q_{k+1}=(1+Q_k)\big[(1+y_{k+1}-x_k)^2-1\big],
+\qquad\quad
+p_{j}=(1+P_{j-1})\big[(1+x_j-y_j)^2-1\big].$$
+<p class="note" style="margin-bottom:0">The P2 update is the mirror image: identical algebra with $u_2=0$
+(the binding IR plays the role the level-$k$ identity played above, so its constant term vanishes for the
+same reason).</p>
+</div>
+
+<h3>Gap interpretation</h3>
+<p>With interleaving gaps $d_j=y_{j+1}-x_j&gt;0$ and $\delta_j=x_j-y_j&gt;0$, the updates read</p>
+$$q_{j+1}=(1+Q_j)\,d_j(d_j+2),\qquad p_j=(1+P_{j-1})\,\delta_j(\delta_j+2).$$
+<p>New mass $=$ (cumulative rival mass $+1$) $\times$ gap $\times$ (gap $+2$). In particular
+<strong>mass positivity is equivalent to interleaving</strong> — the two structural facts are one fact.</p>
+
+<div class="card warnbox">
+<p style="margin:0"><strong>Scope.</strong> The explicit closed-form mass updates rely on $V_1$ being
+<em>piecewise quadratic</em>, which is special to $c(e)=e^2$. For a general power cost $c(e)=e^\theta$ the value
+identity still holds, but the per-step update becomes a 1-D degree-$(\theta-1)$ solve rather than a formula.
+So the <strong>shooting reduction is cost-general; the closed-form masses are quadratic-only.</strong></p>
+</div>
+
+<h2>7. The complete system, assembled</h2>
+
+<p>We have introduced the pieces one at a time. Before turning them into an algorithm, here is the entire
+$\sigma(m,n)$ system collected in one place. Nothing below is new — it is exactly §§3–6 put side by side.</p>
+
+<div class="card">
+<p style="margin-top:0"><strong>Unknowns.</strong> P1 atoms $x_1&lt;\dots&lt;x_m$ and masses $p_1,\dots,p_m$;
+P2 atoms $y_1&lt;\dots&lt;y_n$ and masses $q_1,\dots,q_n$; the common P1 value $u_1$. Two labels are fixed
+once and for all: $y_1=0$ and $u_2=0$.</p>
+
+<p><strong>(A) Moment bookkeeping</strong> — six running totals defined from the masses
+($g_\ell=1+y_\ell$, $h_j=1+x_j$); <em>not</em> independent unknowns:</p>
+$$Q_k=Q_{k-1}+q_k,\quad S_k=S_{k-1}+q_k g_k,\quad M_k=M_{k-1}+q_k g_k^{2},$$
+$$P_k=P_{k-1}+p_k,\quad T_k=T_{k-1}+p_k h_k,\quad N_k=N_{k-1}+p_k h_k^{2}\qquad(\text{all }{}_0=0).$$
+
+<p><strong>(B) Stationarity</strong> — locates each player's atoms from the rival's current moments:</p>
+$$x_k=\frac{S_k}{1+Q_k}\ \ (k=1,\dots,m),\qquad
+  y_\ell=\frac{T_{\ell-1}}{1+P_{\ell-1}}\ \ (\ell=2,\dots,n),\qquad y_1=0.$$
+
+<p><strong>(C) Indifference</strong> — each player's own indifference pins the <em>rival's</em> masses.
+P1's indifference is the value identity $u_1=Q_k-M_k+S_k^2/(1+Q_k)$ for all $k$; read across consecutive
+levels (§6) it solves explicitly, and P2's binding IR $u_2=0$ gives the mirror:</p>
+$$q_{k+1}=(1+Q_k)\big[(1+y_{k+1}-x_k)^2-1\big],\qquad
+  p_{j}=(1+P_{j-1})\big[(1+x_j-y_j)^2-1\big],\qquad
+  u_1=\frac{q_1^{2}}{1+q_1}.$$
+
+<p style="margin-bottom:0"><strong>(D) Closure</strong> — the two normalizations:</p>
+$$\sum_{k} p_k = 1,\qquad \sum_{\ell} q_\ell = 1.$$
+</div>
+
+<p><strong>How the groups interlock.</strong> Group (B) gives each player's <em>atoms</em> in terms of the
+rival's <em>masses</em>; group (C) gives each player's <em>masses</em> in terms of the rival's <em>atoms</em>.
+The two cross over and feed each other. Group (A) is pure bookkeeping that keeps (B)–(C) cheap. The only inputs
+<em>not</em> produced by (A)–(C) are the single number $q_1$ and the two normalizations (D) — and, as the next
+section shows, one normalization merely fixes the one "leftover" top mass while the other is the lone scalar
+equation that $q_1$ must satisfy. So the system has <strong>one free parameter and one closing equation</strong>.</p>
+
+<h2>8. Triangularization: how one unknown $q_1$ pins the rest</h2>
+
+<p>Counting unknowns the naive way is alarming: we now carry $x$'s, $y$'s, $p$'s, $q$'s <em>and</em> six moment
+sequences. How can adding $Q,S,M,P,T,N$ make a system <em>easier</em>? And if $q_1$ "pins everything," why does
+$Q_k$ visibly depend on $q_k$ as well as $Q_{k-1}$ — isn't that circular? Both worries have the same answer.</p>
+
+<p><strong>The moments are not unknowns.</strong> The six sequences in group (A) are neither equations to be
+solved nor degrees of freedom: each is an explicit running total of masses already in the profile. Eliminating
+them (back-substituting the definitions) would return the original atoms-and-masses system unchanged. The change
+of variables alters the <em>form</em> of the equations, not their <em>number</em>. The genuine unknown list is
+the same one we started with — the atoms, the masses, and $u_1$.</p>
+
+<p><strong>No circularity — just an order of computation.</strong> "$Q_k$ depends on $q_k$ and $Q_{k-1}$" is
+true, but it is an <em>update</em> performed <em>after</em> $q_k$ is already known, not a constraint that needs
+$q_k$ and $Q_k$ at once. Each unknown is produced by exactly one equation, and that equation refers only to
+unknowns produced earlier. The dependency graph is acyclic with a single source, $q_1$:</p>
+
+<div class="cascade">
+<span class="src">q&#8321;</span>  &nbsp;<span class="why">(free shooting parameter)</span><br>
+&nbsp;&nbsp;&#8627; x&#8321; = q&#8321;/(1+q&#8321;),&nbsp; u&#8321; = q&#8321;&sup2;/(1+q&#8321;)&nbsp;&nbsp;<span class="why">init, g&#8321;=1</span><br>
+&nbsp;&nbsp;&#8627; p&#8321; = (1+P&#8320;)[(1+x&#8321;&minus;y&#8321;)&sup2;&minus;1]&nbsp;&nbsp;<span class="why">P2 indiff &rarr; P1 mass</span><br>
+&nbsp;&nbsp;&#8627; y&#8322; = T&#8321;/(1+P&#8321;)&nbsp;&nbsp;<span class="why">P2 FOC &rarr; P2 atom</span><br>
+&nbsp;&nbsp;&#8627; q&#8322; = (1+Q&#8321;)[(1+y&#8322;&minus;x&#8321;)&sup2;&minus;1]&nbsp;&nbsp;<span class="why">P1 indiff &rarr; P2 mass</span><br>
+&nbsp;&nbsp;&#8627; x&#8322; = S&#8322;/(1+Q&#8322;)&nbsp;&nbsp;<span class="why">P1 FOC &rarr; P1 atom</span><br>
+&nbsp;&nbsp;&#8627; p&#8322; &rarr; y&#8323; &rarr; q&#8323; &rarr; x&#8323; &rarr; &#8943;&nbsp;&nbsp;<span class="why">(repeat)</span>
+</div>
+
+<p>When $q_{k+1}$ is formed it uses $Q_k$ — the total <em>through level $k$</em>, already in hand — never
+$Q_{k+1}$. Only <em>afterwards</em> do we fold it in: $Q_{k+1}=Q_k+q_{k+1}$. So $Q_{k+1}$ depends on $q_{k+1}$,
+but $q_{k+1}$ depends on $Q_k$, not on $Q_{k+1}$. The update $Q_k\to Q_{k+1}$ sits <em>downstream</em> of
+computing $q_{k+1}$, not upstream — there is no cycle.</p>
+
+<p>This is precisely a <strong>triangular</strong> (forward-substitution) system. Order the unknowns down the
+cascade — $q_1,\,x_1,\,u_1,\,p_1,\,y_2,\,q_2,\,x_2,\,p_2,\,y_3,\dots$ — and each is an explicit function of
+those above it. A triangular system whose top is a one-parameter row is solved by sweeping downward from any
+chosen value of that parameter; here the parameter is $q_1$.</p>
+
+<div class="card keybox">
+<p style="margin-top:0"><strong>The degree-of-freedom count.</strong></p>
+<ul style="margin:0">
+<li><strong>One free parameter:</strong> $q_1$.</li>
+<li><strong>Determined by the forward sweep:</strong> every atom, the value $u_1$, and every mass except one
+"leftover" top mass — all explicit functions of $q_1$.</li>
+<li><strong>One normalization spends itself</strong> fixing that leftover top mass: $\sum p=1$ fixes $p_m$ on an
+$(m,m)$ rung, $\sum q=1$ fixes $q_{m+1}$ on an $(m,m{+}1)$ rung.</li>
+<li><strong>The other normalization is the lone closing equation</strong> $F(q_1)=0$, solved by 1-D shooting.</li>
+</ul>
+<p style="margin-bottom:0">Net: one unknown, one equation — square — and solved by a monotone bisection rather
+than an $m^2$-degree elimination.</p>
+</div>
+
+<h2>9. The algorithm: forward recursion + one shot</h2>
+
+<p>Everything downstream of $q_1$ is now explicit and alternating. Treat $q_1$ as a shooting parameter:</p>
+
+<div class="card">
+<p style="margin-top:0"><span class="num">0.</span> $x_1=\dfrac{q_1}{1+q_1}$, &nbsp; $u_1=\dfrac{q_1^2}{1+q_1}$, &nbsp; $y_1=0$.</p>
+<p><span class="num">1.</span> For $j=1,2,\dots$ alternate the four explicit maps:
+$$p_j=(1+P_{j-1})\big[(1+x_j-y_j)^2-1\big]
+\;\longrightarrow\;
+y_{j+1}=\frac{T_j}{1+P_j}
+\;\longrightarrow\;
+q_{j+1}=(1+Q_j)\big[(1+y_{j+1}-x_j)^2-1\big]
+\;\longrightarrow\;
+x_{j+1}=\frac{S_{j+1}}{1+Q_{j+1}}.$$
+</p>
+<p style="margin-bottom:0"><span class="num">2.</span> Close with one scalar equation; adjust $q_1$ until it holds (1-D root find).</p>
+</div>
+
+<p>The closure is just a normalization, and which normalization depends on the rung — see the next section.
+There is no elimination, no resultant, no Gröbner basis: each evaluation is $O(m)$ arithmetic, and the outer
+solve is a monotone 1-D bisection.</p>
+
+<h2>10. The two rungs: $(m,m)$ and $(m,m{+}1)$</h2>
+
+<p>The chain alternates between equal rungs $\sigma(m,m)$ and step-up rungs $\sigma(m,m{+}1)$. The recursion is
+<em>identical</em>; only the bookkeeping of the very top atom differs.</p>
+
+<table>
+<tr><th class="lbl">feature</th><th>$\sigma(m,m)$</th><th>$\sigma(m,m{+}1)$</th></tr>
+<tr><td class="lbl">top atom (largest in support)</td><td>$x_m$ (P1)</td><td>$y_{m+1}$ (P2)</td></tr>
+<tr><td class="lbl">masses fixed by indifference</td><td>$q_2,\dots,q_m$; &nbsp;$p_1,\dots,p_{m-1}$</td><td>$q_2,\dots,q_m$; &nbsp;$p_1,\dots,p_{m}$</td></tr>
+<tr><td class="lbl">"leftover" mass (in no indiff. eq.)</td><td>$p_m$</td><td>$q_{m+1}$</td></tr>
+<tr><td class="lbl">leftover fixed by</td><td>$\sum p=1$</td><td>$\sum q=1$</td></tr>
+<tr><td class="lbl"><strong>shooting target on $q_1$</strong></td><td>$\sum q = 1$</td><td>$\sum p = 1$</td></tr>
+</table>
+
+<p>The logic: the top atom's mass never appears in any rival indifference condition (there is no rival atom
+above it to be indifferent <em>at</em>), so it is a free leftover pinned by its own player's normalization.
+The <em>other</em> player's normalization is the one genuine scalar equation that determines $q_1$. For the
+step-up rung the recursion simply runs the $p$-updates one rung further ($p_1,\dots,p_m$, now all from
+indifference), the extra atom $y_{m+1}=T_m/(1+P_m)$ sits above $x_m$, and the shooting target swaps to
+$\sum p=1$.</p>
+
+<h2>11. Verification (live, in this page)</h2>
+
+<p>The calculator below runs exactly the recursion above — ported to JavaScript — and shoots $q_1$ by
+bisection. Compare $u_1^\ast$ against the published chain. Everything is computed when this page loads.</p>
+
+<div id="chain-table"></div>
+
+<div class="controls">
+  <label for="mn">Inspect a rung:</label>
+  <select id="mn"></select>
+  <button onclick="renderDetail()">show atoms &amp; masses</button>
+</div>
+<div id="detail"></div>
+
+<h2>12. Bonus: monotonicity $\Rightarrow$ uniqueness (open)</h2>
+
+<p>Define the shooting residual $F(q_1)=\sum_\ell q_\ell - 1$ (for an equal rung; $\sum_k p_k-1$ for a step-up
+rung). Numerically, $F$ is <strong>strictly monotone with a single crossing</strong> for every $(m,n)$ tested
+— so the shooting root, hence the symmetric-quadratic equilibrium, is unique on each rung. Because $F$ is an
+explicit composition of the rational maps above, this is a genuine real-analysis statement, not a numerical
+artifact, and it would deliver constructive existence + uniqueness for the symmetric quadratic chain — exactly
+the regime where the global Theorem&nbsp;3 (det-$J$/Sard route) is still open. Proving $F'&lt;0$ (equivalently
+single-crossing) is tracked as a TODO.</p>
+
+<h2>13. Relation to the Gröbner pipeline</h2>
+
+<p>The elimination polynomial $w(m,m)$ has degree $m^2$ and $w(m,m{+}1)$ degree $m(m{+}1)$; computing them on
+the cluster (msolve F4+FGLM) is what made the larger rungs expensive. The recursion sidesteps the elimination
+entirely: it produces the numerical equilibrium directly, and gives an independent cross-check of every root the
+Gröbner runs reported. It is also how the calculator above evaluates $(6,6)$ and $(6,7)$ — the rungs that were
+still listed as "remaining" — without a basis computation.</p>
+
+<div class="footer">
+Derivation and numerics: Tortoise session 2026-06-18. Companion notes:
+<code>QUICKSTART.md</code> §2 (cost-general FOC/indifference system),
+<code>Docs/roots_and_coefficients.md</code> (Gröbner polynomials / root tables),
+<code>Docs/chain_equations_1_1_to_2_2.html</code> (the $u_1^*&gt;0$ regime).
+The companion write-up of this artifact's algebra: this file.
+</div>
+
+<script>
+// ---- the recursion, ported verbatim from the verified Python ----
+function sweep(m, n, q1){
+  const x=new Array(m+2).fill(null), y=new Array(n+2).fill(null);
+  const p=new Array(m+2).fill(0),    q=new Array(n+2).fill(0);
+  q[1]=q1; x[1]=q1/(1+q1); const u1=q1*q1/(1+q1); y[1]=0;
+  let Q=q1, S=q1, M=q1;       // P2 moments incl. q1 (g1=1)
+  let P=0, T=0, Nn=0;         // P1 moments
+  const maxr=Math.max(n-1, m-1);
+  for(let r=1; r<=maxr; r++){
+    if(r<=n-1){                                   // P2 indiff at y_{r+1} -> p_r
+      p[r]=(1+P)*(Math.pow(1+x[r]-y[r],2)-1);
+      P+=p[r]; T+=p[r]*(1+x[r]); Nn+=p[r]*Math.pow(1+x[r],2);
+      y[r+1]=T/(1+P);
+    }
+    if(r<=m-1){                                   // P1 indiff at x_{r+1} -> q_{r+1}
+      q[r+1]=(1+Q)*(Math.pow(1+y[r+1]-x[r],2)-1);
+      Q+=q[r+1]; S+=q[r+1]*(1+y[r+1]); M+=q[r+1]*Math.pow(1+y[r+1],2);
+      x[r+1]=S/(1+Q);
+    }
+  }
+  let residual;
+  if(n===m){ let s=0; for(let l=1;l<=m;l++) s+=q[l]; residual=s-1;
+             let sp=0; for(let k=1;k<m;k++) sp+=p[k]; p[m]=1-sp; }
+  else     { let s=0; for(let k=1;k<=m;k++) s+=p[k]; residual=s-1;
+             let sq=0; for(let l=1;l<=m;l++) sq+=q[l]; q[m+1]=1-sq; }
+  return {residual,u1,x,y,p,q};
+}
+function shoot(m,n){
+  if(m===1 && n===1) return 1.0;                  // trivial boundary q1=1
+  const f=t=>sweep(m,n,t).residual;
+  const lo=1e-7, hi=1-1e-7, K=4000;
+  let prev=lo, fprev=f(lo), br=null;
+  for(let i=1;i<=K;i++){ const t=lo+(hi-lo)*i/K, ft=f(t);
+    if(fprev*ft<0){br=[prev,t];break;} prev=t; fprev=ft; }
+  if(!br) return null;
+  let a=br[0], b=br[1];
+  for(let i=0;i<200;i++){ const mid=0.5*(a+b);
+    if(f(a)*f(mid)<=0) b=mid; else a=mid; }
+  return 0.5*(a+b);
+}
+function interleaveOK(m,n,x,y){
+  const seq=[];
+  for(let k=1;k<=n;k++){ seq.push(y[k]); if(k<=m) seq.push(x[k]); }
+  for(let i=0;i<seq.length-1;i++) if(!(seq[i]<seq[i+1])) return false;
+  return true;
+}
+const CHAIN=[[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5],[5,5],[5,6],[6,6],[6,7]];
+const TAB={ "1,1":0.500,"1,2":0.293,"2,2":0.097,"2,3":0.065,"3,3":0.038,"3,4":0.028,
+            "4,4":0.020,"4,5":0.01578,"5,5":0.01214,"5,6":0.01006 };
+function fmt(v,d){ return (v===null||v===undefined)?"—":Number(v).toFixed(d); }
+
+function buildTable(){
+  let h='<table><tr><th class="lbl">(m,n)</th><th>q₁*</th><th>u₁* (recursion)</th>'
+       +'<th>u₁* (published)</th><th>|residual|</th><th>interleave</th></tr>';
+  for(const [m,n] of CHAIN){
+    const q1=shoot(m,n);
+    if(q1===null){ h+=`<tr><td class="lbl">(${m},${n})</td><td colspan="5">no bracket</td></tr>`; continue; }
+    const r=sweep(m,n,q1);
+    const ok=interleaveOK(m,n,r.x,r.y);
+    const tab=TAB[m+","+n];
+    h+=`<tr><td class="lbl">(${m},${n})</td><td>${fmt(q1,6)}</td><td>${fmt(r.u1,6)}</td>`
+      +`<td>${tab===undefined?'<span class="note">(new)</span>':fmt(tab,5)}</td>`
+      +`<td>${(Math.abs(r.residual)).toExponential(1)}</td>`
+      +`<td class="${ok?'ok':'bad'}">${ok?'✓':'✗'}</td></tr>`;
+  }
+  h+='</table>';
+  document.getElementById('chain-table').innerHTML=h;
+}
+function buildSelect(){
+  const s=document.getElementById('mn');
+  for(const [m,n] of CHAIN){ const o=document.createElement('option');
+    o.value=m+","+n; o.textContent=`σ(${m},${n})`; s.appendChild(o); }
+  s.value="3,3";
+}
+function renderDetail(){
+  const [m,n]=document.getElementById('mn').value.split(",").map(Number);
+  const q1=shoot(m,n); const r=sweep(m,n,q1);
+  let h=`<div class="card"><p style="margin-top:0"><strong>σ(${m},${n})</strong> — `
+       +`q₁* = ${fmt(q1,8)}, &nbsp; u₁* = ${fmt(r.u1,8)}, &nbsp; `
+       +`interleaving ${interleaveOK(m,n,r.x,r.y)?'<span class="ok">holds</span>':'<span class="bad">fails</span>'}.</p>`;
+  // P1 row
+  h+='<table><tr><th class="lbl">P1 atoms</th>';
+  for(let k=1;k<=m;k++) h+=`<th>x<sub>${k}</sub></th>`; h+='</tr><tr><td class="lbl">position</td>';
+  for(let k=1;k<=m;k++) h+=`<td>${fmt(r.x[k],5)}</td>`; h+='</tr><tr><td class="lbl">mass p</td>';
+  for(let k=1;k<=m;k++) h+=`<td>${fmt(r.p[k],5)}</td>`; h+='</tr></table>';
+  // P2 row
+  h+='<table><tr><th class="lbl">P2 atoms</th>';
+  for(let l=1;l<=n;l++) h+=`<th>y<sub>${l}</sub></th>`; h+='</tr><tr><td class="lbl">position</td>';
+  for(let l=1;l<=n;l++) h+=`<td>${fmt(r.y[l],5)}</td>`; h+='</tr><tr><td class="lbl">mass q</td>';
+  for(let l=1;l<=n;l++) h+=`<td>${fmt(r.q[l],5)}</td>`; h+='</tr></table>';
+  let sp=0,sq=0; for(let k=1;k<=m;k++) sp+=r.p[k]; for(let l=1;l<=n;l++) sq+=r.q[l];
+  h+=`<p class="note" style="margin-bottom:0">Σp = ${fmt(sp,6)}, &nbsp; Σq = ${fmt(sq,6)} `
+    +`(both should be 1).</p></div>`;
+  document.getElementById('detail').innerHTML=h;
+}
+buildTable(); buildSelect(); renderDetail();
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does the belief non-linearity break piecewise-uniformity? — concrete predictions</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  body{max-width:840px;margin:2rem auto;padding:0 1.2rem;font:16px/1.65 Georgia,serif;color:#1a1a1a}
+  h1{font-size:1.55rem;line-height:1.3;border-bottom:2px solid #1f4e79;padding-bottom:.4rem}
+  h2{font-size:1.22rem;margin-top:2rem;color:#1f4e79}
+  h3{font-size:1.04rem;color:#334e68;margin-top:1.4rem}
+  code{background:#f0f0f0;padding:.1em .3em;border-radius:3px;font-size:.88em}
+  .box{border-left:4px solid #999;background:#fafafa;padding:.6rem 1rem;margin:1rem 0;border-radius:0 4px 4px 0}
+  .yes{border-left-color:#2e7d32;background:#f1f8f2}
+  .no{border-left-color:#c62828;background:#fdf1f1}
+  .key{border-left-color:#1f4e79;background:#eef3f9}
+  table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+  th,td{border:1px solid #ccc;padding:.45rem .6rem;text-align:left;vertical-align:top}
+  th{background:#eef2f7}
+  .small{font-size:.85rem;color:#555}
+  .tag{display:inline-block;font:bold 11px/1 sans-serif;padding:3px 7px;border-radius:3px;color:#fff;margin-right:.4rem}
+  .t-yes{background:#2e7d32}.t-no{background:#c62828}.t-mid{background:#1f4e79}
+  pre{background:#1e1e1e;color:#e8e8e8;padding:.8rem 1rem;border-radius:6px;overflow-x:auto;font-size:.82rem;line-height:1.45}
+</style>
+</head>
+<body>
+
+<h1>Does the belief non-linearity break piecewise-uniformity in the binary Round 1?</h1>
+<p class="small">Companion to <code>docs/turocy_support_analysis.html</code> and <code>Python/binary_predictions.py</code>.
+2-ElimContest · binary case, index 0 = High&nbsp;$v_H$, index 1 = Low&nbsp;$v_L$.
+Question (yours): the continuation value enters Round&nbsp;1 through the belief $\mu$, non-linearly — doesn't that
+kill the piecewise-uniform structure Turocy guarantees?</p>
+
+<div class="box key">
+<strong>Answer in one line.</strong> Yes — but in a <em>located</em> way you can test. Uniformity survives on
+intervals where <em>only one</em> type is active (belief is locally constant there), and is <em>generically destroyed</em>
+on intervals where <em>both</em> types co-mix (the belief moves with the bid). The break is governed by an explicit ODE,
+and "co-mixing at constant belief" is a knife-edge that maps <em>exactly</em> onto Turocy's condition for a non-singleton
+admissible active set. So the dynamic model is strictly richer than Turocy, not just broken.
+</div>
+
+<h2>1. The reduction (so every claim below is checkable)</h2>
+<p>A type $v$ choosing Round-1 bid $b$ in its pair earns</p>
+$$ U(v,b) \;=\; G(b)\,\tilde W\!\big(v,\mu(b)\big)\;-\;b, $$
+<p>with three objects, each computable from the solver output:</p>
+<ul>
+<li>$G(b)=F(b)$ — the rival's Round-1 bid CDF. By symmetry it is the population CDF, so $G'(b)=g(b)$, the
+prior-weighted density $g=\tfrac12 f_L+\tfrac12 f_H$.</li>
+<li>$\mu(b)=\dfrac{\tfrac12 f_H(b)}{\tfrac12 f_H(b)+\tfrac12 f_L(b)}=\dfrac{f_H(b)}{f_H(b)+f_L(b)}$ — the posterior
+that the bidder is High, induced by the on-path bid $b$.</li>
+<li>$\tilde W(v,\mu)$ — the Round-2 continuation value of advancing as type $v$ when the finalist opponent holds
+belief $\mu$ about you. <strong>Crucially, $b$ enters $\tilde W$ only through $\mu(b)$</strong>: the bid is sunk and
+payoff-irrelevant in Round 2 except as a signal of type. This is the non-linearity you flagged.</li>
+</ul>
+
+<h2>2. The indifference condition and the dichotomy</h2>
+<p>If type $v$ randomizes (is active) over an interval, $U(v,b)$ is constant there, so $\frac{d}{db}U(v,b)=0$:</p>
+$$ \boxed{\;G'(b)\,\tilde W(v,\mu) \;+\; G(b)\,\tilde W_\mu(v,\mu)\,\mu'(b)\;=\;1\;}\tag{$\star$}$$
+<p>Compare Turocy: there the value of winning is a constant $V$, so $\tilde W_\mu\equiv 0$, the second term
+vanishes, and ($\star$) collapses to $G'(b)\,V=1$ — i.e. $G'$ constant, density uniform. The whole piecewise-uniform
+theorem is exactly this collapse. The extra term $G\,\tilde W_\mu\,\mu'$ is the dynamic belief channel.</p>
+
+<h3><span class="tag t-yes">SURVIVES</span> Single-type intervals stay uniform</h3>
+<p>On an interval where only type $v$ is active, the on-path belief is degenerate and <em>constant</em>
+($\mu\equiv 0$ on a Low-only interval, $\mu\equiv 1$ on a High-only interval). Then $\mu'=0$, the belief term drops,
+and ($\star$) gives</p>
+$$ G'(b)=g(b)=\frac{1}{\tilde W(v,\mu_{\text{const}})}\;=\;\text{constant}\quad\Longrightarrow\quad\text{uniform density.}$$
+<p>The level is even pinned: the High-only tail has $g=1/\tilde W(v_H,1)$, the Low-only stretch $g=1/\tilde W(v_L,0)$.
+So <strong>the belief non-linearity does nothing here</strong> — these regions are genuinely piecewise-uniform.</p>
+
+<h3><span class="tag t-no">BREAKS</span> Co-mixing intervals are generically non-uniform</h3>
+<p>On an interval where <em>both</em> types are active, ($\star$) holds for $v_L$ and $v_H$ simultaneously — two linear
+equations in the two unknowns $G'$ and $G\mu'$:</p>
+$$\begin{pmatrix}\tilde W_L & \tilde W_L'\\[2pt]\tilde W_H & \tilde W_H'\end{pmatrix}
+\begin{pmatrix}G'\\[2pt]G\mu'\end{pmatrix}=\begin{pmatrix}1\\1\end{pmatrix},
+\qquad \tilde W_v\equiv\tilde W(v,\mu),\ \ \tilde W_v'\equiv\partial_\mu\tilde W(v,\mu).$$
+<p>By Cramer's rule (write $D=\tilde W_L\tilde W_H'-\tilde W_H\tilde W_L'$):</p>
+$$ G'(b)=\frac{\tilde W_H'(\mu)-\tilde W_L'(\mu)}{D(\mu)},\qquad
+   G(b)\,\mu'(b)=\frac{\tilde W_L(\mu)-\tilde W_H(\mu)}{D(\mu)}.\tag{$\dagger$}$$
+<p>$G'$ is now a function of $\mu$ alone. Since $\mu$ moves across a co-mixing interval (that is what makes it
+co-mixing — the density ratio $f_H/f_L$ changes), $G'=g$ <strong>varies</strong>: the density is curved, not flat.
+And from ($\dagger$) you can <em>reconstruct both type densities</em> on the interval:</p>
+$$ f_H(b)=2\,G'(b)\,\mu(b),\qquad f_L(b)=2\,G'(b)\,\big(1-\mu(b)\big).$$
+<p>The belief direction is also pinned: $\operatorname{sign}\mu'=\operatorname{sign}\big[(\tilde W_L-\tilde W_H)/D\big]$
+— a comparative static you can check.</p>
+
+<div class="box key">
+<strong>The exact Turocy correspondence.</strong> $G'$ is constant on a co-mixing interval (uniformity restored)
+<em>iff</em> $\mu$ is constant there, which by ($\dagger$) requires $\tilde W_L(\mu^\ast)=\tilde W_H(\mu^\ast)$ — the two
+types value Round 2 <em>equally</em> at that belief. This is a knife-edge in $\mu$, and it is the <strong>same
+condition</strong> as Turocy's: a non-singleton active set is admissible only when the value vectors lie on a common
+hyperplane (his $\psi_{\cdot|k}$ rows linearly dependent). When that coincidence fails — the generic case — Turocy
+forbids co-mixing on an interval altogether, whereas here the dynamic term $\tilde W_\mu\neq0$ <em>permits</em> it but
+forces a <em>moving belief and non-uniform density</em>. Your intuition is right, and this is precisely the extra
+structure the two-stage game buys.</p>
+</div>
+
+<h2>3. The three predictions, graded</h2>
+<table>
+<tr><th>Prediction</th><th>Verdict under the belief non-linearity</th></tr>
+<tr><td><strong>Bottom-of-support&nbsp;= 0</strong></td>
+<td><span class="tag t-yes">ROBUST</span> Independent of $\tilde W$. If the lowest bid $b_0>0$ in the union of supports,
+the bidder there wins with probability $G(b_0)=0$, pays $b_0$, and gets $0\cdot\tilde W-b_0<0$ — strictly worse than
+bidding $0$. So $b_0=0$ regardless of the continuation value. May appear as an <em>atom at 0</em> (a type conceding
+Round 1).</td></tr>
+<tr><td><strong>Piecewise-uniform</strong></td>
+<td><span class="tag t-mid">REFINED</span> Holds <em>only on single-type intervals</em>; on overlap intervals it is
+replaced by the explicit non-uniform law ($\dagger$). The correct falsifiable statement is the regime-dependent one,
+not global uniformity.</td></tr>
+<tr><td><strong>$\le 2$ disjoint intervals / type</strong></td>
+<td><span class="tag t-no">DOWNGRADED to conjecture</span> Turocy's $|\mathcal X_k|+1$ bound rests on the static
+linear $\Gamma$-graph, which the bid-dependent $\tilde W$ dismantles. Economically one still expects few regimes (a
+"hide" interval + a "bluff" interval), so $\le 2$ is a reasonable prior — but it is now a <em>flag to test</em>, not a
+theorem. $\ge 3$ components is a real possibility of the dynamic model.</td></tr>
+</table>
+
+<h2>4. Concrete checks &mdash; and what they already show</h2>
+<p><code>Python/binary_predictions.py</code> computes all three directly from <code>sigma</code>. The model-free parts
+(flatness on single-type runs, moving belief + curvature on overlap runs, bottom, component counts) need only the
+strategy array; the quantitative level/ODE checks in §2 additionally need $\tilde W(v,\mu)$ from the Round-2 solver.
+Output on the current <code>binary_results_M200.npz</code>:</p>
+<pre>
+P1  bottom-of-support = 0
+    lowest active bid index = 0  (b = 0.0000)
+    atoms at b=0:  High=0.0002  Low=0.2446
+    PASS: bottom is at 0  (larger atom: Low)
+
+P2  uniformity is regime-dependent
+    High-only      b in [0.317,0.392]  g_CV=0.493  type_CV=0.496   -> FLAG: NOT flat
+    OVERLAP (both) b in [0.015,0.302]  mu in [0.05,0.87] (range 0.82)  g_CV=0.599
+        -> PASS: belief moves & g curved (uniformity broken, as predicted)
+
+P3  disjoint intervals per type (atom at 0 counted separately)
+    High : 1 component(s)   [0.015,0.392]
+    Low  : 2 component(s)   atom@0 + [0.015,0.302]
+</pre>
+
+<h3>Reading the results</h3>
+<ul>
+<li><strong>P1 PASS.</strong> Bottom is at $0$, realised as a Low-type atom of $0.245$: low types concede Round&nbsp;1
+about a quarter of the time. Exactly the robust prediction.</li>
+<li><strong>Overlap PASS — your intuition confirmed.</strong> On $[0.015,0.302]$ both types mix, the induced belief
+sweeps $\mu\in[0.05,0.87]$, and the density is visibly curved (CV $0.60$). This <em>is</em> the belief non-linearity
+breaking uniformity, observed in the computed solution, matching law ($\dagger$).</li>
+<li><strong>High-only tail FLAG — an actionable discrepancy.</strong> On $[0.317,0.392]$ only High is active, so theory
+says the density must be <em>flat</em> ($\mu\equiv1\Rightarrow g=1/\tilde W(v_H,1)$). The computed density instead slopes
+(CV $0.49$). This is precisely the kind of thing this diagnostic is for: it flags that the high tail is either
+under-converged / over-smoothed (temperature $0.1$) or not a clean indifference region — consistent with the residual
+exploitability gap noted in <code>binary_report.py</code>. Worth a refinement pass with lower temperature / tighter
+indifference weight on that tail.</li>
+<li><strong>P3 within conjecture.</strong> High = 1 component, Low = atom + 1 band = 2. No red flag, but keep checking
+as the grid/solver changes.</li>
+</ul>
+
+<div class="box yes">
+<strong>Net.</strong> You now have something firmer than intuition: (1) a proof that uniformity must break on the
+overlap and survive on single-type regions, with the explicit density law ($\dagger$); (2) a knife-edge that ties the
+break precisely to Turocy's admissibility condition; and (3) a runnable checker that already confirms the overlap break
+and the bottom-at-0 property, while flagging a non-flat high tail that the current solution should not have if it were
+the exact equilibrium.</div>
+
+<h2>5. The ($\dagger$) test &mdash; from "is it curved?" to "does it match?"</h2>
+<p><code>Python/check_dagger.py</code> upgrades the overlap check to the quantitative law. It reconstructs
+$\tilde W(v,\mu)$ by calling the <em>same</em> Round-2 solver (<code>posteriors_to_payoffs</code>) used in
+<code>continuation_value.py</code>, but feeding an <strong>arbitrary "me" belief</strong> $(\mu,1-\mu)$ rather than the
+belief the bidder's own bid induces &mdash; legitimate because $V(v,b)=\tilde W(v,\mu(b))$. It then compares, on the
+empirical overlap, the population density $g(b)$ to the closed form $G'(\mu)=(\tilde W_H'-\tilde W_L')/D$ and the
+belief drift $G\mu'$ to $(\tilde W_L-\tilde W_H)/D$.</p>
+
+<table>
+<tr><th>Grid</th><th>density shape (Pearson)</th><th>density level (median ratio)</th><th>belief drift (Pearson)</th></tr>
+<tr><td>M200</td><td><strong>+0.83</strong></td><td><strong>0.579</strong></td><td>+0.59</td></tr>
+<tr><td>M100</td><td><strong>+0.93</strong></td><td><strong>0.569</strong></td><td>+0.70</td></tr>
+</table>
+
+<ul>
+<li><strong>Shape confirmed.</strong> Empirical and ($\dagger$)-predicted densities both fall monotonically as the
+bid/belief rise (corr 0.83&ndash;0.93). The non-uniformity moves in the direction the closed form dictates &mdash; the
+belief-channel mechanism is real and quantitatively right-shaped, not merely "curved."</li>
+<li><strong>Level gap is structural, not numerical.</strong> The empirical density is a near-constant
+<strong>~0.57&times;</strong> the prediction, and that factor is <em>grid-independent</em> (0.579 vs 0.569). The
+computed profile obeys the qualitative law but misses the level by a stable factor &mdash; it is close to, but not
+exactly, the ($\dagger$) co-mixing equilibrium, consistent with the residual exploitability gap.</li>
+<li><strong>Edge divergence is informative.</strong> Near $\mu\to0$ the predicted $G'$ blows up ($\approx49$ at
+M200): clean two-type co-mixing would need an infeasibly large density there, signalling that the bottom of the
+overlap is governed by the low-type atom/bluff structure rather than smooth co-mixing. The ~0.57 factor is stable in
+the interior $\mu\in[0.4,0.85]$.</li>
+</ul>
+
+<div class="box yes">
+<strong>Net of the upgrade.</strong> ($\dagger$) is the correct <em>shape</em> generator for the overlap &mdash;
+mechanism validated against the actual Round-2 solver &mdash; while the current solution sits a fixed, grid-robust
+~40% below the indifference-exact density. That is a concrete quality target for the solver, sharper and more
+structural than the level-based Gap. The overlay plot (<code>dagger_overlap.png</code>) shows $g(b)$ vs
+$G'(\mu(b))$ and the reconstructed $\tilde W_H(\mu),\tilde W_L(\mu)$.</div>
+
+<p class="small">Run: <code>python Python/binary_predictions.py --npz binary_results_M200.npz</code> (regime checks)
+and <code>python Python/check_dagger.py --npz binary_results_M200.npz</code> (the ($\dagger$) law).</p>
+
+</body>
+</html>

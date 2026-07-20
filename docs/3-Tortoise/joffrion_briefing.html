@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tortoise — Where the Paper Stands (briefing for Justin)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$", right: "$", display: false}
+    ],
+    throwOnError: false
+  });
+});
+</script>
+<style>
+  :root{
+    --ink:#1c2530; --soft:#5a6573; --line:#e2e6ec; --bg:#fbfcfd;
+    --accent:#2b6cb0; --old:#9a3b34; --new:#1f7a52;
+    --warn:#b7791f; --open:#9a3b34; --proven:#1f7a52; --partial:#b7791f;
+    --chip:#eef3f8;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:"Charter","Georgia",serif; color:var(--ink); background:var(--bg);
+    line-height:1.62; max-width:1000px; margin:0 auto; padding:48px 28px 96px;
+    font-size:17px;
+  }
+  h1{font-size:30px; line-height:1.18; margin:0 0 4px}
+  h2{font-size:23px; margin:46px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line)}
+  h3{font-size:18.5px; margin:28px 0 6px; color:var(--accent)}
+  .sub{color:var(--soft); font-size:15px; margin:0 0 8px}
+  .lead{font-size:18px}
+  p{margin:10px 0}
+  a{color:var(--accent)}
+  code,.mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace; font-size:13.5px; background:var(--chip); padding:1px 5px; border-radius:4px}
+  table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#eef3f8; font-family:"Helvetica Neue",sans-serif; font-size:13.5px; letter-spacing:.02em}
+  td.dim{color:var(--soft)}
+  .old{color:var(--old)}
+  .new{color:var(--new)}
+  .grid-old{background:#fcf4f3}
+  .grid-new{background:#f1f9f4}
+  .callout{background:#fff; border:1px solid var(--line); border-left:4px solid var(--accent);
+    padding:14px 18px; border-radius:6px; margin:18px 0}
+  .callout.warn{border-left-color:var(--warn); background:#fffaf0}
+  .callout.win{border-left-color:var(--new); background:#f3faf6}
+  .badge{display:inline-block; font-family:"Helvetica Neue",sans-serif; font-size:11.5px;
+    font-weight:600; padding:2px 8px; border-radius:20px; vertical-align:middle; white-space:nowrap}
+  .b-proven{background:#dff3e8; color:#1f7a52}
+  .b-partial{background:#fcefd6; color:#9a6a12}
+  .b-open{background:#fae2e0; color:#9a3b34}
+  .b-new{background:#e2ecf7; color:#2b6cb0}
+  .meta{font-family:"Helvetica Neue",sans-serif; font-size:13px; color:var(--soft)}
+  ul{margin:8px 0 8px 4px; padding-left:22px}
+  li{margin:5px 0}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+  @media(max-width:720px){.two{grid-template-columns:1fr}}
+  .card{background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px 18px}
+  hr{border:none; border-top:1px solid var(--line); margin:30px 0}
+  .small{font-size:14px; color:var(--soft)}
+  .tag{font-family:"Helvetica Neue",sans-serif; font-size:12px; color:var(--soft); text-transform:uppercase; letter-spacing:.06em}
+</style>
+</head>
+<body>
+
+<h1>The Tortoise paper — where it stands, and where it's going</h1>
+<p class="sub">An onboarding briefing for Justin · drafted June 2026 · <span class="mono">Docs/joffrion_briefing.html</span></p>
+<p class="lead">Short version: the paper you last saw (the 2014/15 GEB submission, <span class="mono">JoffrionParreiras14.tex</span>) and the current draft (<span class="mono">JoffrionParreiras26.tex</span>) share a skeleton but tell a different story. The multiplicity result is now <em>constructive</em>, the multiplicity is now <em>explained</em> (not just exhibited), and the comparative statics is now <em>quantified</em>. That shift is what puts <strong>JET</strong> on the table — and supersedes the May/June editorial plan that defaulted to Economic Theory.</p>
+
+<div class="callout">
+<span class="tag">Honesty note up front</span><br>
+A lot of the strongest material lives in the <span class="mono">Docs/</span> and <span class="mono">Julia/</span> trees and is <strong>not folded into the <span class="mono">.tex</span> yet</strong>. The current draft <em>asserts</em> the constructive story in the abstract and intro; the machinery that backs it is built and verified but not yet written into the body. This briefing flags exactly what's in vs. out, and what's proven vs. verified-through-$(5,5)$ vs. open, so you can see where you'd land if you want in.
+</div>
+
+<h2>1 · How we're selling it now</h2>
+
+<p>The pitch rests on three hooks, in order of how much referees will remember them.</p>
+
+<h3>① Conceptual — why multiplicity, structurally</h3>
+<p>The static all-pay auction has a <em>unique</em> equilibrium payoff because it is <strong>strategically zero-sum</strong> in the sense of Moulin–Vial (1978): by their Theorem 3 no correlation device can lift both players above it; Pavlov (2025) sharpens this to "the Nash equilibrium is the unique correlated equilibrium," and Hwang–Rey-Bellet (2020) give the orthogonal identical-interest / zero-sum / nonstrategic decomposition. Our penultimate-round game <em>breaks</em> that property: once the <em>magnitude</em> of the lead a player carries into the last round enters the rival's payoff, the continuation payoff is <strong>kinked</strong> in the lead, the game is no longer a separable (strategically-zero-sum) contest, and the uniqueness logic collapses. <strong>Multiplicity is the consequence, not an accident.</strong> This framing is entirely new relative to 2014/15 and is the conceptual headline.</p>
+
+<h3>② Methodological — one engine builds the whole family</h3>
+<p>The "comb march": a single forward recursion in one scalar shooting parameter $q_1$ that constructs every finite-support equilibrium $\sigma(m,n)$ one effort level at a time, for general polynomial costs. The same recursion <strong>builds</strong> each equilibrium, <strong>ranks</strong> them (rent dissipation rises with support size), and <strong>locates the thresholds</strong> at which an equilibrium ceases to exist. The equilibria are not merely shown to exist — they're computed by a transparent procedure, with the competitive limit emerging as $m\to\infty$. <em>This is "the comb-march unifying the family," and it's the single biggest difference from the old paper.</em> A technique that travels is what separates JET from a strong field placement.</p>
+
+<h3>③ Economic — a disciplined rent-dissipation spectrum</h3>
+<p>Equilibria are classified by rent dissipation: <em>collusive</em> at one pole (one player builds a lead, the other slacks and earns nothing — and strikingly the leader need not be the favorite), the unique <em>competitive</em> equilibrium at the other (continuous randomization, full dissipation, both earn zero), and a ranked family in between. Comparative statics then <em>disciplines</em> the set — "anything goes" is false. Lowering the effort elasticity kills the low-dissipation end; raising valuation asymmetry or an initial lead kills the high-dissipation end. The boldest economic sentence — full rent dissipation at the competitive pole, with the family marching toward it — is backed by payoff convergence $u_1^*\sim C/m^2\to 0$, which we have.</p>
+
+<div class="callout win">
+<span class="tag">Venue</span><br>
+<strong>GEB is closed</strong> (rejected, YGAME-D-14-00309). The May/June strategy doc defaulted to <strong>Economic Theory</strong> with the monotonicity as a conjecture and judged JET "probably not enough alone." That read predates the constructive engine. With the recursion as a <em>methodological</em> contribution and the monotonicity reduced to a single lemma (verified exactly through $(5,5)$), <strong>JET is now a credible target</strong> — that's the current ambition, and it's the reason to fold the new machinery into the body.
+</div>
+
+<h2>2 · The new architecture</h2>
+
+<p>The current draft is leaner and single-flow where 2014/15 was heavily subsectioned. Sections actually in <span class="mono">JoffrionParreiras26.tex</span> today:</p>
+
+<table>
+<tr><th style="width:32%">Section</th><th>What it holds</th><th style="width:18%">Status</th></tr>
+<tr><td>1 · Introduction</td><td>Effort-smoothing vs deadline incentives; the Moulin–Vial / Pavlov / HRB strategic-zero-sum hook; sharpened Hirata (2014) contrast; the "one recursion builds/ranks/locates" claim; comparative-statics preview.</td><td><span class="badge b-proven">done*</span></td></tr>
+<tr><td>2 · The Model</td><td>$T$-round all-pay auction, lead $\Delta_t$, $k$-round reach $w^i_k=c^{-1}(v_i/k)$, Markov state $(\Delta_t,t)$, relabeling symmetry.</td><td><span class="badge b-proven">done</span></td></tr>
+<tr><td>3 · The Value of Leads</td><td>Lemma 1 — last round as a Siegel static contest with head starts; the three-piece "power" $U_A(\Delta)$; the penultimate round as an induced static game that is <em>not</em> a Siegel contest.</td><td><span class="badge b-proven">done</span></td></tr>
+<tr><td>4 · Dynamic Contests</td><td>Best responses; <em>Collusive</em> equilibria (Prop., thresholds $IR,IC$); <em>Competitive</em> equilibrium (Prop., power-cost CDF); <em>Ranked</em> $\sigma(m,n)$ family (Prop. + Table 1, quadratic, through $5\times5$).</td><td><span class="badge b-partial">narrative in, engine out</span></td></tr>
+<tr><td>5 · Comparative Statics</td><td>Effort-elasticity dial (the $\theta$ threshold); asymmetric valuations / leads erode the high-dissipation end.</td><td><span class="badge b-partial">qualitative</span></td></tr>
+</table>
+<p class="small">*The intro is <strong>done except its closing "limitations" paragraph</strong> (two-player / noiseless / complete-information caveats), which is still being finished.</p>
+
+<div class="callout">
+<span class="tag">Planned, not yet in the .tex — the motivating example</span><br>
+A <strong>3-round example</strong> slated to sit <em>after the Model, before the main results</em> (<span class="mono">EXAMPLE-TODO.md</span>, 2026-07-23). The favorite collusively concedes on path, sustained by the threat of reverting to the <em>worst feasible</em> two-round $\sigma(m,n)$ continuation off path. It does heavy lifting: it shows the two-round family serves as <strong>continuation / punishment values</strong> that fold up to any horizon — directly insulating the old "this is only a two-period model" referee critique — and it puts all three results to work at once (build the continuations, rank them, locate which are feasible). The open piece is the favorite's round-1 incentive constraint $\sup_{x>0}\,[\,V_A(x-y)-c(x)\,]\le 0$, to be checked numerically via the comb march and then in quadratic closed form.
+</div>
+
+<h2>3 · What changed since 2014/15 — the grid</h2>
+
+<p>Old = <span class="old">JoffrionParreiras14.tex</span> (the GEB-submission-era v11). New = <span class="new">JoffrionParreiras26.tex</span> + results staged in <span class="mono">Docs/</span>/<span class="mono">Julia/</span>.</p>
+
+<table>
+<tr><th style="width:16%">Dimension</th><th style="width:42%" class="grid-old">Old (2014/15, GEB)</th><th style="width:42%" class="grid-new">Now (2026, JET aim)</th></tr>
+
+<tr><td><strong>Headline</strong></td>
+<td class="grid-old">"Multiple, non-payoff-equivalent SPE may arise." Multiplicity <em>exhibited</em>.</td>
+<td class="grid-new">"Multiplicity is structural — it follows from the kink that breaks strategic-zero-sumness." Multiplicity <em>explained</em>.</td></tr>
+
+<tr><td><strong>Conceptual hook</strong></td>
+<td class="grid-old">None. No Moulin–Vial / strategic-zero-sum framing; only a passing Pavlov-2013 correlated-eq. citation.</td>
+<td class="grid-new"><span class="new">New.</span> Moulin–Vial (1978) Thm 3 + Pavlov (2025) + Hwang–Rey-Bellet (2020): static uniqueness = strategic-zero-sumness; the dynamic kink breaks it.</td></tr>
+
+<tr><td><strong>Characterization</strong></td>
+<td class="grid-old">$\sigma(m,n)$ <em>counted</em> by real-algebraic-geometry root-counting in Maple, case by case, $m,n\le 5$ (then memory blow-up).</td>
+<td class="grid-new"><span class="new">Constructive.</span> A forward recursion <em>builds</em> every $\sigma(m,n)$ from a single dial $q_1$; competitive limit emerges as $m\to\infty$. General polynomial costs.</td></tr>
+
+<tr><td><strong>Ranking / monotonicity</strong></td>
+<td class="grid-old">Numerical: Table shows $u^*(1,1)>\dots>u^*(5,5)$. No general proof; existence for large $(m,n)$ only conjectured.</td>
+<td class="grid-new">Reduced to a <em>single</em> lemma ($F'(q_1)>0$), verified exactly over $\mathbb{Q}(q_1)$ through $(5,5)$; cross-$m$ step $(2,2)\!\to\!(1,2)$ closed analytically for any strictly convex $c$.</td></tr>
+
+<tr><td><strong>Comparative statics</strong></td>
+<td class="grid-old">Qualitative regions (green/red/blue figure); which player leads as elasticity/asymmetry vary.</td>
+<td class="grid-new"><span class="new">Quantified "dials"</span> with mechanism: $\theta^\star\!\approx\!2.41$, $\Delta^\star(2,2)\!\approx\!0.211$, $v_1^\star(2,2)\!\approx\!1.417$; lead-knob death = support-merge, value-knob death = apex-mass collapse.</td></tr>
+
+<tr><td><strong>Methods</strong></td>
+<td class="grid-old">Siegel reach analysis; ODE for the competitive eq.; Maple discriminant / Xia–Yang root isolation.</td>
+<td class="grid-new">+ Forward shooting recursion; $\alpha$-homotopy + envelope; det-$J$/Sard transversality (generic uniqueness); <span class="mono">msolve</span> F4+FGLM on the cluster ($\approx 1700\times$ faster) through $(5,6)$.</td></tr>
+
+<tr><td><strong>Multi-period</strong></td>
+<td class="grid-old">§9 "More Than Two Periods": an ad-hoc $T=3$ collusive (stick-and-carrot) construction; general $T$ deferred to future work.</td>
+<td class="grid-new">Two-period analysis framed as <em>continuation values</em>; the 3-round motivating example shows them folding to any horizon by induction (punishments nest, bottoming out at $\sigma(m,n)$).</td></tr>
+
+<tr><td><strong>Motivating example</strong></td>
+<td class="grid-old">KC-X tanker procurement (Boeing vs. Northrop/Airbus), three lobbying-spend data tables, §1.1.</td>
+<td class="grid-new">Applications woven into prose (R&D, lobbying, tenure/partnership, sports); KC-X demoted. New <em>theoretical</em> motivating example (3-round collusion) to be inserted.</td></tr>
+
+<tr><td><strong>Competitive eq.</strong></td>
+<td class="grid-old">Symmetric power-cost CDF via ODE; "numerical solutions" apology for general polynomial costs.</td>
+<td class="grid-new">Same result, reframed: the characteristic polynomial is the truncated exponential $s_{\theta-1}$ (Schur/Szegő) — non-radical roots for $\theta\ge6$ are a <em>structural feature</em>, not a defect.</td></tr>
+
+<tr><td><strong>Algebraic structure</strong></td>
+<td class="grid-old">Implicit in the Maple computation; not surfaced as a result.</td>
+<td class="grid-new">$w(m,m)=\prod_k f_k$, $\deg f_k=2k{-}1$, with closed form $\mathrm{lc}(f_k)=2(2k{-}1)^2[3\cdot5\cdots(2k{-}3)]^4$ (through $k=5$). A loose-end / JME-flavored bonus, not the headline.</td></tr>
+
+<tr><td><strong>Target venue</strong></td>
+<td class="grid-old">GEB → rejected.</td>
+<td class="grid-new">JET ambition (was ET-default before the constructive engine).</td></tr>
+</table>
+
+<h2>4 · The engine, in one screen</h2>
+<p class="small">So you have a concrete feel for what "the comb march" is — symmetric quadratic case ($v_1=v_2=1,\ \Delta=0,\ c(e)=e^2$), then how it generalizes.</p>
+
+<div class="two">
+<div class="card">
+<p class="tag">Supports interleave</p>
+<p>P2's atoms and P1's atoms alternate along a comb,
+$$y_1<x_1<y_2<x_2<\cdots,\qquad y_1=0,$$
+and the FOC + indifference system marches outward from $y_1=0$.</p>
+<p class="tag">Atoms are ratios, masses are gaps</p>
+<p>With gap coordinates $d_j=y_{j+1}-x_j,\ \delta_j=x_j-y_j$,
+$$q_{j+1}=(1{+}Q_j)\,d_j(d_j{+}2),\quad p_j=(1{+}P_{j-1})\,\delta_j(\delta_j{+}2),$$
+so <strong>mass positivity $\iff$ interleaving</strong> — existence is read straight off the comb.</p>
+</div>
+<div class="card">
+<p class="tag">One dial closes it</p>
+<p>The whole sweep is driven by $q_1$ (P2's mass at $0$). One normalization fixes the leftover top mass; the other is a single scalar residual $F(q_1)=0$, solved by bisection. The apex payoff is closed-form:
+$$u_1^*=\frac{q_1^2}{1+q_1}\quad(\text{quadratic}),$$
+$$u_1^*=q_1\!\left[1-(1+\rho)^{1-\theta}\right],\ \ \rho=q_1^{1/(\theta-1)}\ \ (\text{cost-general}).$$</p>
+<p class="tag">Monotonicity, reduced</p>
+<p>Since $u_1^*$ rises in $q_1$, the chain decline is exactly "$q_1^*$ falls along the chain," and the new atom's mass equals $-F_{\text{prev}}(q_1)$. So the entire main theorem collapses to one lemma: <strong>$F'(q_1)>0$</strong> (single-crossing).</p>
+</div>
+</div>
+
+<p>What it unifies: the same march runs for <strong>quadratic symmetric</strong> (closed form per step), <strong>quadratic asymmetric</strong> — the whole $(v_1,v_2,\Delta)$ asymmetry collapses into one shift $f=w_2-w_1-\Delta$ entering only the boundary atom and P2's translated cost — and <strong>polynomial $\theta\ge3$</strong> (each step becomes a 1-D degree-$(\theta{-}1)$ root solve). That single procedure spanning the whole table is the "unifying" claim.</p>
+
+<h2>5 · Development status — proven vs. verified vs. open</h2>
+
+<table>
+<tr><th style="width:34%">Result</th><th>State</th><th style="width:18%">In the .tex?</th></tr>
+
+<tr><td>Last-round power Lemma; collusive equilibria; pure-strategy lemma</td>
+<td><span class="badge b-proven">proven</span> general convex $c$</td><td>yes</td></tr>
+
+<tr><td>Competitive equilibrium (symmetric, power cost)</td>
+<td><span class="badge b-proven">proven</span> via ODE + Schur reframing</td><td>yes (apology, not reframe)</td></tr>
+
+<tr><td>Cross-$m$ ranking $(2,2)\!\to\!(1,2)$, $u_1^*(2,2)<u_1^*(1,2)$</td>
+<td><span class="badge b-proven">proven</span> any strictly convex $c$ (envelope + Cramer); modulo a joint-existence/nesting caveat</td><td><span class="badge b-new">no</span></td></tr>
+
+<tr><td>Comb-march reduction: "new mass $=-F_{\text{prev}}$"; atom-monotonicity</td>
+<td><span class="badge b-proven">proven</span> (exact identity / barycenter lemma)</td><td><span class="badge b-new">no</span></td></tr>
+
+<tr><td>Chain monotonicity via $F'(q_1)>0$ (single-crossing)</td>
+<td><span class="badge b-partial">exact through $(5,5)$</span> both families; general-$n$ open</td><td><span class="badge b-new">no</span></td></tr>
+
+<tr><td>Asymmetric-quadratic monotonicity (value+lead+mixed)</td>
+<td><span class="badge b-partial">symbolic through $(5,5)/(4,4)$</span>; human hand-check pending</td><td><span class="badge b-new">no</span></td></tr>
+
+<tr><td>Generic uniqueness (det-$J$/Sard transversality)</td>
+<td><span class="badge b-partial">minors verified</span>; "regular $\Rightarrow$ unique" needs one more input (degree theory)</td><td><span class="badge b-new">no</span></td></tr>
+
+<tr><td>Breakdown dials $\theta^\star,\ \Delta^\star,\ v_1^\star$ + mechanism dichotomy</td>
+<td><span class="badge b-partial">numeric to 5 dp</span>; $\theta^\star=\log2/\log(4/3)$ exact</td><td>qualitative only<br><span class="small">(and a reciprocal typo on $\theta^\star$ to fix)</span></td></tr>
+
+<tr><td>Algebraic factorization $\deg f_k$, $\mathrm{lc}(f_k)$; cluster through $(5,6)$</td>
+<td><span class="badge b-partial">computed</span>; $(6,6),(6,7)$ pending</td><td><span class="badge b-new">no</span></td></tr>
+
+<tr><td><strong>The one open nub:</strong> general-$n$ gap-widening ($d_j'>0,\ \delta_j'>0$)</td>
+<td><span class="badge b-open">open</span> — needs a joint $(x,y)$ barycenter invariant (a real induction)</td><td>—</td></tr>
+
+<tr><td>Asymptote constant $C\approx0.27$–$0.30$; distributional convergence to the competitive density</td>
+<td><span class="badge b-open">open</span> (payoff convergence we have; density convergence we don't)</td><td>conjecture</td></tr>
+
+<tr><td>Motivating example's IC $\sup_x[V_A(x{-}y)-c(x)]\le0$; precise general-$T$ induction</td>
+<td><span class="badge b-open">open</span> — numeric + quadratic closed form to do</td><td><span class="badge b-new">no</span></td></tr>
+</table>
+
+<h2>6 · Claims we're writing ahead of the proofs</h2>
+<p>Working rule (from <span class="mono">EXAMPLE-TODO.md</span>): write the abstract/intro boldly to what we <em>aim</em> to prove, and log every claim that outruns its proof so recalibration at submission is mechanical. The ledger:</p>
+
+<table>
+<tr><th>Claim in the text</th><th>What we have</th><th>Fallback if the proof slips</th></tr>
+<tr><td>$\sigma(m,n)\to$ competitive <strong>density</strong> as support $\to\infty$</td><td>payoff convergence $u_1^*\to0$ (full dissipation)</td><td>"dissipation $\to$ competitive zero-rent pole; density convergence conjectured"</td></tr>
+<tr><td>Ranking/monotonicity for <strong>general polynomial</strong> costs</td><td>quadratic (modulo hand-check); reduced to one monotone lemma</td><td>restrict the theorem to quadratic; general as conjecture + numerics</td></tr>
+<tr><td>Asymmetric-quadratic monotonicity as <strong>one theorem</strong></td><td>machine-verified through $(5,5)/(4,4)$</td><td>state as "verified through $(5,5)$"; downgrade "theorem" to "we establish"</td></tr>
+<tr><td>Motivating example: collusive path is an SPE</td><td>construction + three-region argument</td><td>adjust displayed parameters, or weaken to "for a range of $(v_A,v_B)$"</td></tr>
+</table>
+
+<h2>7 · Where you could jump in</h2>
+<div class="two">
+<div class="card">
+<p class="tag">Highest leverage</p>
+<ul>
+<li><strong>The one open nub</strong> — general-$n$ gap-widening via a joint barycenter invariant. Closing it turns "verified through $(5,5)$" into a theorem and is the gate to the JET claim.</li>
+<li><strong>The motivating example's IC</strong> — pin $y$, verify $\sup_x[V_A(x{-}y)-c(x)]\le0$, identify where the Tier-1 threat disappears.</li>
+<li><strong>Hand-verify</strong> the asymmetric-quadratic monotonicity identities (referee-grade) — the machine has, a human hasn't.</li>
+</ul>
+</div>
+<div class="card">
+<p class="tag">Writing / editorial</p>
+<ul>
+<li>Fold the comb march into §4 as the engine behind the existence/ranking claims the intro already makes.</li>
+<li>Draft the 3-round motivating example section.</li>
+<li>Decisions to make together: title, where the M–V/Pavlov hook sits, whether the asymmetric threshold theorem goes in v1, length target, and the KC-X applied hook's fate.</li>
+<li>Small fixes: the $\theta^\star$ reciprocal typo; stale $\Gamma(\Delta,v_A,v_B)$ references flagged in the source.</li>
+</ul>
+</div>
+</div>
+
+<hr>
+<p class="meta">Sources: <span class="mono">JoffrionParreiras26.tex</span> (intro + body), <span class="mono">JoffrionParreiras14.tex</span> (v11 baseline), <span class="mono">EXAMPLE-TODO.md</span> (2026-07-23), <span class="mono">Docs/paper_decisions.md</span> (May/June — partly stale), and the comb-march / monotonicity / threshold docs (<span class="mono">chain_monotonicity_reduction.md</span>, <span class="mono">power_cost_recursion.html</span>, <span class="mono">comb_method_scope.md</span>, <span class="mono">general_algorithm_v1v2_delta.md</span>, <span class="mono">sard_generic_uniqueness.md</span>, <span class="mono">delta_mechanism_reconciliation.md</span>) + <span class="mono">Julia/converge/</span> and the cluster <span class="mono">rec.md</span>. Project-rotation git logs only start recently, so pre-2026 history is reconstructed from these artifacts rather than commit history.</p>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stieltjes integration by parts — reference and tricks</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Stieltjes integration by parts — reference and tricks</p>
+
+<p>A working reference for Riemann–Stieltjes integration by parts and the
+manoeuvres it unlocks when the integrator is a CDF. For the specific
+$\int F_H\,dF_H^{h-1}$ step in the drop-out proof, see the companion
+<code>stieltjes-by-parts.html</code>; this file is the general toolbox.</p>
+
+<p class="section">1. The integral, in one line</p>
+
+<p>For an integrand $g$ and an integrator $\alpha$ of bounded variation,</p>
+
+$$\int_a^b g\,d\alpha \;=\; \lim_{\|P\|\to 0}\sum_i g(\xi_i)\,\bigl[\alpha(x_i)-\alpha(x_{i-1})\bigr],$$
+
+<p>so $g$ is weighted by the increments of $\alpha$, not by $ds$. Three regimes
+in one notation: if $\alpha$ has density $\alpha'=a$, then $d\alpha=a\,ds$ and it
+is an ordinary integral $\int g\,a\,ds$; if $\alpha$ jumps by $\Delta\alpha(c)=
+\alpha(c^{+})-\alpha(c^{-})$ at $c$, that point contributes $g(c)\,\Delta\alpha(c)$;
+a mixed $\alpha$ simply adds the two. Writing $dF$ instead of $f\,ds$ is what lets
+a proof handle densities, atoms, and mixtures with one symbol.</p>
+
+<p class="note">Endpoint convention matters. For a right-continuous CDF use the
+half-open interval: $\int_{(a,b]} dF = F(b)-F(a)$. The notation $\int_a^b$ is
+ambiguous about whether a jump sitting on an endpoint is counted — when atoms are
+in play, write $(a,b]$ or $[a,b]$ explicitly.</p>
+
+<p class="section">2. Integration by parts — the continuous case</p>
+
+<p>If $u$ and $v$ are of bounded variation and share no point of discontinuity
+(in particular, if either is continuous),</p>
+
+<div class="box key">
+$$\int_a^b u\,dv \;+\; \int_a^b v\,du \;=\; u(b)v(b)-u(a)v(a)\;=\;[uv]_a^b.$$
+</div>
+
+<p>Symmetric in $u,v$ — the two integrals split the boundary term $[uv]_a^b$
+between them. Reading it as $\int u\,dv = [uv]_a^b-\int v\,du$ recovers the
+schoolbook rule. Almost every trick below is this identity with a clever choice
+of which factor is $u$ and which is $dv$.</p>
+
+<p class="section">3. Integration by parts — atom-safe</p>
+
+<p>When $u$ and $v$ may jump at the same point, the symmetric formula needs a
+correction. For right-continuous BV functions on $(a,b]$, the clean asymmetric
+form evaluates one factor from the left ($u(t^{-})$):</p>
+
+$$u(b)v(b)-u(a)v(a)\;=\;\int_{(a,b]} u(t^{-})\,dv(t)\;+\;\int_{(a,b]} v(t)\,du(t).$$
+
+<p>The fully symmetric version carries the jump-product sum explicitly, with
+$\Delta u(t)=u(t)-u(t^{-})$:</p>
+
+$$u(b)v(b)-u(a)v(a)\;=\;\int_{(a,b]} u(t^{-})\,dv\;+\;\int_{(a,b]} v(t^{-})\,du\;+\!\!\sum_{a<t\le b}\!\!\Delta u(t)\,\Delta v(t).$$
+
+<p>The lone $\sum\Delta u\,\Delta v$ is precisely what the continuous-case rule
+silently assumes away. This is the "stochastic integration by parts" used for
+mixed distributions and discrete-continuous hybrids.</p>
+
+<p class="section">4. Trick — the survival/tail formula</p>
+
+<p>The single most used consequence. For $X\ge 0$ with $\bar F=1-F$,</p>
+
+<div class="box">
+$$\mathbb E[X]=\int_0^\infty x\,dF(x)=\int_0^\infty \bar F(x)\,dx.$$
+</div>
+
+<p>By parts on $[0,b]$: $\int_0^b x\,dF=[x\,F]_0^b-\int_0^b F\,dx
+= bF(b)-\int_0^b F\,dx = \int_0^b\bar F\,dx - b\bar F(b)$. The boundary term
+$b\bar F(b)\to 0$ exactly when the mean is finite — that vanishing is the whole
+content of the identity, and the place sloppy proofs go wrong. On the real line:
+$\mathbb E[X]=\int_0^\infty\bar F\,dx-\int_{-\infty}^0 F\,dx$.</p>
+
+<p class="note">Layer-cake generalization: for $\phi$ with $\phi(0)=0$ and $\phi$
+absolutely continuous, $\mathbb E[\phi(X)]=\int_0^\infty \phi'(x)\,\bar F(x)\,dx$
+for $X\ge0$ — replace "area under $\bar F$" by "$\phi'$-weighted area."</p>
+
+<p class="section">5. Trick — powers of a CDF (order statistics)</p>
+
+<p>If $X_1,\dots,X_n$ are iid with CDF $F$, the maximum $M_n=\max_i X_i$ has CDF
+$F^n$, and</p>
+
+$$d\bigl(F^n\bigr)=n\,F^{n-1}\,dF,\qquad
+\mathbb E[M_n]=\int s\,dF^{n}(s)=\int_0^\infty\bigl(1-F^{n}\bigr)\,dx.$$
+
+<p>The differential rule $dF^{n}=nF^{n-1}dF$ is the chain rule inside the
+Stieltjes integral, valid whenever $F$ is continuous; it is what turns
+$\int s\,dF_H^{h-1}$ (expected top of $h-1$ rivals) into something integrable in
+closed form. By parts, $\int_a^b s\,dF^{n}=bF^{n}(b)-aF^{n}(a)-\int_a^b F^{n}\,ds$
+— the move behind the Proposition&nbsp;1 boundary manipulation.</p>
+
+<p class="section">6. Trick — the probability integral transform</p>
+
+<p>Substituting $u=F(x)$ (legitimate when $F$ is continuous, so the interval maps
+continuously onto a $u$-interval) turns any CDF-integral into a plain integral
+over $[0,1]$:</p>
+
+$$\int g(x)\,dF(x)=\int_0^1 g\bigl(F^{-1}(u)\bigr)\,du,\qquad U=F(X)\sim\mathrm U[0,1].$$
+
+<p>This is why $\int F^{h-1}\,dF=\int_0^1 u^{h-1}\,du=\tfrac1h$ collapses instantly:
+the integrand became a monomial. Whenever the integrand is a function of $F$
+itself, transform first and integrate a polynomial.</p>
+
+<p class="section">7. Trick — hazard and reverse-hazard differentials</p>
+
+<p>Two logarithmic-derivative identities convert rate conditions into integrals
+and back. With forward hazard $r=f/\bar F$ and reverse hazard $\tilde r=f/F$,</p>
+
+$$dF=F\,\tilde r\,dx,\qquad d\!\ln F=\tilde r\,dx,\qquad
+\bar F(x)=\exp\!\Bigl(-\!\int_0^x r(t)\,dt\Bigr).$$
+
+<p>The reverse-hazard form is the bridge to the star-order footnote: since
+$\dfrac{d}{dx}\ln\dfrac{F(x)}{x}=\tilde r(x)-\dfrac1x$, the ratio $F(x)/x$ is
+non-increasing exactly when $\tilde r\le 1/x$. Monotone-ratio hypotheses and
+hazard-rate hypotheses are the same statement read through this differential.</p>
+
+<p class="section">8. Trick — partial expectations and truncation</p>
+
+<p>By parts on a finite window gives the conditional-tail building blocks
+directly:</p>
+
+$$\int_a^b s\,dF(s)=[s\,F]_a^b-\int_a^b F\,ds,\qquad
+\mathbb E\!\left[X\mathbf 1_{\{X>a\}}\right]=a\,\bar F(a)+\int_a^\infty\bar F\,dx.$$
+
+<p>The second is the survival trick truncated at $a$; dividing by $\bar F(a)$
+yields $\mathbb E[X\mid X>a]$ without touching a density. The same skeleton gives
+the expected-shortfall and incomplete-moment formulas used throughout
+auction and insurance calculations.</p>
+
+<p class="section">9. Trick — Hoeffding's covariance identity</p>
+
+<p>A two-dimensional integration by parts expresses covariance through the gap
+between the joint CDF and the product of the marginals:</p>
+
+$$\operatorname{Cov}(X,Y)=\int_{-\infty}^{\infty}\!\!\int_{-\infty}^{\infty}
+\bigl[F_{XY}(x,y)-F_X(x)F_Y(y)\bigr]\,dx\,dy.$$
+
+<p>Useful because it reduces a correlation question to a sign question about
+$F_{XY}-F_XF_Y$ (the basis of association orders), with no densities required.</p>
+
+<p class="section">10. Pitfalls</p>
+
+<div class="box">
+<p>— Shared atoms. The continuous-case rule of §2 drops the $\sum\Delta u\,\Delta v$
+term; if $u$ and $v$ jump together, use §3 or the answer is wrong by that sum.</p>
+<p>— Endpoint jumps. $\int_{(a,b]}$ and $\int_{[a,b]}$ differ by $g(a)\,\Delta F(a)$.
+Fix the convention before evaluating boundary terms.</p>
+<p>— Vanishing boundary term. The tail formula $\mathbb E[X]=\int\bar F$ needs
+$b\bar F(b)\to0$; this is a hypothesis (finite mean), not automatic.</p>
+<p>— Transform validity. The substitution $u=F(x)$ of §6 needs $F$ continuous;
+an atom makes $u=F(x)$ skip an interval and breaks the closed form.</p>
+</div>
+
+</body>
+</html>

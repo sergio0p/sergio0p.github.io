@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tropical cell structure of the Round-2 payoff Π₂(v;(p,q))</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  :root{--ink:#1a1a1a;--mut:#6b7280;--line:#e5e7eb;--bg:#fbfbfa;--accent:#7c3aed;}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+       max-width:880px;margin:0 auto;padding:36px 24px 90px;line-height:1.55;}
+  h1{font-size:1.7rem;line-height:1.25;margin:0 0 4px}
+  h2{font-size:1.28rem;margin:2.4em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:.25em}
+  h3{font-size:1.06rem;margin:1.6em 0 .4em}
+  .sub{color:var(--mut);font-style:italic;margin:0 0 1.4em}
+  p{margin:.6em 0}
+  .box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1.1em 0;
+       box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .layer{display:flex;gap:14px;flex-wrap:wrap}
+  .layer .box{flex:1;min-width:280px}
+  .tag{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:.72rem;letter-spacing:.04em;
+       text-transform:uppercase;color:#fff;background:var(--accent);padding:2px 8px;border-radius:999px;margin-bottom:6px}
+  .tag.cls{background:#0d9488}
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.6em 0}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:#f4f4f5;font-weight:bold}
+  code,.mono{font-family:ui-monospace,Menlo,monospace;font-size:.86em}
+  .word{font-family:ui-monospace,Menlo,monospace;font-size:.82rem;white-space:nowrap}
+  .fig{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin:1em 0}
+  .cap{font-size:.84rem;color:var(--mut);margin-top:.5em}
+  .legrow{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:.86rem}
+  .sw{width:16px;height:16px;border-radius:3px;border:1px solid #0002;flex:none}
+  .pill{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:1px 7px;font-family:ui-monospace,monospace;font-size:.82em}
+  .warn{background:#fff7ed;border:1px solid #fed7aa}
+  .ok{background:#f0fdf4;border:1px solid #bbf7d0}
+  .small{font-size:.86rem;color:var(--mut)}
+  svg{max-width:100%}
+  .corner{background:#faf5ff;border:1px solid #e9d5ff}
+</style>
+</head>
+<body>
+
+<h1>Tropical cell structure of the Round-2 payoff $\Pi_2(v;(p,q))$</h1>
+<p class="sub">Two-bidder all-pay finale of the elimination contest — how the discrete-type
+equilibrium decomposes into a <b>tropical (min-plus) cell complex</b> carrying a
+<b>classical affine map</b> on each cell. All forms below are machine-verified (exact rational
+arithmetic): the composed solver matches the direct solver with <b>0 mismatches</b>.</p>
+
+<h2>1. The global object</h2>
+<p>Each finalist arrives at Round 2 carrying a believed type-distribution: player $A$ a vector
+$p=(p_0,p_1,p_2)$ over values $(v_L,v_M,v_H)=(1,2,3)$, player $B$ a vector $q=(q_0,q_1,q_2)$.
+The interim payoff of $A$'s type $v$ is a function $\Pi_2(v;(p,q))$ of the <i>pair</i> of
+reputations. It is convenient to use the <b>reputation tails</b></p>
+$$A_2=p_1+p_2,\quad A_3=p_2,\qquad B_2=q_1+q_2,\quad B_3=q_2 .$$
+<p>The headline structure:</p>
+<div class="box ok">
+$\Pi_2(v;\cdot)$ is <b>piecewise-affine</b> over a polyhedral subdivision of reputation space.
+The subdivision (which cell you are in) is decided by a <b>min-plus</b> computation; inside each
+cell the payoff is an ordinary <b>affine</b> function. It is <b><i>not</i></b> a single tropical
+polynomial — there is no global $\min$/$\max$ collapse (see §6).
+</div>
+
+<h2>2. The two layers</h2>
+<p>The whole equilibrium is built by an interval construction that sweeps the bid axis from the
+top down, peeling off one segment at a time. On a segment where $A$'s active value is $a$ and
+$B$'s is $c$, the two finalists deplete the probability mass of their current type at rates fixed
+by mutual indifference; the segment ends when one of them runs out. That single decision — <i>who
+runs out first</i> — is the only nonlinearity in the entire algorithm.</p>
+
+<div class="layer">
+  <div class="box">
+    <span class="tag">Layer 1 · tropical</span>
+    <h3 style="margin-top:.2em">Which cell — the regime <i>word</i></h3>
+    <p>The race between the two depletions is</p>
+    $$L=\min\big(r_A\!\cdot\! c,\; r_B\!\cdot\! a\big)
+       =\big(r_A\!\otimes\! c\big)\oplus\big(r_B\!\otimes\! a\big),$$
+    <p class="small">in the min-plus semiring $(\oplus,\otimes)=(\min,+)$ on log-coordinates,
+    values entering as additive tropical constants $\log v$. Recording the <b>argmin</b> at each
+    segment (<span class="mono">:A</span>, <span class="mono">:B</span>, or a tie
+    <span class="mono">:AB</span>) yields a <b>word</b> — and the word <i>is</i> the cell.</p>
+  </div>
+  <div class="box">
+    <span class="tag cls">Layer 2 · classical</span>
+    <h3 style="margin-top:.2em">What the payoff is — affine replay</h3>
+    <p>With the word fixed, every $\min$ is resolved, so the construction is a deterministic
+    <span class="mono">diag(1/v)</span>-weighted linear pipeline. Each type's payoff comes out as
+    one affine form</p>
+    $$\Pi_2(v_k)=v_k\,H_B(b^{\text{lo}}_k)-b^{\text{lo}}_k,$$
+    <p class="small">an affine function of $(p,q)$ on the cell. The $\tfrac13,\tfrac16,\dots$
+    coefficients are exactly the classical $1/v$ weights — they are not tropical.</p>
+  </div>
+</div>
+<p class="small">Maslov-dequantization footnote: the $\;T\!\to\!0\;$ limit of the softmax / entropic
+best response, $\,T\log\sum_b e^{U/T}\to\max_b U$, <i>is</i> this max-plus limit — the trembles and
+temperature in the deep-learning solver are the dequantization parameter.</p>
+
+<h2>3. Warm-up: two types ($v_L=1,\,v_H=3$)</h2>
+<p>With only two types each finalist's reputation is a single scalar — $\mu=p_2$ (chance $A$ is High),
+$\nu=q_2$ (chance $B$ is High). Reputation space is the unit square, and there is exactly
+<b>one wall</b>, the diagonal $\mu=\nu$, splitting it into <b>two cells</b>:</p>
+
+<div class="fig">
+  <svg width="280" height="280" viewBox="0 0 280 280" aria-label="binary cell square">
+    <rect x="40" y="20" width="220" height="220" fill="#fff" stroke="#1a1a1a"/>
+    <!-- mu>nu lower-right triangle -->
+    <polygon points="40,240 260,240 260,20" fill="#4e79a7" opacity=".18"/>
+    <!-- mu<nu upper-left triangle -->
+    <polygon points="40,240 40,20 260,20" fill="#e15759" opacity=".16"/>
+    <line x1="40" y1="240" x2="260" y2="20" stroke="#7c3aed" stroke-width="2.5"/>
+    <text x="200" y="205" font-size="12" font-family="monospace" fill="#1f3a5f">word [B,A,A]</text>
+    <text x="200" y="220" font-size="11" fill="#1f3a5f">$\mu>\nu$</text>
+    <text x="58" y="56" font-size="12" font-family="monospace" fill="#7a2b2c">word [A,B,B]</text>
+    <text x="58" y="71" font-size="11" fill="#7a2b2c">$\mu<\nu$</text>
+    <text x="150" y="270" font-size="13" text-anchor="middle">$\mu=p_2\;\to$</text>
+    <text x="16" y="130" font-size="13" text-anchor="middle" transform="rotate(-90 16 130)">$\nu=q_2\;\to$</text>
+    <text x="150" y="135" font-size="12" fill="#7c3aed" transform="rotate(-45 150 135)">wall $\mu=\nu$</text>
+  </svg>
+  <div style="flex:1;min-width:300px">
+    <table>
+      <tr><th>cell</th><th>$U_A(\text{Low})$</th><th>$U_A(\text{High})$</th><th>atom</th><th>$\bar b$</th></tr>
+      <tr><td class="word">[B,A,A]&nbsp; $\mu>\nu$</td><td>$\tfrac23(\mu-\nu)$</td><td>$2-2\nu$</td>
+          <td>$B$: $\tfrac23(\mu-\nu)$</td><td>$1+2\nu$</td></tr>
+      <tr><td class="word">[A,B,B]&nbsp; $\mu<\nu$</td><td>$0$</td><td>$2-2\mu$</td>
+          <td>$A$: $\tfrac23(\nu-\mu)$</td><td>$1+2\mu$</td></tr>
+    </table>
+    <p>Gluing the two affine pieces across the wall reproduces the familiar closed forms</p>
+    $$U_A(\text{High})=2\big(1-\min(\mu,\nu)\big),\qquad
+      U_A(\text{Low})=\tfrac23(\mu-\nu)^{+}.$$
+    <p class="small">Here the single scalar $\min(\mu,\nu)$ <i>is</i> the whole tropical content:
+    the payoff is a genuine tropical polynomial of degree 1. This clean collapse is special to two
+    types — it does not survive.</p>
+  </div>
+</div>
+
+<h2>4. Three types: the ten cells</h2>
+<p>With a middle type the reputation of each finalist becomes the 2-vector $(A_2,A_3)$, the joint
+space is 4-dimensional, and the subdivision has <b>ten full-dimensional cells</b> (regime words of
+length 4–5). The <span class="mono">:AB</span> tie-words are the lower-dimensional walls between
+them — the tropical hypersurface. Top type $U_A(v_H)=3-\bar b$ on each cell:</p>
+
+<table>
+<tr><th>#</th><th>regime word</th><th>$U_A(v_H)$ on the cell &nbsp;(tail coordinates)</th><th></th></tr>
+<tr><td>1</td><td class="word">[B,A,B,A,A]</td><td>$2-B_2-\tfrac13A_3-\tfrac23B_3$</td><td class="small">central</td></tr>
+<tr><td>2</td><td class="word">[A,B,A,B,B]</td><td>$2-A_2-\tfrac23A_3-\tfrac13B_3$</td><td class="small">central</td></tr>
+<tr><td>3</td><td class="word">[B,A,A,B,B]</td><td>$2-A_2-\tfrac13A_3-\tfrac23B_3$</td><td class="small">central</td></tr>
+<tr><td>4</td><td class="word">[A,B,B,A,A]</td><td>$2-B_2-\tfrac23A_3-\tfrac13B_3$</td><td class="small">central</td></tr>
+<tr><td>5</td><td class="word">[B,A,A,B,A]</td><td>$2-\tfrac12(A_2{+}B_2)-\tfrac16A_3-\tfrac56B_3$</td><td class="small">mixed</td></tr>
+<tr><td>6</td><td class="word">[A,B,B,A,B]</td><td>$2-\tfrac12(A_2{+}B_2)-\tfrac56A_3-\tfrac16B_3$</td><td class="small">mixed</td></tr>
+<tr><td>7</td><td class="word">[B,B,A,A,A]</td><td>$2-\tfrac32B_2-\tfrac12B_3$</td><td class="small">$B$-heavy edge</td></tr>
+<tr><td>8</td><td class="word">[A,A,B,B,B]</td><td>$2-\tfrac32A_2-\tfrac12A_3$</td><td class="small">$A$-heavy edge</td></tr>
+<tr style="background:#faf5ff"><td>9</td><td class="word">[B,A,A,A]</td><td>$\;1-B_3$</td><td class="small">$A$-corner (4-seg)</td></tr>
+<tr style="background:#faf5ff"><td>10</td><td class="word">[A,B,B,B]</td><td>$\;1-A_3$</td><td class="small">$B$-corner (4-seg)</td></tr>
+</table>
+<p class="small">The eight length-5 cells (1–8) come in four player-swap mirror pairs
+$\{1,4\},\{2,3\},\{5,6\},\{7,8\}$. Cells 9–10 are the <b>lopsided corners</b>: one finalist is so
+concentrated on $v_H$ that it exhausts <i>all</i> its types before the bids reach zero, giving a
+short 4-segment word and the simplest forms of all, $1-B_3$ and $1-A_3$.</p>
+
+<h2>5. A 2-D slice of the complex</h2>
+<p>Fix the middle masses ($p_1=q_1=\tfrac15$) and sweep $p_2$ (horizontal) against $q_2$ (vertical).
+This plane cuts the 4-D complex in four cells meeting along the diagonal wall $A\!\leftrightarrow\!B$
+of balanced reputation. Each colour is one affine piece.</p>
+<div class="fig">
+  <div>
+    <canvas id="cv" width="330" height="330" style="border:1px solid #1a1a1a;background:#fff"></canvas>
+    <div class="cap">horizontal $p_2$ (A's High mass) $0\!\to\!0.78$ &nbsp;·&nbsp;
+      vertical $q_2$ (B's High mass) $0\!\to\!0.78$ &nbsp;·&nbsp; black = $\,$:AB$\,$ tie-wall</div>
+  </div>
+  <div style="flex:1;min-width:230px">
+    <div class="legrow"><span class="sw" style="background:#4e79a7"></span>
+      <span class="word">[B,A,B,A,A]</span> $\,2-B_2-\tfrac13A_3-\tfrac23B_3$</div>
+    <div class="legrow"><span class="sw" style="background:#59a14f"></span>
+      <span class="word">[A,B,A,B,B]</span> $\,2-A_2-\tfrac23A_3-\tfrac13B_3$</div>
+    <div class="legrow"><span class="sw" style="background:#f28e2b"></span>
+      <span class="word">[B,B,A,A,A]</span> $\,2-\tfrac32B_2-\tfrac12B_3$</div>
+    <div class="legrow"><span class="sw" style="background:#e15759"></span>
+      <span class="word">[A,A,B,B,B]</span> $\,2-\tfrac32A_2-\tfrac12A_3$</div>
+    <div class="legrow"><span class="sw" style="background:#222"></span>
+      tie-wall (tropical hypersurface)</div>
+    <p class="small">The continuous payoff bends — but does not break — across every wall:
+    adjacent affine forms agree on the shared face.</p>
+  </div>
+</div>
+
+<h2>6. Why it is <i>not</i> one tropical polynomial</h2>
+<p>Each cell's affine form is exact <i>inside its own cell</i> but <b>overshoots outside</b> it.
+Taking the global $\max$ of all ten forms therefore <b>fails ~99%</b> of random points — the function
+is neither globally convex nor concave. (An earlier "$U_A(v_H)=\max$ of 8 forms" reading was a
+sampling artifact of the generic interior; the two corner cells 9–10 break it.) The honest object
+is exactly the two-layer picture:</p>
+<div class="box warn">
+<b>tropical cell complex</b> (Layer 1 — min-plus, picks 1 of 10 cells) &nbsp;$\;\circ\;$&nbsp;
+<b>classical affine map</b> (Layer 2 — one linear form per cell). &nbsp;No global envelope.
+</div>
+
+<h2>7. Worked three-type example</h2>
+<p>Take $A$ High-heavy and $B$ Low-heavy:
+$p=(\tfrac15,\tfrac{3}{10},\tfrac12),\; q=(\tfrac12,\tfrac{3}{10},\tfrac15).$
+Layer 1 returns the word <span class="word">[B,A,B,A,A]</span> — cell&nbsp;1. Layer 2 replays it:</p>
+<table>
+<tr><th>segment (top→down)</th><th>$A$ active $a$</th><th>$B$ active $c$</th><th>length $L$</th>
+    <th>mass $A$</th><th>mass $B$</th><th>exhausts</th></tr>
+<tr><td>1</td><td>3</td><td>3</td><td>$3/5$</td><td>$1/5$</td><td>$1/5$</td><td class="mono">:B</td></tr>
+<tr><td>2</td><td>3</td><td>2</td><td>$3/5$</td><td>$3/10$</td><td>$1/5$</td><td class="mono">:A</td></tr>
+<tr><td>3</td><td>2</td><td>2</td><td>$1/5$</td><td>$1/10$</td><td>$1/10$</td><td class="mono">:B</td></tr>
+<tr><td>4</td><td>2</td><td>1</td><td>$1/5$</td><td>$1/5$</td><td>$1/10$</td><td class="mono">:A</td></tr>
+<tr><td>5</td><td>1</td><td>1</td><td>$1/5$</td><td>$1/5$</td><td>$1/5$</td><td class="mono">:A</td></tr>
+</table>
+<p>Totals: $\bar b=\tfrac95$, atom $A=0$, atom $B=\tfrac15$ (the weaker finalist concedes mass at $0$),</p>
+$$U_A=\big(\underbrace{\tfrac15}_{v_L},\underbrace{\tfrac35}_{v_M},\underbrace{\tfrac65}_{v_H}\big),
+  \qquad
+  U_B=\big(0,\;\tfrac25,\;\tfrac65\big).$$
+<p>Cross-check against the cell-1 form: with $A_3=p_2=\tfrac12$, $B_2=q_1{+}q_2=\tfrac12$,
+$B_3=q_2=\tfrac15$,
+$\;U_A(v_H)=2-B_2-\tfrac13A_3-\tfrac23B_3=2-\tfrac12-\tfrac16-\tfrac{2}{15}=\tfrac65.$ ✓
+And the bottom type matches the generic-cell rent
+$U_A(v_L)=\big[\tfrac12(A_2-B_2)+\tfrac16(A_3-B_3)\big]^{+}=\big[\tfrac12(\tfrac{4}{5}-\tfrac12)+\tfrac16(\tfrac12-\tfrac15)\big]^{+}=\tfrac15.$ ✓</p>
+
+<h2>8. Takeaway for the contest</h2>
+<p>The binary $\min(\mu,\nu)$ collapse is a degree-1 accident. With three types the Round-2 payoff
+carries <b>ten affine pieces</b> over a tropical subdivision of a 4-dimensional reputation space.
+For the Round-1 fixed point the number that matters — how many pieces of $\Pi_2$ the belief map can
+visit — is <b>10</b>, and it is pure Layer-1 combinatorics, computable with no bid-space arithmetic.</p>
+<p class="small">Verification: composed solver (Layer 1 $\circ$ Layer 2) vs. direct interval-construction
+solver — 0 mismatches on bbar, both atoms, and all of $U_A,U_B$ over 6000 random $(p,q)$;
+own-cell affine form vs. exact $U_A(v_H)$ — 0 mismatches over 40000 points; exact rational arithmetic.</p>
+
+<script>
+const GRID = ["444444444444444444444444444444444444333333333333333333333330","444444444444444444444444444444444443333333333333333333333301","444444444444444444444444444444444433333333333333333333333011","444444444444444444444444444444444333333333333333333333330111","444444444444444444444444444444443333333333333333333333301111","444444444444444444444444444444433333333333333333333333011111","444444444444444444444444444444333333333333333333333330111111","444444444444444444444444444443333333333333333333333301111111","444444444444444444444444444433333333333333333333333011111111","444444444444444444444444444333333333333333333333330111111111","444444444444444444444444443333333333333333333333301111111111","444444444444444444444444433333333333333333333333011111111111","444444444444444444444444333333333333333333333330111111111111","444444444444444444444443333333333333333333333301111111111111","444444444444444444444433333333333333333333333011111111111111","444444444444444444444333333333333333333333330111111111111111","444444444444444444443333333333333333333333301111111111111111","444444444444444444433333333333333333333333011111111111111111","444444444444444444333333333333333333333330111111111111111111","444444444444444443333333333333333333333301111111111111111111","444444444444444433333333333333333333333011111111111111111111","444444444444444333333333333333333333330111111111111111111111","444444444444443333333333333333333333301111111111111111111111","444444444444433333333333333333333333011111111111111111111111","444444444444333333333333333333333330111111111111111111111112","444444444443333333333333333333333301111111111111111111111122","444444444433333333333333333333333011111111111111111111111222","444444444333333333333333333333330111111111111111111111112222","444444443333333333333333333333301111111111111111111111122222","444444433333333333333333333333011111111111111111111111222222","444444333333333333333333333330111111111111111111111112222222","444443333333333333333333333301111111111111111111111122222222","444433333333333333333333333011111111111111111111111222222222","444333333333333333333333330111111111111111111111112222222222","443333333333333333333333301111111111111111111111122222222222","433333333333333333333333011111111111111111111111222222222222","333333333333333333333330111111111111111111111112222222222222","333333333333333333333301111111111111111111111122222222222222","333333333333333333333011111111111111111111111222222222222222","333333333333333333330111111111111111111111112222222222222222","333333333333333333301111111111111111111111122222222222222222","333333333333333333011111111111111111111111222222222222222222","333333333333333330111111111111111111111112222222222222222222","333333333333333301111111111111111111111122222222222222222222","333333333333333011111111111111111111111222222222222222222222","333333333333330111111111111111111111112222222222222222222222","333333333333301111111111111111111111122222222222222222222222","333333333333011111111111111111111111222222222222222222222222","333333333330111111111111111111111112222222222222222222222222","333333333301111111111111111111111122222222222222222222222222","333333333011111111111111111111111222222222222222222222222222","333333330111111111111111111111112222222222222222222222222222","333333301111111111111111111111122222222222222222222222222222","333333011111111111111111111111222222222222222222222222222222","333330111111111111111111111112222222222222222222222222222222","333301111111111111111111111122222222222222222222222222222222","333011111111111111111111111222222222222222222222222222222222","330111111111111111111111112222222222222222222222222222222222","301111111111111111111111122222222222222222222222222222222222","011111111111111111111111222222222222222222222222222222222222"];
+const COL = {"0":"#222222","1":"#4e79a7","2":"#f28e2b","3":"#59a14f","4":"#e15759"};
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+const n = GRID.length, s = cv.width / n;
+for (let r=0;r<n;r++){ const row=GRID[r];
+  for (let c=0;c<n;c++){ ctx.fillStyle = COL[row[c]]||"#fff"; ctx.fillRect(c*s, r*s, Math.ceil(s), Math.ceil(s)); } }
+</script>
+</body>
+</html>

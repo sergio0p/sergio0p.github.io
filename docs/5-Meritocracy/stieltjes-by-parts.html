@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stieltjes integration by parts in the drop-out proof</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Stieltjes integration by parts in the drop-out proof</p>
+
+<p>The proof of Proposition&nbsp;1 replaces the integral
+$\int_{\underline v_H}^{z} F_H(s)\,dF_H^{h-1}(s)$ by the closed form
+$\tfrac{h-1}{h}F_H(z)^h$, citing only "continuity of $F_H$ and the Stieltjes
+integration by parts." Here is that one clause, fully unpacked.</p>
+
+<p class="section">1. Reading the integral</p>
+
+<p>A Stieltjes integral $\int_a^z g(s)\,dG(s)$ is the limit of the sums</p>
+
+$$\sum_i g(s_i)\,\bigl[\,G(s_{i+1})-G(s_i)\,\bigr],$$
+
+<p>so you weight $g$ by the <em>increments of $G$</em> instead of by $ds$. If $G$
+happens to have a density, $G'=\gamma$, then $dG=\gamma\,ds$ and the whole thing
+collapses to the ordinary integral $\int_a^z g(s)\,\gamma(s)\,ds$. The Stieltjes
+form is exactly what lets the proof write $dF_H^{h-1}$ directly, without ever
+assuming $F_H$ has a density.</p>
+
+<p>In context, $G=F_H^{h-1}$ is the distribution of the highest of the $h-1$ rival
+H-valuations, so $dF_H^{h-1}(s)$ is the chance that this top rival lands near $s$.</p>
+
+<p class="section">2. The by-parts rule</p>
+
+<p>For two functions $u,v$ of bounded variation with no common point of
+discontinuity,</p>
+
+$$\int_a^z u\,dv \;+\; \int_a^z v\,du \;=\; u(z)\,v(z) - u(a)\,v(a).$$
+
+<p>This is the exact analogue of the familiar $\int u\,dv = uv-\int v\,du$; the
+boundary term $u(z)v(z)-u(a)v(a)$ plays the role of $[uv]_a^z$. The only fine
+print — "no common discontinuity" — is satisfied for free here, because $F_H$ is
+continuous. That single fact is the entire regularity the step uses.</p>
+
+<p class="section">3. The computation</p>
+
+<p>We want</p>
+
+$$A \;=\; \int_{\underline v_H}^{z} F_H(s)\,dF_H^{h-1}(s).$$
+
+<p>Put $u=F_H$ and $v=F_H^{h-1}$ in the by-parts rule. Then $uv=F_H\cdot F_H^{h-1}=F_H^{h}$,
+and since $F_H(\underline v_H)=0$ the lower boundary term vanishes, leaving</p>
+
+$$\underbrace{\int_{\underline v_H}^{z} F_H\,dF_H^{h-1}}_{A}
+\;+\;
+\underbrace{\int_{\underline v_H}^{z} F_H^{h-1}\,dF_H}_{B}
+\;=\; F_H(z)^h. \qquad (1)$$
+
+<p>So the two integrals add to $F_H(z)^h$. One more relation pins down $A$ alone.
+Evaluate $B$ by the substitution $u=F_H(s)$ — legitimate precisely because $F_H$ is
+continuous, so as $s$ runs from $\underline v_H$ to $z$, $u$ runs continuously from
+$0$ to $F_H(z)$:</p>
+
+$$B=\int_{\underline v_H}^{z} F_H^{h-1}\,dF_H
+=\int_0^{F_H(z)} u^{h-1}\,du
+=\frac{1}{h}\,F_H(z)^h. \qquad (2)$$
+
+<p>Substituting $(2)$ into $(1)$ gives $A = F_H(z)^h - \tfrac1h F_H(z)^h$, that is,</p>
+
+<div class="box key">
+$$\int_{\underline v_H}^{z} F_H(s)\,dF_H^{h-1}(s)\;=\;\frac{h-1}{h}\,F_H(z)^h.$$
+</div>
+
+<p>This is the substitution made in the L-deviation line of the proof: the awkward
+$\dfrac{\overline v_L}{1-\lambda}\displaystyle\int_{\underline v_H}^{z} F_H\,dF_H^{h-1}$
+becomes the clean
+$\dfrac{\overline v_L}{1-\lambda}\dfrac{h-1}{h}F_H(z)^h$.</p>
+
+<p class="section">4. Why continuity — not a density — is enough</p>
+
+<p>Track where regularity actually entered. The by-parts rule needed $u$ and $v$ to
+share no jump: true because $F_H$ is continuous. The evaluation of $B$ needed the
+substitution $u=F_H(s)$ to carry the interval continuously onto $[0,F_H(z)]$: again
+just continuity, i.e. atomlessness. At no point was $F_H$ differentiated — what got
+differentiated was $u^{h-1}$, a plain polynomial. So no density, and hence no
+absolute continuity, is required; an atomless $F_H$ suffices.</p>
+
+<p>Indeed the whole identity is one substitution end to end:</p>
+
+$$A=\int_{\underline v_H}^{z} F_H\,d\!\left(F_H^{h-1}\right)
+=\int_0^{F_H(z)} u\,d\!\left(u^{h-1}\right)
+=(h-1)\int_0^{F_H(z)} u^{h-1}\,du
+=\frac{h-1}{h}\,F_H(z)^h.$$
+
+<p class="note">An atom would break both moves at once: a jump in $F_H$ at some
+$v^\*$ is a common discontinuity of $u$ and $v$ (boundary term picks up the jump),
+and the substitution $u=F_H(s)$ skips the interval $[F_H(v^{\*-}),F_H(v^{\*})]$ —
+the closed form $\tfrac{h-1}{h}F_H^h$ then fails. This is the same atomless
+requirement discussed for $F_H,F_L$ generally.</p>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Literature — bid-dependent value of winning in all-pay auctions</title>
+<style>
+  :root { --ink:#1a1a1a; --mut:#566; --bg:#fbfbf9; --box:#f1f3f4; --key:#eef6ef; --line:#d8d8d2; }
+  html { -webkit-text-size-adjust:100%; }
+  body { max-width: 50rem; margin: 2.2rem auto 6rem; padding: 0 1.1rem;
+         font: 16px/1.62 Georgia, "Iowan Old Style", "Palatino Linotype", serif; color: var(--ink); background: var(--bg); }
+  h1 { font-size: 1.6rem; line-height:1.25; margin: 0 0 .2rem; }
+  h2 { font-size: 1.16rem; margin: 2.2rem 0 .5rem; border-bottom: 1px solid var(--line); padding-bottom: .2rem; }
+  .sub { color: var(--mut); font-size: .92rem; margin: 0 0 1.4rem; }
+  p, li { color: #222; }
+  .box { background: var(--box); border: 1px solid var(--line); border-radius: 7px; padding: .7rem 1rem; margin: 1rem 0; }
+  .key { background: var(--key); border-color: #bcd6bf; }
+  .note { color: var(--mut); font-size: .9rem; }
+  .tag { display:inline-block; font: .72rem/1 "SF Mono", Menlo, monospace; background:#e7eef7;
+         color:#2a5d8f; border:1px solid #c4d6ea; border-radius:4px; padding:.18em .4em; margin-left:.3em; vertical-align:.05em; }
+  .flag { display:inline-block; font: .72rem/1 "SF Mono", Menlo, monospace; background:#fbeee6;
+          color:#9a5a2a; border:1px solid #ecc9ad; border-radius:4px; padding:.18em .4em; margin-left:.3em; vertical-align:.05em; }
+  ul { padding-left: 1.25rem; } li { margin: .5rem 0; }
+  .cite { font-weight: bold; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 2rem 0; }
+  a { color: #2a5d8f; }
+</style>
+</head>
+<body>
+
+<h1>All-pay auctions where the <em>value of winning</em> depends on the bid</h1>
+<p class="sub">Reading list for the elimination-contest project · grouped by the economic channel that makes the
+prize bid-dependent · compiled 2026-06-22. Where the value of advancing/winning is a function of the player's own
+type <strong>and</strong> bid, as in our Round-1 payoff $\tilde W(v,\mu(b))$.</p>
+
+<div class="box key">
+<p><strong>The three channels.</strong> "Value of winning depends on the bid" is not one feature but three distinct
+mechanisms. Categories <strong>1</strong> and <strong>2</strong> give <em>own-bid</em> dependence (the feature in our
+model); category <strong>3</strong> gives <em>rival-bid</em> dependence. Our model is unusual in combining
+<strong>2</strong> (own bid signals type across rounds) with <strong>3</strong> (rival's bid carries interdependent-value
+information inside Round 2).</p>
+</div>
+
+<p class="note">Legend: <span class="tag">incomplete info</span> private-type model ·
+<span class="tag">all-pay</span> all-pay/contest format · <span class="tag">winner-pay</span> first-price or
+standard auction · <span class="flag">verify cite</span> existence solid, exact year/venue to be confirmed.</p>
+
+<h2>0. The starting reference (not actually this feature)</h2>
+<ul>
+<li><span class="cite">Siegel, R. (2009). "All-Pay Contests." <em>Econometrica</em> 77(1), 71–92.</span>
+<span class="tag">all-pay</span>
+<br>Complete information. The general function of the action is the <strong>cost</strong> $c_i(\cdot)$, not the prize:
+each player has a fixed prize valuation $v_i^{w}$. So the value of winning is <em>not</em> bid-dependent here — listed
+to mark the boundary of what Siegel's framework does and does not cover.</li>
+<li><span class="cite">Siegel, R. (2010). "Asymmetric Contests with Conditional Investments." <em>American
+Economic Review</em> 100(5), 2230–2260.</span>
+<br>Relaxes <em>when</em> the bid is paid (conditional on winning/losing), still complete info, still a fixed prize.</li>
+</ul>
+
+<h2>1. Mechanical / technological — the prize is literally a function of the (winning) bid</h2>
+<p class="note">Closest literal match: reward to the winner is an increasing function of effort/bid, with private types.</p>
+<ul>
+<li><span class="cite">Kaplan, T., Luski, I., Sela, A. &amp; Wettstein, D. (2002). "All-Pay Auctions with Variable
+Rewards." <em>Journal of Industrial Economics</em> 50(4), 417–430.</span>
+<span class="tag">incomplete info</span> <span class="tag">all-pay</span> <span class="flag">verify cite</span>
+<br>Private types; the winner's reward increases in the winning bid. The most literal "value of winning = function of
+type and bid" paper. <em>Exact year/journal to confirm before citing.</em></li>
+<li><span class="cite">Chung, T.-Y. (1996). "Maximizing-Output Contests." (rent-seeking with effort-dependent
+prize.)</span> <span class="flag">verify cite</span>
+<br>And the broader rent-seeking-with-endogenous-rent strand — mostly <em>complete</em> information, included as
+background for "prize grows with aggregate effort."</li>
+</ul>
+
+<h2>2. Signaling — the bid is observed and changes a <em>later-stage</em> payoff</h2>
+<p class="note">The channel our model uses: the Round-1 bid signals type, moving the belief $\mu(b)$ a future
+opponent holds, hence the continuation value of advancing.</p>
+<ul>
+<li><span class="cite">Goeree, J. K. (2003). "Bidding for the Future: Signaling in Auctions with an
+Aftermarket." <em>Journal of Economic Theory</em> 108(2), 345–364.</span>
+<span class="tag">incomplete info</span> <span class="tag">winner-pay</span>
+<br>The winning bid signals the winner's type to an aftermarket, so the value of winning is endogenous to the bid.
+Conceptually the tightest analogue to our $\tilde W(v,\mu(b))$ — first-price rather than all-pay.</li>
+<li><span class="cite">Haile, P. A. (2003). "Auctions with Private Uncertainty and Resale Opportunities."
+<em>Journal of Economic Theory</em> 108(1), 72–110.</span>
+<span class="tag">incomplete info</span> <span class="tag">winner-pay</span>
+<br>Value of winning depends on bids via the resale outcome.</li>
+<li><span class="cite">Garratt, R. &amp; Tröger, T. (2006). "Speculation in Standard Auctions with Resale."
+<em>Econometrica</em> 74(3), 753–769.</span>
+<span class="tag">incomplete info</span> <span class="tag">winner-pay</span></li>
+<li><span class="cite">Hafalir, I. &amp; Krishna, V. (2008). "Asymmetric Auctions with Resale." <em>American
+Economic Review</em> 98(1), 87–112.</span>
+<span class="tag">incomplete info</span> <span class="tag">winner-pay</span>
+<br>Resale makes the prize endogenous to the bids; canonical asymmetric treatment.</li>
+<li><span class="cite">Zhang, J. &amp; Wang, R. (2009). "The Role of Information Revelation in Elimination
+Contests." <em>The Economic Journal</em> 119(536), 613–641.</span>
+<span class="tag">incomplete info</span> <span class="tag">all-pay</span>
+<br>Our direct lineage: full revelation across rounds makes the value of advancing bid-dependent. (No symmetric
+separating equilibrium under full revelation — the result our project builds on.)</li>
+<li><span class="cite">Moldovanu, B. &amp; Sela, A. (2006). "Contest Architecture." <em>Journal of Economic
+Theory</em> 126(1), 70–96.</span>
+<span class="tag">incomplete info</span> <span class="tag">all-pay</span>
+<br>Multi-stage / split contests with private values — but typically without the inter-round bid <em>signaling</em>
+that drives the non-monotone bidding in our non-separating equilibrium.</li>
+<li><span class="cite">Fu, Q. &amp; Lu, J. (2012). "The Optimal Multi-Stage Contest." <em>Economic Theory</em>
+51(2), 351–382.</span>
+<span class="tag">incomplete info</span> <span class="tag">all-pay</span> <span class="flag">verify cite</span></li>
+</ul>
+
+<h2>3. Interdependent / common values — value depends on signals correlated with the <em>rival's</em> bid</h2>
+<p class="note">Here the value of winning depends on the rival's type, surfacing through the <em>rival's</em> bid in
+equilibrium — <strong>not</strong> the player's own bid. This is the Round-2 structure we cross-check against.</p>
+<ul>
+<li><span class="cite">Krishna, V. &amp; Morgan, J. (1997). "An Analysis of the War of Attrition and the All-Pay
+Auction." <em>Journal of Economic Theory</em> 72(2), 343–362.</span>
+<span class="tag">incomplete info</span> <span class="tag">all-pay</span>
+<br>Affiliated / interdependent values in the all-pay auction and war of attrition.</li>
+<li><span class="cite">Rentschler, L. &amp; Turocy, T. L. (2016). "Two-Bidder All-Pay Auctions with Interdependent
+Valuations, Including the Highly Competitive Case." <em>Journal of Economic Theory</em> 163, 435–466.</span>
+<span class="tag">incomplete info</span> <span class="tag">all-pay</span>
+<br>Our <code>References/Turocy2015.pdf</code>. The Round-2 game of our model is an instance; we solve it closed-form
+and use Turocy only as a cross-check.</li>
+</ul>
+
+<hr>
+<p class="note"><strong>Where our novelty plausibly sits.</strong> Categories 2 (own bid signals type across rounds)
+and 3 (rival's bid carries interdependent-value information inside Round 2) are combined in an all-pay
+<em>elimination</em> contest with full revelation. No single paper above appears to do both — worth a targeted search
+before claiming priority. Companion: <code>docs/analytic_solution_roadmap.html</code>.</p>
+<p class="note">Citations compiled from memory; entries tagged <span class="flag">verify cite</span> have solid
+existence but unconfirmed year/venue. Run a literature search to finalize before any of these enters a manuscript.</p>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Competitive Equilibrium — Quadratic Cost, Symmetric Valuations</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ]
+          });"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+                     "Liberation Sans", Arial, sans-serif;
+         max-width: 880px; margin: 2em auto; padding: 0 1em; line-height: 1.55; color: #1a1a1a; }
+  h1 { font-size: 1.6em; margin-top: 0.2em; }
+  h2 { font-size: 1.2em; border-bottom: 1px solid #ddd; padding-bottom: 0.2em; margin-top: 1.8em; }
+  .meta { color: #666; font-size: 0.92em; }
+  .formula-box { background: #f7f7fb; border-left: 3px solid #5b6ee1;
+                 padding: 0.8em 1.2em; margin: 1em 0; border-radius: 4px; }
+  .summary { background: #fff8e1; padding: 0.6em 1em; border-radius: 4px;
+             border-left: 3px solid #f0a500; margin: 1em 0; }
+  table { border-collapse: collapse; margin: 0.8em 0; }
+  th, td { padding: 0.35em 0.9em; text-align: right; border-bottom: 1px solid #e0e0e0; }
+  th { background: #f0f0f4; }
+  .figcap { font-size: 0.9em; color: #555; margin-top: 0.3em; }
+  #plotPDF, #plotCDF { width: 100%; height: 380px; }
+</style>
+</head>
+<body>
+
+<h1>Competitive equilibrium density and CDF</h1>
+<p class="meta">Symmetric two-player contest, last-round equilibrium.
+Parameters: $\Delta = 0$, $v_1 = v_2 = 1$, $c(x) = x^2$.<br>
+Reference: Joffrion &amp; Parreiras, <em>A Theory of Dynamic Contests</em> (v10), Proposition 1 and Example (quadratic costs).</p>
+
+<h2>Formulas</h2>
+
+<p>From the proof of Proposition <em>comp</em>, the equilibrium CDF satisfies a first-order linear ODE
+whose general solution has the form
+$$ G(x) \;=\; (-1)^{\theta-1} + \sum_{k=1}^{\theta-1} C_k\,\exp(c_k\,x), $$
+where the $c_k$ are roots of the characteristic polynomial
+$\,p(Z) = \sum_{k=0}^{\theta-1}(-1)^{\theta-1-k}\frac{\theta!}{k!}\,Z^{k}.$</p>
+
+<p>For $\theta=2$, $v=1$: $\theta-1 = 1$, the characteristic polynomial has the single root $c_1 = 1$,
+and the boundary conditions $G(0)=0$, $G(\bar x)=1$ pin down $C_1=1$ and the upper endpoint $\bar x = \ln 2$.</p>
+
+<div class="formula-box">
+<p><strong>CDF</strong>
+$$ G(x) \;=\; \begin{cases} 0 & x \le 0,\\[2pt] e^{x} - 1 & 0 \le x \le \ln 2,\\[2pt] 1 & x \ge \ln 2. \end{cases} $$</p>
+
+<p><strong>Density</strong>
+$$ g(x) \;=\; G'(x) \;=\; \begin{cases} e^{x} & 0 \le x \le \ln 2,\\[2pt] 0 & \text{otherwise}. \end{cases} $$</p>
+</div>
+
+<h2>Distributional properties</h2>
+<table>
+<thead><tr><th>Quantity</th><th>Closed form</th><th>Numerical</th></tr></thead>
+<tbody>
+<tr><td>Support</td><td>$[\,0,\;\ln 2\,]$</td><td>$[0,\;0.69315]$</td></tr>
+<tr><td>$g(0)$</td><td>$1$</td><td>$1.00000$</td></tr>
+<tr><td>$g(\ln 2)$</td><td>$2$</td><td>$2.00000$</td></tr>
+<tr><td>Mean $\mathbb{E}[X]$</td><td>$2\ln 2 - 1$</td><td>$0.38629$</td></tr>
+<tr><td>Median</td><td>$\ln(3/2)$</td><td>$0.40546$</td></tr>
+<tr><td>Variance</td><td>$1 - 2(\ln 2)^{2}$</td><td>$0.03909$</td></tr>
+</tbody>
+</table>
+
+<div class="summary">
+The density is <em>strictly increasing</em> on its support, $g'(x) = e^{x} > 0$.
+This is the continuous-equilibrium analog of the finite-support discrete equilibria for $(m,m{+}1)$,
+where the player-1 mixing probabilities $p_1<p_2<\cdots<p_m$ are also (slightly) increasing in the rank index.
+</div>
+
+<h2>Plots</h2>
+
+<div id="plotPDF"></div>
+<div class="figcap">Density $g(x) = e^{x}$ on $[0,\ln 2]$, ramps from $1$ at $x=0$ to $2$ at $x=\ln 2 \approx 0.693$.</div>
+
+<div id="plotCDF" style="margin-top: 1.4em;"></div>
+<div class="figcap">CDF $G(x) = e^{x}-1$ on $[0,\ln 2]$, hitting $G=1$ at the upper endpoint.</div>
+
+<script>
+(function () {
+  const xMax = Math.log(2);
+  const N = 400;
+  const xs = [], pdf = [], cdf = [];
+  for (let i = 0; i <= N; i++) {
+    const x = i * xMax / N;
+    xs.push(x);
+    pdf.push(Math.exp(x));
+    cdf.push(Math.exp(x) - 1);
+  }
+
+  const layoutPDF = {
+    title: 'Density  g(x) = e^x  on  [0, ln 2]',
+    xaxis: { title: 'x', range: [0, xMax], zeroline: false, gridcolor: '#eee' },
+    yaxis: { title: 'g(x)', range: [0, 2.15], zeroline: false, gridcolor: '#eee' },
+    margin: { l: 55, r: 25, t: 50, b: 55 },
+    showlegend: false,
+    annotations: [
+      { x: 0,    y: 1.0, text: 'g(0) = 1', showarrow: false, xanchor: 'left',  yanchor: 'bottom',
+        font: { size: 11, color: '#555' } },
+      { x: xMax, y: 2.0, text: 'g(ln 2) = 2', showarrow: false, xanchor: 'right', yanchor: 'bottom',
+        font: { size: 11, color: '#555' } }
+    ]
+  };
+
+  Plotly.newPlot('plotPDF', [{
+    x: xs, y: pdf, mode: 'lines', line: { color: '#5b6ee1', width: 2.5 },
+    fill: 'tozeroy', fillcolor: 'rgba(91,110,225,0.12)'
+  }], layoutPDF, { displayModeBar: false, responsive: true });
+
+  const layoutCDF = {
+    title: 'CDF  G(x) = e^x − 1  on  [0, ln 2]',
+    xaxis: { title: 'x', range: [0, xMax], zeroline: false, gridcolor: '#eee' },
+    yaxis: { title: 'G(x)', range: [0, 1.05], zeroline: false, gridcolor: '#eee' },
+    margin: { l: 55, r: 25, t: 50, b: 55 },
+    showlegend: false,
+    annotations: [
+      { x: Math.log(1.5), y: 0.5, text: 'median ≈ 0.405', showarrow: true, arrowhead: 2,
+        ax: 35, ay: -25, font: { size: 11, color: '#555' } }
+    ]
+  };
+
+  Plotly.newPlot('plotCDF', [{
+    x: xs, y: cdf, mode: 'lines', line: { color: '#2a9d8f', width: 2.5 }
+  }], layoutCDF, { displayModeBar: false, responsive: true });
+})();
+</script>
+
+</body>
+</html>

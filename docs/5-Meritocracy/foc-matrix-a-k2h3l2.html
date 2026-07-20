@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FOC matrix A — k=2, h=3, ℓ=2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<h1>The FOC matrix $A$ — $k=2,\ h=3,\ \ell=2$</h1>
+<p>The two first-order conditions $\varphi_i W_i'=1$ are affine in the bid densities
+$g_i=G_i'(b)$. With rows ordered (L-FOC, H-FOC) and unknowns ordered $(g_L,g_H)$:</p>
+
+<div class="box key">
+$$A\begin{pmatrix}g_L\\[2pt] g_H\end{pmatrix}=\begin{pmatrix}1/\varphi_L\\[2pt] 1/\varphi_H\end{pmatrix},
+\qquad
+A=\begin{pmatrix}a_{11}&a_{12}\\[2pt] a_{21}&a_{22}\end{pmatrix}.$$
+</div>
+
+<h2>1. The win probabilities</h2>
+<p>An H-bidder faces $2$H$+2$L; an L-bidder faces $3$H$+1$L. With $k=2$, win $=$ at most one
+rival above:</p>
+<div class="box">
+$$W_L=G_H^{3}G_L+3(1-G_H)G_H^{2}G_L+G_H^{3}(1-G_L),$$
+$$W_H=G_H^{2}G_L^{2}+2(1-G_H)G_HG_L^{2}+2(1-G_L)G_LG_H^{2}.$$
+</div>
+
+<h2>2. $A$ is the Jacobian $\partial(W_L,W_H)/\partial(G_L,G_H)$</h2>
+<p>By the chain rule $W_i'=(\partial W_i/\partial G_L)\,g_L+(\partial W_i/\partial G_H)\,g_H$, so
+the entries are exactly the partials:</p>
+<div class="box">
+$$A=\frac{\partial(W_L,W_H)}{\partial(G_L,G_H)}
+=\begin{pmatrix}
+\dfrac{\partial W_L}{\partial G_L} & \dfrac{\partial W_L}{\partial G_H}\\[10pt]
+\dfrac{\partial W_H}{\partial G_L} & \dfrac{\partial W_H}{\partial G_H}
+\end{pmatrix}.$$
+</div>
+
+<h2>3. The matrix, in full</h2>
+<p>Carrying out the four derivatives and expanding every entry:</p>
+<div class="box key">
+$$A=\begin{pmatrix}
+\,3G_H^{2}-3G_H^{3} & \;\;3G_H^{2}+6G_HG_L-9G_H^{2}G_L\,\\[10pt]
+\,2G_H^{2}+4G_HG_L-6G_H^{2}G_L & \;\;4G_HG_L+2G_L^{2}-6G_HG_L^{2}\,
+\end{pmatrix}.$$
+</div>
+<p class="note">Entry by entry:
+$\;a_{11}=\partial W_L/\partial G_L=3G_H^{2}-3G_H^{3}$,
+$\;a_{12}=\partial W_L/\partial G_H=3G_H^{2}+6G_HG_L-9G_H^{2}G_L$,
+$\;a_{21}=\partial W_H/\partial G_L=2G_H^{2}+4G_HG_L-6G_H^{2}G_L$,
+$\;a_{22}=\partial W_H/\partial G_H=4G_HG_L+2G_L^{2}-6G_HG_L^{2}$.
+The diagonal is "overtake own group," the off-diagonal "overtake the other group";
+note $a_{12}=\tfrac32\,a_{21}$.</p>
+
+<h2>4. Factored form</h2>
+<p>Each entry factors as (scalar)·(monomial)·(irreducible factor) over $\mathbb Q$
+(Nemo/FLINT — the two quadratics do not split further):</p>
+<div class="box key">
+$$A=\begin{pmatrix}
+\,3G_H^{2}(1-G_H) & 3G_H\,(G_H+2G_L-3G_HG_L)\,\\[8pt]
+\,2G_H\,(G_H+2G_L-3G_HG_L) & 2G_L\,(2G_H+G_L-3G_HG_L)\,
+\end{pmatrix}.$$
+</div>
+<p class="note">The two off-diagonal entries carry the <em>same</em> irreducible quadratic
+$G_H+2G_L-3G_HG_L$, so $a_{12}=\tfrac32\,a_{21}$. The first column and $a_{12}$ all carry a
+factor $G_H$; only $a_{22}$ carries $G_L$.</p>
+
+</body>
+</html>

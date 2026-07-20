@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asymmetric-quadratic σ(2,2): closed form ⇒ chain monotonicity (2026-06-21)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Asymmetric-quadratic σ(2,2): closed form ⇒ chain monotonicity</p>
+<p class="note">2026-06-21. Companion to Docs/asym_quadratic_sigma22_monotonicity.md. Prerequisites: QUICKSTART §0/§2, Docs/general_algorithm_v1v2_delta.md §4 (the explicit asymmetric recursion), Docs/monotonicity_general_case.md (the envelope reduction and the open crux this closes for the base rung).</p>
+
+<div class="box key">
+<p>Summary: In the asymmetric quadratic game ($c(e)=e^2$, reaches $w_1=\sqrt{v_1}$, $w_2=\sqrt{v_2}$, lead $\Delta$, shift $f=w_2-w_1-\Delta$) the entire $\sigma(2,2)$ forward march is an explicit rational function of the single dial $t=q_1$. The second shot mass $q_2(t)$ admits the form $q_2=(1+t)(\rho_2^2-1)$ with a reduced win-margin $\rho_2$ whose derivative is a manifestly positive one-liner, $\rho_2'=v_2 a/(w_1(b+st)^2)$. Hence $q_2'(t)>0$ and the shooting residual $F=t+q_2-1$ satisfies $F'>0$ — strictly single-crossing — for the <strong>full</strong> asymmetric range, both knobs, on the whole admissible chain. This <strong>closes part (b) of monotonicity_general_case.md for the base rung</strong> (there listed as open). General $\sigma(m,m)$, $m\ge3$, remains open. STATUS: derived + verified to $\sim$1e-15 against asym_sweep.jl; NOT yet human-verified.</p>
+</div>
+
+<p class="section">0. Why this was thought open — and why it isn't (for σ(2,2))</p>
+
+<p>monotonicity_general_case.md discharges part (a) (the payoff $u_1^\ast$ increasing in $q_1$) in full generality by an envelope identity, and then attacks part (b), $F'>0$, the same way. The envelope kills the new atom's <em>own-atom</em> drift but leaves the mass derivative as a contest</p>
+
+$$q_2'\,[\,v_1-c(\alpha_2)\,]=\underbrace{c(\alpha_1)-c(A_1)}_{<\,0\ \text{(level effect)}}+\underbrace{q_2\,c'(\alpha_2)\,\tilde y_2'}_{\text{rival drift}},$$
+
+<p>and there it stops: off the symmetric closed form one cannot obviously sign a (negative) plus a (rival-drift) term, so (b) is declared "reduced to: do the rival atoms drift right fast enough?" — open. The resolution below is to <strong>not split $q_2'$ that way at all.</strong> The mass-update step of the recursion already gives $q_2$ as a clean function of one reduced margin; differentiating <em>that</em> keeps every contribution positive, and the level effect never appears as a standalone negative term. The obstruction was an artifact of the decomposition, exactly as in the symmetric case (symmetric_quadratic_closed_form.md §4, where signing $\tilde y_2'-x_1'$ as a difference of two atom-derivatives looked coupled, but the single gap $d_j'$ had numerator $1$).</p>
+
+<p class="section">1. The recursion, specialized to σ(2,2)</p>
+
+<p>Notation follows asym_sweep.jl / monotonicity_general_case.md: dial $t=q_1$; masses $q_\ell$ sit at the $\tilde y$ atoms with residual $F=\sum q-1$; atoms $x$ carry reach $w_1$, atoms $\tilde y$ carry reach $w_2$ with boundary $\tilde y_1=f$; each win-margin uses the <em>rival</em> reach. The §4 recursion of general_algorithm_v1v2_delta.md, for $m=2$, runs</p>
+
+$$t \;\to\; x_1 \;\to\; u_1^\ast \;\to\; (p_1,\tilde y_2)\;\to\; q_2 \;\to\; x_2,$$
+
+<p>with FOC $x_k=S_k/(1+Q_k)$, $\tilde y_\ell=(T_{\ell-1}+f)/(1+P_{\ell-1})$, value identity $u_1=v_1Q_k-M_k+S_k^2/(1+Q_k)$, and the vanishing-constant mass updates</p>
+
+$$q_{k+1}=(1+Q_k)\Big[\big(\tfrac{w_1+\tilde y_{k+1}-x_k}{w_1}\big)^2-1\Big],\qquad p_j=(1+P_{j-1})\Big[\big(\tfrac{w_2+x_j-\tilde y_j}{w_2}\big)^2-1\Big].$$
+
+<p>Throughout, abbreviate the two shifted reaches and their sum</p>
+
+$$a:=w_2-\Delta=w_1+f,\qquad b:=w_1+\Delta=w_2-f,\qquad s:=w_1+w_2,\qquad (a+b=s).$$
+
+<p class="section">2. The closed form (every step explicit in $t$)</p>
+
+<p><strong>First atom and payoff.</strong> $Q_1=t$, $G_1=w_1+\tilde y_1=w_1+f=a$, $S_1=t\,a$, so</p>
+
+$$x_1=\frac{a\,t}{1+t},\qquad u_1^\ast=v_1 t-t a^2+\frac{t^2 a^2}{1+t}=t\Big[v_1-\frac{a^2}{1+t}\Big].$$
+
+<p><strong>First P2 mass.</strong> The $p$-update at $j=1$ ($P_0=0$, $\tilde y_1=f$, and $w_2-f=b$) gives</p>
+
+$$p_1=\Big(\frac{w_2+x_1-f}{w_2}\Big)^2-1=\frac{(b+x_1)^2}{v_2}-1,\qquad\text{so}\qquad 1+p_1=\frac{(b+x_1)^2}{v_2}.$$
+
+<p><strong>Second P2 atom — the collapse.</strong> $\tilde y_2=(T_1+f)/(1+p_1)$ with $T_1=p_1(w_2+x_1)$. Writing it as $\tilde y_2=(w_2+x_1)-(w_2+x_1-f)/(1+p_1)$ and using $w_2+x_1-f=b+x_1$ together with $1+p_1=(b+x_1)^2/v_2$, the ratio $(b+x_1)/(1+p_1)=v_2/(b+x_1)$, so</p>
+
+$$\boxed{\;\tilde y_2=(w_2+x_1)-\frac{v_2}{b+x_1}\;}\qquad\Longrightarrow\qquad D:=w_1+\tilde y_2-x_1=s-\frac{v_2}{b+x_1}.$$
+
+<p>(Sanity: $w_1=w_2=1$, $v_2=1$, $b=1$, $x_1=t/(1+t)$ give $\tilde y_2=t(2+3t)/[(1+t)(1+2t)]=G_1+G_2$, the symmetric value.)</p>
+
+<p><strong>Second shot mass.</strong> The $q$-update at $k=1$ uses $x_1$ and $\tilde y_2$:</p>
+
+$$\boxed{\;q_2=(1+t)\Big[\frac{D^2}{v_1}-1\Big]=(1+t)(\rho_2^2-1),\qquad \rho_2:=\frac{D}{w_1}=\frac1{w_1}\Big(s-\frac{v_2}{b+x_1}\Big).\;}$$
+
+<p>With $b+x_1=(b+st)/(1+t)$ this is the explicit rational function</p>
+
+$$q_2(t)=\frac{(1+t)\big[(P_0+P_1 t)^2-v_1(b+st)^2\big]}{v_1\,(b+st)^2},\qquad P_0=sb-v_2,\ \ P_1=w_1(w_1+2w_2),$$
+
+<p>and the closure is the single scalar equation $F(t)=t+q_2(t)-1=0$ (the leftover top P2 mass $p_2$ absorbs the other normalization). At $w_1=w_2=1,\Delta=0$: $q_2=t(1+t)(2+5t)/(1+2t)^2$. ✓</p>
+
+<p class="section">3. Monotonicity: $F'(t)>0$ on the whole admissible range</p>
+
+<p>Only $x_1$ depends on $t$ inside $D$, through $b+x_1=(b+st)/(1+t)$. Then</p>
+
+$$\frac{d}{dt}\frac{1+t}{b+st}=\frac{b-s}{(b+st)^2}=\frac{-a}{(b+st)^2},\qquad b-s=(w_1+\Delta)-(w_1+w_2)=\Delta-w_2=-a,$$
+
+$$\rho_2'(t)=-\frac{v_2}{w_1}\cdot\frac{d}{dt}\frac{1+t}{b+st}=\boxed{\;\frac{v_2\,a}{w_1\,(b+st)^2}\;>\;0\;}$$
+
+<p>since $a=w_2-\Delta>0$ on the admissible chain ($\Delta<\Delta^\ast(2,2)\approx0.211<w_2$) and $b+st>0$. Therefore, by the product rule on $q_2=(1+t)(\rho_2^2-1)$,</p>
+
+$$q_2'(t)=\underbrace{(\rho_2^2-1)}_{=\,q_2/(1+t)\,\ge\,0}+\underbrace{(1+t)\,2\rho_2\,\rho_2'}_{>\,0}\;>\;0,\qquad F'(t)=1+q_2'(t)>0.$$
+
+<p>On the admissible chain $q_2>0\Rightarrow\rho_2>1$, so the first term is $\ge0$ and the second is strictly positive — $F$ is strictly increasing, hence <strong>single-crossing</strong>. (Even without admissibility: wherever $F=0$ we have $q_2=1-t>0$, so $\rho_2>1$ there and $F'>0$ at every root — uniqueness of the crossing.) Combined with part (a) of monotonicity_general_case.md ($u_1^\ast$ increasing in $q_1$), this is chain monotonicity at the $\sigma(2,2)$ level: $q_1^\ast$ falls and $u_1^\ast$ moves monotonically as the rung is enlarged, for every admissible asymmetry.</p>
+
+<div class="box">
+<p><strong>The mechanism in one line.</strong> Raising the dial $t$ raises $x_1$, which raises $b+x_1$, which shrinks $v_2/(b+x_1)$, which <em>widens</em> the win-margin $D=w_1+\tilde y_2-x_1$. Wider margin ⇒ larger $q_2$. The "level effect" of the envelope decomposition is the same physics seen through a sign-indefinite lens; the margin form makes the widening manifest. This is the asymmetric analogue of the symmetric gap law $G_i=t/(1+it)$ — here the single relevant margin obeys $D(t)=s-v_2/(b+x_1(t))$, increasing by inspection.</p>
+</div>
+
+<p class="section">4. Numerical confirmation</p>
+
+<p>Against the validated engine asym_sweep.jl (its <code>march(q1,2,2,w1,w2,f)</code>), the closed form $q_2(t)$ and the rational form agree to $\sim$1e-15 across $t\in(0,1)$, and the analytic $q_2'$ matches a central difference. The sign is uniform:</p>
+
+<table>
+<tr><th>$(v_1,v_2,\Delta)$</th><th>$\max|q_2-\text{march}|$</th><th>$\min_t q_2'$</th><th>$\min_t \rho_2'$</th></tr>
+<tr><td>$(1,1,0)$</td><td>1e-15</td><td>1.378</td><td>0.119</td></tr>
+<tr><td>$(1,1,+0.15)$</td><td>1e-15</td><td>1.336</td><td>0.091</td></tr>
+<tr><td>$(1.3,1,0)$</td><td>2e-15</td><td>1.245</td><td>0.087</td></tr>
+<tr><td>$(1.2,1,+0.10)$</td><td>2e-15</td><td>1.261</td><td>0.081</td></tr>
+<tr><td>$(1,1.3,-0.10)$</td><td>2e-15</td><td>1.561</td><td>0.187</td></tr>
+<tr><td>$(1,1,+0.20)$ (near $\Delta^\ast$)</td><td>7e-16</td><td>1.325</td><td>0.083</td></tr>
+</table>
+
+<p>Equilibria from $F=0$ reproduce $u_1^\ast(2,2)=0.09729$ (symmetric) and the death thresholds $\Delta^\ast(2,2)=0.211$, $v_1^\ast(2,2)=1.417$. Reproduce with <code>include("Julia/converge/asym_sweep.jl")</code> and compare <code>march(t,2,2,√v1,√v2,√v2-√v1-Δ).q[2]</code> to §2's $q_2(t)$.</p>
+
+<p class="section">5. What remains to get full chain monotonicity</p>
+
+<p>This settles the <em>base rung</em>. The program is not finished; the open items, in priority order:</p>
+
+<p><strong>(i) General $\sigma(m,m)$, $m\ge3$ — the real open step.</strong> The natural target is: every reduced margin $\rho_k=(w_1+\tilde y_k-x_{k-1})/w_1$ and its $p$-side mirror $\mu_j=(w_2+x_j-\tilde y_j)/w_2$ is increasing in $t$. For $m\ge3$ the margins <em>couple back</em> — $\tilde y_k$ depends on all earlier $p_j,x_j$, so $\rho_k'$ is no longer a one-liner. Needed: an induction showing the coupling preserves $\rho_k'>0$ (assume $\rho_1',\dots,\rho_{k-1}'>0$ and the atom monotonicities through step $k-1$, push one FOC + one mass-update, conclude $\rho_k'>0$). $\sigma(2,2)$ is the base case and the template; the symmetric proof telescoped because all margins shared one law, which is exactly what breaks here.</p>
+
+<p><strong>(ii) Non-square $\sigma(m,m+1)$.</strong> The closing residual is $F=\sum p-1$, so the relevant derivatives are the $p$-side margins $\mu_j$; redo (i) on that side. Expected symmetric to (i) but must be checked (the $f$-shift sits on the $\tilde y$/p side).</p>
+
+<p><strong>(iii) Weaker fallback.</strong> $F'>0$ for $\sigma(m,m)$ needs only $\sum_{\ell\ge2}q_\ell'>-1$ (monotonicity_general_case.md §4), not every margin widening. If per-margin monotonicity fails at some $m$, this slack-1 balance is the right weaker theorem to chase.</p>
+
+<p><strong>(iv) Admissibility coupling.</strong> Everything is claimed on the admissible chain only ($\Delta<\Delta^\ast(m,m)$, $v_1<v_1^\ast(m,m)$). Near a threshold a top mass $\to0$ but stays positive and the margins stay $>w_i$ (so $\rho_k>1$); confirm the monotonicity argument does not degrade as the boundary is approached (the $\sigma(2,2)$ row at $\Delta=0.20$ above is reassuring).</p>
+
+<p><strong>(v) Regularity / uniqueness payoff.</strong> As in symmetric_quadratic_closed_form.md §4–5, $F'(q_1)$ is the Schur complement of the equilibrium Jacobian; $F'>0$ should yield Theorem-1 regularity and Theorem-3 uniqueness in the asymmetric quadratic regime. Make that link explicit once (i)–(ii) hold.</p>
+
+<p><strong>(vi) Human verification.</strong> All of the above is machine-derived and machine-checked, not yet human-verified. Do not edit the paper on its strength; treat as a strong lead, not a theorem.</p>
+
+<p class="note">Sources: monotonicity_general_case.md (envelope reduction §1–§3, weaker target §4); general_algorithm_v1v2_delta.md §4 (the explicit asymmetric recursion); symmetric_quadratic_closed_form.md (the $G_i=t/(1+it)$ closed form and the analogous "difference vs. margin" lesson); Julia/converge/asym_sweep.jl (validated engine). Companion .md: asym_quadratic_sigma22_monotonicity.md.</p>
+
+</body>
+</html>

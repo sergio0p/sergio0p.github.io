@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>σ(2,2): the seven boundary faces of 𝒟</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --ink:#e7e9ee; --muted:#9aa3b2; --line:#272b34;
+    --hard:#e0a64b; --corner:#e06c6c; --soft:#6cb6e0; --equiv:#8fd18f; --accent:#b48ef0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 28px 120px;}
+  h1{font-size:30px;font-weight:700;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em;}
+  h1 .sub{display:block;font-size:16px;font-weight:400;color:var(--muted);margin-top:8px;}
+  h2{font-size:20px;font-weight:650;margin:46px 0 12px;letter-spacing:-.01em;}
+  h3{font-size:16px;color:var(--muted);font-weight:600;margin:0 0 14px;}
+  p{margin:12px 0;}
+  a{color:var(--accent);}
+  code{background:#0b0d11;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;}
+  .lead{color:var(--muted);font-size:17px;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;}
+  .katex{font-size:1.02em;}
+  .katex-display{margin:.7em 0;overflow-x:auto;overflow-y:hidden;padding:2px 0;}
+  .sys .katex-display{margin:.35em 0;}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;vertical-align:middle;margin-left:10px;}
+  .t-hard{background:rgba(224,166,75,.15);color:var(--hard);border:1px solid rgba(224,166,75,.35);}
+  .t-corner{background:rgba(224,108,108,.15);color:var(--corner);border:1px solid rgba(224,108,108,.35);}
+  .t-soft{background:rgba(108,182,224,.15);color:var(--soft);border:1px solid rgba(108,182,224,.35);}
+  .t-equiv{background:rgba(143,209,143,.15);color:var(--equiv);border:1px solid rgba(143,209,143,.35);}
+  .face{border-left:4px solid var(--line);padding:4px 0 4px 20px;margin:30px 0;}
+  .face.hard{border-color:var(--hard);}
+  .face.corner{border-color:var(--corner);}
+  .face.soft{border-color:var(--soft);}
+  .face.equiv{border-color:var(--equiv);}
+  .face h2{margin-top:8px;}
+  ol.chain{margin:14px 0;padding-left:22px;}
+  ol.chain li{margin:9px 0;padding-left:6px;}
+  .verdict{margin-top:14px;padding:12px 16px;border-radius:9px;background:#0b0d11;border:1px solid var(--line);font-size:15px;}
+  .verdict b{color:var(--ink);}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;}
+  th{background:#0b0d11;color:var(--muted);font-weight:600;}
+  td .katex{font-size:.95em;}
+  .num{background:rgba(108,182,224,.07);border:1px solid rgba(108,182,224,.3);border-radius:10px;padding:14px 18px;margin:18px 0;font-size:14.5px;}
+  .num b{color:var(--soft);}
+  .key{color:var(--equiv);font-weight:600;}
+  .muted{color:var(--muted);}
+  hr{border:none;border-top:1px solid var(--line);margin:40px 0;}
+  .footnote{font-size:13.5px;color:var(--muted);}
+  .pill{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-right:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>The seven boundary faces of $\mathcal D$
+  <span class="sub">σ(2,2) reduced system — what each wall of the ordering-and-mass domain forces, on $\overline{\mathcal D}$ with $F(z)=0$.</span>
+</h1>
+
+<p class="lead">One engine drives every result: <b>injectivity</b> of $c$ and $c'$. Strict convexity gives
+$c(s)=c(t)\Rightarrow s=t$ and $c'(s)=c'(t)\Rightarrow s=t$; on the closure the ordering may bind, squeezing a free atom. Each face is pushed through $F=0$ until it either <i>cascades</i> to a corner, <i>collapses</i> the configuration, or pins a single <i>parameter surface</i>. The discovery: these are not seven independent walls — they chain into one another, and every one of them is a piece of $\partial R_{2,2}$.</p>
+
+<div class="panel sys">
+<h3>The system $F(z)=0$, &nbsp; $z=(x_1,x_2,\tilde y_2,\,p_1,p_2,\,q_1,q_2)$</h3>
+<p class="muted" style="margin-top:0">Atoms $y_1{=}0,\,y_2$ (P2) and $x_1,x_2$ (P1) interleave in the $f$-shifted comb $\tilde y_1\le x_1\le \tilde y_2\le x_2$, where $\tilde y_\ell=y_\ell+f$, $f=w_2-w_1-\Delta$ (so $\tilde y_1=f$; symmetric $f=0$ gives $0\le x_1\le y_2\le x_2$). P1 places mass $p_1$ at $x_1$, $p_2$ at $x_2$; P2 places $q_1$ at $y_1{=}0$, $q_2$ at $y_2=\tilde y_2-f$. P2 is squeezed to $u_2=0$; $u_1$ is eliminated (INDX is the difference $U_1(x_2)-U_1(x_1)$). In $\tilde y$ the clash-gaps are $f$-free — P1 wins a clash at $s=w_1+\tilde y_\ell-x_k$, P2 at $t=w_2+x_k-\tilde y_\ell$ — so $f$ survives <i>only</i> inside P2's own first-round cost $c(\tilde y_2-f)=c(y_2)$. Writing every gap out in full:</p>
+$$\begin{aligned}
+(\text{FOCX}_1)\quad & q_1\,c'(w_1+\tilde y_1-x_1)-c'(x_1)=0\\
+(\text{FOCX}_2)\quad & q_1\,c'(w_1+\tilde y_1-x_2)+q_2\,c'(w_1+\tilde y_2-x_2)-c'(x_2)=0\\
+(\text{FOCY}_2)\quad & p_1\,c'(w_2+x_1-\tilde y_2)-c'(\tilde y_2-f)=0\\
+(\text{INDX})\quad & c(x_1)-c(x_2)-q_1\big(v_1-c(w_1+\tilde y_1-x_1)\big)+q_1\big(v_1-c(w_1+\tilde y_1-x_2)\big)+q_2\big(v_1-c(w_1+\tilde y_2-x_2)\big)=0\\
+(\text{INDY}_2)\quad & -c(\tilde y_2-f)+p_1\big(v_2-c(w_2+x_1-\tilde y_2)\big)=0\\
+(\text{M}_p)\quad & 1-p_1-p_2=0,\qquad (\text{M}_q)\ \ 1-q_1-q_2=0
+\end{aligned}$$
+<p class="footnote" style="margin-bottom:0"><b>Standing assumptions.</b> $c$ strictly convex, $c(0)=0$, $c'>0$ and strictly increasing on $(0,\infty)$, with $c'(0)=0$ (cost family $c(e)=e^{r}/r,\ r>1$; quadratic $e^2/2$). The clash-gaps $s,t$ are $\ge 0$, and $>0$ where positivity is invoked. <span class="muted">If instead $c'(0)>0$, the three mass-collapse faces below are simply <i>empty</i> — an even cleaner non-escape; flagged where relevant.</span></p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<div class="face equiv">
+<h2>1 · The lower stratum: $\;x_1=0\ \Longleftrightarrow\ q_1=0$ <span class="tag t-equiv">equivalence</span></h2>
+<h3>Faces $\{x_1=0\}$ and $\{q_1=0\}$ are the same wall.</h3>
+
+<p><b>$x_1=0\Rightarrow q_1=0$.</b> Put $x_1=0$ in FOCX$_1$:</p>
+<ol class="chain">
+<li>$q_1\,c'(w_1+\tilde y_1-x_1)=c'(x_1)=c'(0)=0$, &nbsp; with $w_1+\tilde y_1-x_1\big|_{x_1=0}=w_1+f>0\Rightarrow c'(\cdot)>0$. &nbsp;Hence $\;q_1=0$.</li>
+</ol>
+<p><b>$q_1=0\Rightarrow x_1=0$.</b> Put $q_1=0$ in FOCX$_1$: $\;-c'(x_1)=0\Rightarrow c'(x_1)=0\Rightarrow x_1=0$. The two faces coincide.</p>
+
+<p>On this stratum ($q_1=0,\ q_2=1$, P2 a single atom at $y_2$):</p>
+<ol class="chain">
+<li>FOCX$_2$: $\;c'(w_1+\tilde y_2-x_2)=c'(x_2)\Rightarrow w_1+\tilde y_2-x_2=x_2\Rightarrow \;\boxed{x_2=\tfrac{w_1+\tilde y_2}{2}}.$</li>
+<li>INDX (with $x_1=0,q_1=0$): $\;-c(x_2)-c(w_1+\tilde y_2-x_2)+v_1=0$, and $w_1+\tilde y_2-x_2=x_2$, so $\;\boxed{v_1=2\,c\!\big(\tfrac{w_1+\tilde y_2}{2}\big)}.$</li>
+<li>$y_2$ stays <i>interior</i>, pinned by the P2 pair FOCY$_2$ &amp; INDY$_2$ ($x_1=0$ collapses the P2 gap to $w_2-\tilde y_2$): $\;p_1c'(w_2-\tilde y_2)=c'(\tilde y_2-f),\ \ p_1\!\big(v_2-c(w_2-\tilde y_2)\big)=c(\tilde y_2-f).$</li>
+</ol>
+<p class="muted">The common value here is $u_1=U_1(0)=0$: this stratum is also the full-dissipation locus $\{u_1=0\}$.</p>
+<p class="muted" style="border-left:3px solid var(--soft);padding-left:12px"><b>$f$-caveat (lower stratum).</b> $x_1=0$ lies on this wall only when the comb floor $\tilde y_1=f\le 0$ (P1 favored / symmetric). For $f>0$ (P2 favored) the binding floor is $x_1=\tilde y_1=f$, and FOCX$_1$ there gives $q_1=c'(f)/c'(w_1)>0$ — so $\{x_1=0\}\!\Leftrightarrow\!\{q_1=0\}$ is the $f=0$ specialization. Faces 1–2 are written at this floor-at-$0$ representative.</p>
+<div class="verdict"><b>Verdict.</b> A genuine parameter surface $v_1=2c\!\big(\tfrac{w_1+\tilde y_2}{2}\big)$ — this is $\partial R_{2,2}$, the $\sigma(2,2)\!\to\!\sigma(2,1)$ transition where P2's lower atom dies. <span class="muted">Empty if $c'(0)>0$.</span> The comb node $\tilde y_2$ carries the second-round atom directly (the old "$+y_2$" in the reach gap).</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="face corner">
+<h2>2 · Its corner: $\;p_1=0$ <span class="tag t-corner">cascade → corner</span></h2>
+<h3>P1 drops its lower atom; everything below collapses.</h3>
+<ol class="chain">
+<li>FOCY$_2$: $\;p_1c'(w_2+x_1-\tilde y_2)=c'(\tilde y_2-f)\Rightarrow 0=c'(\tilde y_2-f)\Rightarrow \;\tilde y_2=f\ \;(y_2=0).$</li>
+<li>Closure squeeze: $\;\tilde y_1\le x_1\le \tilde y_2=f$, and $\tilde y_1=f$, so $\;x_1=f\;(=0$ at $f{=}0)$ &nbsp;<span class="muted">(the comb floor — forced by the <i>domain</i>, not by $F$).</span></li>
+<li>By §1 (at the $f{=}0$ representative), $x_1=0\Rightarrow \;q_1=0.$ &nbsp;So $\;p_1=0\ \Rightarrow\ y_2=0\ \Rightarrow\ x_1=0\ \Rightarrow\ q_1=0$ &nbsp;<span class="muted">(both P2 atoms merge at $0$).</span></li>
+</ol>
+<p>At the corner ($x_1{=}y_2{=}0,\ p_1{=}0,\ q_1{=}0$): P1 a single atom at $x_2$, P2 a single atom at $0$ — a $\sigma(1,1)$ point. Here $\tilde y_2=\tilde y_1=f$, so both P1-vs-P2 gaps coincide at $w_1+f-x_2$, and</p>
+<ol class="chain">
+<li>FOCX$_2$: $\;c'(w_1+f-x_2)=c'(x_2)\Rightarrow \;\boxed{x_2=\tfrac{w_1+f}{2}}$ &nbsp;<span class="muted">($=\tfrac{w_2-\Delta}{2}$).</span></li>
+<li>INDY$_2$: $\;0=c(0)=0$ ✓ &nbsp;&nbsp; INDX: $\;\boxed{v_1=2\,c\!\big(\tfrac{w_1+f}{2}\big)}.$</li>
+</ol>
+<div class="verdict"><b>Verdict.</b> The $y_2\to 0$ corner of the §1 surface — nested inside it, not independent. <span class="muted">Empty if $c'(0)>0$.</span></div>
+</div>
+
+<!-- ============================================================ -->
+<div class="face corner">
+<h2>3 · The full collapse: $\;q_1=1$ &nbsp;($q_2=0$) <span class="tag t-corner">collapse → σ(1,1)</span></h2>
+<h3>P2 drops its upper atom; P1 collapses with it.</h3>
+<ol class="chain">
+<li>FOCX$_1$: $\;c'(w_1+\tilde y_1-x_1)=c'(x_1)\Rightarrow w_1+\tilde y_1-x_1=x_1\Rightarrow \;x_1=\tfrac{w_1+\tilde y_1}{2}.$</li>
+<li>FOCX$_2$ ($q_2=0$): $\;c'(w_1+\tilde y_1-x_2)=c'(x_2)\Rightarrow w_1+\tilde y_1-x_2=x_2\Rightarrow \;x_2=\tfrac{w_1+\tilde y_1}{2}.$</li>
+<li>Hence $\;x_1=x_2=\tfrac{w_1+\tilde y_1}{2}$ — but the order needs $x_1<x_2$. <b>Contradiction:</b> P1's two atoms merge.</li>
+</ol>
+<p>So $q_1=1$ forces both players to a single atom: P1 at $\tfrac{w_1+\tilde y_1}{2}=\tfrac{w_2-\Delta}{2}$, P2 at $0$ — the symmetric competitive $\sigma(1,1)$ equilibrium. INDX degenerates to $0=0$ (no extra condition; it is the $\sigma(1,1)$ existence point).</p>
+<div class="verdict"><b>Verdict.</b> The deep $\partial R_{2,2}$ corner — opposite extreme to §1. The whole atomic structure dissolves into one atom each.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="face soft">
+<h2>4 · P1 to a single atom: $\;p_1=1$ &nbsp;($p_2=0$) <span class="tag t-soft">regime surface</span></h2>
+<h3>P1 keeps only $x_1$; P2 still has two atoms — the $\sigma(1,2)$ edge.</h3>
+<ol class="chain">
+<li>FOCY$_2$: $\;c'(w_2+x_1-\tilde y_2)=c'(\tilde y_2-f)\Rightarrow w_2+x_1-\tilde y_2=\tilde y_2-f\Rightarrow \;\boxed{\tilde y_2=\tfrac{w_2+x_1+f}{2}}\ \big(y_2=\tfrac{w_1+\Delta+x_1}{2}\big).$</li>
+<li>INDY$_2$: $\;v_2-c(w_2+x_1-\tilde y_2)=c(\tilde y_2-f)$, and $w_2+x_1-\tilde y_2=\tilde y_2-f$, so $\;\boxed{v_2=2\,c(\tilde y_2-f)=2\,c\!\big(\tfrac{w_1+\Delta+x_1}{2}\big)}.$</li>
+<li>$x_2$ carries mass $p_2=0$ (phantom); INDX survives as the boundary indifference $U_1(x_1)=U_1(x_2)$ — P1 just indifferent to re-opening a top atom.</li>
+</ol>
+<p>No effort collapses — the binding comb bound $x_1\le\tilde y_2=\tfrac{w_2+x_1+f}{2}$ reduces to $x_1\le w_2+f$, comfortably slack. This is a genuine $\sigma(1,2)$ regime boundary $\partial(R_{2,2},R_{1,2})$.</p>
+<div class="verdict"><b>Verdict &amp; mirror.</b> A P2-side condition $v_2=2c\!\big(\tfrac{w_1+\Delta+x_1}{2}\big)$ that mirrors §1's P1-side $v_1=2c\!\big(\tfrac{w_1+\tilde y_2}{2}\big)$ under the player swap $1\!\leftrightarrow\!2,\ \Delta\!\leftrightarrow\!-\Delta$ — the same exchange that runs through the swap-symmetry of the family.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="face corner">
+<h2>5 · Comb wall $\;x_1=\tilde y_2$ <span class="tag t-corner">cascade → corner</span></h2>
+<h3>P1's lower atom rises to the win-tie with P2's upper atom — forcing $y_2\to0$.</h3>
+<p>This is the upper comb node binding ($x_1\le\tilde y_2$) — the $\tilde y$-correct wall of $\mathcal D$, replacing the old raw "$y_2=x_1$" (a wall only at $f=0$; for $f>0$ that lies strictly inside the comb). At $x_1=\tilde y_2$ the P2-winning gap opens to its maximum,</p>
+$$t_{1,2}=w_2+x_1-\tilde y_2=w_2\qquad\Longrightarrow\qquad v_2-c(t_{1,2})=v_2-c(w_2)=0$$
+<p>since $c(w_2)=v_2$ by definition of $w_2=c^{-1}(v_2)$. Clash $(1,2)$ is P2's <i>only</i> win, so its net value vanishing collapses P2's indifference:</p>
+<ol class="chain">
+<li>INDY$_2$: $\;-c(\tilde y_2-f)+p_1\underbrace{\big(v_2-c(w_2)\big)}_{=\,0}=0\;\Rightarrow\;c(\tilde y_2-f)=0\;\Rightarrow\;\tilde y_2=f\ \ (y_2=0).$</li>
+<li>Then $\tilde y_2=f=\tilde y_1$, and the squeeze $\tilde y_1\le x_1\le\tilde y_2$ pins $x_1=f$ — P2's upper atom has died.</li>
+</ol>
+<p>Equivalently: any $\sigma(2,2)$ with a live $y_2>0$ keeps the comb gap <i>strictly</i> open, $x_1<\tilde y_2$. The wall is reachable only by killing $y_2$.</p>
+<div class="verdict"><b>Verdict.</b> Not a soft surface — $\{x_1=\tilde y_2\}$ <i>cascades</i> to $\{y_2=0\}$ (P2's upper atom dies), dropping out of $R_{2,2}$ into $\sigma(2,1)$. It carries no interior $\sigma(2,2)$; the contradiction with $F(z)=0$ is the strictly-open gap $x_1<\tilde y_2$.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="face soft">
+<h2>6 · Comb wall $\;x_2=\tilde y_2$ <span class="tag t-soft">support edge</span></h2>
+<h3>P1's upper atom rises to the win-tie with P2's upper atom.</h3>
+<p>The top comb node binding ($\tilde y_2\le x_2$) — the $\tilde y$-correct wall, replacing the old raw "$x_2=y_2$". At $x_2=\tilde y_2$ clash $(2,2)$ ties, $s_{2,2}=w_1+\tilde y_2-x_2=w_1$, so $v_1-c(s_{2,2})=v_1-c(w_1)=0$. But this is only <i>one</i> of P1's three wins, so nothing collapses:</p>
+<ol class="chain">
+<li>FOCX$_2$: $\;q_1\,c'(w_1+\tilde y_1-\tilde y_2)+q_2\,c'(w_1)=c'(\tilde y_2).$</li>
+<li>FOCY$_2$: $\;p_1\,c'(w_2+x_1-\tilde y_2)=c'(\tilde y_2-f).$</li>
+</ol>
+<p>No mass or effort is driven to a boundary; imposing $x_2=\tilde y_2$ over-determines $F$ by one equation — a codimension-1 surface in $\theta$.</p>
+<div class="verdict"><b>Verdict.</b> The genuine top-of-support edge of $R_{2,2}$, a soft regime surface (unlike §5: P1's other two wins keep the atom alive, no cascade). Touched only on a measure-zero $\theta$-surface — the cell sweep finds $x_2-\tilde y_2$ open throughout.</div>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2>The lattice, not seven walls</h2>
+<p>Stacking the implications, the boundary collapses to a short chain. The lower faces — now <i>including</i> the upper comb node $\{x_1=\tilde y_2\}$ — cascade into one corner; only $\{p_1=1\}$ and the soft edge $\{x_2=\tilde y_2\}$ stand alone.</p>
+
+<div class="panel">
+$$
+\underbrace{\{p_1=0\}\ \text{ and }\ \{x_1=\tilde y_2\}}_{\text{both cascade}}\ \Longrightarrow\ \{y_2=0\}\ \Longrightarrow\ \underbrace{\{x_1=\tilde y_1\}\ \underset{f=0}{\Longleftrightarrow}\ \{q_1=0\}}_{\text{lower corner}}
+\qquad
+\underbrace{\{q_1=1\}}_{\Rightarrow\,x_1=x_2}\ \Longrightarrow\ \sigma(1,1)
+$$
+<p class="muted" style="text-align:center;margin:.4em 0 0">independent regime surfaces: &nbsp;$\{p_1=1\}\to\sigma(1,2)$ &nbsp;and the lone soft edge &nbsp;$\{x_2=\tilde y_2\}$.</p>
+</div>
+
+<table>
+<thead><tr><th>Face</th><th>$F$ + closure forces</th><th>Lands on</th><th>$F$-zero iff</th><th>Type</th></tr></thead>
+<tbody>
+<tr><td>$x_1=0$</td><td>$q_1=0$</td><td>$\sigma(2,1)$, $y_2$ interior, $x_2=\tfrac{w_1+\tilde y_2}{2}$</td><td>$v_1=2c\!\big(\tfrac{w_1+\tilde y_2}{2}\big)$</td><td><span class="key">∂R₂₂</span></td></tr>
+<tr><td>$q_1=0$</td><td>$x_1=0$ &nbsp;(≡ above)</td><td>same stratum</td><td>same</td><td><span class="key">∂R₂₂</span></td></tr>
+<tr><td>$p_1=0$</td><td>$y_2=0,\ x_1=0,\ q_1=0$</td><td>$\sigma(1,1)$, $x_2=\tfrac{w_1+f}{2}$</td><td>$v_1=2c\!\big(\tfrac{w_1+f}{2}\big)$</td><td>corner of ∂R₂₂</td></tr>
+<tr><td>$q_1=1$</td><td>$x_1=x_2=\tfrac{w_1+\tilde y_1}{2}$</td><td>$\sigma(1,1)$ (P1 collapses)</td><td>INDX ≡ $0{=}0$ (σ11 exists)</td><td>deep ∂R₂₂</td></tr>
+<tr><td>$p_1=1$</td><td>$\tilde y_2=\tfrac{w_2+x_1+f}{2}$</td><td>$\sigma(1,2)$, $x_2$ phantom</td><td>$v_2=2c\!\big(\tfrac{w_1+\Delta+x_1}{2}\big)$</td><td>∂(R₂₂,R₁₂)</td></tr>
+<tr><td>$x_1=\tilde y_2$</td><td>$t_{1,2}{=}w_2\Rightarrow$ INDY$_2$ forces $c(\tilde y_2{-}f){=}0$</td><td>$\{y_2=0\}$ corner (P2 upper dies) $\to\sigma(2,1)$</td><td>never — gap $x_1{<}\tilde y_2$ stays open</td><td>cascade</td></tr>
+<tr><td>$x_2=\tilde y_2$</td><td>$q_1c'(w_1{+}\tilde y_1{-}\tilde y_2)+q_2c'(w_1)=c'(\tilde y_2)$</td><td>support edge (top)</td><td>scalar θ-relation</td><td>soft surface</td></tr>
+</tbody>
+</table>
+
+<div class="num">
+<b>Numerical support (401 gated σ(2,2) cells, 4 cost families).</b>
+Every wall is approached, none is reached inside the region:
+$q_1\in[0.229,\,0.495]$ (median $0.372$), &nbsp;$p_1\ge 0.406$, &nbsp;$u_1\in[0.0039,\,0.506]$ — so $u_1\to0$ tracks the §1 surface but never hits it. The single-atom corner configuration sits <i>off</i> the solution manifold in the interior (residual $\sim\!\mathcal O(1)$), meeting $F=0$ only on the §1/§2 surface. Topkis vs. Newton: $1842/1842$ stationary pairs agree — exactly one root per cell.
+</div>
+
+<h2>What this buys</h2>
+<p>Every face is a piece of $\partial R_{2,2}$ — a regime boundary where the $\sigma(2,2)$ configuration hands off to a neighbour ($\sigma(2,1)$, $\sigma(1,2)$, or $\sigma(1,1)$) or two atoms merge. <b>None forces an $F$-zero for $\theta$ in the interior of $R_{2,2}$:</b> the mass-collapse faces and the comb node $\{x_1=\tilde y_2\}$ cascade to corners (P2's upper atom dies); the lone soft edge $\{x_2=\tilde y_2\}$ needs a scalar $\theta$-relation. So, off those surfaces,</p>
+<p style="text-align:center"><b>$F\neq 0$ on $\partial\mathcal D$ throughout $\operatorname{int}R_{2,2}$</b></p>
+<p>— which is exactly the boundary-non-escape (properness) input the degree / global-uniqueness argument needs. The faces' job is not to be excluded one-by-one; it is to certify that the only way to touch $\partial\mathcal D$ is to leave $R_{2,2}$ through one of its named regime surfaces. The remaining quantitative obligation is the same for all seven: confirm those surfaces are the actual region boundary and do not cut $\operatorname{int}R_{2,2}$ — for which the cell sweep above is the evidence.</p>
+
+<p class="footnote">Method throughout: $c'(s)=c'(t)\Rightarrow s=t$ and $c(s)=c(t)\Rightarrow s=t$ (strict convexity), plus the closure squeeze on the comb $\tilde y_1\le x_1\le\tilde y_2\le x_2$ (with $\tilde y_1=f$, i.e. $y_1=0$). Reach gaps assumed positive where used; $c'(0)=0$ assumed for the cost family $e^r/r$, $r>1$ — drop it and the three mass-collapse faces are empty.</p>
+
+</div>
+</body>
+</html>

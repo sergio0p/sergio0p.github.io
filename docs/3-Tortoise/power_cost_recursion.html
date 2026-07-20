@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power-cost σ(m,n): the degree-(θ−1) solve</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ],
+            ignoredTags: ['script','noscript','style','textarea','pre','code','option']
+        });"></script>
+<style>
+  :root{
+    --fg:#1a1a1a; --muted:#5a5a5a; --accent:#1f6feb; --bg:#fafafa;
+    --card:#ffffff; --border:#e3e3e3; --tag:#f0f4ff; --tag-border:#c8d6ff;
+    --good:#2f8a3d; --warn:#b5651d;
+  }
+  body{
+    font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--fg); background:var(--bg);
+    max-width:920px; margin:2rem auto; padding:0 1.25rem 4rem; line-height:1.6;
+  }
+  h1{font-size:1.6rem; margin-bottom:.2rem;}
+  .subtitle{color:var(--muted); margin-bottom:1.6rem;}
+  h2{font-size:1.25rem; border-bottom:1px solid var(--border); padding-bottom:.35rem; margin-top:2.4rem;}
+  h3{font-size:1.05rem; margin-top:1.6rem;}
+  .tldr{
+    background:var(--tag); border:1px solid var(--tag-border); border-radius:8px;
+    padding:1rem 1.25rem; margin:1.2rem 0 2rem;
+  }
+  .tldr strong{color:var(--accent);}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:8px;
+    padding:1rem 1.4rem; margin:1.2rem 0; box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  .keybox{border-left:4px solid var(--accent); background:#f7faff;}
+  .note{font-size:.92rem; color:var(--muted);}
+  .warnbox{border-left:4px solid var(--warn); background:#fdf8f1;}
+  .goodbox{border-left:4px solid var(--good); background:#f4fbf5;}
+  code,pre{font-family:"SF Mono",Menlo,Consolas,monospace;}
+  pre{background:#f4f5f7; border:1px solid var(--border); border-radius:6px;
+      padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45;}
+  table{border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem;}
+  th,td{border:1px solid var(--border); padding:.4rem .6rem; text-align:right;}
+  th{background:#f0f2f5; text-align:center;}
+  td.lbl,th.lbl{text-align:left;}
+  .ok{color:var(--good); font-weight:600;}
+  .bad{color:#c0392b; font-weight:600;}
+  .controls{margin:1rem 0; display:flex; gap:.8rem; align-items:center; flex-wrap:wrap;}
+  select,button{font-size:.95rem; padding:.35rem .6rem; border:1px solid var(--border);
+                border-radius:5px; background:#fff;}
+  button{cursor:pointer; background:var(--accent); color:#fff; border-color:var(--accent);}
+  .step{counter-increment:step; }
+  .num{display:inline-block; min-width:1.6rem; color:var(--accent); font-weight:700;}
+  .cascade{background:#f7faff; border:1px solid var(--tag-border); border-radius:8px;
+           padding:1rem 1.2rem; margin:1.2rem 0; font-family:"SF Mono",Menlo,Consolas,monospace;
+           font-size:.88rem; line-height:1.7; overflow-x:auto;}
+  .cascade .src{color:var(--accent); font-weight:700;}
+  .cascade .why{color:var(--muted);}
+  .footer{margin-top:3rem; padding-top:1rem; border-top:1px solid var(--border);
+          font-size:.85rem; color:var(--muted);}
+  .badge{display:inline-block; padding:.15rem .5rem; border-radius:5px; font-weight:700; font-size:.85rem;}
+  .badge.y{background:#e3f4e6; color:var(--good);}
+  .badge.n{background:#fbe6e3; color:#c0392b;}
+</style>
+</head>
+<body>
+
+<h1>Power-cost $\sigma(m,n)$: the degree-$(\theta-1)$ solve</h1>
+<div class="subtitle">What stays and what breaks when $c(e)=e^2$ becomes $c(e)=e^\theta$ &middot; Tortoise project &middot; 2026-06-18</div>
+
+<div class="tldr">
+<strong>Summary:</strong> The companion page <a href="symmetric_quadratic_recursion.html"><code>symmetric_quadratic_recursion.html</code></a>
+solves the symmetric $\sigma(m,n)$ family by a triangular forward sweep with <em>closed-form</em> mass updates. Those
+closed forms are special to $c(e)=e^2$. For a general power cost $c(e)=e^\theta$ ($\theta\ge2$ integer) the very
+same architecture survives — change of variables to the rival's cumulative moments, value identity, triangular
+cascade, 1-D shooting on $q_1$ — with <strong>one</strong> change: locating each atom is no longer a ratio but a
+<strong>polynomial root of degree $\theta-1$</strong>. The first-order condition $\sum q_\ell(g_\ell-x)^{\theta-1}=x^{\theta-1}$
+is linear at $\theta=2$ (hence the ratio $x_k=S_k/(1+Q_k)$) and genuinely degree $\theta-1$ for $\theta\ge3$.
+The indifference equations stay <em>linear in each new mass</em>, so masses remain explicit <em>once the atom is
+known</em> — which is exactly why <strong>the shooting reduction is cost-general while the closed-form masses are
+quadratic-only.</strong>
+<br><br>
+There is a deeper lesson the quadratic case hides. For $\theta\ge3$ the per-step polynomial has several roots
+in general — but only one lies in the interleaving window, because strict convexity makes the round-1 payoff
+strictly concave on each interior branch, so the bracket from the previous atom to the reach isolates a
+<em>unique</em> stationary point (confirmed numerically across $\theta$ up to 8, mixed polynomials, and asymmetry).
+The subtlety the quadratic hides is therefore <em>not</em> a per-step choice among candidate roots; it is that a
+solution of the first-order + indifference system is <strong>necessary but not sufficient</strong> <em>globally</em>: it can
+admit a profitable <em>upward</em> deviation across branches (abandonment or the free-win shelf). That is precisely <strong>Example&nbsp;5</strong> of the paper (cubic $(2,2)$ solves the
+local system yet is not an equilibrium), and the threshold is $\theta^\star=\log 2/\log(4/3)\approx2.409$
+(Proposition&nbsp;4): at $\theta^\star$ the small rungs $\sigma(1,1)$ and $\sigma(1,2)$ die, while larger rungs survive
+(cubic $\sigma(3,3)$ — the paper's Example&nbsp;3 — is reproduced here exactly).
+<br><br>
+<strong>Payoff structure (§8).</strong> The shooting scalar pins the payoff outright via the exact identity
+$u_1^*=q_1^2/(1+q_1)$ (cost-general: $u_1^*=q_1[1-(1+q_1^{1/(\theta-1)})^{1-\theta}]$, increasing in $q_1$), so the
+cross-rung payoff <em>decline</em> reduces to monotonicity of a single seed — established by an interlacing argument
+<em>modulo one open lemma</em> (the same seed-monotonicity that would also give per-rung uniqueness).
+</div>
+
+<h2>1. Setup — only the cost exponent changes</h2>
+<p>We stay in the fully symmetric specialization of the companion page and only swap the cost:</p>
+<ul>
+<li>values $v_1=v_2=1$, lead $\Delta=0$, cost $c(e)=e^\theta$, so the reach is still $w=c^{-1}(1)=1$;</li>
+<li>Player 1 mixes over $x_1&lt;\dots&lt;x_m$ (masses $p_j$); Player 2 over $y_1&lt;\dots&lt;y_n$ (masses $q_\ell$);</li>
+<li>WLOG labeling $u_2^*=0$, forcing $y_1=0$; supports interleave $y_1&lt;x_1&lt;y_2&lt;x_2&lt;\cdots$ (the $f=0$ comb);</li>
+<li>reach points $g_\ell:=1+y_\ell$ (for P1, against $y_\ell$) and $h_j:=1+x_j$ (for P2, against $x_j$).</li>
+</ul>
+<p>Round-2 against a single rival atom $y_\ell$ gives P1 the interior continuation $1-c(w-\Delta_2)=1-(g_\ell-x)^\theta$,
+where $\Delta_2=x-y_\ell$. The <strong>truncation rule</strong> is unchanged (it is geometric, not cost-specific): at P1's
+atom $x_k$ the active rival atoms are $\ell\le k$; at P2's atom $y_\ell$ they are $k&lt;\ell$.</p>
+
+<h2>2. The payoff curve is now piecewise degree-$\theta$</h2>
+<p>Fix P2's strategy. For a P1 effort $x$ in the cell where the active rival atoms are $\ell\le k$,</p>
+$$V_1(x)\;=\;\sum_{\ell\le k} q_\ell\big[1-(g_\ell-x)^\theta\big]-x^\theta
+\;=\;Q_k-\sum_{\ell\le k} q_\ell (g_\ell-x)^\theta-x^\theta .$$
+<p>At $\theta=2$ this is the downward parabola the companion page exploits. For $\theta\ge3$ it is a smooth
+<em>degree-$\theta$</em> curve on each cell. Continuity across cells is identical to the quadratic case: a new rival
+atom enters at $x=y_{k+1}$, where its contribution $1-(g_{k+1}-y_{k+1})^\theta=1-1^\theta=0$ and the level $Q$
+jumps by exactly the same $q_{k+1}$. So $V_1$ is one continuous, piecewise-degree-$\theta$ curve whose local maxima
+are P1's atoms, all at the common height $u_1$. The cost shape has changed the <em>arcs</em>; it has not changed the
+<em>comb</em>.</p>
+
+<h2>3. The first-order condition — where degree $\theta-1$ is born</h2>
+<p>Differentiate $V_1$ inside the cell $\ell\le k$:</p>
+$$V_1'(x)=\theta\sum_{\ell\le k}q_\ell(g_\ell-x)^{\theta-1}-\theta\,x^{\theta-1},$$
+<p>so the interior maximizer solves</p>
+<div class="card keybox">
+<p style="margin:0"><strong>Stationarity (general $\theta$).</strong></p>
+$$\boxed{\;\sum_{\ell\le k} q_\ell\,(g_\ell-x_k)^{\theta-1}\;=\;x_k^{\theta-1}\;}$$
+<p class="note" style="margin-bottom:0">A single polynomial equation of degree $\theta-1$ in the atom $x_k$. Its
+leading coefficient is $(-1)^{\theta-1}Q_k-1$, which is nonzero (since $0&lt;Q_k&lt;1$) — so the degree is
+<em>exactly</em> $\theta-1$, never less.</p>
+</div>
+<p><strong>Why $\theta=2$ is special.</strong> At $\theta=2$ the exponent $\theta-1=1$, the equation is
+<em>linear</em>, and it inverts to the ratio of moments</p>
+$$x_k=\frac{\sum_{\ell\le k}q_\ell g_\ell}{1+\sum_{\ell\le k}q_\ell}=\frac{S_k}{1+Q_k}.$$
+<p>This single fact — "stationarity is linear" — is the source of <em>every</em> closed form on the companion page.
+The moment $x_k=S_k/(1+Q_k)$ is what then collapses the value identity to $u_1=Q_k-M_k+S_k^2/(1+Q_k)$ and, through
+the vanishing-constant step, to the explicit mass updates. Remove the linearity and the cascade of closed forms
+unwinds from the top.</p>
+<p><strong>What $\theta\ge3$ looks like.</strong> The exponent $\theta-1\ge2$, and the atom is the relevant root of a
+genuine degree-$(\theta-1)$ polynomial. For the very first atom ($k=1$, $g_1=1$, $Q_1=q_1$) it reads,
+transparently,</p>
+$$q_1\,(1-x_1)^{\theta-1}=x_1^{\theta-1}\qquad\Longrightarrow\qquad x_1=\frac{q_1^{1/(\theta-1)}}{1+q_1^{1/(\theta-1)}}.$$
+<p>(The single-active-atom case still has a closed root — a $(\theta-1)$-th root, not a rational expression. With two
+or more active atoms there is no such formula and the root is found numerically.) Already here one sees the
+calculator's job: a degree-$(\theta-1)$ polynomial can have several positive roots, but <strong>only one falls in the
+interleaving window</strong> — and strict convexity (the round-1 payoff is strictly concave on each interior branch)
+makes that in-window root the local maximizer. So the per-step task is a single 1-D root-find on the correct
+bracket, <em>not</em> a comparison among candidates; the within-window uniqueness is hidden at $\theta=2$ only because
+there the equation is linear. The genuine multiplicity is <em>global</em> — the cross-branch upward deviation of §7
+below — and is settled by a post-hoc best-response check, not by per-step root enumeration.</p>
+
+<h2>4. The value identity holds; masses stay <em>linear</em></h2>
+<p>Substituting the FOC back, the common P1 value is</p>
+$$u_1=V_1(x_k)=Q_k-\sum_{\ell\le k}q_\ell(g_\ell-x_k)^\theta-x_k^\theta\qquad(\forall k).$$
+<p>For $\theta=2$ the binomial $(g_\ell-x_k)^2=g_\ell^2-2g_\ell x_k+x_k^2$ folds into just three moment sequences
+$(Q,S,M)$, giving the tidy $u_1=Q_k-M_k+S_k^2/(1+Q_k)$. For $\theta\ge3$ the expansion of $(g_\ell-x_k)^\theta$ needs
+$\theta+1$ moments and does not telescope — there is no two-moment value identity. <strong>But the equation is still
+affine in each individual mass.</strong> Isolate the newest mass $q_k$ (everything else known): both the indifference
+$V_1(x_k)=u_1$ and the FOC are linear in $q_k$, so</p>
+$$q_k=\frac{u_1-\Big[Q_{k-1}-\sum_{\ell&lt;k}q_\ell(g_\ell-x_k)^\theta\Big]+x_k^\theta}{\,1-(g_k-x_k)^\theta\,}.$$
+<div class="card keybox">
+<p style="margin:0"><strong>So why are the closed-form masses "quadratic-only"?</strong> Not because the mass equation
+becomes nonlinear — it never does. It is because the mass formula <em>feeds on the atom</em> $x_k$, and at $\theta=2$
+the atom is the closed-form ratio $S_k/(1+Q_k)$, so the mass inherits a closed form; at $\theta\ge3$ the atom is a
+degree-$(\theta-1)$ root with no formula, so the mass — though still an explicit <em>linear</em> function of that
+atom — inherits the root-find. The non-closed object is the atom, and the mass rides along.</p>
+</div>
+
+<h2>5. The per-step solve: one atom, one mass, coupled</h2>
+<p>There is a subtlety the linearity above glosses. At a P1 step the newest mass $q_k$ and the newest atom $x_k$ are
+introduced <em>together</em>: $q_k$ appears in the FOC that locates $x_k$, and $x_k$ appears in the indifference that
+pins $q_k$. So each step is a small $2\times2$ system. Two clean ways to dispatch it:</p>
+<ul>
+<li><strong>Slave the mass, root-find the atom.</strong> Use the (linear) indifference to write $q_k=q_k(x_k)$ as
+above, substitute into the FOC, and solve the resulting <em>single</em> equation in $x_k$ by 1-D bisection. This is
+the practical method used in the calculator.</li>
+<li><strong>Single-rival steps collapse.</strong> When only one rival atom is active (the first atom on each side,
+and every step that introduces a brand-new rival), eliminating the mass between FOC and indifference cancels cleanly.
+For P2's atom $y_2$ against P1's lone $x_1$ ($h_1=1+x_1$) one gets the closed form
+$$y_2=h_1-h_1^{-1/(\theta-1)},\qquad p_1=h_1\,y_2^{\theta-1},$$
+the exact $\theta$-generalization of the quadratic $y_2=[(1+x_1)^2-1]/(1+x_1)$.</li>
+</ul>
+<p class="note">Degree bookkeeping, stated honestly: the <em>atom-location FOC at fixed masses</em> is degree
+$\theta-1$ (this is the scope-box's count, and it is literal for the first atom and every single-rival step). When the
+newest mass must be co-determined, slaving it linearly and clearing denominators raises the per-step equation in
+$x_k$ to degree $\le 2\theta-2$ (the top $x_k^{2\theta-1}$ term cancels identically). Either way it is one monotone
+1-D root-find per atom — never an elimination, never a Gröbner basis.</p>
+
+<h2>6. The cascade is still triangular — still one shot on $q_1$</h2>
+<p>None of the dependency structure changes. Each unknown is still produced by one equation referring only to
+unknowns produced earlier, with a single source $q_1$:</p>
+<div class="cascade">
+<span class="src">q&#8321;</span> &nbsp;<span class="why">(free shooting parameter)</span><br>
+&nbsp;&nbsp;&#8627; x&#8321; : solve&nbsp; q&#8321;(1&minus;x&#8321;)<sup>&theta;&minus;1</sup> = x&#8321;<sup>&theta;&minus;1</sup>&nbsp;&nbsp;<span class="why">degree-(&theta;&minus;1) root</span><br>
+&nbsp;&nbsp;&#8627; u&#8321; = q&#8321;[1&minus;(1&minus;x&#8321;)<sup>&theta;</sup>] &minus; x&#8321;<sup>&theta;</sup>&nbsp;&nbsp;<span class="why">value at the atom</span><br>
+&nbsp;&nbsp;&#8627; (y&#8322;, p&#8321;) : P2 FOC + IR&nbsp;&nbsp;<span class="why">single-rival &rarr; closed form</span><br>
+&nbsp;&nbsp;&#8627; (x&#8322;, q&#8322;) : P1 FOC + indiff&nbsp;&nbsp;<span class="why">2&times;2 &rarr; slave mass, root-find atom</span><br>
+&nbsp;&nbsp;&#8627; (y&#8323;, p&#8322;) &rarr; (x&#8323;, q&#8323;) &rarr; &#8943;&nbsp;&nbsp;<span class="why">(repeat)</span>
+</div>
+<p>and the run is closed exactly as before: the top atom's mass is a free leftover fixed by its own normalization,
+while the other normalization is the lone scalar residual $F(q_1)=0$ solved by 1-D shooting. <strong>The architecture
+is identical to the quadratic page; only the "$x_k=\,$ratio" boxes became "$x_k=\,$root."</strong></p>
+
+<h2>7. What the quadratic case hides: necessary $\ne$ sufficient</h2>
+<p>At $\theta=2$ the payoff is a concave parabola on each cell and the comb construction is automatically a global best
+response — solving the local system <em>is</em> the equilibrium. For $\theta\ge3$ that free lunch ends, in three
+linked ways.</p>
+
+<h3>7a. $\sigma(1,2)$ becomes infeasible</h3>
+<p>With $p_1=1$ the single-rival collapse gives the closed form $x_1=2^{(\theta-1)/\theta}-1$, $y_2=2^{-1/\theta}$, and
+the P1 FOC then forces</p>
+$$q_1=\Big(\tfrac{x_1}{1-x_1}\Big)^{\theta-1}.$$
+<p>This is a legitimate probability ($q_1\le1$) iff $x_1\le\tfrac12$, i.e. iff
+$\theta\le\theta^\star:=\dfrac{\log2}{\log(4/3)}\approx2.409$. At $\theta=2$, $q_1=\tfrac1{\sqrt2}\approx0.707$ (the
+published value); at $\theta=3$, $q_1\approx2.03&gt;1$ — no equilibrium.</p>
+
+<h3>7b. $\sigma(1,1)$ loses Nash — at the <em>same</em> threshold</h3>
+<p>The one-atom-each profile is $x_1=\tfrac12$, $y_1=0$, with $u_1=1-2^{1-\theta}$. Player 2, sitting at $0$ with
+payoff $0$, can deviate to effort $y$; the best upward deviation is $y=\tfrac34$, worth $1-2(\tfrac34)^\theta$. This is
+$\le0$ — no deviation — iff $(\tfrac34)^\theta\ge\tfrac12$, i.e. iff $\theta\le\theta^\star=\log2/\log(4/3)\approx2.409$.
+This is exactly <strong>Proposition&nbsp;4</strong>'s pure-strategy existence threshold, recovered as a global deviation
+in the recursion. (Independent confirmation that the printed threshold should read $\log2/\log(4/3)\approx2.409$, not
+its reciprocal.)</p>
+
+<h3>7c. $\sigma(2,2)$ at $\theta=3$: solves the system, still not an equilibrium</h3>
+<div class="card warnbox">
+<p style="margin:0">This is the paper's <strong>Example&nbsp;5</strong>. The cubic $(2,2)$ first-order + indifference system has a
+unique solution (the cascade finds it, interleaved, with masses summing to 1), yet it is <em>not</em> a Nash
+equilibrium: player&nbsp;2 has a strictly profitable deviation to an effort <em>above</em> the support. The recursion
+reproduces the failure quantitatively — the best upward deviation gains $\approx0.0125$. The paper's appendix states
+the obligation directly: solving the square system rules out deviations <em>below</em> the top atoms, but "we still
+must prove that no deviations above $x_m$ or $y_n$ are profitable," and checks it separately (numerically).</p>
+</div>
+<p>The local-sufficiency that <em>does</em> survive is between adjacent rival atoms, where the payoff is strictly
+concave (single-peaked) for any convex $c$. What fails for $\theta&gt;\theta^\star$ is control of deviations
+<em>beyond the top atom</em> — and that is exactly where small supports are too thin to plug the gap. Larger supports
+do plug it: the cubic $\sigma(3,3)$ <em>is</em> a genuine equilibrium (the paper's <strong>Example&nbsp;3</strong>), and the
+forward sweep here reproduces it to four decimals — $q_1=0.2723$, P2 at $\{0,0.4799,0.6636\}$, P1 at
+$\{0.3428,0.5817,0.7335\}$. The calculator below runs the global deviation check live, so you can watch the verdict
+flip from rung to rung.</p>
+
+<h2>8. Payoff structure: the seed <em>is</em> the payoff</h2>
+<p>The shooting scalar $q_1$ does more than close the system — it pins the equilibrium payoff outright. That turns the
+cross-rung ranking question (does $u_1^*$ fall as the supports grow?) into a statement about a single number, and the
+recursion supplies an interlacing argument for it. <strong>One lemma remains open</strong> (flagged below); the rest is
+rigorous or structural.</p>
+
+<h3>8a. The seed–payoff identity</h3>
+<p>The first atom sees only $y_1=0$, so $g_1=1$, $Q_1=q_1$, and its FOC is $q_1(1-x_1)^{\theta-1}=x_1^{\theta-1}$, i.e.
+$x_1/(1-x_1)=\rho$ with $\rho:=q_1^{1/(\theta-1)}$, giving $x_1=\rho/(1+\rho)$. Substituting into the value at that atom,
+$u_1=q_1[1-(1-x_1)^\theta]-x_1^\theta$, everything collapses:</p>
+<div class="card keybox">
+$$\boxed{\,u_1^*=q_1\big[\,1-(1+\rho)^{\,1-\theta}\,\big],\quad \rho=q_1^{1/(\theta-1)}\,}
+\qquad\xrightarrow{\ \theta=2\ }\qquad u_1^*=\frac{q_1^{\,2}}{1+q_1}.$$
+<p class="note" style="margin-bottom:0">Both factors rise with $q_1$ ($q_1\uparrow$, and $(1+\rho)^{1-\theta}\downarrow$
+since the exponent is negative), so <strong>$u_1^*$ is strictly increasing in the seed for every $\theta\ge2$.</strong>
+This is exact and cost-general — confirmed to machine precision at $\theta=2$ and $\theta=3$ (table below, and §9b). The
+consequence is the whole point: <em>ranking the payoffs is the same as ranking the seeds.</em></p>
+</div>
+
+<h3>8b. Why the seed must drop — an interlacing argument</h3>
+<p>Three structural facts about the cascade (all hold for any $\theta$, in the validity region):</p>
+<ol>
+<li><strong>Stop-independence.</strong> The cascade is one infinite, seed-determined sequence
+$q_1(q_1),q_2(q_1),q_3(q_1),\dots$; rung $(m,m)$ merely <em>truncates</em> it. (Verified: the early $q_\ell$ are
+identical across $(3,3),(4,4),(5,5)$ at a common seed.)</li>
+<li><strong>The closing condition is a partial sum.</strong> Rung $(m,m)$ closes when
+$G_m(q_1):=\sum_{\ell\le m}q_\ell(q_1)-1=0$ (the leftover fixes $p_m$). Since every mass is positive,
+$$G_{m+1}(q_1)=G_m(q_1)+q_{m+1}(q_1)>G_m(q_1)\quad\text{pointwise.}$$</li>
+<li><strong>The next residual is positive at the current root.</strong> At $q_1^*(m,m)$, $G_m=0$, so
+$G_{m+1}\big(q_1^*(m,m)\big)=q_{m+1}>0$.</li>
+</ol>
+<p>Now suppose $G_m$ is increasing in the seed. A function that is increasing in $q_1$ and already strictly positive at
+$q_1^*(m,m)$ must have crossed zero <em>earlier</em>:</p>
+<div class="card keybox">
+$$q_1^*(m{+}1,m{+}1)\;<\;q_1^*(m,m)\quad\Longrightarrow\quad u_1^*(m{+}1,m{+}1)<u_1^*(m,m),$$
+<p class="note" style="margin-bottom:0">the entire diagonal by induction — in one stroke, not rung by rung. This is a
+cleaner lever than the $\alpha$-homotopy/envelope route: it tracks one scalar root, not a per-pair Jacobian sign.</p>
+</div>
+
+<h3>8c. The open crux</h3>
+<div class="card warnbox">
+<p style="margin-top:0">Everything in §8b is rigorous <strong>except one input</strong>: that
+$G_m(q_1)=\sum_{\ell\le m}q_\ell(q_1)$ is strictly increasing in the seed ("more seed $\Rightarrow$ more cumulative
+mass"). This is <strong>unproven for every $\theta$, including $\theta=2$.</strong> It is exactly the
+single-crossing/monotonicity property already needed for <em>per-rung uniqueness</em> of the shooting root — so a proof
+would settle uniqueness <em>and</em> cross-rung payoff decline at once (two results, one lemma). Numerically it holds
+decisively: $\theta=2$ through $(6,6)$, and $\theta=3$ throughout the existence window.</p>
+<p style="margin-bottom:0"><strong>Two power-cost riders.</strong> (i) <em>Existence window.</em> For
+$\theta&gt;\theta^\star\approx2.409$ the small rungs vanish (§7), so the ranking is meaningful only where consecutive
+rungs both exist (the $\theta=3$ chain starts at $(3,3)$). (ii) <em>Off-diagonal.</em> The $(m,m{+}1)$ rungs close on
+the <em>other</em> partial sum $B_m=\sum_{k\le m}p_k$, giving a parallel interlacing in the $p$-family; stitching the
+two families into one fully monotone chain needs one extra cross-comparison (root of $A_m{=}1$ vs root of $B_m{=}1$).</p>
+</div>
+<p>The table below shows the identity and the interlacing together for the symmetric quadratic diagonal: the recursion's
+$u_1^*$ equals $q_1^2/(1+q_1)$ to all printed digits, the seed $q_1^*$ falls monotonically, and the next residual
+$G_{m+1}(q_1^*)$ is positive at each root — the engine of the drop.</p>
+<div id="seeddemo"></div>
+
+<h2>9. Calculators (live, in this page)</h2>
+
+<h3>9a. Sanity: the quadratic chain ($\theta=2$)</h3>
+<p>The same forward sweep, specialized to $\theta=2$, reproduces the published chain — the case where every rung is a
+genuine equilibrium.</p>
+<div id="chain2"></div>
+
+<h3>9b. General $\theta$: solve a rung <em>and</em> test it for Nash</h3>
+<p>Pick $\theta$ and a rung. The page runs the degree-$(\theta-1)$ cascade, then scans $V_1,V_2$ over
+$[0,1.5]$ for any profitable deviation. Green = genuine equilibrium; red = solves the local system but a deviation
+exists (or a mass goes non-positive). Try $\theta=3$ on $(2,2)$ — Example&nbsp;5 — versus $(3,3)$ — Example&nbsp;3.</p>
+<div class="controls">
+  <label>θ <select id="th">
+    <option>2</option><option selected>3</option><option>4</option><option>5</option>
+  </select></label>
+  <label>rung <select id="rung"></select></label>
+  <button onclick="renderRung()">solve &amp; test</button>
+</div>
+<div id="rungout"></div>
+
+<h3>9c. The two small rungs across $\theta$ (closed forms)</h3>
+<p>$\sigma(1,1)$ and $\sigma(1,2)$ in closed form, with the global verdict. Both die at
+$\theta^\star=\log2/\log(4/3)\approx2.409$.</p>
+<div id="smallrungs"></div>
+
+<h2>10. Relation to the rest of the project</h2>
+<p>The companion <a href="symmetric_quadratic_recursion.html"><code>symmetric_quadratic_recursion.html</code></a> is
+the $\theta=2$ slice of this page: there the FOC is linear, so atoms <em>and</em> masses are closed forms and the
+global check is free. The general fully-asymmetric algorithm ($v_1\neq v_2$, $\Delta\neq0$) is in
+<code>Docs/general_algorithm_v1v2_delta.md</code>; its §4 "Scope" box is the statement this page expands. The
+<em>continuous</em> power-cost equilibrium (Proposition&nbsp;2 / §7 of <code>QUICKSTART.md</code>) is a different object:
+for $c(e)=e^\theta/\theta$ the competitive density solves a constant-coefficient ODE whose characteristic polynomial
+is a truncated exponential (Schur 1929: not solvable in radicals for $\theta\ge6$). Whether the discrete
+$\sigma(m,n)$ family converges to that density as supports grow is open; this page is about the discrete family and
+the exact point where its small rungs stop being equilibria.</p>
+
+<div class="footer">
+Derivation, numerics, and paper cross-checks (Examples 3 &amp; 5, Proposition 4): Tortoise session 2026-06-18. The
+$\theta=2$ table matches the published chain; the cubic $(3,3)$ profile and the $\theta^\star=\log2/\log(4/3)$
+threshold are reproduced by the recursion. Companion: <code>Docs/symmetric_quadratic_recursion.html</code>,
+<code>Docs/general_algorithm_v1v2_delta.md</code>, <code>QUICKSTART.md</code> §2/§7.
+</div>
+
+<script>
+// ===== verified recursion, ported from the Python checked this session =====
+function bisect(f,a,b){
+  let fa=f(a);
+  for(let i=0;i<200;i++){ const m=0.5*(a+b), fm=f(m);
+    if(fm===null) return 0.5*(a+b);
+    if(fa*fm<=0) b=m; else {a=m; fa=fm;} }
+  return 0.5*(a+b);
+}
+function scanRoot(f,lo,hi,N){
+  N=N||4000;
+  let prev=lo, fp=f(lo);
+  if(fp!==null && fp===0) return lo;
+  for(let i=1;i<=N;i++){
+    const t=lo+(hi-lo)*i/N, ft=f(t);
+    if(ft!==null && ft===0) return t;
+    if(fp!==null && ft!==null && fp*ft<0) return bisect(f,prev,t);
+    prev=t; fp=ft;
+  }
+  return null;
+}
+function sweep(m,n,q1,th){
+  const x=new Array(m+2).fill(null), y=new Array(n+2).fill(null);
+  const p=new Array(m+2).fill(0),    q=new Array(n+2).fill(0);
+  y[1]=0; q[1]=q1;
+  const g=l=>1+y[l], h=k=>1+x[k];
+  const pw=Math.pow;
+  // x1: q1(1-x)^(th-1)=x^(th-1)
+  const f1=xx=>q1*pw(1-xx,th-1)-pw(xx,th-1);
+  x[1]=scanRoot(f1,1e-9,1-1e-9);
+  if(x[1]===null) return null;
+  const u1=q1*(1-pw(g(1)-x[1],th))-pw(x[1],th);
+  const Psum=u=>{let s=0;for(let k=1;k<=u;k++)s+=p[k];return s;};
+  const Qsum=u=>{let s=0;for(let l=1;l<=u;l++)s+=q[l];return s;};
+  const maxr=Math.max(m,n);
+  for(let r=2;r<=maxr;r++){
+    if(r<=n){ // P2 step: place y[r], p[r-1]; active k=1..r-2
+      const l=r;
+      const slp=yy=>{ const d=1-pw(h(l-1)-yy,th); if(Math.abs(d)<1e-14)return null;
+        let acc=pw(yy,th); for(let k=1;k<=l-2;k++) acc-=p[k]*(1-pw(h(k)-yy,th)); return acc/d; };
+      const G=yy=>{ const pl=slp(yy); if(pl===null)return null;
+        let v=0; for(let k=1;k<=l-2;k++) v+=p[k]*pw(h(k)-yy,th-1);
+        v+=pl*pw(h(l-1)-yy,th-1); return v-pw(yy,th-1); };
+      const yl=scanRoot(G,x[r-1]+1e-9,h(1)-1e-9);
+      if(yl===null) return null;
+      y[l]=yl; p[l-1]=slp(yl);
+      if(p[l-1]===null || p[l-1]<=0) return null;
+    }
+    if(r<=m){ // P1 step: place x[r], q[r]; active l=1..r-1
+      const k=r;
+      const slq=xx=>{ const d=1-pw(g(k)-xx,th); if(Math.abs(d)<1e-14)return null;
+        let acc=u1+pw(xx,th); for(let l=1;l<=k-1;l++) acc-=q[l]*(1-pw(g(l)-xx,th)); return acc/d; };
+      const F=xx=>{ const qk=slq(xx); if(qk===null)return null;
+        let v=0; for(let l=1;l<=k-1;l++) v+=q[l]*pw(g(l)-xx,th-1);
+        v+=qk*pw(g(k)-xx,th-1); return v-pw(xx,th-1); };
+      const xk=scanRoot(F,y[k]+1e-9,1-1e-9);
+      if(xk===null) return null;
+      x[k]=xk; q[k]=slq(xk);
+      if(q[k]===null || q[k]<=0) return null;
+    }
+  }
+  let residual;
+  if(n===m){ p[m]=1-Psum(m-1); residual=Qsum(m)-1; }
+  else     { q[m+1]=1-Qsum(m); residual=Psum(m)-1; }
+  return {x,y,p,q,u1,residual};
+}
+function shoot(m,n,th){
+  if(m===1&&n===1) return {q1:1, r:sweep(1,1,1,th)};
+  const f=t=>{ const s=sweep(m,n,t,th); return s?s.residual:null; };
+  const q1=scanRoot(f,1e-6,1-1e-6,4000);
+  if(q1===null) return {q1:null,r:null};
+  return {q1, r:sweep(m,n,q1,th)};
+}
+function U(d,th){ if(d<=0)return 0; if(d>=1)return 1; return 1-Math.pow(1-d,th); }
+function nashCheck(m,n,th,r){
+  const {x,y,p,q,u1}=r;
+  const V1=xx=>{let s=0;for(let l=1;l<=n;l++)s+=q[l]*U(xx-y[l],th);return s-Math.pow(xx,th);};
+  const V2=yy=>{let s=0;for(let k=1;k<=m;k++)s+=p[k]*U(yy-x[k],th);return s-Math.pow(yy,th);};
+  const N=4000; let mV1=-1e9,mV2=-1e9;
+  for(let i=0;i<=N;i++){const t=1.5*i/N; const a=V1(t),b=V2(t); if(a>mV1)mV1=a; if(b>mV2)mV2=b;}
+  const dev1=mV1-u1, dev2=mV2-0;
+  let il=true; const seq=[];
+  for(let k=1;k<=n;k++){seq.push(y[k]); if(k<=m)seq.push(x[k]);}
+  for(let i=0;i<seq.length-1;i++) if(!(seq[i]<seq[i+1])) il=false;
+  let pos=true;
+  for(let k=1;k<=m;k++) if(!(p[k]>0)) pos=false;
+  for(let l=1;l<=n;l++) if(!(q[l]>0)) pos=false;
+  const nash = il && pos && dev1<=1e-4 && dev2<=1e-4;
+  return {nash, dev1:Math.max(dev1,0), dev2:Math.max(dev2,0), il, pos};
+}
+function fmt(v,d){ return (v===null||v===undefined||Number.isNaN(v))?"&mdash;":Number(v).toFixed(d); }
+
+// ---- 8a: quadratic chain ----
+const CHAIN=[[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5],[5,5],[5,6]];
+const PUB={"1,1":0.500,"1,2":0.293,"2,2":0.097,"2,3":0.065,"3,3":0.038,"3,4":0.028,
+           "4,4":0.020,"4,5":0.01578,"5,5":0.01214,"5,6":0.01006};
+function buildChain2(){
+  let h='<table><tr><th class="lbl">(m,n)</th><th>q₁*</th><th>u₁* (recursion)</th>'
+       +'<th>u₁* (published)</th><th>|residual|</th><th>Nash</th></tr>';
+  for(const [m,n] of CHAIN){
+    const {q1,r}=shoot(m,n,2);
+    if(!r){ h+=`<tr><td class="lbl">(${m},${n})</td><td colspan="5">no solution</td></tr>`; continue; }
+    const nc=nashCheck(m,n,2,r);
+    h+=`<tr><td class="lbl">(${m},${n})</td><td>${fmt(q1,6)}</td><td>${fmt(r.u1,6)}</td>`
+      +`<td>${fmt(PUB[m+","+n],5)}</td><td>${Math.abs(r.residual).toExponential(1)}</td>`
+      +`<td class="${nc.nash?'ok':'bad'}">${nc.nash?'✓':'✗'}</td></tr>`;
+  }
+  h+='</table>';
+  document.getElementById('chain2').innerHTML=h;
+}
+
+// ---- 8b: general rung solver + Nash ----
+const RUNGS=[[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5],[5,5]];
+function buildRungSelect(){
+  const s=document.getElementById('rung');
+  for(const [m,n] of RUNGS){const o=document.createElement('option');o.value=m+","+n;o.textContent=`σ(${m},${n})`;s.appendChild(o);}
+  s.value="2,2";
+}
+function renderRung(){
+  const th=parseInt(document.getElementById('th').value,10);
+  const [m,n]=document.getElementById('rung').value.split(",").map(Number);
+  const {q1,r}=shoot(m,n,th);
+  let h='<div class="card">';
+  if(!r){
+    h+=`<p style="margin:0"><strong>σ(${m},${n}), θ=${th}</strong> — `
+      +`<span class="badge n">no probability solution</span> the forward sweep finds no `
+      +`valid $q_1\\in(0,1)$ (a mass leaves $[0,1]$, or interleaving breaks before closing). `
+      +`This is genuine non-existence at this θ, not a numerical miss.</p></div>`;
+    document.getElementById('rungout').innerHTML=h; renderMathInElement(document.getElementById('rungout'));
+    return;
+  }
+  const nc=nashCheck(m,n,th,r);
+  const badge = nc.nash
+    ? '<span class="badge y">Nash verified ✓</span>'
+    : '<span class="badge n">solves system, NOT Nash ✗</span>';
+  h+=`<p style="margin-top:0"><strong>σ(${m},${n}), θ=${th}</strong> &nbsp; ${badge} &nbsp; `
+    +`q₁*=${fmt(q1,6)}, u₁*=${fmt(r.u1,6)}.</p>`;
+  // P1
+  h+='<table><tr><th class="lbl">P1 atoms</th>';
+  for(let k=1;k<=m;k++) h+=`<th>x<sub>${k}</sub></th>`; h+='</tr><tr><td class="lbl">x</td>';
+  for(let k=1;k<=m;k++) h+=`<td>${fmt(r.x[k],4)}</td>`; h+='</tr><tr><td class="lbl">mass p</td>';
+  for(let k=1;k<=m;k++) h+=`<td>${fmt(r.p[k],4)}</td>`; h+='</tr></table>';
+  // P2
+  h+='<table><tr><th class="lbl">P2 atoms</th>';
+  for(let l=1;l<=n;l++) h+=`<th>y<sub>${l}</sub></th>`; h+='</tr><tr><td class="lbl">y</td>';
+  for(let l=1;l<=n;l++) h+=`<td>${fmt(r.y[l],4)}</td>`; h+='</tr><tr><td class="lbl">mass q</td>';
+  for(let l=1;l<=n;l++) h+=`<td>${fmt(r.q[l],4)}</td>`; h+='</tr></table>';
+  h+=`<p class="note" style="margin-bottom:0">interleaving ${nc.il?'<span class="ok">holds</span>':'<span class="bad">fails</span>'}, `
+    +`masses ${nc.pos?'<span class="ok">positive</span>':'<span class="bad">non-positive</span>'}. `
+    +`Best deviation gain — P1: ${fmt(nc.dev1,5)}, P2: ${fmt(nc.dev2,5)} `
+    +`(both must be 0 for Nash).`;
+  if(!nc.nash && nc.pos && nc.il)
+    h+=` This is the Example-5 phenomenon: the local system is solved, but an upward deviation pays.`;
+  h+='</p></div>';
+  document.getElementById('rungout').innerHTML=h;
+  renderMathInElement(document.getElementById('rungout'),{delimiters:[{left:'$',right:'$',display:false}]});
+}
+
+// ---- 8c: small rungs closed forms across theta ----
+function buildSmall(){
+  const thstar=Math.log(2)/Math.log(4/3);
+  let h=`<table><tr><th class="lbl">θ</th>`
+       +`<th>σ(1,1) u₁*</th><th>σ(1,1) P2 best dev</th><th>σ(1,1)</th>`
+       +`<th>σ(1,2) q₁</th><th>σ(1,2)</th></tr>`;
+  for(const th of [2,2.409,3,4,5]){
+    // sigma(1,1): x1=1/2, u1=1-2^(1-th); best P2 dev at y=3/4 = 1-2(3/4)^th
+    const u11=1-Math.pow(2,1-th);
+    const dev11=1-2*Math.pow(0.75,th);
+    const ok11 = dev11<=1e-9;
+    // sigma(1,2) closed form
+    const x1=Math.pow(2,(th-1)/th)-1;
+    const q12=Math.pow(x1/(1-x1),th-1);
+    const ok12 = q12<=1+1e-9;
+    const thlbl = (Math.abs(th-2.409)<1e-3)?'θ*≈2.409':String(th);
+    h+=`<tr><td class="lbl">${thlbl}</td>`
+      +`<td>${fmt(u11,4)}</td><td>${fmt(dev11,4)}</td>`
+      +`<td class="${ok11?'ok':'bad'}">${ok11?'Nash ✓':'✗ dev'}</td>`
+      +`<td>${fmt(q12,4)}</td>`
+      +`<td class="${ok12?'ok':'bad'}">${ok12?'feasible ✓':'✗ q₁>1'}</td></tr>`;
+  }
+  h+='</table>';
+  h+=`<p class="note">θ*=log2/log(4/3)≈2.409 is Proposition 4's threshold: both small rungs are equilibria for θ≤θ* and fail for θ>θ*.</p>`;
+  document.getElementById('smallrungs').innerHTML=h;
+}
+
+// ---- 8c: seed=payoff identity + interlacing (diagonal, theta=2) ----
+function buildSeedDemo(){
+  let h='<table><tr><th class="lbl">(m,m)</th><th>q₁*</th><th>u₁* (recursion)</th>'
+       +'<th>q₁²/(1+q₁)</th><th>seed drop</th><th>G<sub>m+1</sub>(q₁*)</th></tr>';
+  let prev=null;
+  for(const m of [2,3,4,5,6]){
+    const {q1,r}=shoot(m,m,2);
+    if(!r) continue;
+    const cf=q1*q1/(1+q1);
+    const rn=sweep(m+1,m+1,q1,2);
+    const drop = prev===null ? '—' : (q1<prev ? ('↓ '+fmt(prev-q1,4)) : '↑');
+    h+=`<tr><td class="lbl">(${m},${m})</td><td>${fmt(q1,6)}</td><td>${fmt(r.u1,6)}</td>`
+      +`<td>${fmt(cf,6)}</td><td>${drop}</td>`
+      +`<td class="${rn&&rn.residual>0?'ok':'bad'}">${rn?'+'+fmt(rn.residual,4):'—'}</td></tr>`;
+    prev=q1;
+  }
+  h+='</table>';
+  h+='<p class="note">Cols 3≡4 (the seed–payoff identity); col 5 shows q₁* strictly falling; col 6 is '
+    +'G<sub>m+1</sub>(q₁*(m,m))=q<sub>m+1</sub>&gt;0 (positive ⇒ next root is smaller). The open lemma is that '
+    +'G<sub>m</sub> is increasing in the seed.</p>';
+  document.getElementById('seeddemo').innerHTML=h;
+}
+
+buildChain2(); buildRungSelect(); renderRung(); buildSmall(); buildSeedDemo();
+</script>
+</body>
+</html>

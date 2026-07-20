@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Discrete Equilibrium: The System of Equations</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[
+          {left:'$$',right:'$$',display:true},
+          {left:'\\(',right:'\\)',display:false},
+          {left:'\\[',right:'\\]',display:true},
+          {left:'$',right:'$',display:false}
+        ]});"></script>
+<style>
+  :root { --fg:#1a1a1a; --muted:#666; --code-bg:#f5f5f5; --border:#e0e0e0;
+          --accent:#7b0d1e; --case-bg:#fafafa; --ok:#1b6d1b; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; color: var(--fg); line-height: 1.55; }
+  h1 { border-bottom: 2px solid var(--accent); padding-bottom: .35em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: .25em; margin-top: 2.5em; color: var(--accent); }
+  h3 { color: #333; margin-top: 1.6em; }
+  .meta { color: var(--muted); font-size: .9em; }
+  pre.maple { background: var(--code-bg); border-left: 3px solid var(--accent);
+              padding: .7em .9em; overflow-x: auto; font-family: "SF Mono", Menlo, Consolas, monospace;
+              font-size: .87em; line-height: 1.45; border-radius: 4px; }
+  .math-block { margin: .8em 0 1em; padding: .4em 0; }
+  .case { background: var(--case-bg); border: 1px solid var(--border); border-radius: 6px;
+          padding: .7em 1em; margin: 1em 0; }
+  .case header { font-weight: bold; color: var(--accent); margin-bottom: .35em; }
+  .case .verdict { display: inline-block; margin-left: .5em; font-size: .85em;
+                   color: var(--ok); font-weight: normal; }
+  .case ul { list-style: none; padding-left: 0; margin: .3em 0; columns: 2; column-gap: 2em; }
+  .case li { padding: .1em 0; break-inside: avoid; }
+  .note { color: var(--muted); font-style: italic; font-size: .92em; }
+  code.inline { background: var(--code-bg); padding: 1px 5px; border-radius: 3px;
+                font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .92em; }
+</style>
+</head>
+<body>
+
+<h1>Discrete Equilibrium: The System of Equations</h1>
+<p class="meta">Rendered from <code class="inline">~/joffrionmw.pdf</code> — a Maple worksheet that computes the discrete-support equilibrium via Gröbner bases and real-root isolation.</p>
+
+<h2>Setup</h2>
+<p>Load Maple's algebraic-geometry packages and set <code class="inline">Digits := 100</code>. The order in which <code class="inline">SemiAlgebraicSetTools</code> and <code class="inline">Groebner</code> are loaded matters — both export a <code class="inline">SuggestVariableOrder</code>, and the later one wins.</p>
+<pre class="maple">restart;
+with(RegularChains): with(SemiAlgebraicSetTools): Digits := 100:
+with(FastArithmeticTools):
+with(Groebner):</pre>
+
+<p>The helper <span>\(C\)</span> rewrites indexed names like <span>\(x_1, p_2\)</span> as plain symbols so that <code class="inline">RegularChains</code> / <code class="inline">SemiAlgebraicSetTools</code> can consume them (<code class="inline">Groebner</code> does not need this step):</p>
+<pre class="maple">C := proc (a) : subsindets(a, indexed, convert, symbol) end proc:</pre>
+
+<h2>Primitives</h2>
+<p><span>\(\theta\)</span> (also written <span>\(t\)</span>) is the power of the cost function; <span>\(f_1, f_2\)</span> are the inverse costs of valuations <span>\(v_1, v_2\)</span>. In this worksheet they are set to <span>\(1\)</span>, so <span>\(v_1 = v_2 = 1\)</span> after substitution.</p>
+<div class="math-block">
+\[
+c(e) = e^{\theta},\qquad f_1 = 1,\qquad f_2 = 1.
+\]
+</div>
+<pre class="maple">assume(theta, integer):
+interface(showassumed = 0):
+c  := proc (e) : e^theta end proc:
+f1 := 1: f2 := 1:</pre>
+
+<h2>Indifference payoffs and first-order conditions</h2>
+<p>Player&nbsp;1's expected payoff at action <span>\(x_k\)</span> minus the indifference level <span>\(u_1\)</span>; player&nbsp;2's payoff at <span>\(y_k\)</span>; and the marginal conditions:</p>
+<div class="math-block">
+\[
+\begin{aligned}
+U_1(k) &amp;= \sum_{j=1}^{k} q_j\,\bigl(v_1 - c(f_2 + y_j - x_k - d)\bigr) \;-\; c(x_k) \;-\; u_1, \\
+U_2(k) &amp;= \sum_{j=1}^{k-1} p_j\,\bigl(v_2 - c(f_1 + x_j - y_k + d)\bigr) \;-\; c(y_k), \\
+dU_1(k) &amp;= \frac{\partial U_1(k)}{\partial x_k},\qquad
+dU_2(k) = \frac{\partial U_2(k)}{\partial y_k}.
+\end{aligned}
+\]
+</div>
+<pre class="maple">U1  := proc (k) : sum(q[j]*(v1 - c(f2 + y[j] - x[k] - d)), j = 1 .. k)   - c(x[k]) - u[1] end proc:
+dU1 := proc (k) : simplify(diff(U1(k), x[k])) end proc:
+U2  := proc (k) : sum(p[j]*(v2 - c(f1 + x[j] - y[k] + d)), j = 1 .. k-1) - c(y[k])         end proc:
+dU2 := proc (k) : simplify(diff(U2(k), y[k])) end proc:</pre>
+
+<h2>System generator <code class="inline">sys</code></h2>
+<p>Let <span>\(m\)</span> be the number of actions of player 1 and <span>\(n\)</span> the number of actions of player 2 (with <span>\(n = m\)</span> or <span>\(n = m+1\)</span>). The wrapper <code class="inline">F</code> always calls <code class="inline">sys</code> with the same count for the FOCs and the indifference equations of each player, so the four formal arguments collapse to two:</p>
+<ul>
+  <li>player 1 (count <span>\(m\)</span>): FOCs <span>\(dU_1(i) = 0\)</span> and indifference <span>\(U_1(i) = 0\)</span> for <span>\(i = 1, \ldots, m\)</span>;</li>
+  <li>player 2 (count <span>\(n\)</span>, with <span>\(y_1 = 0\)</span> already pinned): FOCs <span>\(dU_2(i) = 0\)</span> and indifference <span>\(U_2(i) = 0\)</span> for <span>\(i = 2, \ldots, n\)</span>.</li>
+</ul>
+<p>Substitutions applied: <span>\(\theta = t\)</span>, <span>\(d = 0\)</span>, <span>\(v_1 = f_1^t\)</span>, <span>\(v_2 = f_2^t\)</span>, <span>\(y_1 = 0\)</span>. (The Maple proc itself exposes the four counts <code class="inline">n1, n2, n3, n4</code> for generality, but in practice <span>\(n_1 = n_3 = m\)</span> and <span>\(n_2 = n_4 = n\)</span>.)</p>
+<pre class="maple">sys := proc (t, n1::integer := 0, n2::integer := 0, n3::integer := 0, n4::integer := 0) local i;
+  subs( theta = t, d = 0, v1 = f1^t, v2 = f2^t, y[1] = 0,
+        [ seq(dU1(i), i = 1 .. n1),
+          seq(dU2(i), i = 2 .. n2),
+          seq(U1(i),  i = 1 .. n3),
+          seq(U2(i),  i = 2 .. n4) ] ):
+end proc;</pre>
+
+<h2>Variable ordering <code class="inline">var</code></h2>
+<p>The ordering of unknowns is critical for the Gröbner / triangular-set computation. Two cases are supported: <span>\(m = n\)</span> and <span>\(m + 1 = n\)</span> (equal action counts, or player 2 has one more action than player 1):</p>
+<pre class="maple">var := proc (m::integer, n::integer) local i, r, v;
+  v := []: r := [];
+  for i from 2 to m do
+    v := [y[i], x[i-1], op(v)]:
+    r := [p[i-1], q[i-1], op(r)]:
+  end do;
+  if   m   = n then return [ q[m],       op(r), x[m], op(v), u[1] ]
+  elif m+1 = n then return [ p[m], q[m], op(r), y[m+1], x[m], op(v), u[1] ]
+  else return "Error: n = m or n = m + 1"
+  end if
+end proc:</pre>
+
+<h2>System packagers <code class="inline">F</code> and <code class="inline">Dev</code></h2>
+<p><span>\(F(t,m,n)\)</span> packages the full system for solving — it calls <code class="inline">sys</code> with the right counts and appends the probability-closing equation (<span>\(\sum p_i = 1\)</span> or <span>\(\sum q_i = 1\)</span> depending on the case):</p>
+<pre class="maple">F := proc (t::integer, m::integer, n::integer) local i;
+  if   n = m   then return C([ op(sys(t, m, m, m, m)),
+                               1 - sum(q[i], i = 1 .. m) ])
+  elif n = m+1 then return C([ op(sys(t, m, m+1, m, m+1)),
+                               1 - sum(p[i], i = 1 .. m) ])
+  else return "Error: n = m or n = m + 1"
+  end if
+end proc:</pre>
+
+<p><span>\(\mathrm{Dev}(t,m,n)\)</span> returns the data used to check for a profitable deviation above the maximal bid:</p>
+<ul class="meta">
+  <li><span>\(\mathrm{Dev}[1]\)</span>: first-order condition for bidding above the max bid;</li>
+  <li><span>\(\mathrm{Dev}[2]\)</span>: equilibrium payoff minus the deviation payoff;</li>
+  <li><span>\(\mathrm{Dev}[3]\)</span>: the constraint that the deviation lies above the max bid.</li>
+</ul>
+<pre class="maple">Dev := proc (t::integer, m::integer, n::integer) local s, k;
+  if   n = m   then s := [dU2(n+1), U2(n+1), y[n+1] - x[n]]:
+                    s := subs(p[m] = 1 - sum(p[k], k = 1 .. m-1), s):
+  elif n = m+1 then s := [dU1(n),   U1(n),   x[n]   - y[n]]:
+                    s := subs(q[n] = 1 - sum(q[k], k = 1 .. n-1), s):
+  else return "Error: n = m or n = m + 1"
+  end if;
+  return subs(theta = t, d = 0, v1 = f1^t, v2 = f2^t, y[1] = 0, s);
+end proc:</pre>
+
+<h2>Constraint sets <span>\(N\)</span>, <span>\(P\)</span>, <span>\(H\)</span></h2>
+<p>For the cylindrical-algebraic / real-root-isolation step we declare:</p>
+<ul>
+  <li><span>\(N = \{u_1\}\)</span> — variables required to be <em>non-negative</em>;</li>
+  <li><span>\(P(m,n)\)</span> — variables/expressions required to be <em>strictly positive</em>: <span>\(x_1\)</span>, the gaps <span>\(x_i - y_i\)</span> and <span>\(y_{i+1} - x_i\)</span>, and the residual probability mass <span>\(1 - \sum p_i\)</span> or <span>\(1 - \sum q_i\)</span>;</li>
+  <li><span>\(H = \emptyset\)</span> — no inequations.</li>
+</ul>
+<pre class="maple">N := C([u[1]]):
+
+P := proc (m::integer, n::integer) local i;
+  if   n = m   then return C([ x[1], seq(x[i] - y[i],   i = 2 .. m),
+                                     seq(y[i+1] - x[i], i = 1 .. m-1),
+                                     1 - sum(p[i], i = 1 .. m-1) ])
+  elif n = m+1 then return C([ x[1], seq(x[i] - y[i],   i = 2 .. m),
+                                     seq(y[i+1] - x[i], i = 1 .. m),
+                                     1 - sum(q[i], i = 1 .. m) ])
+  else "Error n = m or n = m + 1"
+  end if
+end proc:
+
+H := []:</pre>
+
+<h2>Main driver <code class="inline">SOL</code></h2>
+<p>For each <span>\(1 \le i \le k\)</span> and <span>\(j \in \{i, i+1\}\)</span>:</p>
+<ol>
+  <li>Compute a Gröbner basis of <span>\(F(t, i, j)\)</span> in <code class="inline">plex</code> order.</li>
+  <li>Eliminate solutions inherited from lower-order systems (divide out by the previous basis polynomial).</li>
+  <li>Isolate real roots with <code class="inline">RealRootIsolate</code> (Discoverer method).</li>
+  <li>Run the deviation test using <span>\(\mathrm{Dev}(t,i,j)\)</span>; report whether a profitable deviation exists.</li>
+</ol>
+<pre class="maple">SOL := proc (k::integer, t::integer) local i, j, B0, C0, B, R, S, B1, devt, Bd, Nd, Pd, Rd, Sd;
+  B1 := []: B0 := 1: C0 := 1:
+  for i from 1 to k do
+    for j from i to i+1 do
+      R := PolynomialRing(C(var(i, j))):
+      B := Basis(F(t, i, j), plex(op(C(var(i, j)))), method = convert):
+      if i = j then B1 := [ simplify(B[1]/B0), op(B[2 .. nops(B)]) ]: B0 := B[1]:
+               else B1 := [ simplify(B[1]/C0), op(B[2 .. nops(B)]) ]: C0 := B[1]:
+      end if:
+      S := RealRootIsolate(B1, N, P(i, j), H, R, method = 'Discoverer');
+      if S = [] then printf("No solution for case %a\n", [i, j]);
+      else
+        print(Display(S, R));
+        devt := Dev(t, i, j):
+        Bd := [ op(B1),       C(devt[1]) ]:
+        Nd := [ op(N),        C(devt[2]) ]:
+        Pd := [ op(P(i, j)),  C(devt[3]) ]:
+        if i = j then Rd := PolynomialRing([C(y[i+1]), op(C(var(i, j)))]):
+                 else Rd := PolynomialRing([C(x[j]),   op(C(var(i, j)))]):
+        end if:
+        Sd := RealRootIsolate(Bd, Nd, Pd, H, Rd, method = 'Discoverer'):
+        if Sd &lt;&gt; [] then printf("Profitable deviation in case %a !!!\n", [i, j]);
+                          print(Display(Sd, Rd));
+                     else printf("No profitable deviation for case %a.\n", [i, j]);
+        end if:
+      end if:
+    end do
+  end do
+end proc:</pre>
+
+<h2>Results: <code class="inline">SOL(4, 2)</code></h2>
+<p>Cost-function power <span>\(t = 2\)</span> (quadratic costs). The driver iterates over <span>\((i, j)\)</span> with <span>\(1 \le i \le 4\)</span> and <span>\(j \in \{i, i+1\}\)</span>, isolating real roots as rational intervals (lower / upper bounds). In every case the deviation check returns <strong>NO profitable deviations</strong>.</p>
+
+<div class="case">
+  <header>Case [1, 1] <span class="verdict">✓ no profitable deviations</span></header>
+  <p class="note">Exact rational solution (no isolating box needed):</p>
+  <ul>
+    <li>\(q_1 = 1\)</li>
+    <li>\(x_1 = \tfrac{1}{2}\)</li>
+    <li>\(u_1 = \tfrac{1}{2}\)</li>
+  </ul>
+</div>
+
+<div class="case">
+  <header>Case [1, 2] <span class="verdict">✓ no profitable deviations</span></header>
+  <ul>
+    <li>\(p_1 = 1\)</li>
+    <li>\(q_1 \in \bigl[\tfrac{5}{8},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(y_2 \in \bigl[\tfrac{5}{8},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(x_1 \in \bigl[\tfrac{3}{8},\,\tfrac{1}{2}\bigr]\)</li>
+    <li>\(u_1 \in \bigl[\tfrac{37}{128},\,\tfrac{75}{256}\bigr]\)</li>
+  </ul>
+</div>
+
+<div class="case">
+  <header>Case [2, 2] <span class="verdict">✓ no profitable deviations</span></header>
+  <ul>
+    <li>\(q_2 \in \bigl[\tfrac{1}{2},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(p_1 \in \bigl[\tfrac{3}{8},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(q_1 \in \bigl[\tfrac{1}{4},\,\tfrac{1}{2}\bigr]\)</li>
+    <li>\(x_2 \in \bigl[\tfrac{5}{8},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(y_2 \in \bigl[\tfrac{3}{8},\,\tfrac{1}{2}\bigr]\)</li>
+    <li>\(x_1 \in \bigl[\tfrac{1}{4},\,\tfrac{3}{8}\bigr]\)</li>
+    <li>\(u_1 \in \bigl[\tfrac{99}{1024},\,\tfrac{25}{256}\bigr]\)</li>
+  </ul>
+</div>
+
+<div class="case">
+  <header>Case [2, 3] <span class="verdict">✓ no profitable deviations</span></header>
+  <ul>
+    <li>\(p_2 \in \bigl[\tfrac{1}{4},\,\tfrac{5}{8}\bigr]\)</li>
+    <li>\(q_2 \in \bigl[-\tfrac{3}{8},\,\tfrac{11}{8}\bigr]\)</li>
+    <li>\(p_1 \in \bigl[\tfrac{3}{8},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(q_1 \in \bigl[\tfrac{1}{8},\,\tfrac{3}{8}\bigr]\)</li>
+    <li>\(y_3 \in \bigl[\tfrac{1}{2},\,\tfrac{7}{8}\bigr]\)</li>
+    <li>\(x_2 \in \bigl[\tfrac{3}{8},\,\tfrac{3}{4}\bigr]\)</li>
+    <li>\(y_2 \in \bigl[\tfrac{3}{8},\,\tfrac{1}{2}\bigr]\)</li>
+    <li>\(x_1 \in \bigl[\tfrac{1}{8},\,\tfrac{1}{4}\bigr]\)</li>
+    <li>\(u_1 \in \bigl[\tfrac{33}{512},\,\tfrac{67}{1024}\bigr]\)</li>
+  </ul>
+</div>
+
+<div class="case">
+  <header>Case [3, 3] <span class="verdict">✓ no profitable deviations</span></header>
+  <ul>
+    <li>\(q_3 \in \bigl[\tfrac{1}{4},\,\tfrac{5}{8}\bigr]\)</li>
+    <li>\(p_2 \in \bigl[\tfrac{1}{8},\,\tfrac{5}{8}\bigr]\)</li>
+    <li>\(q_2 \in \bigl[\tfrac{45}{256},\,\tfrac{75}{128}\bigr]\)</li>
+    <li>\(p_1 \in \bigl[\tfrac{185}{512},\,\tfrac{105}{256}\bigr]\)</li>
+    <li>\(q_1 \in \bigl[\tfrac{27}{128},\,\tfrac{7}{32}\bigr]\)</li>
+    <li>\(x_3 \in \bigl[\tfrac{81}{128},\,\tfrac{183}{256}\bigr]\)</li>
+    <li>\(y_3 \in \bigl[\tfrac{141}{256},\,\tfrac{75}{128}\bigr]\)</li>
+    <li>\(x_2 \in \bigl[\tfrac{115}{256},\,\tfrac{119}{256}\bigr]\)</li>
+    <li>\(y_2 \in \bigl[\tfrac{165}{512},\,\tfrac{169}{512}\bigr]\)</li>
+    <li>\(x_1 \in \bigl[\tfrac{89}{512},\,\tfrac{23}{128}\bigr]\)</li>
+    <li>\(u_1 \in \bigl[\tfrac{311}{8192},\,\tfrac{623}{16384}\bigr]\)</li>
+  </ul>
+</div>
+
+<div class="case">
+  <header>Case [3, 4] <span class="verdict">✓ no profitable deviations</span></header>
+  <ul>
+    <li>\(p_3 \in \bigl[\tfrac{1}{8},\,\tfrac{5}{8}\bigr]\)</li>
+    <li>\(q_3 \in \bigl[\tfrac{1}{8},\,\tfrac{1}{2}\bigr]\)</li>
+    <li>\(p_2 \in \bigl[\tfrac{13}{128},\,\tfrac{69}{128}\bigr]\)</li>
+    <li>\(q_2 \in \bigl[\tfrac{10771}{32768},\,\tfrac{11461}{32768}\bigr]\)</li>
+    <li>\(p_1 \in \bigl[\tfrac{10867}{32768},\,\tfrac{10957}{32768}\bigr]\)</li>
+    <li>\(q_1 \in \bigl[\tfrac{747}{4096},\,\tfrac{1503}{8192}\bigr]\)</li>
+    <li>\(y_4 \in \bigl[\tfrac{173}{256},\,\tfrac{91}{128}\bigr]\)</li>
+    <li>\(x_3 \in \bigl[\tfrac{2457}{4096},\,\tfrac{2513}{4096}\bigr]\)</li>
+    <li>\(y_3 \in \bigl[\tfrac{8361}{16384},\,\tfrac{1053}{2048}\bigr]\)</li>
+    <li>\(x_2 \in \bigl[\tfrac{415}{1024},\,\tfrac{3341}{8192}\bigr]\)</li>
+    <li>\(y_2 \in \bigl[\tfrac{589}{2048},\,\tfrac{1185}{4096}\bigr]\)</li>
+    <li>\(x_1 \in \bigl[\tfrac{2525}{16384},\,\tfrac{635}{4096}\bigr]\)</li>
+    <li>\(u_1 \in \bigl[\tfrac{7409}{262144},\,\tfrac{3705}{131072}\bigr]\)</li>
+  </ul>
+</div>
+
+<div class="case">
+  <header>Case [4, 4] <span class="verdict">✓ no profitable deviations</span></header>
+  <ul>
+    <li>\(q_4 \in \bigl[\tfrac{1}{8},\,\tfrac{3}{8}\bigr]\)</li>
+    <li>\(p_3 \in \bigl[-\tfrac{1}{64},\,\tfrac{149}{256}\bigr]\)</li>
+    <li>\(q_3 \in \bigl[\tfrac{59}{256},\,\tfrac{87}{256}\bigr]\)</li>
+    <li>\(p_2 \in \bigl[\tfrac{201}{1024},\,\tfrac{381}{1024}\bigr]\)</li>
+    <li>\(q_2 \in \bigl[\tfrac{2203}{8192},\,\tfrac{2441}{8192}\bigr]\)</li>
+    <li>\(p_1 \in \bigl[\tfrac{586941}{2097152},\,\tfrac{587221}{2097152}\bigr]\)</li>
+    <li>\(q_1 \in \bigl[\tfrac{19813}{131072},\,\tfrac{39647}{262144}\bigr]\)</li>
+    <li>\(x_4 \in \bigl[\tfrac{44795}{65536},\,\tfrac{179747}{262144}\bigr]\)</li>
+    <li>\(y_4 \in \bigl[\tfrac{160123}{262144},\,\tfrac{160249}{262144}\bigr]\)</li>
+    <li>\(x_3 \in \bigl[\tfrac{2230097}{4194304},\,\tfrac{8923475}{16777216}\bigr]\)</li>
+    <li>\(y_3 \in \bigl[\tfrac{3738013}{8388608},\,\tfrac{3739189}{8388608}\bigr]\)</li>
+    <li>\(x_2 \in \bigl[\tfrac{23582925}{67108864},\,\tfrac{5897385}{16777216}\bigr]\)</li>
+    <li>\(y_2 \in \bigl[\tfrac{129707}{524288},\,\tfrac{519017}{2097152}\bigr]\)</li>
+    <li>\(x_1 \in \bigl[\tfrac{17211}{131072},\,\tfrac{68879}{524288}\bigr]\)</li>
+    <li>\(u_1 \in \bigl[\tfrac{166593}{8388608},\,\tfrac{333187}{16777216}\bigr]\)</li>
+  </ul>
+</div>
+
+<p class="note">
+After case [4, 4] the worksheet logged <em>Warning, computation interrupted</em> and the user re-issued <code class="inline">SOL(2, 3)</code>, which re-confirmed no profitable deviations for case [2, 3].
+</p>
+
+</body>
+</html>

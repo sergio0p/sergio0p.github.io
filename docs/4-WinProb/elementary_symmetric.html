@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generating-function identity for elementary symmetric polynomials</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+        integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$',  right: '$',  display: false}
+            ]
+        });"></script>
+
+<style>
+  :root { --fg:#1a1a1a; --muted:#555; --accent:#0b5; --rule:#e3e3e3; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--fg);
+    max-width: 760px;
+    margin: 3rem auto;
+    padding: 0 1.25rem 4rem;
+    line-height: 1.6;
+    font-size: 18px;
+  }
+  h1 {
+    font-size: 1.45rem;
+    line-height: 1.3;
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: .5rem;
+    margin-bottom: 1.5rem;
+  }
+  .lead { color: var(--muted); }
+  .why { font-weight: bold; }
+  ul { padding-left: 1.3rem; }
+  li { margin: .35rem 0; }
+  .note {
+    margin-top: 2rem;
+    padding: .9rem 1.1rem;
+    background: #f6f9f6;
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    font-size: .96em;
+    color: #234;
+  }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>The generating-function identity for elementary symmetric polynomials</h1>
+
+<p class="lead">For any variables $y_1,\dots,y_N$,</p>
+
+$$\prod_{j=1}^{N}(1+y_j)=\sum_{m=0}^{N}e_m(y_1,\dots,y_N).$$
+
+<p>Here $N=n-1$ and the variables are $\{r_\ell:\ell\neq i\}$, so the right side runs $e_0+\cdots+e_{n-1}$.</p>
+
+<p><span class="why">Why it's true — just expand the product.</span> Each factor $(1+r_\ell)$ offers two choices: take the $1$, or take the $r_\ell$. Multiplying out, every term in the expansion corresponds to choosing a subset $S$ of the indices where you picked $r_\ell$ (and picked $1$ everywhere else):</p>
+
+$$\prod_{\ell\neq i}(1+r_\ell)=\sum_{S\subseteq\{\ell\neq i\}}\;\prod_{\ell\in S} r_\ell.$$
+
+<p>Now group those subsets by their size $m=|S|$:</p>
+
+$$\sum_{S\subseteq\{\ell\neq i\}}\prod_{\ell\in S} r_\ell
+=\sum_{m=0}^{n-1}\underbrace{\sum_{|S|=m}\prod_{\ell\in S}r_\ell}_{=\,e_m(r_{-i})}
+=\sum_{m=0}^{n-1}e_m(r_{-i}),$$
+
+<p>because &ldquo;sum of all degree-$m$ squarefree monomials&rdquo; is precisely the definition of the elementary symmetric polynomial $e_m$.</p>
+
+<ul>
+  <li>The empty subset gives $1=e_0$.</li>
+  <li>Singletons give $\sum_\ell r_\ell=e_1$.</li>
+  <li>The full subset gives $\prod_\ell r_\ell=e_{n-1}$.</li>
+</ul>
+
+<p><b>Concrete check</b> ($n-1=3$ variables $r_2,r_3,r_4$):</p>
+
+$$(1+r_2)(1+r_3)(1+r_4)
+=\underbrace{1}_{e_0}
++\underbrace{(r_2+r_3+r_4)}_{e_1}
++\underbrace{(r_2r_3+r_2r_4+r_3r_4)}_{e_2}
++\underbrace{r_2r_3r_4}_{e_3}.$$
+
+<div class="note">
+Equivalently: $\prod_{\ell}(1+r_\ell\,t)=\sum_{m} e_m\,t^{m}$ is the standard generating polynomial; setting $t=1$ gives the identity.
+</div>
+
+</body>
+</html>

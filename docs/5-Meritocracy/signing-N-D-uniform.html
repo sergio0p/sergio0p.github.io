@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signing N and D near the top is uniform — no case split</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\gH':'g_H','\\gL':'g_L','\\pH':'\\phi_H','\\pL':'\\phi_L','\\GH':'G_H','\\GL':'G_L','\\Am':'A'}});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Signing $N$ and $D$ near the top is uniform — no case split needed</p>
+
+<p>The worry: the annihilator identity $\gH N=\gL D$ is division-free, but to run the
+one-shot contradiction we still need $N>0$ and $D<0$ near $L$'s top. At a common top the
+entries of $A$ collapse neatly as $\GH,\GL\to1$; the fear is that in the drop-out regime,
+where $\GL\to1$ but $\GH<1$, the entries no longer simplify and the signs get messy — so we
+would be forced into a two-case proof.</p>
+
+<p>The fear is not founded. Everything relevant lives on the top edge $\GL=1$, and there the
+four entries factor through a single common positive weight. Write $\lambda=k/h$ and
+$G:=\GH$.</p>
+
+<p class="section">The four entries on $\GL=1$</p>
+
+<p>With $W_H=\Pr\{X_H+Y_L\le k-1\}$, $X_H\sim\mathrm{Bin}(h-1,1-\GH)$, $Y_L\sim\mathrm{Bin}(\ell,1-\GL)$
+(and $W_L$ the analogue with $h$ strong and $\ell-1$ weak rivals), the partials
+$a_{HH}=\partial_{\GH}W_H$, $a_{HL}=\partial_{\GL}W_H$, $a_{LH}=\partial_{\GH}W_L$,
+$a_{LL}=\partial_{\GL}W_L$, evaluated at $\GL=1$, are</p>
+
+$$
+a_{HH}=(h-1)\tbinom{h-2}{k-1}\,\Phi,\quad
+a_{HL}=\ell\tbinom{h-1}{k-1}\,\Phi\,G,\quad
+a_{LH}=h\tbinom{h-1}{k-1}\,\Phi\,G,\quad
+a_{LL}=(\ell-1)\tbinom{h}{k-1}\,\Phi\,G^{2},
+$$
+
+<p>where the common weight is</p>
+
+$$\Phi:=(1-\GH)^{\,k-1}\,\GH^{\,h-1-k}\;>\;0\qquad\text{on }\GH\in(0,1).$$
+
+<p>This one factor $\Phi$ carries the entire degeneracy: it is exactly what vanishes as
+$\GH\to1$ for $k\ge2$ (hence $\det A\to0$ and the densities blow up at a common top). But
+$\Phi$ multiplies all four entries equally, so it cancels out of the ratio identity. Signing
+$N$ and $D$ never sees the degeneracy.</p>
+
+<p class="section">Both signs collapse to one inequality</p>
+
+<p>Divide through by $\Phi>0$. Using $\tbinom{h-1}{k-1}=\tfrac{h-1}{h-k}\tbinom{h-2}{k-1}$ and
+$\tbinom{h}{k-1}=\tfrac{h}{h-k+1}\tbinom{h-1}{k-1}$,</p>
+
+$$
+N=a_{HH}\pH-a_{LH}\pL=\Phi\,(h-1)\tbinom{h-2}{k-1}\Big[\pH-\tfrac{h}{h-k}\,G\,\pL\Big],
+$$
+$$
+D=a_{LL}\pL-a_{HL}\pH=\Phi\,\tbinom{h-1}{k-1}\,G\Big[(\ell-1)\tfrac{h}{h-k+1}\,G\,\pL-\ell\,\pH\Big].
+$$
+
+<p>So $N>0\iff \pH>\tfrac{h}{h-k}\,G\,\pL$ and $D<0\iff \pH>\tfrac{(\ell-1)h}{\ell(h-k+1)}\,G\,\pL$.
+Both are lower bounds on $\pH/\pL$ of the same shape $\pH>\kappa\,G\,\pL$, and</p>
+
+$$
+\kappa_N=\frac{h}{h-k}\;>\;\frac{(\ell-1)h}{\ell(h-k+1)}=\kappa_D,
+$$
+
+<p>because $\tfrac1{h-k}>\tfrac1{h-k+1}$ and $\tfrac{\ell-1}{\ell}<1$. The $N$ bound is the
+binding one: once it holds, $D<0$ is automatic. Both sign facts reduce to a single
+condition.</p>
+
+<div class="box key">
+$$
+N>0\ \text{and}\ D<0
+\quad\Longleftrightarrow\quad
+\pH \;>\; \frac{h}{h-k}\,\GH\,\pL \;=\; \gamma\,\GH\,\pL,
+\qquad \gamma=\frac{1}{1-\lambda},\ \ \lambda=\frac{k}{h}.
+$$
+</div>
+
+<p class="section">Why this kills the two-case worry</p>
+
+<p>The single threshold $\gamma\,\GH$ is monotone in $\GH$ and largest at $\GH=1$. So the
+common top $\GH=1$ is the hardest point, where the condition is the pure intimidation
+inequality $\pH>\gamma\,\pL$ — i.e. $\overline v_H>\gamma\,\overline v_L$
+(at $(k,h)=(2,3)$: $\overline v_H>3\,\overline v_L$). In the drop-out regime $\GH<1$ the
+threshold is strictly smaller, so the same intimidation condition delivers the signs a
+fortiori. The full range $\GH\in(\,\cdot\,,1]$ is covered by one inequality, with the common
+top as its boundary case — not a separate branch. Signs at $\GL=1$ are strict, so they persist
+on a left-neighbourhood by continuity, which is all the $\gH N=\gL D$ contradiction needs.</p>
+
+<p>The constant $\gamma=1/(1-\lambda)$ is exactly the Track&nbsp;B conjecture, now derived (not
+guessed) and shown to be the $N$-binding threshold for every $k,h,\ell$.</p>
+
+<p class="section">Verification</p>
+
+<p>The two base cases reproduce the known $\det A$ constants:
+$\det A=-18\,(1-G)^2G^2$ at $(k,h,\ell)=(2,3,2)$ and $-60\,(1-G)^2G^4$ at $(2,4,3)$, matching
+$B=-18,-60$. A finite-difference check of the four partials against the closed forms above,
+and of the sign-collapse, passes on $(2,3,2),(2,4,3),(3,5,4),(2,5,3),(3,6,2),(4,7,5)$ — including
+triples outside the base set.</p>
+
+<p class="note">Scope: the clean factorization is taken at the top edge $\GL=1$; for $b$ just
+below $L$'s top there are $O(1-\GL)$ corrections, but the strict leading signs carry over by
+continuity. The result concerns signing only — it does not by itself establish that the
+equilibrium reaches either configuration.</p>
+
+</body>
+</html>

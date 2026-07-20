@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The FOC linear system — correct form</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<h1>The FOC linear system — is $A\,(f,g)^\top=(1,1)^\top$ correct?</h1>
+<p><b>Short answer:</b> the matrix $A$ and the left-hand side are right, but the right-hand side
+is <em>not</em> $(1,1)$ — it is $(1/\varphi_L,\,1/\varphi_H)$.</p>
+
+<h2>Notation</h2>
+<p>$x=G_L,\ y=G_H$; densities $f:=g_L=x'(b)$, $g:=g_H=y'(b)$; types
+$\varphi_L=F_L^{-1}(x)$, $\varphi_H=F_H^{-1}(y)$.</p>
+
+<h2>The two FOCs</h2>
+<p>A type-$v$ bidder in group $i$ (linear cost, payoff $v\,W_i(b)-b$) has FOC $v\,W_i'(b)=1$; the
+type bidding $b$ is $v=\varphi_i$, so</p>
+<div class="box">
+$$\varphi_L\,W_L'=1,\qquad \varphi_H\,W_H'=1.$$
+</div>
+
+<h2>Why the $\varphi$'s land on the right</h2>
+<p>$A=(a_{ij})$ was defined from $W_i'$ <strong>without</strong> the $\varphi$'s:
+$\;W_L'=a_{11}f+a_{12}g,\ \ W_H'=a_{21}f+a_{22}g$. Substituting into $\varphi_iW_i'=1$ keeps
+$\varphi_i$ multiplying row $i$, so it appears as a reciprocal on the right:</p>
+<div class="box key">
+$$A\begin{pmatrix}f\\[2pt] g\end{pmatrix}=\begin{pmatrix}1/\varphi_L\\[2pt] 1/\varphi_H\end{pmatrix},
+\qquad
+A=\begin{pmatrix}a_{11}&a_{12}\\ a_{21}&a_{22}\end{pmatrix}=\frac{\partial(W_L,W_H)}{\partial(x,y)}.$$
+</div>
+
+<h2>Getting a $(1,1)$ right side — absorb the types</h2>
+<p>A $(1,1)$ right side is legitimate only if the types are folded into the matrix, i.e. row-scale
+$A$ by $\operatorname{diag}(\varphi_L,\varphi_H)$:</p>
+<div class="box">
+$$\underbrace{\begin{pmatrix}\varphi_L\,a_{11}&\varphi_L\,a_{12}\\[2pt]\varphi_H\,a_{21}&\varphi_H\,a_{22}\end{pmatrix}}_{\operatorname{diag}(\varphi_L,\varphi_H)\,A}
+\begin{pmatrix}f\\[2pt] g\end{pmatrix}=\begin{pmatrix}1\\[2pt] 1\end{pmatrix}.$$
+</div>
+<p class="note">The two forms are equivalent. Do not drop the $\varphi$'s: they carry all the type
+information and are exactly where the intimidation condition (e.g. $\varphi_H>3\varphi_L$ near the
+top) enters. So $A\,(f,g)^\top=(1,1)^\top$ is incorrect for the pure-Jacobian $A$; use
+$(1/\varphi_L,1/\varphi_H)$, or move the $\varphi$'s into $A$.</p>
+
+</body>
+</html>

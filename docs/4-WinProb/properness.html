@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The properness problem: from local to global injectivity of the win-probability map</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">The properness problem: from local to global injectivity of the win-probability map</p>
+
+<p class="note">4-WinProb · companion to <code>jacobian-coupling-recursion.html</code> · written for an economist (calculus, linear algebra, optimization, probability; no abstract algebra assumed) · every concept defined before use · 2026-07-18</p>
+
+<p>The companion note <code>jacobian-coupling-recursion.html</code> settled the <em>local</em> question: the Jacobian of the win-probability map never vanishes on the open cube, so the map is a local diffeomorphism everywhere — locally invertible around every point. That is not the same as being <em>globally</em> one-to-one. A map can be locally invertible at every single point and still fold the domain over itself, sending two far-apart points to the same image. Closing that gap — upgrading "locally injective everywhere" to "globally injective" — is what this note is about. The bridge is a property called <strong>properness</strong>, and the bulk of the recent work is a long tower of reductions that turns properness into one sharp, still-open inequality. This note walks down that tower, one rung at a time, defining each object as it appears.</p>
+
+<p class="section">0. The setup, in one paragraph</p>
+
+<p>Fix $n$ bidders competing for $k$ identical objects. Each bidder $\ell$ bids <em>below</em> a reference threshold with probability $x_\ell\in(0,1)$ and <em>above</em> with probability $1-x_\ell$, independently across bidders. A bidder secures one of the $k$ objects exactly when at most $k-1$ of their rivals bid above them (fewer than $k$ rivals beat them, so they land among the $k$ winners). Bidder $i$'s win probability is therefore</p>
+
+$$W_i(x)=\Pr\big[\#\{\ell\neq i:\ell\text{ above}\}\le k-1\big],$$
+
+<p>a function of the $n-1$ rivals only — it does not depend on $x_i$. The $n$ win probabilities assemble into the map $W=(W_1,\dots,W_n):(0,1)^n\to\mathbb R^n$ (input $n$-dimensional, output $n$-dimensional). Its Jacobian $M_{ij}=\partial W_i/\partial x_j=\Pr[\text{exactly }k-1\text{ of }[n]\setminus\{i,j\}\text{ above}]$ is the $n\times n$ symmetric matrix with zero diagonal (zero because $W_i$ ignores $x_i$). One probabilistic object underlies all of this and recurs throughout, so we name it once — and give it the reading that will carry the whole note:</p>
+
+<div class="box">
+<strong>Definition (the shadow, read as a win probability).</strong> A <em>Poisson–binomial</em> random variable is a sum $A=\sum_\ell B_\ell$ of independent Bernoulli coins that may have <em>different</em> success probabilities (unlike an ordinary binomial, where they are equal). Fix a field of $m$ opponents described by a vector $z\in(0,1)^m$: the entry $z_\ell$ is the probability that opponent $\ell$ bids <em>below</em>, so $1-z_\ell$ is the probability it bids <em>above</em>, independently. Let $A_{[m]}(z)=\#\{\ell\le m:\ell\text{ above}\}$ be the resulting above-count. The <em>shadow</em> is
+$$\Psi_k(z):=\Pr\big[\,A_{[m]}(z)\le k-1\,\big]\ \in\ \mathbb R,$$
+a single number — a scalar, not a vector: the probability that at most $k-1$ of the $m$ opponents bid above. The point of the name is that this scalar is itself a win probability. Imagine one extra contestant — the <strong>shadow bidder</strong> — dropped into the pool against exactly these $m$ opponents, competing for the $k$ objects. The shadow bidder secures an object precisely when at most $k-1$ of the $m$ opponents bid above, so $\Psi_k(z)$ <em>is</em> the shadow bidder's win probability against the field $z$; and, exactly like a real bidder's, it depends only on the opponents, never on the shadow bidder's own bid.
+</div>
+
+<div class="box key">
+<strong>The rule to remember.</strong> $\ \Psi_k$ applied to an $r$-vector $=$ the win probability of the shadow bidder against those $r$ opponents, in a $k$-object contest. Input dimension $r$; output one scalar.
+</div>
+
+<p>This is precisely why the real win probabilities are "shadows" of the one function $\Psi_k$. Bidder $i$ faces the $n-1$ rivals $x_{-i}$ (all coordinates but $i$), so</p>
+
+$$W_i(x)=\Psi_k(x_{-i})$$
+
+<p>is nothing but the shadow bidder pitted against $i$'s rivals. The whole map $W$ is that single shadow function evaluated on each "leave-one-out" subfield — the $n$ shadows $\Psi_k$ casts, one per dropped coordinate. The word will recur: the fact that all $n$ of these leave-one-out win probabilities dropping forces the full-field shadow to drop is <em>shadow monotonicity</em> (§2), and the constraint region in that argument is the <em>shadow set</em>.</p>
+
+<p>Two bookkeeping points that prevent later confusion. First, the field size $m$ is <em>generic</em>: $\Psi_k$ makes sense against a field of any size and is not tied to $n$ — the win map above invokes it at $m=n-1$, and §2 will invoke it at still other sizes. Second, the direction of monotonicity: raising $z_\ell$ makes opponent $\ell$ likelier to bid below, which lowers the above-count and hence <em>raises</em> the shadow bidder's win probability, so $\Psi_k$ is strictly increasing in every coordinate (a fact §2 leans on). Two derived objects will also appear: the gradient $p^{(k)}=\nabla\Psi_k$ (an $m$-vector of partials) and the single-level mass $P_k=\Pr[A=k]$ (a scalar, distinct from the cumulative $\Psi_k$).</p>
+
+<p>The one fact we import from the companion note is the <em>inertia</em> of $M$. The inertia (or signature) of a symmetric matrix is the triple (number of positive, negative, zero eigenvalues). On the whole open cube,</p>
+
+$$\operatorname{In}\big(M(x)\big)=(1,\,n-1,\,0)\qquad\text{for all }x\in(0,1)^n:$$
+
+<p>exactly one positive eigenvalue, $n-1$ negative, none zero. In particular $\det M\neq0$ everywhere, which is precisely the local-invertibility statement. Keep the number "one positive eigenvalue" in mind — it returns, transformed, as the geometric heart of the whole attack (§4).</p>
+
+<p class="section">1. What properness buys, and the exact condition (P)</p>
+
+<p>Here is the gap between local and global injectivity, stated plainly. Being a local diffeomorphism everywhere means the map has no critical points — it never crushes dimensions locally. But the image of the open cube could still be "wrapped" so that a point in the interior and a point drifting toward the boundary land on top of each other; or two interior sheets could cross. To rule this out we need a global, topological input.</p>
+
+<div class="box">
+<strong>Definition (proper map).</strong> A continuous map $f:X\to Y$ is <em>proper</em> if the preimage $f^{-1}(K)$ of every compact set $K$ is compact. For a map out of an open box, the intuition is: as you march toward the boundary of the box, the image must also march toward the boundary of the image — the map cannot "escape sideways," letting an interior point collide with a boundary point.
+</div>
+
+<p>The relevant classical fact is a covering-space theorem: <em>a proper local diffeomorphism onto a connected, simply-connected target is a diffeomorphism</em> — in particular globally injective. Equivalently, in degree-theoretic language: for a local diffeomorphism the number of preimages of a point (its <em>fiber</em>), counted with the sign of the Jacobian, is a locally constant integer called the <em>degree</em>; properness makes it globally constant; and if it equals $1$ at even one point, it equals $1$ everywhere, which is injectivity. Because our Jacobian has constant sign ($\det M=(-1)^{n-1}P$ with $P&gt;0$), the signed and unsigned fiber counts agree, so "degree $1$" really is "exactly one preimage."</p>
+
+<p>So global injectivity needs two ingredients on top of the local result: <strong>(P)</strong> a properness statement, and <strong>(F)</strong> a fiber-anchoring statement fixing the degree at $1$. The reduction chain is</p>
+
+<div class="box key">
+$$\textbf{(P)}:\quad W\big((0,1)^n\big)\ \cap\ \overline W\big(\partial[0,1]^n\big)\ =\ \varnothing.$$
+<div style="margin-top:.5rem">In words: the image of the <em>open</em> cube is disjoint from the (closure of the) image of the <em>boundary</em>. No interior win-vector is ever produced by a degenerate configuration where some bidder is surely above or surely below.</div>
+</div>
+
+<p>This disjointness is exactly the "no escape to the boundary" content of properness for this map. Together with <strong>(F)</strong> — the fiber lemma, which is established for all $(k,n)$, and which supplies the single-preimage anchor at symmetric configurations — a standard degree/covering argument gives global injectivity. The extreme object counts are already fully closed by hand: at $k=1$, $W_i=\prod_{\ell\neq i}x_\ell$ and the product $\prod_iW_i=\big(\prod x_\ell\big)^{n-1}$ inverts explicitly; at $k=n-1$ the reflection $x\mapsto1-x$ reduces to $k=1$ (this reflection symmetry, $W^{(k)}(x)=1-W^{(n-k)}(1-x)$, is used constantly below). So <strong>(F)</strong> is in hand and the extreme cases are done; the entire remaining difficulty is the analytic statement <strong>(P)</strong>. Everything after this section is the campaign to prove (P).</p>
+
+<p class="section">2. Reducing (P) to shadow monotonicity (SM)</p>
+
+<p>(P) is proved by induction on the number of bidders $n$. The engine of the induction is a monotonicity property that is interesting in its own right.</p>
+
+<div class="box key">
+<strong>Definition (Shadow monotonicity, (SM)).</strong> At parameters $(k,m)$ — a field of $m$ opponents, $k$ objects — take two fields $z,y\in(0,1)^m$. If $W(z)&lt;W(y)$ holds <em>coordinatewise</em> (all $m$ entries drop: every leave-one-out win probability under $z$ is below its counterpart under $y$), then the full-field shadow drops too, $\Psi_k(z)&lt;\Psi_k(y)$. Here $W(z),W(y)\in\mathbb R^m$ are vectors ($m$ entries each) while $\Psi_k(z),\Psi_k(y)\in\mathbb R$ are scalars.
+</div>
+
+<p>In the shadow-bidder language this is a statement about defeating fields. Each coordinate $W_i(z)=\Psi_k(z_{-i})$ is the shadow bidder's win probability against the subfield that omits opponent $i$; the scalar $\Psi_k(z)$ is the win probability against the <em>whole</em> field of $m$. So (SM) reads: if switching the field from $y$ to $z$ lowers the shadow bidder's odds against every one of the $m$ "drop-one-opponent" subfields, it must also lower the odds against the full field — the $m$ leave-one-out win probabilities control the whole-field win probability. (As in §0, $m$ is generic; the reduction below applies (SM) at $m=n-1$.)</p>
+
+<p>Why this closes the induction: the dangerous part of the boundary is the facet where one bidder is surely below, $x_j=1$. On that facet the $n$-bidder win-vector is built from $(n-1)$-bidder win-vectors, and (SM) at $n-1$ (available by the inductive hypothesis, via injectivity at $n-1$) forbids an interior point from matching a facet point. The reflection symmetry then hands over the opposite facet $x_j=0$, and the two facets are all of the boundary that matters. Schematically,</p>
+
+$$\text{inj}@(n-1)\ \Rightarrow\ (\mathrm{SM})@(n-1)\ \Rightarrow\ (\mathrm P)\text{'s facets}@n\ \xrightarrow{\ +\text{ reflection}\ }\ (\mathrm P)@n\ \Rightarrow\ \text{inj}@n.$$
+
+<p>So the whole problem now rests on proving (SM). And (SM) has a clean reformulation an economist will recognize on sight: it is a <em>constrained-optimization</em> statement. Fix the reference $y$ and form the <strong>shadow set</strong></p>
+
+$$K(y)\ :=\ \{\,x\in[0,1]^m:\ W(x)\le W(y)\ \text{coordinatewise}\,\}.$$
+
+<p>Because $\Psi_k$ is strictly increasing in every coordinate and $W$ is coordinatewise increasing (all entries of $M$ are $\ge0$), $K(y)$ is a <em>down-set</em> (a "lower contour set"): if $x\in K(y)$ then so is anything below it. A short argument shows</p>
+
+<div class="box">
+$$(\mathrm{SM})\ \Longleftrightarrow\ \max_{x\in K(y)}\Psi_k(x)\ =\ \Psi_k(y).$$
+The reference point $y$ must be the constrained maximizer of the shadow over its own shadow set. (SM) fails exactly if some <em>other</em> feasible point achieves a weakly higher shadow.
+</div>
+
+<p>Now run the Lagrangian / KKT conditions for $\max\Psi_k$ subject to $W(x)\le W(y)$. At an interior maximizer $x^\ast\in[0,1]^m$, stationarity reads $\nabla\Psi_k=M^\top\lambda$ with a vector of multipliers $\lambda\in\mathbb R^m$, $\lambda\ge0$ (the shadow prices of the $m$ win-constraints), and $\lambda_i=0$ on any slack constraint. Because $M$ is symmetric this is $p=M\lambda$. The decisive input is an exact aggregation identity — the analogue, for this problem, of <em>Euler's theorem for homogeneous functions</em> (the identity an economist knows from constant-returns production, $\sum_j x_j\,\partial F/\partial x_j=F$):</p>
+
+<div class="box key">
+<strong>Euler–$\Psi$ identity.</strong> $\displaystyle M(x)\,x=(m-k)\,\nabla\Psi_k$, hence $M^{-1}\nabla\Psi_k=\dfrac{x}{m-k}&gt;0$ on the open cube.
+</div>
+
+<p>(The proof is a one-line conditioning argument: contracting $M$ against $x$ counts, on the event "exactly $k-1$ above," the $m-k$ players who are below — a pure indicator computation.) Feed it into stationarity. Since $p=Mx^\ast/(m-k)$ and also $p=M\lambda$ with $M$ invertible,</p>
+
+$$\lambda=\frac{x^\ast}{m-k}\ &gt;\ 0\quad\text{strictly.}$$
+
+<p>Every multiplier is strictly positive, so <em>no</em> constraint is slack: $W(x^\ast)=W(y)$. But injectivity in this dimension (the inductive hypothesis) then forces $x^\ast=y$. The interior maximizer <em>is</em> the reference. A parallel KKT computation, using a sign fact about $(M^{-1})_{jj}$ at the boundary, closes the codimension-one facets $x_j\in\{0,1\}$ as well. The upshot:</p>
+
+<div class="box key">
+<strong>(SM) holds for every $k$, except possibly at maximizers that pin $\ge2$ coordinates</strong> at the extreme values $0$ or $1$. The two base cases $k=1$ and $k=m-1$ hold in every dimension by the explicit product formulas.
+</div>
+
+<p>This is real progress: the maximizer, if it is to violate (SM), must sit on a face of the cube of codimension at least two — at least two players driven to certainty. That residual is the entire remaining problem, and it has a name.</p>
+
+<p class="section">3. GAP 3: the codimension-$\ge2$ residual</p>
+
+<p>Fix a would-be violating maximizer that pins a block of coordinates — in the shadow-bidder picture, a configuration in which some opponents have been <em>frozen</em> to certainty. Freeze a block $Z$ of $|Z|$ opponents at $x=0$ (surely above), a block $O$ of $|O|$ opponents at $x=1$ (surely below), and leave a <strong>free block</strong> of $d=m-|Z|-|O|$ live opponents carrying $\zeta\in[0,1]^d$. The object count that matters for the free block drops to $\kappa=k-|Z|$: each surely-above frozen opponent is already one of the "beaters," using up one of the $k$ slots, so the shadow bidder now needs at most $\kappa-1$ of the $d$ live opponents above. On the free block, all the $\Psi,W,p,M$ objects are just the same objects at the smaller size $d$ and level $\kappa$. Freezing opponents turns the $m$-opponent shadow into a $d$-opponent shadow, dressed with a few extra inequality constraints (the "caps") inherited from the frozen blocks. With $q_r$ the Poisson–binomial probability that $r$ of the frozen opponents bid below, the reduced data are the objective $\Psi_\kappa^{(d)}(\zeta)$; a target value $T:=\Psi_k^{(m)}(y)=\sum_r q_r\,\Psi_{k-r}^{(d)}(y_\Phi)$ (the shadow bidder's original whole-field odds, re-expressed by conditioning on how the frozen opponents split); the free-block win-constraints $W_i^{(\kappa,d)}(\zeta)\le R_i$ with mixture right-hand sides $R_i=\sum_r q_r W_i^{(k-r,d)}(y_\Phi)$; and two cap constraints inherited from $Z$ and $O$. Here $y_\Phi\in[0,1]^d$ is the reference $y$ restricted to the free block.</p>
+
+<div class="box key">
+<strong>GAP 3.</strong> On every such face, no feasible free-block point $\zeta$ beats the target: $\ \Psi_\kappa^{(d)}(\zeta)\le T$.
+</div>
+
+<p>Two routes that look natural are both dead ends, and knowing why saves re-derivation. A <em>convexity</em> route fails because the relevant Hessian $M^{-1}$ has mixed signature (that lone positive eigenvalue again) — $\Psi\circ W^{-1}$ is not convex, and chord arguments are unavailable. A <em>caps-only</em> route — hoping the win-constraints are redundant once you keep the caps — is false: an explicit spread-out reference exhibits a caps-feasible $\zeta$ with $\Psi_\kappa(\zeta)=0.824\gg T=0.076$, which only the win-constraints exclude. So the win-block is load-bearing on every codim-$\ge2$ face. The problem genuinely couples the caps and the win-rows.</p>
+
+<p>The face problem splits by which constraints are active at the maximizer (its KKT "signature"). A scout over many faces found three regimes: <strong>(i)</strong> only a cap active, maximizer all-equal; <strong>(ii)</strong> a cap together with a whole group of win-rows active (two distinct free-coordinate values) — this is the tight regime that carries the extremal configurations; and <strong>(iii)</strong> a mixed residue. Case (i) is <em>closed</em> (a self-contained argument built on a Poisson–binomial "pair-equalization" tool and a Wronskian-type identity — see the companion files). Within case (ii), the "type-1" references — those whose matched configuration is itself feasible — are also <em>closed</em>. What remains, and where the recent months of work live, is:</p>
+
+<div class="box">
+<strong>The live nut:</strong> case (ii), <em>type-2</em> references (matched configuration row-infeasible). Here the clean cap-mass bound still holds but is not by itself enough; the proof must use the win-rows of $\zeta$. This is what the next two sections attack, and it is where the problem transforms into something an economist finds very familiar.
+</div>
+
+<p class="section">4. The excess potential: the whole problem is the curvature of one scalar</p>
+
+<p>From here the shadow-bidder metaphor has done its job, and we let it go: the remaining sections are about the <em>geometry</em> of one scalar function on the $d$-dimensional free block, not about a contest. In its place we stay strict about dimensions. Work on the reduced problem — $d$ live opponents, with effective threshold $g:=d-\kappa$ — and let $\beta_x\in\{0,1,\dots,d\}$ be the number of them bidding above under a point $x\in[0,1]^d$. Define a single scalar function of $x$:</p>
+
+<div class="box key">
+<strong>Definition (excess potential).</strong> $\displaystyle\Phi(x):=\mathbb E\big[(\beta_x-g)^+\big]=\sum_{w&gt;g}(w-g)\,\rho_w(x)$, the expected amount by which the above-count overshoots the threshold $g$ (here $\rho_w=\Pr[\beta=w]$).
+</div>
+
+<p>Two identities make $\Phi$ the organizing object of everything:</p>
+
+$$\nabla\Phi=W,\qquad \nabla^2\Phi=M.$$
+
+<p>Read those slowly, with dimensions attached: $\Phi:[0,1]^d\to\mathbb R$ is a single scalar, its gradient $W=\nabla\Phi$ is a $d$-vector, and its Hessian $M=\nabla^2\Phi$ is the $d\times d$ matrix. The win-probability vector $W$ is the <em>gradient</em> of the scalar potential $\Phi$; the Jacobian $M$ is its <em>Hessian</em>. In the language of economics: $W$ is an integrable (conservative) vector field — the problem has "potential-game" structure — and the object whose sign pattern controlled local injectivity in §0 is literally the curvature $\nabla^2\Phi$ of that potential. The entire GAP-3 inequality is a second-order geometric statement about one function.</p>
+
+<p>Concretely, the type-2 leg reduces to a single <em>tangent-domination</em> inequality. Let $F_g(x):=\Pr[\beta_x\ge g]$ be the "cap function"; its level sets $\{F_g=\text{const}\}$ are the cap surfaces. The conjecture is:</p>
+
+<div class="box key">
+<strong>Conjecture (X).</strong> If $\,F_g(u)=F_g(\zeta)\,$ (same cap level) then
+$$\Phi(u)\ \le\ \Phi(\zeta)+W(\zeta)\cdot(u-\zeta).$$
+</div>
+
+<p>The right-hand side is the first-order Taylor expansion of $\Phi$ at $\zeta$ evaluated at $u$ — a <em>supporting tangent</em>. So (X) says: along any cap level surface, the potential $\Phi$ lies below its own tangent plane — it is concave <em>in the directions tangent to the cap</em>. Equivalently, the reference point is a minimizer of the "excess functional" $H_u(x)=\sum_i u_iW_i(x)-g\,T_+(x)$ on its own cap surface, because $\nabla H_u(x)=M(x)(u-x)$ vanishes at $x=u$ and $H_u(u)=\Phi(u)$. This is the same envelope/tangent-line reasoning behind supporting hyperplanes in consumer theory.</p>
+
+<p>Why is such curvature control believable? Because of the "one positive eigenvalue" fact, now seen correctly. A symmetric matrix with exactly one positive eigenvalue and the rest negative has <strong>Lorentzian signature</strong> — the signature of Minkowski spacetime, one "time" direction and many "space" directions. Directions $h$ with $h^\top M h\le0$ are called <em>spacelike</em>. The key structural theorem is:</p>
+
+<div class="box">
+<strong>Lorentz signature of $M$ (Brändén–Huh).</strong> For every $x$ in the cube and every threshold $1\le g\le d-1$, $M(x)$ has <em>at most one positive eigenvalue</em>. <span class="note">This is the modern log-concavity theory of <em>Lorentzian polynomials</em>: the generating polynomial $\prod_k(v_ks+u_kt_k)$ is a product of positive linear forms, hence Lorentzian; taking derivatives preserves the class; and reading off a certain second-derivative block recovers $u_iu_l M_{il}$. Interlacing then bounds the positive eigenvalues of $M$ by one.</span>
+</div>
+
+<p>From this, the <em>germ</em> of (X) is a theorem: on any cap surface, the tangent directions $h$ (those with $\nabla F_g\cdot h=0$) satisfy $h^\top M h\le0$ — the cap surfaces are spacelike, and $\Phi$ is concave to second order along them. So (X) is <em>true infinitesimally at every point</em>; the entire open question is whether that local concavity integrates up to the global tangent-domination inequality across a whole cap surface. That is a Morse-theory-flavored global-from-local problem, and the next section is the machine that reduces it to something finite.</p>
+
+<p class="section">5. Pencil rigidity and the envelope route</p>
+
+<p>The global step needs to control all the critical points of the excess functional $H_u$ on a cap surface, not just the reference. The surprising structural fact is that those critical points are <em>rigid</em> — they cannot be scattered around the surface; they lie on a single straight line.</p>
+
+<div class="box">
+<strong>Pencil rigidity.</strong> Consider the family $H_{a,\gamma}(x)=\sum_i a_iW_i(x)-\gamma\,T_+(x)$ (so $H_u=H_{u,g}$). Its gradient factors as $\nabla H_{a,\gamma}(x)=M(x)\big(a-\tfrac{\gamma}{g}x\big)$. At any interior critical point on a cap surface where $M$ is nonsingular, the vector $a-\tfrac{\gamma}{g}x$ must be proportional to $\mathbf 1-x$. Solving, $x$ lies on the <strong>pencil</strong>: the straight line through the fixed "apex" $\tfrac{g}{\gamma}a$ and the corner $\mathbf 1$. And $F_g$ is strictly monotone along that line, so the pencil meets each cap surface in <em>at most one point</em>.
+</div>
+
+<p>So on each cap level, the excess functional has essentially one interior critical point — its pencil point. Two more exact facts make this into a genuine induction:</p>
+
+<ul>
+<li><strong>Strata recursion.</strong> Pinning one more free coordinate to $0$ or $1$ maps $H_{a,\gamma}$ to another member of the <em>same</em> family, one dimension down, with explicitly bookkept parameters. So the family is closed under the very pinning operation that generated the face in the first place — the reduction terminates.</li>
+<li><strong>Collapse.</strong> At the special reference $u=\mathbf 1$, $\sum_iW_i-gT_+=(d-g)F_g$, so $H_{\mathbf 1}$ is a function of the cap value alone. Consequently (X) holds with <em>exact equality</em> everywhere on the cap surface when $u=\mathbf 1$. This is not a coincidence: the adversarial numerical searches that push (X) to its tightest margins all pile up precisely on this manifold (shared "sure" coins). The collapse identity <em>is</em> the equality case, which is why the inequality has no slack to spare.</li>
+</ul>
+
+<p>The reduction of (X) to a one-dimensional comparison uses the object economists know as the <strong>envelope theorem</strong>: the derivative of a value function equals the active Lagrange multiplier. Parametrize the pencil by its cap level $s$ and let $V(s)=H_{a,\gamma}(\text{pencil point at level }s)$ be the branch value. Then</p>
+
+$$\frac{dV}{ds}=c(s),\qquad c(s)=-(d-g)\,\frac{\gamma}{g}\,\frac{1-\tau}{\tau},$$
+
+<p>where $c$ is exactly the multiplier of the cap constraint along the pencil (and $\tau$ the pencil parameter). Because every branch — the parent problem and each of its "pin-children" one dimension down — shares the <em>same</em> anchor value $V(1)=\sum_i a_i-\gamma$ at the top of the range, the comparison of a parent branch against a child branch collapses to comparing their multipliers, integrated over the level range:</p>
+
+<div class="box key">
+<strong>(PC), the pencil comparison.</strong> parent branch value $\le$ each pin-child branch value at the same cap level $\ \Longleftrightarrow\ \displaystyle\int_C^1\big(c-c_{\text{child}}\big)\,ds\ \ge\ 0.$ By induction on dimension, (PC) delivers the per-stratum inequalities, hence (X).
+</div>
+
+<p>One warning that the numerics made sharp: the pointwise multiplier comparison $c\ge c_{\text{child}}$ is <em>false</em> (it dips as low as $-0.5$). Only the <em>integrated</em> comparison survives. So the remaining task is not to sign a function but to sign the area under a difference of two multiplier curves — and that is a single-crossing question.</p>
+
+<p class="section">6. The frontier: single-crossing (SC1) and the Descartes fingerprint</p>
+
+<p>Change variables one last time, from the cap level $s$ to the multiplier parameter $\lambda$. Along the pencil the coordinates become tail probabilities $q_i(\lambda)=(\gamma-g\,a_i)/(\gamma+\lambda g)$, and the parent's cap level as a function of $\lambda$ is a Poisson–binomial tail $s_p(\lambda)=\Pr[\,\#\text{tails}\le d-g\,]$. Its "$1$-pin child" (the same problem with one coin frozen) has an entirely analogous $s_c(\lambda)$ with the <em>same</em> tail budget. The envelope integrand's sign turns out to be governed by which of the two cap-levels is larger at equal $\lambda$. The whole tower now rests on one statement — and it is, once again, a concept from monotone comparative statics:</p>
+
+<div class="box key">
+<strong>(SC1), single-crossing.</strong> $\ \lambda\longmapsto s_p(\lambda)-s_c(\lambda)\ $ changes sign <em>at most once</em> on its range. Two Poisson–binomial cumulative distribution functions, indexed by the same parameter, cross at most once.
+</div>
+
+<p>Single-crossing (à la Milgrom–Shannon) is exactly the hypothesis that makes an integrated comparison decidable from its endpoints: if $s_p-s_c$ crosses once, the sign of $\int_C^1(\cdots)$ is pinned down by its behavior at the ends of the range, where an explicit elementary-symmetric inequality fixes it. So (SC1) — plus the endpoint/cascade bookkeeping — would finish (X), hence the type-2 leg, hence GAP 3, hence (SM), hence (P), hence global injectivity. It is the last real inequality in the tower.</p>
+
+<p>How do you prove two Poisson–binomial CDFs cross at most once? Clear denominators. Multiply through by the (positive) leading factors to turn the difference $s_p-s_c$ into a genuine polynomial in $\lambda$:</p>
+
+$$R(\lambda)\ :=\ P(\lambda)\,\big(\gamma'+\lambda(g-1)\big)^{d-1}\ -\ Q(\lambda)\,(\gamma+\lambda g)^{d},$$
+
+<p>where $P,Q$ are the two tail counts times their prefactors, both polynomials with nonnegative coefficients. The positive roots of $R$ are exactly the crossings of $s_p$ and $s_c$. So (SC1) becomes: <strong>$R$ has at most one positive root.</strong> And here enters a tool that needs no algebra beyond counting:</p>
+
+<div class="box">
+<strong>Descartes' rule of signs.</strong> The number of positive roots of a real polynomial is at most the number of sign changes in its sequence of coefficients (and has the same parity). So if we write $R$ in a basis where its coefficient sequence flips sign at most once, then $R$ has at most one positive root — which is exactly (SC1).
+</div>
+
+<p>The discovery — the "Descartes fingerprint" — is that there is a distinguished basis in which this works. Recentre the variable at the smallest weight, $\mu=\lambda+\min_i a_i$ (the "exit-centered" basis, the unique shift making every atomic factor coefficient-positive). In that basis the exact coefficient sequence of $R$ shows a single sign flip — a block of negatives followed by a block of positives, $-\cdots-\,+\cdots+$ — and the number of sign changes equals the true number of positive roots <em>exactly</em>, instance after instance. (The naïve basis $\mu=\lambda+a_k$ fails, producing up to five sign changes — the choice of centre is doing real work.)</p>
+
+<div class="box key">
+<strong>Verification status of the fingerprint.</strong> The single-flip pattern, and its exact agreement with the true root counts, has been checked exhaustively: <span class="note">numerically over exact rational arithmetic to $d\le8$ (3990 instances, zero anomalies); and symbolically — factoring each coefficient over the rationals with an independent numeric self-check gate — to $d\le6$, now extended to $d=7,8$ (83 further cases, self-check $0/9020$, the single-flip and root-count gates $0$ violations). The one subtlety: the <em>position</em> of the flip moves across the parameter region, so no individual coefficient is globally sign-definite; but the per-point single-flip shape holds everywhere.</span> This is strong evidence, and a proof-shaped target — proving the sign pattern from the explicit coefficient formulas would prove (SC1) outright — but it is not yet a proof.
+</div>
+
+<p>The final refinement upgrades "at most one sign change" to genuine single-crossing with the right orientation. At a tie $F_p=F_c$ (a root of $R$), the sign of $R'$ is fixed by a weighted comparison of the two "boundary" masses:</p>
+
+<div class="box key">
+<strong>(M5), the live core target.</strong> At every tie, $\ \pi_{r+1}(\beta_1+\mu)\ &gt;\ \kappa_{r+1}(\alpha_1+\mu)$, where $\pi,\kappa$ are the parent/child masses at the critical level and $\alpha_1,\beta_1$ the leading weights.
+</div>
+
+<p>(M5) forces every root of $R$ to be a transversal <em>up-crossing</em>; up-crossings cannot accumulate, so there is at most one, and the overall orientation ($-\to+$) is fixed by the sign of the leading coefficient, which is provably positive. (M5) is minimal in a precise sense: the bare comparison $\pi_{r+1}&gt;\kappa_{r+1}$, dropping the linear prefactors, <em>fails</em> at almost every crossing — the prefactor is load-bearing, so the inequality has no slack. Measured at the actual ties by exact rational bisection, (M5) holds in $2980/2980$ in-model instances (worst normalized margin $+2.2\times10^{-4}$, tightest near the degenerate merge corner $\gamma\approx g$). Turning that verified pattern into a proof — from the explicit formulas for $\pi_{r+1},\kappa_{r+1}$ on the tie variety — is the current front line.</p>
+
+<p class="section">7. Honest status</p>
+
+<div class="box">
+The properness statement <strong>(P)</strong> — the one analytic input that upgrades the everywhere-local injectivity of the win-probability map to global injectivity — has been reduced, rung by rung, to a single explicit inequality:
+<div style="margin:.6rem 0 .4rem">
+$$\text{inj}\ \Longleftarrow\ (\mathrm P)\ \Longleftarrow\ (\mathrm{SM})\ \Longleftarrow\ \text{GAP 3}\ \Longleftarrow\ \text{case (ii) type-2}\ \Longleftarrow\ (\mathrm X)\ \Longleftarrow\ (\mathrm{PC})\ \Longleftarrow\ (\mathrm{SC1})\ \Longleftarrow\ (\mathrm{M5}).$$
+</div>
+Everything to the left of (SC1) is proved or reduced: the degree/covering frame and the fiber lemma (F); the KKT reformulation of (SM) and its closure off codimension $\ge2$; case (i) of GAP 3 and the type-1 half of case (ii); the excess-potential structure $W=\nabla\Phi$, $M=\nabla^2\Phi$; the Lorentzian one-positive-eigenvalue theorem and the spacelike germ of (X); the pencil rigidity, strata recursion, collapse identity, and the envelope reduction of (X) to (PC), and of (PC) to the single-crossing (SC1). What is <em>not</em> yet a theorem is the right end: the sign-pattern proof of (SC1) via the Descartes fingerprint, its transversal refinement (M5), the cascade termination bookkeeping, the non-vanishing of $M$ for intermediate thresholds on the open cube, and the assembly of the pinned blocks of size $\ge2$. Every one of these has survived exhaustive exact-arithmetic falsification (nothing found; the fingerprint symbolic to $d=8$, (M5) at $2980/2980$ ties, (X) adversarially clean). So this is leverage of the strongest evidentiary kind — a specific, sharp, verified inequality with no known counterexample — but the last inequality is not closed, and until it is, global injectivity beyond $k\in\{1,n-1\}$ and the handful of small closed cases remains open.
+</div>
+
+<p class="section">8. The economist's cheat-sheet</p>
+
+<p>The attack repeatedly borrows the shape of a familiar idea. Collected in one place:</p>
+
+<div class="box">
+<table style="border-collapse:collapse;width:100%">
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">$\Psi_k(z)$, the shadow</td><td style="padding:.25rem 0">↔ the win probability of a "shadow bidder" against a field of opponents $z$; recasts the whole reduction as a story about defeating fields. $\Psi_k$ on an $r$-vector = odds against $r$ opponents (a scalar); $W_i=\Psi_k(x_{-i})$ = the shadow bidder against $i$'s rivals.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">Euler–$\Psi$ identity $Mx=(m-k)\nabla\Psi$</td><td style="padding:.25rem 0">↔ Euler's theorem for homogeneous functions; it is what pins the KKT multipliers positive.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">$W=\nabla\Phi$, $M=\nabla^2\Phi$</td><td style="padding:.25rem 0">↔ integrability / potential-game structure; the win-vector is a conservative field, its Jacobian a Hessian.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">(SM) as $\max_{K(y)}\Psi=\Psi(y)$</td><td style="padding:.25rem 0">↔ constrained optimization over a lower-contour set; the win-constraints carry shadow prices $\lambda$.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">Conjecture (X)</td><td style="padding:.25rem 0">↔ a supporting-tangent / directional-concavity inequality on a level surface.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">One positive eigenvalue of $M$</td><td style="padding:.25rem 0">↔ Lorentzian (Minkowski) signature; cap surfaces are "spacelike."</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">Envelope identity $dV/ds=c$</td><td style="padding:.25rem 0">↔ the envelope theorem; marginal value of a program equals its active multiplier.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">(SC1) single-crossing</td><td style="padding:.25rem 0">↔ monotone comparative statics (Milgrom–Shannon); makes an integrated comparison decidable from endpoints.</td></tr>
+<tr><td style="padding:.25rem .6rem .25rem 0;vertical-align:top">Descartes' rule of signs</td><td style="padding:.25rem 0">↔ counting coefficient sign-changes to bound positive roots; no algebra beyond arithmetic.</td></tr>
+</table>
+</div>
+
+<p class="note">Companion to <code>jacobian-coupling-recursion.html</code> (the local / recovery-Jacobian half). Full written proofs and machine-verification pointers: <code>Docs/proofs.tex</code> — §<code>sec:model</code>, §<code>sec:SM</code>, §<code>sec:gap3</code> (excess potential <code>lem:excesspot</code>, Lorentz signature <code>lem:lorentzM</code>, germ <code>cor:germ</code>, conjecture (X) <code>prop:Xz1</code>, pencil <code>lem:pencil</code>, strata <code>lem:strata</code>, collapse <code>lem:collapse</code>, envelope <code>lem:envelope</code>, single-crossing note, tail-complement <code>lem:tailrep</code>/<code>lem:tailfacts</code> and the (M5) note), and §<code>sec:casei</code>. Live game-state: <code>Docs/STATE.md</code> §14.79. Verification drivers and logs in <code>Docs/data/</code> (<code>mpdesc_symbolic_d78.jl</code>, <code>mpdesc2_mlr.jl</code>, <code>t2_lorentz.jl</code>, <code>t2_pencil.jl</code>, <code>t2_env2.jl</code>, <code>t2_lambda.jl</code>, <code>t2_adv.jl</code>).</p>
+
+</body>
+</html>

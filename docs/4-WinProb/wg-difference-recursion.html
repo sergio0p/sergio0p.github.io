@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The W·G difference recursion for heterogeneous players</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">The $W\!\cdot\!G$ difference recursion for heterogeneous players</p>
+
+<p class="note">4-WinProb · arbitrary distinct players · $k$ arbitrary · Symbolics residual 0 (all pairs, $n,k$ tested) · 2026-06-13</p>
+
+<p>The Meritocracy project found that for two groups $H,L$ the products $W_iG_i$ satisfy a one-step recursion, $W_LG_L-W_HG_H=(G_L-G_H)\widehat W^{(k-1)}_{h-1,\ell-1}$. With distinct odds ratios already the native object here, that identity is not just transferable — it is cleaner, because in WinProb the products $W_iG_i$ share a common denominator. This note states and derives the heterogeneous version and locates it against the recovery problem.</p>
+
+<p class="section">1. The dictionary</p>
+
+<p>WinProb's odds ratio is the Meritocracy "odds of being above." Player $\ell$ is above (beats the in-the-money threshold) with odds $r_\ell>0$, equivalently below with probability</p>
+
+$$r_\ell=\frac{1-G_\ell}{G_\ell},\qquad G_\ell=\frac{1}{1+r_\ell},\qquad 1-G_\ell=\frac{r_\ell}{1+r_\ell}.$$
+
+<p>With $k$ prizes, player $i$ wins iff at most $k-1$ of the others are above. In the global-polynomial form of <code>odds_ratio_global_polynomial.html</code>, writing $g(t)=\prod_\ell(1+r_\ell t)$ and $h_i(t)=g(t)/(1+r_i t)=\sum_m e_m(r_{-i})t^m$,</p>
+
+$$W_i=\frac{N_i}{D_i},\qquad N_i=\sum_{m=0}^{k-1}e_m(r_{-i}),\qquad D_i=h_i(1)=\prod_{\ell\neq i}(1+r_\ell)=\frac{g(1)}{1+r_i}.$$
+
+<p class="section">2. The crux: $W_iG_i$ has a common denominator</p>
+
+<p>Since $1/D_i=\prod_{\ell\neq i}(1+r_\ell)^{-1}=\prod_{\ell\neq i}G_\ell$, multiplying $W_i$ by its own CDF $G_i$ closes the product over all players:</p>
+
+<div class="box key">
+$$W_iG_i=G_i\,N_i\!\!\prod_{\ell\neq i}G_\ell=N_i\prod_{\ell=1}^{n}G_\ell=\omega\,N_i,\qquad \omega:=\prod_{\ell=1}^{n}G_\ell=\frac{1}{g(1)}.$$
+</div>
+
+<p>The weight $\omega=1/g(1)$ is the same for every $i$ — the per-$i$ denominator $D_i$ that obstructs everything else has been absorbed. So $W_iG_i$ is, up to the universal scalar $\omega$, simply the deletion numerator $N_i=\sum_{m=0}^{k-1}e_m(r_{-i})$. Differences are immediate:</p>
+
+$$W_iG_i-W_jG_j=\omega\,(N_i-N_j)=\frac{N_i-N_j}{g(1)}.$$
+
+<p class="section">3. The numerator gap is rank one</p>
+
+<p>The only work left is $N_i-N_j$. Split each $e_m$ on whether the other deleted index is taken. For any $m$, partitioning the monomials of $e_m(r_{-i})$ by whether they contain $r_j$,</p>
+
+$$e_m(r_{-i})=e_m(r_{-ij})+r_j\,e_{m-1}(r_{-ij}),\qquad
+  e_m(r_{-j})=e_m(r_{-ij})+r_i\,e_{m-1}(r_{-ij}),$$
+
+<p>where $r_{-ij}$ deletes both indices. Subtracting kills the common $e_m(r_{-ij})$:</p>
+
+<div class="box key">
+$$e_m(r_{-i})-e_m(r_{-j})=(r_j-r_i)\,e_{m-1}(r_{-ij}).$$
+</div>
+
+<p>This is the pairwise companion of the single-deletion formula $e_m(r_{-i})=\sum_{s}(-r_i)^s E_{m-s}$ already in the odds-ratio note. Summing over the truncation $m=0,\dots,k-1$ telescopes the index by one:</p>
+
+$$N_i-N_j=\sum_{m=0}^{k-1}(r_j-r_i)\,e_{m-1}(r_{-ij})=(r_j-r_i)\sum_{m=0}^{k-2}e_m(r_{-ij})=(r_j-r_i)\,\widehat N_{ij},$$
+
+<p>where $\widehat N_{ij}:=\sum_{m=0}^{k-2}e_m(r_{-ij})$ is the numerator of the once-smaller contest: $k-1$ prizes among the $n-2$ players with both $i$ and $j$ removed.</p>
+
+<p class="section">4. The identity</p>
+
+<p>Put the two factors of $\omega$ on $i,j$ and convert. With $\widehat W^{(k-1)}_{ij}:=\widehat N_{ij}\prod_{\ell\neq i,j}G_\ell$ the win probability of that deleted contest, $\omega=G_iG_j\prod_{\ell\neq i,j}G_\ell$ gives $\omega\,\widehat N_{ij}=G_iG_j\,\widehat W^{(k-1)}_{ij}$, and $(r_j-r_i)G_iG_j=G_i-G_j$ (clear denominators in $r=\tfrac{1-G}{G}$). Hence</p>
+
+<div class="box key">
+$$\boxed{\;W_iG_i-W_jG_j=(G_i-G_j)\,\widehat W^{(k-1)}_{ij}\;}$$
+</div>
+
+<p>— verbatim the Meritocracy recursion, now for arbitrary heterogeneous players. The gap between two $W\!\cdot\!G$ products equals the CDF gap times a win probability one prize and two players smaller. Equivalently, in pure global-polynomial form,</p>
+
+$$W_iG_i-W_jG_j=\frac{(r_j-r_i)}{g(1)}\,\widehat N_{ij}.$$
+
+<p class="section">5. Specializations and sign</p>
+<ul>
+  <li>Two groups (Meritocracy). Collapse all H-players to a common $G_H$ and all L to $G_L$. Deleting one H and one L leaves the $(k-1,h-1,\ell-1)$ contest, so $\widehat W^{(k-1)}_{ij}=\widehat W^{(k-1)}_{h-1,\ell-1}$ and $G_i-G_j=G_L-G_H$ — the original boxed result, recovered as the homogeneous case.</li>
+  <li>$k=1$. $\widehat N_{ij}$ is an empty sum $=0$, so $W_iG_i=W_jG_j=\omega$. With one prize $W_i=\prod_{\ell\neq i}G_\ell=\omega/G_i$, and the symmetric product $W_iG_i=\omega$ is common to all — the WinProb image of $W_HG_H=W_LG_L$.</li>
+  <li>$k=2$. $\widehat N_{ij}=e_0=1$, so $\widehat W^{(1)}_{ij}=\prod_{\ell\neq i,j}G_\ell$ ("everyone else below") and
+    $$W_iG_i-W_jG_j=(G_i-G_j)\!\!\prod_{\ell\neq i,j}\!\!G_\ell.$$</li>
+  <li>Monotone ordering. $\widehat W^{(k-1)}_{ij}>0$ on the interior, so $\operatorname{sign}(W_iG_i-W_jG_j)=\operatorname{sign}(G_i-G_j)=\operatorname{sign}(r_j-r_i)$ for all $k$. The map $i\mapsto W_iG_i$ is comonotone with $i\mapsto G_i$: order the products by the CDFs and the ordering never depends on $k$.</li>
+</ul>
+
+<p class="section">6. Where it bites on recovery</p>
+
+<p>The inversion $\{W_i\}\mapsto\{r_i\}$ now has both halves of its linear skeleton, with all nonlinearity quarantined into one scalar factor and one recursive object:</p>
+
+<div class="box">
+<p>aggregate (odds-ratio note): &nbsp; $\displaystyle\sum_i N_i=\sum_{m=0}^{k-1}(n-m)E_m$</p>
+<p>pairwise (this note): &nbsp; $\displaystyle N_i-N_j=(r_j-r_i)\,\widehat N_{ij}$</p>
+</div>
+
+<p>Two readings of why this is a lever:</p>
+<ul>
+  <li>The filtration in $k$ is now explicit. The odds-ratio note observed that $W^{(k)}\to W^{(k+1)}$ appends the layer $e_k(r_{-i})$ to each numerator. The pairwise identity exhibits the matching downward step: level-$k$ numerator differences are level-$(k-1)$ deleted numerators, $N^{(k)}_i-N^{(k)}_j=(r_j-r_i)\widehat N^{(k-1)}_{ij}$. The sandwich/induction-in-$k$ becomes a literal recursion on $(k,\text{players})$, the WinProb analog of the Meritocracy <code>GAP-GEN</code> route.</li>
+  <li>It explains why $k=2$ closed on two scalars. For $k=2$, $\widehat N_{ij}=1$, so $N_i-N_j=r_j-r_i$: the numerator map is affine in the odds. That is exactly why <code>recovery_k2_n4.html</code> reduced to a fixed quadratic family $a_i^2-(A-2)a_i+W_iG=0$ — affine differences plus a single product constraint. For general $k$ the differences stay rank one but pick up the weight $\widehat N_{ij}$, which is the genuine obstruction the induction must carry.</li>
+</ul>
+
+<div class="box">
+Honest status. $W_iG_i$ is a function of the unknown odds, not raw data ($G_i$ is unknown); the identity is a structural relation among the unknowns, not a closed-form data constraint. Its value is that it makes the $k$-recursion exact and isolates the nonlinearity — the same posture as the Meritocracy note, where the analogous identities are exact but turning them into a full inversion proof for all $n$ is still open. This is the lever for the current <code>Next:</code> (push the $k=2$ inversion to general $n$), not a completed proof of it.</div>
+
+<p class="section">7. Symbolic verification</p>
+
+<p>Win probabilities built from the exact "$\le k-1$ above" deletion expansion, $G_\ell=1/(1+r_\ell)$. For every pair $(i,j)$ the residual</p>
+
+$$W_iG_i-W_jG_j-(G_i-G_j)\,\widehat W^{(k-1)}_{ij}$$
+
+<p>simplifies to identically $0$ (Symbolics, <code>simplify∘expand</code> over $\mathbb{Q}(r)$) for $(n,k)\in\{(4,2),(5,2),(5,3),(6,3)\}$ — all pairs, no residual — and to machine zero ($\sim10^{-16}$) on random positive draws for $(n,k)\in\{(4,2),(5,2),(5,3),(6,3),(6,4),(7,4)\}$.</p>
+
+<p class="note">Companion to odds_ratio_global_polynomial.html, elementary_symmetric.html, recovery_k2_n4.html. Cross-project: Meritocracy WG-identity.html (two-group case).</p>
+
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Common top via sign-discarding — k=2, h=3, ℓ=2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  body{max-width:840px;margin:2rem auto;padding:0 1.2rem;font:16px/1.6 Georgia,serif;color:#1a1a1a}
+  h1{font-size:1.5rem;border-bottom:2px solid #333;padding-bottom:.3rem}
+  h2{font-size:1.15rem;margin-top:2rem;color:#222}
+  .box{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:.6rem 1rem;margin:1rem 0}
+  .key{background:#fff8e6;border:1px solid #e6c200}
+  .note{font-size:.92rem;color:#444}
+  code{background:#eee;padding:.05rem .3rem;border-radius:3px;font-size:.92em}
+  .tag{font:12px/1 monospace;color:#666}
+  table{border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  td,th{border:1px solid #ccc;padding:.3rem .7rem;text-align:right}
+</style>
+</head>
+<body>
+
+<h1>Common top via sign-discarding — $k=2,\ h=3,\ \ell=2$</h1>
+<p class="tag">Companion to <code>FOC-densities-k2h3l1.html</code>. Here the algebra is NOT clean
+(full 2×2 FOC system), but discarding sign-definite terms still rules out $\bar b_H=\bar b_L$.
+All identities Symbolics-verified; the kill is numerically checked. $\lambda=k/h=2/3$, so
+intimidation's necessary condition is unchanged: $\bar v_H>3\bar v_L$.</p>
+
+<h2>1. Win probabilities</h2>
+<p>An H-bidder faces $2$H$+2$L; an L-bidder faces $3$H$+1$L. With $k=2$, win = at most one
+rival above:</p>
+<div class="box">
+$$W_H=G_H^2G_L^2+2(1-G_H)G_HG_L^2+2(1-G_L)G_LG_H^2,$$
+$$W_L=G_H^3G_L+3(1-G_H)G_H^2G_L+G_H^3(1-G_L).$$
+</div>
+<p class="note">Unlike $\ell=1$, $W_L$ now depends on $G_L$ — the lone-L simplification is gone,
+so the FOC system below is a genuine $2\times2$.</p>
+
+<h2>2. The affine FOC system</h2>
+<p>$W_i'(b)=a_{iH}\,g_H+a_{iL}\,g_L$ with $a_{ij}=\partial W_i/\partial G_j$; stationarity
+$W_i'\varphi_i=1$ gives $A\,(g_H,g_L)^\top=(1/\varphi_H,1/\varphi_L)^\top$. The coefficients
+factor through two polynomials</p>
+<div class="box">
+$$P:=G_H+2G_L-3G_HG_L,\qquad Q:=2G_H+G_L-3G_HG_L,$$
+$$a_{HH}=2G_LQ,\quad a_{HL}=2G_HP,\quad a_{LH}=3G_HP,\quad a_{LL}=3G_H^2(1-G_H).$$
+</div>
+<p>so $a_{LH}=\tfrac32 a_{HL}$. Cramer's rule gives both densities, and the object we sign is
+their <b>ratio</b> (as in the $\ell=1$ file):</p>
+<div class="box">
+$$\frac{g_L}{g_H}=\frac{N}{D},\qquad
+N:=a_{HH}\varphi_H-a_{LH}\varphi_L,\qquad
+D:=a_{LL}\varphi_L-a_{HL}\varphi_H,$$
+$$\det A=a_{HH}a_{LL}-a_{HL}a_{LH}.$$
+</div>
+<p class="note">($N,D$ are the Cramer numerators of $g_L,g_H$ cleared of the common
+$1/(\varphi_H\varphi_L\det A)$, so the ratio is literally $N/D$.)</p>
+
+<h2>3. Two sign facts near the common top</h2>
+<p>Write $t=1-G_H,\ s=1-G_L$; at a common top both $\to0$. Expanding (Symbolics):</p>
+<div class="box">
+$$2G_LQ-G_HP = 3s+2t^2-4s^2-4st+\dots \;>\;0,\qquad
+G_H(1-G_H)-2P = -(3t+2s)+O(\text{quad}) \;<\;0.$$
+</div>
+<p>Both hold on a full left-neighborhood of $\bar b$ for <em>every</em> approach
+($s,t\ge0$ small, no relative-rate restriction): the linear terms dominate the remainders. Also
+$a_{HL}=2G_HP>0$, $2G_LQ>0$ and $\varphi_i>0$ there. (No determinant is needed — see §4.)</p>
+
+<h2>4. The kill — a sign clash forced by both densities being nonnegative</h2>
+<p>The two FOCs, combined to eliminate the right-hand sides, give an <em>exact</em> relation
+between the densities (Symbolics residual $=0$; $\det A$ cancels and never appears):</p>
+<div class="box key">
+$$g_H\,N - g_L\,D \;=\; \varphi_H\underbrace{(a_{HH}g_H+a_{HL}g_L)}_{=\,1/\varphi_H}-\varphi_L\underbrace{(a_{LH}g_H+a_{LL}g_L)}_{=\,1/\varphi_L}\;=\;1-1\;=\;0
+\quad\Longrightarrow\quad g_H\,N=g_L\,D.$$
+</div>
+<p>Now $N$ and $D$ each split, by an identity, into an <b>intimidation-surplus</b> piece
+$(\varphi_H-3\varphi_L)$ and a purely polynomial piece:</p>
+<div class="box key">
+$$N \;=\; \underbrace{(\varphi_H-3\varphi_L)\,2G_LQ}_{\ge0}\;+\;\underbrace{3\varphi_L\,(2G_LQ-G_HP)}_{\ge0}\;>\;0,$$
+$$D \;=\; \underbrace{3G_H\varphi_L\big(G_H(1-G_H)-2P\big)}_{\le0}\;-\;\underbrace{(\varphi_H-3\varphi_L)\,2G_HP}_{\ge0}\;<\;0,$$
+</div>
+<p>both near the top: $\varphi_H\to\bar v_H,\varphi_L\to\bar v_L$ with $\bar v_H>3\bar v_L$ give
+$\varphi_H-3\varphi_L>0$, and §3 gives the two polynomial signs. So $N>0$ and $D<0$ on a
+left-neighborhood of $\bar b$.</p>
+<p>Feed this into $g_HN=g_LD$:</p>
+<div class="box key">
+$$\underbrace{g_H}_{\ge0}\underbrace{N}_{>0}\;=\;\underbrace{g_L}_{\ge0}\underbrace{D}_{<0}
+\;\Longrightarrow\; (\ge0)=(\le0)\;\Longrightarrow\; g_H=g_L=0 .$$
+</div>
+<p>Both densities are nonnegative (they <em>are</em> densities), so the left side is $\ge0$ and
+the right side is $\le0$ — the only escape is $g_H=g_L=0$ throughout a left-neighborhood of
+$\bar b$. But then $G_H,G_L$ are constant there and cannot rise to $1$ at $\bar b$: contradiction.
+So the common top $\bar b_H=\bar b_L$ cannot occur. $\blacksquare$</p>
+<p class="note"><b>Why this is cleaner than identifying a negative density.</b> We never need
+$\det A$, never need to know <em>which</em> density would go negative, and never need
+$g_H>0$ as a separate input. Both densities are nonnegative by definition; the exact relation
+$g_HN=g_LD$ with $N>0,D<0$ is already incompatible with that — a positive multiple of $g_H$
+equal to a negative multiple of $g_L$. Equivalently $g_L/g_H=N/D<0$, impossible for two
+nonnegative numbers. (In the $\ell=1$ file the same logic applies; there the triangular system
+happened to hand us $g_H>0$ explicitly, which is why the asymmetry went unnoticed.)</p>
+
+<h2>5. What this buys (vs. the $\ell=1$ argument and the old $\rho$ slicing)</h2>
+<ul class="note">
+<li><b>Rate-free.</b> Nothing assumes $(1-G_L)/(1-G_H)$ converges. The two surpluses are
+sign-definite for <em>all</em> small $s,t\ge0$; the relative rate never enters.</li>
+<li><b>Pointwise, not just $\limsup$.</b> The contradiction $g_L<0$ holds at every $b$ in a
+left-neighborhood of $\bar b$ — stronger than the $\ell=1$ $\limsup$ statement.</li>
+<li><b>The method, not the formula, generalizes.</b> The clean three-term identity of $\ell=1$
+is gone; what survives is: write the signed density's numerator, split off (I) the
+intimidation surplus $(\varphi_H-3\varphi_L)\times(\text{positive coeff})$ and (II) a purely
+polynomial surplus, and read both signs. The only model-specific labor is checking the two
+polynomial facts of §3.</li>
+<li><b>Intimidation enters exactly once</b>, through $\varphi_H>3\varphi_L$ near the top — i.e.
+the necessary condition $(1-\lambda)\bar v_H>\bar v_L$ at $\lambda=2/3$. Drop it and term (I)
+can flip; that is the boundary the result lives on.</li>
+</ul>
+
+<h2>6. Numerical check (intimidation $\bar v_H=4,\ \bar v_L=1$)</h2>
+<table>
+<tr><th>$G_H$</th><th>$G_L$</th><th>$\varphi_H$</th><th>$\varphi_L$</th><th>$g_H$</th><th>$g_L$</th></tr>
+<tr><td>0.970</td><td>0.940</td><td>3.90</td><td>0.95</td><td>4.153</td><td>&minus;3.925</td></tr>
+<tr><td>0.990</td><td>0.985</td><td>3.97</td><td>0.99</td><td>13.046</td><td>&minus;11.177</td></tr>
+<tr><td>0.999</td><td>0.997</td><td>3.997</td><td>0.999</td><td>85.948</td><td>&minus;95.059</td></tr>
+</table>
+<p class="note tag">$g_H>0$, $g_L<0$ throughout — the contradiction, confirmed numerically.
+Coefficients, the §4 identity, and $\det A$ all Symbolics-verified (residual 0).</p>
+
+</body>
+</html>

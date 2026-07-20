@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solving for g/f via the off-diagonal common term z</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<h1>Solving for $g/f$ via the off-diagonal common term $z$</h1>
+<p>Continuing from <code>foc-system-setup.html</code>. The system is
+$A\,(f,g)^\top=(1/\varphi_L,1/\varphi_H)^\top$ with $x=G_L$, $y=G_H$, $f=g_L$, $g=g_H$. Assume the
+off-diagonals are proportional with common polynomial $z$:</p>
+<div class="box">
+$$a_{12}=\beta\,z,\qquad a_{21}=\alpha\,z,\qquad \frac{\beta}{\alpha}=\frac{a_{12}}{a_{21}}=\frac{h}{\ell}\ \ (\alpha,\beta\in\mathbb Q).$$
+</div>
+
+<h2>1. Eliminate the right-hand side</h2>
+<p>Both FOCs equal $1$, so set them equal — $\varphi_L W_L'=\varphi_H W_H'$. The right-hand sides
+(and $\det A$) cancel, leaving one homogeneous equation in $(f,g)$:</p>
+<div class="box">
+$$\varphi_L\,(a_{11}f+a_{12}g)=\varphi_H\,(a_{21}f+a_{22}g)
+\;\Longrightarrow\;
+f\,(\varphi_L a_{11}-\varphi_H a_{21})=g\,(\varphi_H a_{22}-\varphi_L a_{12}).$$
+</div>
+<p>Hence the ratio, with no $\varphi$-reciprocals and no determinant:</p>
+<div class="box key">
+$$\frac{g}{f}=\frac{\varphi_L\,a_{11}-\varphi_H\,a_{21}}{\varphi_H\,a_{22}-\varphi_L\,a_{12}}.$$
+</div>
+
+<h2>2. Insert the common term $z$</h2>
+<p>Substituting $a_{21}=\alpha z$, $a_{12}=\beta z$:</p>
+<div class="box key">
+$$\frac{g}{f}=\frac{\varphi_L\,a_{11}-\alpha\,\varphi_H\,z}{\varphi_H\,a_{22}-\beta\,\varphi_L\,z}.$$
+</div>
+<p class="note">Reading it: $z$ enters <em>only</em> through the two cross terms — weighted by
+$\varphi_H$ (numerator) and $\varphi_L$ (denominator) — while the diagonals $a_{11}$ (the
+$\varphi_L$ term) and $a_{22}$ (the $\varphi_H$ term) sit untouched. Each line is
+"own-diagonal $\times$ own-$\varphi$ $-$ cross-$z$ $\times$ other-$\varphi$." Since
+$\beta=(h/\ell)\alpha$, the denominator's $z$-term is $(h/\ell)\,\alpha\,\varphi_L z$, so a single
+scalar $\alpha$ and the ratio $h/\ell$ carry all the off-diagonal content.</p>
+
+<h2>3. Instance — Draw 5 ($k=5,h=8,\ell=2$)</h2>
+<div class="box">
+$$z=(y-1)^3y^3(2xy-x-y),\quad \alpha=70,\ \beta=280\ \big(\beta/\alpha=4=h/\ell\big),$$
+$$a_{11}=70\,(y-1)^4y^4,\qquad a_{22}=35\,(y-1)^2y^2\big(14x^2y^2-14x^2y+3x^2-14xy^2+8xy+3y^2\big).$$
+</div>
+<p class="note">Numerically verified: the boxed $g/f$ formula matches the direct Cramer solve of
+$A(f,g)^\top=(1/\varphi_L,1/\varphi_H)^\top$ to machine precision (rtol $10^{-12}$), and
+$a_{12}/a_{21}=4=h/\ell$.</p>
+
+</body>
+</html>

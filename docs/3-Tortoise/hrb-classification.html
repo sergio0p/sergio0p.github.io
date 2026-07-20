@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hwang–Rey-Bellet classification of the round-1 game Γ(Δ,v₁,v₂)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Where the dynamic contest sits in the Hwang–Rey-Bellet classification</p>
+
+<p class="note">Round-1 reduced game $\Gamma(\Delta,v_1,v_2)$ of the two-round all-pay
+contest, decomposed à la Hwang &amp; Rey-Bellet (2020). Fully asymmetric:
+$v_1\neq v_2$, $\Delta\neq 0$. Kink-aligned discretization (the
+<code>Julia/solver/ce_lp.jl</code> convention): cases are indexed by rational
+reaches $(w_1,w_2,\Delta)$, $e_i\in[0,w_i]$, sharing one step
+$h=\gcd(w_1,w_2,\Delta)/m$; with $w_1=1$ and $w_2,\Delta\in\{k/9\}$ the gcd
+forces $h=\tfrac19$, so player 1 (favorite) gets exactly $10$ efforts (zero
+included) and player 2 the proportional count $w_2/h+1$ at the same step. Then
+every kink diagonal $e_1-e_2\in\{w_2-w_1-\Delta,\,w_2-\Delta,\,-w_1-\Delta\}$ and
+every cost argument is an exact lattice point, so branch selection is integer
+arithmetic — no kink-straddling. Values are induced: $v_i=c(w_i)$ (so $v_2$
+differs between quadratic and cubic at fixed reach). Three reach/lead variations,
+quadratic $c(e)=e^2$ and cubic $c(e)=e^3$, six cases; an even per-player grid
+($10$ points each, step $w_i/9$) is run alongside for comparison. Source:
+<code>Julia/solver/hrb_decomp.jl</code>; theory notes
+<code>Study/HwangReyBellet2020_decomposition_notes.md</code>.</p>
+
+<p class="section">1. The game we are classifying</p>
+
+<p>This is the contest in the <em>last but one</em> round: round 1 of the
+two-round game, with round 2 already folded in through its continuation value.
+A lead $\Delta = \text{score}_1-\text{score}_2$ stands after round 0; each player
+picks an effort $e_i\ge 0$ at cost $c(e_i)$; the round-2 lead is
+$\Delta_2 = \Delta + e_1 - e_2$. Payoffs use Lemma 1's continuation $U^T_i$
+(asymmetric form; the <em>rival's</em> reach sits inside each interior cost):</p>
+
+$$u_1(e_1,e_2) = U^T_1(\Delta_2) - c(e_1), \qquad u_2(e_1,e_2) = U^T_2(\Delta_2) - c(e_2),$$
+
+$$U^T_1(\Delta_2)=\begin{cases}0 & \Delta_2\le w_2-w_1\\ v_1-c(w_2-\Delta_2) & w_2-w_1<\Delta_2<w_2\\ v_1 & \Delta_2\ge w_2\end{cases}
+\qquad
+U^T_2(\Delta_2)=\begin{cases}v_2 & \Delta_2\le -w_1\\ v_2-c(w_1+\Delta_2) & -w_1<\Delta_2<w_2-w_1\\ 0 & \Delta_2\ge w_2-w_1\end{cases}$$
+
+<p>with reaches $w_i = c^{-1}(v_i)$. The point of interest: $U^T_1+U^T_2$ is
+<em>not</em> constant in $\Delta_2$. It equals $v_2$ for $\Delta_2\le -w_1$,
+falls to $0$ at the pivot $\Delta_2 = w_2-w_1$ (full dissipation: both
+continuations vanish), and rises to $v_1$ for $\Delta_2\ge w_2$. A constant-sum
+(zero-sum) game would need this sum flat. It is not — and that single fact is
+what the decomposition below turns into a number.</p>
+
+<p class="section">2. Hwang–Rey-Bellet, the one result we use</p>
+
+<p>HRB (Theorem 2.1) give a <em>unique orthogonal</em> decomposition of any
+finite or continuous normal-form game, under the inner product
+$\langle f,g\rangle = \sum_i \int f^{(i)}g^{(i)}\,dm$. Every game splits into
+four orthogonal pieces:</p>
+
+<div class="box">
+$$f \;=\; \underbrace{f_{\mathcal E}}_{\text{nonstrategic}}
+\;+\; \underbrace{f_{\mathcal B}}_{\substack{\text{own-strategy-only}\\\text{(dominant)}}}
+\;+\; \underbrace{\mathbf{SG}f}_{\mathcal I\cap\mathcal N\ \text{(identical interest)}}
+\;+\; \underbrace{(I-(\mathbf V+\mathbf P))f}_{\mathcal Z\cap\mathcal N\ \text{(zero-sum)}}$$
+</div>
+
+<p>$\mathcal N$ is the normalized subspace (each player's payoff averages to
+zero over their own strategy); $\mathcal I$ identical-interest (all players share
+one payoff); $\mathcal Z$ zero-sum; $\mathcal E$ nonstrategic (a player's payoff
+ignores their own move — strategically inert, dropped under strategic
+equivalence). The classification test (HRB D1):</p>
+
+<div class="box key">
+<p>$f$ is strategically zero-sum $\iff$ its identical-interest component
+$\mathbf{SG}f \equiv 0$.</p>
+<p class="note">A strategically zero-sum game has all Nash equilibria
+payoff-equivalent and (Moulin–Vial 1978; Pavlov 2025) a unique correlated
+equilibrium. So $\mathbf{SG}f$ is exactly the obstruction to that collapse:
+$\lVert\mathbf{SG}f\rVert$ measures how far $\Gamma$ stands from the tractable
+class.</p>
+</div>
+
+<p class="section">3. The decomposition made explicit for two players</p>
+
+<p>With $A=u_1$, $B=u_2$ the $n\times n$ payoff matrices (rows = P1's efforts,
+columns = P2's efforts), the four projections are elementary means. Centering an
+index means subtracting the average over it.</p>
+
+<p>Normalize (subtract each player's own-strategy mean — kills $\mathcal E$):
+$\hat A_{ij}=A_{ij}-\tfrac1n\sum_i A_{ij}$ (columns of $\hat A$ sum to $0$) and
+$\hat B_{ij}=B_{ij}-\tfrac1n\sum_j B_{ij}$ (rows of $\hat B$ sum to $0$).</p>
+
+<p>Peel the own-effort / dominant part $\mathcal B$: $g_i=\tfrac1n\sum_j\hat A_{ij}$
+(depends on $i$ only), $h_j=\tfrac1n\sum_i\hat B_{ij}$ (depends on $j$ only).
+The cost $c(e_i)$ lands here in full — it depends on own effort alone, so it
+never touches $\mathcal I$ or $\mathcal Z$.</p>
+
+<p>What remains is doubly-centered, $\tilde A = \hat A-g$ and
+$\tilde B=\hat B-h$ (rows <em>and</em> columns sum to zero), and splits cleanly:</p>
+
+$$\mathbf{SG}f = (G,G),\ \ G=\tfrac12(\tilde A+\tilde B)\ \ (\mathcal I\cap\mathcal N);
+\qquad
+(H,-H),\ \ H=\tfrac12(\tilde A-\tilde B)\ \ (\mathcal Z\cap\mathcal N).$$
+
+<p>Orthogonality is immediate ($\langle(G,G),(H,-H)\rangle=0$) and was checked
+numerically: $\lVert\text{strategic}\rVert^2-(\lVert\mathcal B\rVert^2+\lVert\mathcal I\rVert^2+\lVert\mathcal Z\rVert^2)$
+sits at $10^{-15}$ in every case. The zero-sum test reads off directly: $G=0
+\iff \tilde A=-\tilde B$. We report $\lVert\mathcal I\cap\mathcal N\rVert=\sqrt2\,\lVert G\rVert$,
+$\lVert\mathcal Z\cap\mathcal N\rVert=\sqrt2\,\lVert H\rVert$, and the
+coupling share
+$\rho_{\mathcal I}=\lVert\mathcal I\rVert^2/(\lVert\mathcal I\rVert^2+\lVert\mathcal Z\rVert^2)$
+— the fraction of the genuinely-coupled interaction (the part where one player's
+move changes the other's incentives) that is common-interest rather than
+conflict.</p>
+
+<p class="section">4. The six cases, aligned grid</p>
+
+<p>Three fully-asymmetric variations indexed by reaches $(w_1,w_2,\Delta)$, each
+with quadratic $c(e)=e^2$ and cubic $c(e)=e^3$. Pivot $=w_2-w_1$. V1 and V2 keep
+the underdog active (pivot reachable on the grid); V3 has the underdog shut out
+of round 2. Norms are in the uniform reference measure on the (now rectangular)
+effort grid; the orthogonality residual
+$\lVert\text{strategic}\rVert^2-(\lVert\mathcal B\rVert^2+\lVert\mathcal I\rVert^2+\lVert\mathcal Z\rVert^2)$
+sits at $10^{-15}$ in every case.</p>
+
+<div class="box">
+<table>
+<tr><th></th><th>$w_1$</th><th>$w_2$</th><th>$\Delta$</th><th>cost</th><th>$v_1$</th><th>$v_2$</th><th>grid</th><th>$\lVert\mathcal I\cap\mathcal N\rVert$</th><th>$\lVert\mathcal Z\cap\mathcal N\rVert$</th><th>$\lVert\mathcal B\rVert$</th><th>$\rho_{\mathcal I}$</th><th>0-sum?</th></tr>
+<tr><td>V1</td><td>$1$</td><td>$\tfrac79$</td><td>$\tfrac29$</td><td>quad</td><td>1.000</td><td>0.605</td><td>$10\times8$</td><td>0.790</td><td>0.818</td><td>2.101</td><td>0.482</td><td>no</td></tr>
+<tr><td>V1</td><td>$1$</td><td>$\tfrac79$</td><td>$\tfrac29$</td><td>cubic</td><td>1.000</td><td>0.471</td><td>$10\times8$</td><td>0.923</td><td>1.068</td><td>2.217</td><td>0.427</td><td>no</td></tr>
+<tr><td>V2</td><td>$1$</td><td>$\tfrac89$</td><td>$\tfrac49$</td><td>quad</td><td>1.000</td><td>0.790</td><td>$10\times9$</td><td>0.897</td><td>0.980</td><td>2.714</td><td>0.456</td><td>no</td></tr>
+<tr><td>V2</td><td>$1$</td><td>$\tfrac89$</td><td>$\tfrac49$</td><td>cubic</td><td>1.000</td><td>0.702</td><td>$10\times9$</td><td>1.023</td><td>1.259</td><td>2.754</td><td>0.398</td><td>no</td></tr>
+<tr><td>V3</td><td>$1$</td><td>$\tfrac59$</td><td>$\tfrac29$</td><td>quad</td><td>1.000</td><td>0.309</td><td>$10\times6$</td><td>0.450</td><td>0.450</td><td>2.096</td><td>0.500</td><td>no</td></tr>
+<tr><td>V3</td><td>$1$</td><td>$\tfrac59$</td><td>$\tfrac29$</td><td>cubic</td><td>1.000</td><td>0.171</td><td>$10\times6$</td><td>0.420</td><td>0.420</td><td>2.251</td><td>0.500</td><td>no</td></tr>
+</table>
+</div>
+
+<div class="box key">
+<p>In every one of the six cases $\lVert\mathcal I\cap\mathcal N\rVert>0$:
+the round-1 game is <em>not</em> strategically zero-sum, and not a potential game
+either. It is HRB-general — a genuine mixture, with the conflict ($\mathcal Z$)
+and common-interest ($\mathcal I$) components comparable in size
+($\rho_{\mathcal I}\approx 0.40$–$0.50$), sitting on top of a large own-effort
+component $\mathcal B$ (the cost, whose dominant action is "bid $0$").</p>
+</div>
+
+<p>Does aligning the grid change the picture? Running an even per-player grid
+($10$ points each, step $w_i/9$, kinks generally off-grid) on the identical
+$(w_1,w_2,\Delta,c)$ isolates the alignment effect:</p>
+
+<div class="box">
+<table>
+<tr><th>case</th><th>$\lVert\mathcal I\cap\mathcal N\rVert$ even</th><th>aligned</th><th>$\rho_{\mathcal I}$ even</th><th>aligned</th></tr>
+<tr><td>V1 quad</td><td>0.846</td><td>0.790</td><td>0.4707</td><td>0.4822</td></tr>
+<tr><td>V1 cubic</td><td>0.984</td><td>0.923</td><td>0.4141</td><td>0.4273</td></tr>
+<tr><td>V2 quad</td><td>0.917</td><td>0.897</td><td>0.4451</td><td>0.4559</td></tr>
+<tr><td>V2 cubic</td><td>1.038</td><td>1.023</td><td>0.3835</td><td>0.3978</td></tr>
+<tr><td>V3 quad</td><td>0.544</td><td>0.450</td><td>0.5000</td><td>0.5000</td></tr>
+<tr><td>V3 cubic</td><td>0.503</td><td>0.420</td><td>0.5000</td><td>0.5000</td></tr>
+</table>
+</div>
+
+<p>The verdict is invariant. The magnitudes drop $5$–$18\%$ under alignment, but
+only because the aligned grid shares one step, so player 2 carries fewer cells
+($8$/$9$/$6$ rather than $10$) and the Frobenius norm scales with cell count —
+not because the structure changes. The classification ratio $\rho_{\mathcal I}$
+moves by at most $0.014$, and the shut-out value $\rho_{\mathcal I}=\tfrac12$ is
+exact on <em>both</em> grids. Alignment buys exactness at the kinks, not a
+different conclusion.</p>
+
+<p class="section">5. Reading the numbers</p>
+
+<p>The three regimes the table and the sweep below trace out:</p>
+
+<p>(a) The exact $\rho_{\mathcal I}=\tfrac12$ in case V3 (both costs) is
+structural, not coincidence, and the aligned grid makes the threshold crisp.
+There $\Delta\ge 2w_2-w_1$ (for V3, $\tfrac29\ge 2\cdot\tfrac59-1=\tfrac19$), so
+the smallest $\Delta_2$ on the grid, $\Delta-w_2$, already meets or exceeds the
+pivot $w_2-w_1$: player 2 is shut out of round 2 everywhere ($U^T_2\equiv 0$),
+leaving $u_2=-c(e_2)$, pure own-effort. Then $\tilde B=0$, so $G=H=\tilde A/2$,
+giving $\lVert\mathcal I\rVert=\lVert\mathcal Z\rVert$ to every digit and the
+coupled interaction splitting exactly half common-interest, half zero-sum. The
+underdog's continuation has gone flat; all coupling now flows through $U^T_1$
+alone. (This held to floating-point on the even grid too — it does not depend on
+alignment, only on the underdog being shut out.)</p>
+
+<p>(b) When the underdog is still in contention (V1, V2: pivot reachable on the
+grid), both continuations vary, $\tilde B\neq 0$, and $\rho_{\mathcal I}$ pulls
+away from $\tfrac12$ — toward conflict ($\rho_{\mathcal I}<\tfrac12$) here, since
+the two players' normalized payoffs disagree more than they agree once both are
+active. Cubic cost amplifies this (sharper marginal cost near the kinks
+$\Rightarrow$ larger $\mathcal Z$), pushing $\rho_{\mathcal I}$ down to $0.40$.</p>
+
+<p>(c) The common-interest obstruction dies as the lead trivializes round 2.
+Sweeping $\Delta=d/9$ on the aligned grid (quadratic, $w_1=1,\,w_2=\tfrac79$):</p>
+
+<div class="box">
+<table>
+<tr><th>$\Delta$</th><th>$0$</th><th>$\tfrac29$</th><th>$\tfrac49$</th><th>$\tfrac79$</th><th>$\tfrac{11}{9}$</th><th>$\tfrac{14}{9}$</th></tr>
+<tr><td>$\lVert\mathcal I\cap\mathcal N\rVert$</td><td>1.033</td><td>0.790</td><td>0.743</td><td>0.446</td><td>0.074</td><td>0.000</td></tr>
+<tr><td>$\lVert\mathcal Z\cap\mathcal N\rVert$</td><td>0.664</td><td>0.818</td><td>0.780</td><td>0.446</td><td>0.074</td><td>0.000</td></tr>
+<tr><td>$\rho_{\mathcal I}$</td><td>0.708</td><td>0.482</td><td>0.476</td><td>0.500</td><td>0.500</td><td>—</td></tr>
+</table>
+</div>
+
+<p>Two thresholds now sit exactly on the lattice. The underdog is shut out once
+$\Delta\ge 2w_2-w_1=\tfrac59$ ($d\ge 5$); from there $\rho_{\mathcal I}$ snaps to
+exactly $\tfrac12$ ($d=7,11$). And once $\Delta\ge 2w_2=\tfrac{14}{9}$ ($d=14$),
+even $U^T_1$ is constant ($=v_1$) across the whole grid: P1 has already won round
+2 no matter what. Both coupled components vanish to $0.000000$, the game collapses
+to pure own-effort $\mathcal B$ (a dominant-strategy game, bid $0$), and the HRB
+obstruction is exactly $0$ — round 2 dead $\Rightarrow$ static all-pay limit
+$\Rightarrow$ back inside the zero-sum class. The interesting region is the live
+one, where $\lVert\mathcal I\cap\mathcal N\rVert$ is bounded away from zero.</p>
+
+<p class="section">6. How $\Gamma$ fits the classification, and why it matters</p>
+
+<p>The classification verdict is uniform across costs, values, and leads, as long
+as round 2 is live: $\Gamma(\Delta,v_1,v_2)$ is an HRB-<em>general</em> game with
+a nonzero identical-interest component. It is neither a (strategically) zero-sum
+game nor a potential game. The nonzero $\mathcal I\cap\mathcal N$ is the direct
+fingerprint of the non-constant continuation sum $U^T_1+U^T_2$ — the dynamic
+linkage that makes the round-1 game more than a relabeled static auction.</p>
+
+<div class="box key">
+<p>This is exactly the property the project needs. A strategically zero-sum game
+has all NE payoff-equivalent and a unique CE (Moulin–Vial; Pavlov 2025; the
+static all-pay auction is in this class). The chain
+$u_1^\ast(1,1)>u_1^\ast(1,2)>u_1^\ast(2,2)>\cdots$ of payoff-<em>distinct</em>
+equilibria can only exist <em>because</em> $\Gamma$ escapes that class. The
+decomposition makes "escapes" quantitative and certifies it: the escape is
+witnessed by $\lVert\mathbf{SG}\,\Gamma\rVert>0$, and it shuts off precisely when
+the lead kills round 2 — collapsing the dynamic contest back onto the static
+all-pay auction Hillman–Riley / Baye–Kovenock / Pavlov already settled.</p>
+</div>
+
+<p class="note">Caveats. (i) The grid is now kink-aligned, so branch selection is
+exact and the structural facts ($\rho_{\mathcal I}=\tfrac12$ when the underdog is
+shut out; $\lVert\mathcal I\rVert=\lVert\mathcal Z\rVert$ there; vanishing at
+$\Delta=2w_2$) are exact rather than approximate. It is still coarse: P1 carries
+$10$ efforts but P2 only $w_2/h+1\in\{6,8,9\}$ at the shared step, so absolute
+norms understate a continuum value and scale with cell count (the $5$–$18\%$
+even-vs-aligned gap is exactly this). The qualitative verdict
+($\lVert\mathcal I\rVert>0$, sign of $\rho_{\mathcal I}-\tfrac12$) is grid-robust;
+refining $m$ (a finer shared step) would firm up the magnitudes. (ii) Norms are
+reported in the uniform counting measure on the effort grid; a different
+reference rescales the magnitudes but not the zero/non-zero verdict. (iii) This classifies the round-1 reduced game; the
+reduction to $U^T$ is payoff-safe because round-2 continuations are unique
+(see <code>TODO.md</code> CE caveat (i)). (iv) A bound relating the NE/CE payoff
+spread to $\lVert\mathbf{SG}\,\Gamma\rVert$ would be new work — it is not in HRB
+(their Prop 4.1 is finite-symmetric only) — and pairs naturally with the
+discretized CE LP probe in <code>TODO.md</code>.</p>
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maximizing u₂ over correlated equilibria — general (v₁,v₂,Δ)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ]
+          });"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+                     "Liberation Sans", Arial, sans-serif;
+         max-width: 900px; margin: 2em auto; padding: 0 1em; line-height: 1.55; color: #1a1a1a; }
+  h1 { font-size: 1.6em; margin-top: 0.2em; }
+  h2 { font-size: 1.2em; border-bottom: 1px solid #ddd; padding-bottom: 0.2em; margin-top: 1.8em; }
+  h3 { font-size: 1.02em; margin-top: 1.3em; }
+  .meta { color: #666; font-size: 0.92em; }
+  .formula-box { background: #f7f7fb; border-left: 3px solid #5b6ee1;
+                 padding: 0.8em 1.2em; margin: 1em 0; border-radius: 4px; }
+  .summary { background: #fff8e1; padding: 0.6em 1em; border-radius: 4px;
+             border-left: 3px solid #f0a500; margin: 1em 0; }
+  .thm { background: #eef7ee; padding: 0.7em 1.1em; border-radius: 4px;
+         border-left: 3px solid #4a9e4a; margin: 1em 0; }
+  .warn { background: #fdecec; padding: 0.6em 1em; border-radius: 4px;
+          border-left: 3px solid #d9534f; margin: 1em 0; }
+  table { border-collapse: collapse; margin: 0.8em 0; font-size: 0.95em; }
+  th, td { padding: 0.35em 0.8em; text-align: center; border-bottom: 1px solid #e0e0e0; }
+  th { background: #f0f0f4; }
+  code { background: #f2f2f5; padding: 0.05em 0.35em; border-radius: 3px; }
+  .figcap { font-size: 0.9em; color: #555; margin-top: 0.3em; }
+</style>
+</head>
+<body>
+
+<h1>Maximizing $u_2$ over correlated equilibria</h1>
+<p class="meta">A <em>symbolic</em> characterization of the $u_2$-maximizing correlated equilibrium
+of the round-1 reduced game, for <strong>general valuations $v_1,v_2$ and lead $\Delta$</strong>,
+quadratic cost $c(e)=e^2$. The whole family collapses to two numbers
+$r=\sqrt{v_2/v_1}$ and $\delta=\Delta/\sqrt{v_1}$; every object below is closed-form in $(r,\delta)$.
+The symmetric case $v_1=v_2$ is the single line $r=1$. Numbers in §7 are illustrative examples and
+a solver cross-check.</p>
+
+<div class="summary">
+<strong>The result in one line.</strong> Write $r=\sqrt{v_2/v_1}$ (relative reach) and
+$\delta=\Delta/\sqrt{v_1}$ (effective lead). On an explicit window of $(r,\delta)$ the
+$u_2$-maximizing correlated equilibrium is a <em>three-atom</em> device whose entire description is
+closed-form. Its key parameter — player&nbsp;2's attack effort — is
+$$\boxed{\ \beta^\star=\frac{K+\sqrt{-2K}}{\,r-\delta\,},\qquad K=(r+2)(r-1)-\delta(r+1)\ }$$
+(real units $\beta^\star_{\!*}=\sqrt{v_1}\,\beta^\star$), and the attained payoff is
+$\max_{\mathrm{CE}}u_2=v_1\,p_1\,(r^2-2\beta^{\star2})>0$. <strong>Whenever this value is positive it
+is achieved by no Nash equilibrium</strong> — correlation is strictly essential. At $r=1$ this
+reduces to the symmetric $\beta^\star=2\sqrt\Delta/(1+\sqrt\Delta)$.
+</div>
+
+<h2>1. The game and the two-parameter reduction</h2>
+
+<p>Players choose efforts $e_1,e_2\ge0$; the round-2 lead is $\Delta_2=\Delta+e_1-e_2$. With reaches
+$w_1=\sqrt{v_1},\ w_2=\sqrt{v_2}$ (so $c(w_i)=v_i$) and quadratic cost, the Lemma-1 continuations are
+piecewise quadratic, each player's interior branch governed by the <em>rival's</em> reach:</p>
+
+<div class="formula-box">
+$$U_1(z)=\begin{cases}0 & z\le w_2-w_1\\ v_1-(w_2-z)^2 & w_2-w_1<z<w_2\\ v_1 & z\ge w_2\end{cases}
+\qquad
+U_2(z)=\begin{cases}v_2 & z\le -w_1\\ v_2-(w_1+z)^2 & -w_1<z<w_2-w_1\\ 0 & z\ge w_2-w_1\end{cases}$$
+$$u_1=U_1(\Delta_2)-e_1^2,\qquad u_2=U_2(\Delta_2)-e_2^2,\qquad \Delta_2=\Delta+e_1-e_2.$$
+</div>
+
+<p><strong>Dead zone.</strong> $U_2(z)=0$ for all $z\ge w_2-w_1$: to earn anything in round&nbsp;2,
+player&nbsp;2 must overspend the effective lead, $e_2>\Delta+e_1-(w_2-w_1)$.</p>
+
+<p><strong>Two free parameters.</strong> The rescaling $e_i\mapsto w_1e_i$, $\Delta\mapsto w_1\Delta$,
+payoff $\mapsto v_1\cdot(\text{payoff})$ is an exact symmetry. It sends $(w_1,w_2,\Delta)$ to
+$(1,\ r,\ \delta)$ with</p>
+<div class="formula-box">
+$$r=\frac{w_2}{w_1}=\sqrt{\frac{v_2}{v_1}},\qquad \delta=\frac{\Delta}{w_1}=\frac{\Delta}{\sqrt{v_1}},
+\qquad(\text{normalized } v_1=1,\ v_2=r^2).$$
+</div>
+<p>So the entire family depends only on $(r,\delta)$. <em>We work in normalized units and restore by</em>
+$\beta^\star_{\!*}=w_1\beta^\star$, efforts $\times w_1$, payoffs $\times v_1$. The best replies are
+$\mathrm{BR}_1(e_2)=\tfrac{r-\delta+e_2}{2}$ and $\mathrm{BR}_2(e_1)=\tfrac{1+\delta+e_1}{2}$.
+$r<1$ is the regime of interest (player&nbsp;1 the stronger valuation, $v_1>v_2$); $r=1$ is symmetric.</p>
+
+<h2>2. The window of interest</h2>
+
+<p>The construction is the maximizer on an explicit open window of $(r,\delta)$, bounded by two
+structural events (derived in §§5–6):</p>
+
+<div class="formula-box">
+$$\delta_{\min}(r)=2r+1-2\sqrt2\quad(a_{\mathrm{lo}}=0),\qquad
+\delta_{\max}(r)=\frac{\tfrac12 r^3+c_1\,(r^2+r-2)}{\tfrac12 r^2+c_1\,(r+1)},\quad c_1=1+(1-\sqrt2)\,r
+\quad(\beta^\star=\tfrac{r}{\sqrt2}).$$
+$$\text{window}\;=\;\big(\max(0,\delta_{\min}(r)),\ \delta_{\max}(r)\big).$$
+</div>
+
+<ul>
+<li><strong>Lower edge $\delta_{\min}=2r+1-2\sqrt2$.</strong> Here the hedge atom collapses
+($a_{\mathrm{lo}}\!\downarrow\!0$) and the maximum is attained without correlation. For
+$r<\tfrac{2\sqrt2-1}{2}\approx0.914$ this edge is negative, so for all physical $\delta>0$ the hedge
+atom is present and the binding lower limit is simply $\delta>0$.</li>
+<li><strong>Upper edge $\delta_{\max}(r)$.</strong> Here player&nbsp;2's best attack stops paying,
+$r^2-2\beta^{\star2}\!\downarrow\!0$ ($\beta^\star\!\uparrow\!r/\sqrt2$); player&nbsp;2 concedes and
+$\max_{\mathrm{CE}}u_2=0$ (dead-CE).</li>
+</ul>
+
+<p>As player&nbsp;2 weakens ($r\downarrow$) the window slides toward smaller leads and narrows,
+<strong>closing at $r_{\mathrm{crit}}\approx0.84$, i.e. $v_1\approx1.42\,v_2$</strong> (where
+$\delta_{\max}=0$); beyond that $\max_{\mathrm{CE}}u_2=0$ for every $\Delta$. The symmetric endpoints
+are recovered at $r=1$: $\delta_{\min}=3-2\sqrt2\approx0.1716$,
+$\delta_{\max}=\tfrac{9+4\sqrt2}{49}\approx0.2991$.</p>
+
+<div class="thm">
+<strong>Proposition (correlation is essential).</strong> On the window the unique Nash payoff for
+player&nbsp;2 is $0$ — the only equilibrium on the $u_2$-axis is the pure profile
+$\big(\tfrac{w_2-\Delta}{2},0\big)$. The CE that maximizes $u_2$ delivers a strictly positive payoff
+$v_1\,p_1(r^2-2\beta^{\star2})>0$. Hence <em>the max-$u_2$ CE, whenever $u_2>0$, is never a Nash
+equilibrium.</em>
+</div>
+
+<h2>3. The maximizing device</h2>
+
+<p>The optimum is supported on the product grid
+$\{a_{\mathrm{lo}},a_{\mathrm{hi}}\}\times\{0,\beta^\star\}$ with three atoms:</p>
+
+<table>
+<tr><th>cell</th><th>$(e_1,e_2)$</th><th>weight</th><th>reading</th></tr>
+<tr><td>$C_1$ (attack)</td><td>$(a_{\mathrm{lo}},\,\beta^\star)$</td><td>$p_1$</td>
+    <td>P1 hedges low, P2 attacks — the only cell paying P2</td></tr>
+<tr><td>$C_0$ (hedge)</td><td>$(a_{\mathrm{lo}},\,0)$</td><td>$p_0$</td>
+    <td>P1 hedges low, P2 stays</td></tr>
+<tr><td>$C_H$ (commit)</td><td>$(a_{\mathrm{hi}},\,0)$</td><td>$p_H$</td>
+    <td>P1 commits high, P2 stays</td></tr>
+</table>
+
+<p>The signals are <em>correlated</em>: P1's low recommendation $a_{\mathrm{lo}}$ is paired with both of
+P2's actions, so on seeing $a_{\mathrm{lo}}$ player&nbsp;1 is unsure whether P2 attacks; and on seeing
+"stay" player&nbsp;2 is unsure whether P1 hedged or committed. The two conditional beliefs are</p>
+<div class="formula-box">
+$$\lambda=\Pr(e_2{=}0\mid a_{\mathrm{lo}})=\frac{p_0}{p_1+p_0},\qquad
+\rho=\Pr(e_1{=}a_{\mathrm{lo}}\mid e_2{=}0)=\frac{p_0}{p_0+p_H}.$$
+</div>
+
+<h2>4. The smooth skeleton (first-order conditions)</h2>
+
+<p>Three of the four obedience constraints are interior and fix the atoms in closed form:</p>
+
+<div class="formula-box">
+$$a_{\mathrm{hi}}=\mathrm{BR}_1(0)=\frac{r-\delta}{2},\qquad
+a_{\mathrm{lo}}=2\beta^\star-1-\delta\ \Longleftrightarrow\ \beta^\star=\mathrm{BR}_2(a_{\mathrm{lo}})=\frac{1+\delta+a_{\mathrm{lo}}}{2},$$
+$$\lambda=\frac{a_{\mathrm{lo}}}{(r-\delta)-a_{\mathrm{lo}}},\qquad\qquad
+u_2(\text{attack cell})=r^2-2\beta^{\star2}\quad(\text{in }v_1\text{ units}).$$
+</div>
+
+<p>$a_{\mathrm{hi}}$ is P1's unconstrained best reply to a quiet P2; $a_{\mathrm{lo}}$ is her best reply
+when hedging (she believes P2 attacks w.p. $1-\lambda$, against which she is in the dead zone); and
+$\beta^\star$ is P2's best attack against $a_{\mathrm{lo}}$. The attack-FOC substitution gives the clean
+identity $u_2(\text{attack})=r^2-2\beta^{\star2}$ used throughout. This leaves $\beta^\star$
+(equivalently $a_{\mathrm{lo}},\lambda$) and $\rho$ undetermined — pinned by the two <em>global</em>
+incentive constraints the first-order approach misses (the all-pay payoff is non-concave across the
+dead zone).</p>
+
+<h2>5. The two global constraints, solved</h2>
+
+<h3>5.1 Player&nbsp;1 must not counter-attack &rarr; $\beta^\star$</h3>
+
+<p>Seeing $a_{\mathrm{lo}}$, player&nbsp;1's profitable global deviation is to jump up and beat the
+attacking P2, to $e_1^{c}=\tfrac12\big[(r-\delta)+(1-\lambda)\beta^\star\big]$. Obedience binds at
+indifference $V_1^{\mathrm{mix}}(a_{\mathrm{lo}})=V_1^{\mathrm{mix}}(e_1^{c})$. Clearing denominators
+turns this into a <strong>cubic in $\beta$</strong> (for <em>every</em> $r$). It always carries the
+spurious root $\beta=\tfrac{2+\delta+r}{4}$ — the degenerate point $a_{\mathrm{lo}}=a_{\mathrm{hi}}$.
+Factoring it out leaves a quadratic,</p>
+
+<div class="formula-box">
+$$(r-\delta)\,\beta^2-2K\,\beta+(r+1)K=0,\qquad K=(r+2)(r-1)-\delta(r+1).$$
+</div>
+
+<p>The discriminant collapses for a structural reason — the identity
+$K-(r-\delta)(r+1)\equiv-2$ holds for all $(r,\delta)$ — so $b^2-4ac=4K\!\cdot\!2=(-)(\,\cdots\,)$
+reduces to $-2K$ and</p>
+
+<div class="formula-box">
+$$\boxed{\ \beta^\star=\frac{K+\sqrt{-2K}}{\,r-\delta\,}\ }\qquad
+\text{real}\iff K<0\ \big(\text{automatic for }r\le1\big).$$
+</div>
+
+<p>At $r=1$: $K=-2\delta$, the quadratic is $(1-\delta)\beta^2+4\delta\beta-4\delta=0$, and
+$\beta^\star=\tfrac{2\sqrt\delta-2\delta}{1-\delta}=\tfrac{2\sqrt\delta}{1+\sqrt\delta}$ — the symmetric
+formula. The atoms follow: $a_{\mathrm{lo}}=2\beta^\star-1-\delta$, and the lower edge
+$a_{\mathrm{lo}}=0$ gives $\delta_{\min}=2r+1-2\sqrt2$ (the cubic in $\delta$ factors as
+$(\delta-r)\big[\delta^2-(4r+2)\delta+(4r^2+4r-7)\big]$, whose relevant root has discriminant exactly
+$32$). The upper edge $r^2-2\beta^{\star2}=0\Leftrightarrow\beta^\star=r/\sqrt2$ gives
+$\delta_{\max}(r)$ of §2.</p>
+
+<h3>5.2 Player&nbsp;2 must not attack when told to stay &rarr; $\rho$</h3>
+
+<p>Seeing "stay", player&nbsp;2 (believing P1 hedged w.p. $\rho$) could deviate two ways: a
+<em>partial</em> attack beating only the weak atom $a_{\mathrm{lo}}$, or a <em>full</em> attack beating
+both. Each yields a cap; the binding one is the smaller.</p>
+
+<div class="formula-box">
+$$\rho^\star=\min\!\big(\rho_{\text{part}},\,\rho_{\text{full}}\big),\qquad
+\rho_{\text{part}}=\frac{4\beta^{\star2}}{r^2}-1,$$
+$$\rho_{\text{full}}=\frac{\sqrt{\,g_{\mathrm{lo}}^2+g_{\mathrm{hi}}^2-2r^2\,}-2\beta^\star}{a_{\mathrm{hi}}-a_{\mathrm{lo}}},
+\qquad g_{\mathrm{lo}}=2\beta^\star,\quad g_{\mathrm{hi}}=\frac{2+\delta+r}{2}=1+\delta+a_{\mathrm{hi}}.$$
+</div>
+<p>The partial cap binds for smaller leads, the full-attack root for larger leads. At $r=1$ these
+recover $\rho_{\text{part}}=4\beta^{\star2}-1$ and
+$\rho_{\text{full}}=\big[\sqrt{8\beta^{\star2}+4\beta^\star g+g^2-2}-2\beta^\star\big]/g$,
+$g=a_{\mathrm{hi}}-a_{\mathrm{lo}}$.</p>
+
+<h2>6. The optimal weights and value</h2>
+
+<p>Both global constraints bind: the value $\mathbb E[u_2]=p_1(r^2-2\beta^{\star2})$ is decreasing in
+$\beta$ (so $\beta$ is pushed to its floor, §5.1) and increasing in $\rho$ (so $\rho$ is pushed to its
+cap, §5.2). The beliefs then fix the weights:</p>
+
+<div class="formula-box">
+$$p_1=\frac{(1-\lambda)\,\rho^\star}{\lambda+(1-\lambda)\rho^\star},\qquad
+p_0=\frac{\lambda}{1-\lambda}\,p_1,\qquad p_H=\frac{1-\rho^\star}{\rho^\star}\,p_0,$$
+$$\boxed{\ \max_{\mathrm{CE}}u_2=v_1\,p_1\,(r^2-2\beta^{\star2})\ }$$
+$$\mathbb E[u_1]=v_1\Big(-p_1a_{\mathrm{lo}}^2+p_0\big[1-(r{+}1{-}2\beta^\star)^2-a_{\mathrm{lo}}^2\big]+p_H\big[1-2a_{\mathrm{hi}}^2\big]\Big).$$
+</div>
+
+<p>Everything on the right is a closed-form function of $(r,\delta)$, with overall scale $v_1$. This is
+the complete characterization for general $(v_1,v_2,\Delta)$.</p>
+
+<h2>7. The shape of the whole CE payoff set</h2>
+
+<p>A corollary of the analysis concerns the entire set of CE payoffs
+$\mathcal U=\{(u_1(\mu),u_2(\mu)):\mu\text{ a CE}\}$, not just its $u_2$-maximal point — and explains a
+qualitative change in its shape as the asymmetry grows.</p>
+
+<div class="thm">
+<strong>Lemma (convexity).</strong> $\mathcal U$ is convex. The correlated equilibria are the
+distributions satisfying the linear obedience inequalities — a convex set — and the payoff map
+$\mu\mapsto(u_1,u_2)$ is linear, so its image is convex. On a fixed effort grid $\mathcal U$ is exactly
+a convex polygon; in the continuum it is convex with a possibly curved boundary.
+</div>
+
+<p><strong>Triangle vs. curved frontier.</strong> Public randomization between any two CE is a CE, so
+the whole chord joining two payoff points lies in $\mathcal U$; the only question is whether anything
+sits northeast of it. If every efficient CE is just a mixture of the two single-player-optimal anchors,
+the Pareto frontier collapses onto that chord and $\mathcal U$ is the <em>triangle</em>
+$(0,0)$–$(u_1^{\max},0)$–$(0,u_2^{\max})$. That is the degenerate, knife-edge case. Generically,
+intermediate welfare weights are served by <em>genuinely different</em> correlation devices that beat
+those mixtures on both margins, sweeping out a continuum of distinct extreme CE — a strictly convex,
+<em>curved</em> frontier.</p>
+
+<p><strong>Why the P1-dominant regime curves.</strong> In the balanced regime the origin is itself a CE:
+each player can be held to zero — P2 concedes, and enough threatened attacks pin P1 — so the lower-left
+corner sits exactly at $(0,0)$ and the two axes are edges. Push $(v_1,\Delta)$ into the P1-dominant
+regime and <strong>P1 can no longer be held to zero</strong>: with P2 conceding, P1's best reply
+$a_{\mathrm{hi}}$ earns strictly positive $u_1$, and a high-valuation P1 is too expensive for P2 to
+suppress. Hence $\min_{\mathrm{CE}}u_1>0$, the origin <em>drops out</em> of $\mathcal U$, and the corner
+that used to sit at $(0,0)$ lifts into a curve — the <strong>min-$u_1$ frontier</strong>: for each level
+of $u_2$, the cheapest-for-P2 way to hold P1 down, varying continuously with how much $u_2$ P2 insists
+on.</p>
+
+<p>This dovetails with §6: the max-$u_2$ vertex is $(\mathbb E[u_1],\,u_2^{\max})$ with
+$\mathbb E[u_1]>0$ (e.g. $0.106$ at $v_1{=}v_2{=}1,\ \Delta{=}0.28$) — already <em>off</em> the
+$u_2$-axis. $\mathcal U$ has detached from both the origin and the $u_1{=}0$ axis, and the left boundary
+joining that vertex down to $(\min u_1,0)$ is a genuine arc, not an edge.</p>
+
+<svg viewBox="0 0 640 250" width="100%" style="max-width:640px;display:block;margin:1em auto"
+     font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="12">
+  <!-- ===== Panel A: balanced ===== -->
+  <polygon points="60,200 250,200 60,55" fill="#e9ecfb" stroke="#5b6ee1" stroke-width="1.6"/>
+  <line x1="60" y1="200" x2="295" y2="200" stroke="#444" stroke-width="1"/>
+  <line x1="60" y1="200" x2="60" y2="28" stroke="#444" stroke-width="1"/>
+  <polygon points="295,200 287,196 287,204" fill="#444"/>
+  <polygon points="60,28 56,36 64,36" fill="#444"/>
+  <text x="299" y="204">u₁</text><text x="50" y="24">u₂</text>
+  <circle cx="60" cy="200" r="2.6" fill="#333"/>
+  <text x="40" y="216">(0,0)</text>
+  <text x="214" y="216">(u₁ᵐᵃˣ,0)</text>
+  <text x="10" y="55">(0,u₂ᵐᵃˣ)</text>
+  <text x="155" y="240" text-anchor="middle" font-weight="bold">balanced: NE with both u₁&gt;0 and u₂&gt;0</text>
+
+  <!-- ===== Panel B: P1-dominant ===== -->
+  <path d="M 470,200 L 585,200 Q 568,100 480,72 Q 423,140 470,200 Z"
+        fill="#fdecec" stroke="#d9534f" stroke-width="1.6"/>
+  <line x1="395" y1="200" x2="630" y2="200" stroke="#444" stroke-width="1"/>
+  <line x1="395" y1="200" x2="395" y2="28" stroke="#444" stroke-width="1"/>
+  <polygon points="630,200 622,196 622,204" fill="#444"/>
+  <polygon points="395,28 391,36 399,36" fill="#444"/>
+  <text x="634" y="204">u₁</text><text x="385" y="24">u₂</text>
+  <!-- excluded origin -->
+  <circle cx="395" cy="200" r="3.2" fill="white" stroke="#333" stroke-width="1.2"/>
+  <text x="372" y="216">(0,0)</text>
+  <text x="349" y="228" fill="#d9534f">∉ 𝒰</text>
+  <!-- annotations -->
+  <circle cx="480" cy="72" r="2.6" fill="#b13" />
+  <text x="486" y="68">(E[u₁], u₂ᵐᵃˣ)</text>
+  <circle cx="447" cy="138" r="2.6" fill="#b13"/>
+  <text x="334" y="123">min-u₁</text>
+  <text x="330" y="138">frontier</text>
+  <line x1="368" y1="134" x2="442" y2="138" stroke="#b13" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <text x="500" y="216">(u₁ᵐᵃˣ,0)</text>
+  <text x="512" y="240" text-anchor="middle" font-weight="bold">P1-dominant: no NE with u₂&gt;0</text>
+</svg>
+<p class="figcap">Left: balanced regime — $\mathcal U$ is the triangle
+$(0,0)$–$(u_1^{\max},0)$–$(0,u_2^{\max})$. Right: P1-dominant regime — the origin leaves $\mathcal U$
+($\min u_1>0$), the max-$u_2$ vertex is off the $u_2$-axis, and the lower-left corner becomes the curved
+min-$u_1$ frontier.</p>
+
+<p><strong>So curvature here is expected, not error</strong> — provided it is <em>convex</em>. A genuine
+smooth frontier shows up, at finite grid size $N$, as a many-faceted convex polygon that sharpens and
+converges as $N$ grows (the grid LP is an outer approximation, contracting toward the continuum). The
+only signature of numerical trouble is a <em>non-convex</em> feature: a boundary point dominated to the
+northeast by a chord of two others, or a boundary that will not stabilize under refinement.</p>
+
+<h2>8. Numerical examples and an independent check</h2>
+
+<p><strong>Closed-form values</strong> (real units; $r=\sqrt{v_2/v_1}$, $\delta=\Delta/\sqrt{v_1}$). The
+top block is the symmetric line $r=1$; the lower block has player&nbsp;1 the stronger valuation.</p>
+
+<table>
+<tr><th>$v_1$</th><th>$v_2$</th><th>$\Delta$</th><th>$(r,\delta)$</th><th>cap</th>
+    <th>$(p_1,p_0,p_H)$</th><th>$\max u_2$</th><th>$\mathbb E[u_1]$</th></tr>
+<tr><td>1</td><td>1</td><td>0.22</td><td>(1.000, 0.220)</td><td>partial</td>
+    <td>(.880,.076,.044)</td><td><b>0.1624</b></td><td>0.0637</td></tr>
+<tr><td>1</td><td>1</td><td>0.25</td><td>(1.000, 0.250)</td><td>full</td>
+    <td>(.842,.120,.038)</td><td><b>0.0935</b></td><td>0.0874</td></tr>
+<tr><td>1</td><td>1</td><td>0.28</td><td>(1.000, 0.280)</td><td>full</td>
+    <td>(.815,.166,.019)</td><td><b>0.0343</b></td><td>0.1062</td></tr>
+<tr><td>1.05</td><td>1</td><td>0.24</td><td>(0.976, 0.234)</td><td>full</td>
+    <td>&mdash;</td><td><b>0.0384</b></td><td>0.1146</td></tr>
+<tr><td>1.10</td><td>1</td><td>0.18</td><td>(0.953, 0.172)</td><td>full</td>
+    <td>&mdash;</td><td><b>0.0821</b></td><td>0.1095</td></tr>
+<tr><td>1.20</td><td>1</td><td>0.12</td><td>(0.913, 0.110)</td><td>full</td>
+    <td>&mdash;</td><td><b>0.0563</b></td><td>0.1347</td></tr>
+<tr><td>1.35</td><td>1</td><td>0.06</td><td>(0.861, 0.052)</td><td>&mdash;</td>
+    <td>&mdash;</td><td><b>0</b> (dead)</td><td>&mdash;</td></tr>
+</table>
+<p class="figcap">The last row is past $r_{\mathrm{crit}}\approx0.84$ ($v_1\approx1.42\,v_2$): the window
+has closed and player&nbsp;2 concedes. As $\delta\uparrow\delta_{\max}$, $\beta^\star\uparrow r/\sqrt2$
+and $\max u_2\downarrow0$; as $\delta\downarrow\delta_{\min}$, $a_{\mathrm{lo}}\downarrow0$.</p>
+
+<div class="warn">
+<strong>Cross-check against the grid LP solver (independent of the construction).</strong>
+The solver maximizes $u_2$ directly over the CE polytope on an $N\times N$ effort grid; its value
+overstates the continuum (obedience is enforced only against grid deviations) and descends toward the
+closed form as $N$ grows. For $v_1{=}v_2{=}1$: at $\Delta{=}0.28$, closed form $0.0343$, grid
+$0.048\!\to\!0.043\!\to\!0.039$ (still falling); at $\Delta{=}0.22$, closed form $0.162$, grid
+$0.184\!\to\!0.184\!\to\!0.177\!\to\!0.174$ at $N{=}80,120,160,200$.
+</div>
+
+<div class="warn">
+<strong>Open: tightness.</strong> The three-atom device is a <em>certified</em> correlated equilibrium,
+so $\max_{\mathrm{CE}}u_2$ above is a rigorous <em>lower bound</em> for every $(v_1,v_2)$. It is the
+exact maximizer on the symmetric line. For $v_1>v_2$ (the focus here) the obvious slack-extracting
+deviation — holding player&nbsp;1 down to her reservation while loading $u_2$ — is weak, because a
+high-valuation P1 is hard to hold to $0$; so the device is expected tight throughout the window, but
+this has not yet been LP-confirmed. <strong>The opposite asymmetry is different:</strong> when
+$v_2>v_1$ ($r>1$) the device is <em>not</em> optimal (e.g. $v_2{=}1.1,v_1{=}1$: the LP reaches
+$0.391$ with $u_1$ pushed to $0$, versus the device's $0.256$), and for $v_2$ large enough $K\ge0$ so
+$\beta^\star$ ceases to be real — the maximizing support genuinely gains structure off the
+$r\le1$ side and is not described here.
+</div>
+
+<h2>9. Summary</h2>
+<p>For general quadratic contests, parametrized by $r=\sqrt{v_2/v_1}$ and $\delta=\Delta/\sqrt{v_1}$,
+the $u_2$-maximizing correlated equilibrium on the window
+$\big(\max(0,2r{+}1{-}2\sqrt2),\,\delta_{\max}(r)\big)$ is the three-atom device of §3, with
+$\beta^\star=\big(K+\sqrt{-2K}\big)/(r-\delta)$, $K=(r+2)(r-1)-\delta(r+1)$, the atoms and beliefs of
+§§4–5, and value $\max_{\mathrm{CE}}u_2=v_1\,p_1(r^2-2\beta^{\star2})>0$. The symmetric case is the
+single point $r=1$. The value is positive throughout the window and is attained by no Nash equilibrium:
+correlation is what lets player&nbsp;2 extract a positive round-1 payoff against a committed leader,
+and the window of contests where it can do so closes once player&nbsp;1's valuation exceeds
+player&nbsp;2's by roughly $42\%$.</p>
+
+</body>
+</html>

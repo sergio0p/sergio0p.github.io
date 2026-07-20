@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRACK B — Brief &amp; Report (5-Meritocracy)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[
+    {left:'$$',right:'$$',display:true},
+    {left:'\\(',right:'\\)',display:false}
+  ]});"></script>
+<style>
+  /* Solarized Dark */
+  :root{
+    --base03:#002b36; --base02:#073642; --base01:#586e75; --base00:#657b83;
+    --base0:#839496; --base1:#93a1a1; --base2:#eee8d5; --base3:#fdf6e3;
+    --yellow:#b58900; --orange:#cb4b16; --red:#dc322f; --magenta:#d33682;
+    --violet:#6c71c4; --blue:#268bd2; --cyan:#2aa198; --green:#859900;
+  }
+  html{background:var(--base03);}
+  body{
+    background:var(--base03); color:var(--base0);
+    font-family:"Charter","Georgia",serif;
+    max-width:46rem; margin:0 auto; padding:2.5rem 1.4rem 5rem;
+    line-height:1.55; font-size:1.02rem;
+  }
+  h1{color:var(--orange); font-size:1.55rem; line-height:1.25;
+     border-bottom:2px solid var(--base02); padding-bottom:.5rem;}
+  h2{color:var(--yellow); font-size:1.25rem; margin-top:2.2rem;
+     border-bottom:1px solid var(--base02); padding-bottom:.3rem;}
+  h3{color:var(--blue); font-size:1.08rem; margin-top:1.8rem;}
+  h4{color:var(--cyan); font-size:1rem; margin-top:1.5rem;}
+  strong{color:var(--base1);}
+  em{color:var(--base1);}
+  a{color:var(--blue); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{
+    font-family:"SF Mono","Menlo",monospace; font-size:.88em;
+    background:var(--base02); color:var(--cyan);
+    padding:.1em .35em; border-radius:4px;
+  }
+  .meta{
+    background:var(--base02); border-left:4px solid var(--violet);
+    padding:.8rem 1rem; border-radius:0 6px 6px 0;
+    font-style:italic; color:var(--base1); margin:1.2rem 0;
+  }
+  .scope{
+    background:var(--base02); border-left:4px solid var(--orange);
+    padding:.8rem 1rem; border-radius:0 6px 6px 0; margin:1.2rem 0;
+  }
+  .deliverable{
+    background:var(--base02); border:1px solid var(--green);
+    padding:.8rem 1rem; border-radius:6px; margin:1.2rem 0;
+  }
+  .deliverable strong{color:var(--green);}
+  blockquote{
+    background:var(--base02); border-left:4px solid var(--cyan);
+    padding:.8rem 1rem; border-radius:0 6px 6px 0; margin:1.2rem 0;
+  }
+  blockquote p{margin:.5rem 0;}
+  table{
+    border-collapse:collapse; margin:1.2rem auto; font-size:.95em;
+  }
+  th,td{
+    border:1px solid var(--base01); padding:.35em .8em; text-align:center;
+  }
+  th{background:var(--base02); color:var(--base1);}
+  ol.alpha{list-style-type:lower-alpha; padding-left:1.5rem;}
+  ol.alpha>li{margin:.6rem 0;}
+  ul>li{margin:.4rem 0;}
+  ol>li{margin:.5rem 0;}
+  hr{border:none; border-top:1px solid var(--base02); margin:2rem 0;}
+  .katex{font-size:1.04em;}
+  .katex-display{overflow-x:auto; overflow-y:hidden; padding:.2rem 0;}
+  .tag{color:var(--magenta); font-weight:bold;}
+  .verdict{color:var(--green); font-weight:bold;}
+  nav.toc{
+    background:var(--base02); padding:.6rem 1rem; border-radius:6px;
+    margin:1.2rem 0; font-size:.95em;
+  }
+  .fn{font-size:.92em; color:var(--base00);}
+  .ok{color:var(--green);}
+  .bad{color:var(--red);}
+</style>
+</head>
+<body>
+
+<nav class="toc">
+Contents: <a href="#brief">Part I — Brief</a> &nbsp;·&nbsp;
+<a href="#report">Part II — Report (2026-06-10)</a>
+</nav>
+
+<h1 id="brief">PART I — TRACK B BRIEF — Technical</h1>
+
+<p class="meta">Read <code>MAESTRO.md</code> (protocol) and <code>QUICKSTART.md</code> (full
+project state) before starting. Write your findings to <code>TRACK-B-REPORT.md</code>,
+appending a <code>## YYYY-MM-DD</code> section.</p>
+
+<p>Your mission across sessions: make every proof airtight and self-contained, then extend
+(quota result, noise). The raw material is QUICKSTART.md §4 (Referee&nbsp;1's list) and §6
+(priority checklist). The working text is <code>Parreiras14d.tex</code> (Sept 2016) —
+<strong>read-only</strong>; quote line numbers in your report.</p>
+
+<div class="scope">
+<p><strong>Scope note (2026-06-10):</strong> uniqueness is the central technical objective —
+Sergio's own assessment is that we do <strong>NOT</strong> have it yet. Read
+<code>TECHNICAL-DOSSIER.md</code> first: Part&nbsp;1 collects the referee/editor uniqueness
+objections with exact quotes, Part&nbsp;2 is a training-data survey of
+all-pay/IPV/monotone-equilibrium results (<span class="tag">[HIGH]</span>/<span
+class="tag">[CHECK]</span> confidence tags — verify the <span class="tag">[CHECK]</span>
+items by literature search in-session before relying on them), Part&nbsp;3 is the target
+lemma structure. Sequencing unchanged: Prop&nbsp;1 verdict first.</p>
+</div>
+
+<hr>
+
+<h2>Assignment 1 (issued 2026-06-10)</h2>
+
+<h3>Task 1 — Verdict on the rewritten Proposition 1 proof (the keystone)</h3>
+
+<p><strong>Background:</strong> R1 killed the 2015 submission's Prop&nbsp;1 proof (it divided
+out densities \(g_H\), \(G_H\) evaluated at different arguments — \(b(v)\) vs
+\(b(\bar v_L)\)); the editor had the error independently confirmed. The Sept 2016 version
+(<code>Parreiras14d.tex</code> lines 213–230) rewrote the proof. Your job: referee that new
+proof as hostilely as R1 would.</p>
+
+<p>Specifically verify:</p>
+<ol class="alpha">
+<li><strong>Equation (1)</strong> (the H FOC, line 219): is it correctly derived, and does it
+really hold for almost all participating types? What regularity (differentiability of
+\(\varphi_H\), atomlessness at the relevant points) is being assumed silently?</li>
+<li><strong>The step to equation (2)</strong> (line 222): substitute the FOC into
+\(\partial U_L/\partial b\) and confirm every factor — the exponents of \(F_H\), the
+\(\tfrac{h}{h-1}\) ratio, and the same-argument evaluation that R1's objection was
+about.</li>
+<li><strong>The final inequality chain</strong> (lines 225–229): does \(\lambda\)-intimidation
+plus \(h\lambda &gt; 1\) really give \(\partial U_L/\partial b &lt; 0\) for almost all
+\(b \in (0,\, b_H(\bar v_H)]\)? Edge cases: \(b\) near \(0\) (\(\varphi_H(b)\to
+\underline v_H\) — what if \(\underline v_H &gt; 0\)? what if \(F_H(v)/v\) is unbounded as
+\(v \searrow 0\)?), and the \(\sup\) in Definition&nbsp;1 being over \(v&gt;0\) vs over the
+support (the two versions differ here — does it matter?).</li>
+<li><strong>Does the claimed equilibrium actually exist?</strong> (H plays the symmetric
+no-L equilibrium — verify the symmetric equilibrium of the \(h\)-player single-prize all-pay
+auction with continuous \(F_H\) has the properties used.)</li>
+<li><strong>Confirm the implicit cost assumption:</strong> payoffs \(v\cdot W - b\) (linear
+cost). Note exactly where the quadratic-cost examples (§&nbsp;"Preview of Results") are or
+are not consistent with this — R1's point&nbsp;3.</li>
+</ol>
+
+<p>The deliverable is a <strong>hand-checked derivation with precise citations</strong> —
+work the algebra on paper (in the report), step by step. Computation is optional and
+incidental only (if you do any: <code>wolframscript</code> for symbolic, Julia for numeric —
+keep it minimal). Lead the report with theory verdicts, literature results, and paper
+issues, in that order.</p>
+
+<div class="deliverable">
+<p><strong>Deliverable: a verdict — SOUND / SOUND WITH GAPS (list them) / BROKEN (where) —
+with the full argument written out so the maestro can check it line by line.</strong></p>
+</div>
+
+<h3>Task 2 — Re-derive the tipping point (quick, self-contained)</h3>
+
+<p>QUICKSTART §6.7 flags: the Definition (line 276) sets
+\(\hat h(\lambda,k) = \min\{h : k/(1-\lambda) &lt; h\}\), but the theorem needs
+\(\lambda \ge k/h \iff h \ge k/\lambda\). The two disagree (and <code>_v2.tex</code>
+line&nbsp;220 has a third variant, with a \(\lambda \in (0,2)\) typo in its corollary).
+Derive the correct tipping point from Theorem&nbsp;1's hypotheses, state the corrected
+Definition&nbsp;+&nbsp;Corollary, and check it against the implicit-bias example's claimed
+threshold \(\beta \ge k/(h-k)\) (line 103) and the commented-out Table&nbsp;1 numbers
+(lines 299–306). Put the corrected statements in the report.</p>
+
+<h3>Constraints &amp; tools</h3>
+
+<ul>
+<li>Everything pre-existing is read-only. If you create scratch files at all, prefix them
+<code>scratch-</code> so they're recognizable.</li>
+<li>Related proofs you may consult:
+<code>~/Dropbox/Research/TeX/LiParreiras15/</code> (the Li–Parreiras companion WP) and the
+Parreiras–Rubinchik papers — for reading, not citing as proof substitutes.</li>
+<li>Do <strong>NOT</strong> start Task&nbsp;2 of QUICKSTART §6 (self-contained Theorem&nbsp;1)
+yet — Prop&nbsp;1's verdict comes first; the maestro will sequence the rest.</li>
+<li>Blocked? Note it in the report and stop that thread (see MAESTRO.md standing rules).</li>
+</ul>
+
+<hr>
+
+<h1 id="report">PART II — TRACK B REPORT — Technical</h1>
+
+<p class="meta">Append-only. One <code>## YYYY-MM-DD</code> section per session
+(MAESTRO.md).</p>
+
+<h2>2026-06-10 — Assignment 1, plus uniqueness addendum (Sergio's in-session directive)</h2>
+
+<p>Line references are to <code>Parreiras14d.tex</code> ("14d") and
+<code>Parreiras14d_v2.tex</code> ("v2") unless noted.</p>
+
+<div class="scope">
+<p><strong>Scope note:</strong> Sergio reviewed this session in progress and directed
+(a)&nbsp;Track&nbsp;B output should lead with theory and paper issues, computational material
+compressed to a footnote; (b)&nbsp;add a section on uniqueness — what is known (e.g., does
+Athey-style existence of monotone equilibrium hold for the all-pay auction?), aiming at
+uniqueness <strong>within a class</strong> even if uniqueness is probably true in general —
+with resources for him to start thinking about it. Section&nbsp;3 below is that addendum; it
+goes beyond the issued brief at Sergio's request.</p>
+</div>
+
+<h3>1. Task 1 — Verdict on the rewritten Proposition 1 proof (14d lines 213–230)</h3>
+
+<p><span class="verdict">VERDICT: SOUND WITH GAPS.</span> The algebra that killed the 2015
+submission is genuinely fixed. Every step now evaluates the densities and CDFs at a single
+common bid \(b\) — R1's different-arguments objection does not apply to the rewritten proof.
+The remaining gaps are regularity omissions, none fatal, and all are closed at once by the
+replacement proof in §1.3, which needs no density at all.</p>
+
+<h4>1.1 Point-by-point (brief items a–e)</h4>
+
+<p><strong>(a) Equation (1), the H FOC (line 219).</strong> Correctly derived: it is the
+derivative of \(U_H(b \mid v_H) = F_H(\varphi_H(b))^{h-1}\, v_H - b\) at
+\(v_H = \varphi_H(b)\). In the symmetric no-L equilibrium
+\(b_H(v) = \int_{\underline v_H}^{v} s \, dF_H^{h-1}(s)\), the bid function is absolutely
+continuous and strictly increasing on the support, so the FOC holds for almost all
+\(b \in (0, \bar b_H]\) — the exceptional set (where \(\varphi_H\) fails to be differentiable
+or \(f_H(\varphi_H(b))\) is undefined/zero) is the image of a null set under an AC map, hence
+null. Silently assumed: \(F_H\) atomless (given, line 180); existence of \(f_H\) at the
+relevant points (a.e., fine); and — the one with bite — see gap G1.</p>
+
+<p><strong>(b) Equation (2) (line 222).</strong> Verified: solving (1) for
+\(f_H(\varphi_H(b)) \cdot \varphi_H'(b)\) and substituting into
+\(\partial U_L/\partial b = h\, F_H(\varphi_H(b))^{h-1} f_H(\varphi_H(b))\, \varphi_H'(b)\,
+v_L - 1\) gives exactly
+\(\frac{h}{h-1} \cdot \frac{F_H(\varphi_H(b))}{\varphi_H(b)} \cdot v_L - 1\).
+Exponents, the \(\frac{h}{h-1}\) factor, and the same-argument evaluation all check out
+(symbolic verification, footnote&nbsp;<a href="#fn1"><sup>1</sup></a>).</p>
+
+<p><strong>(c) The inequality chain (lines 225–229).</strong> Correct, including the top type
+\(v_L = \bar v_L\): the chain</p>
+$$\frac{\partial U_L}{\partial b}
+\;&lt;\; \frac{h}{h-1} \cdot \frac{1-\lambda}{\bar v_L} \cdot v_L - 1
+\;\le\; \frac{h}{h-1}(1-\lambda) - 1 \;&lt;\; 0$$
+<p>is strict because Definition&nbsp;1's \(\sup\) inequality is strict. Edge cases queried by
+the brief:</p>
+<ul>
+<li><strong>\(\underline v_H &gt; 0\):</strong> no problem — \(F_H(v)/v = 0\) on
+\((0, \underline v_H)\), and \(\varphi_H(b) \to \underline v_H\) as \(b \to 0^+\), where the
+ratio tends to 0.</li>
+<li><strong>\(F_H(v)/v\) unbounded as \(v \searrow 0\):</strong> then
+\(\sup_{v&gt;0} F_H(v)/v = +\infty\) and no \(\lambda\)-intimidation can hold —
+Definition&nbsp;1 itself excludes the dangerous case. The proof never needs more boundedness
+than the hypothesis supplies. (E.g., \(F = \sqrt{v}\) admits no \(\lambda\)-intimidation for
+any \(\lambda\).)</li>
+<li><strong>\(\sup\) over \(v &gt; 0\) (14d line 194) vs over the support (v2 line
+152):</strong> mathematically identical. Below the support the ratio is 0; at and above
+\(\bar v_H\) the ratio \(1/v\) is maximized at \(v = \bar v_H\), which both versions include.
+So both sups equal \(\sup\) over \((0, \bar v_H]\). The \(v&gt;0\) form is cleaner when
+\(\underline v_H = 0\) (avoids \(0/0\) at the left endpoint). No substantive difference —
+keep the 14d form.</li>
+<li><strong>\(h = 1\):</strong> equation (2) divides by \(h-1\), but \(h\lambda &gt; 1\) with
+\(\lambda &lt; 1\) forces \(h \ge 2\). No issue.</li>
+</ul>
+
+<p><strong>(d) Existence of the claimed equilibrium.</strong> Yes, but the text's "Clearly
+the H individuals are best responding" (line 216) deserves two actual sentences (gap G2):
+(i)&nbsp;the symmetric no-L profile is an equilibrium of the \(h\)-player game for
+<em>any</em> continuous \(F_H\) — verification needs no density:
+\(U_H(b_H(z) \mid v) - U_H(b_H(v) \mid v) = \int_v^z (v-s)\, dF_H^{h-1}(s) \le 0\);
+(ii)&nbsp;adding the L's at zero changes no H payoff: at any \(b &gt; 0\) the win probability
+against L's is 1; at \(b = 0\) an H wins with probability 0 either way (rival H's bid 0 with
+probability 0, since \(G_H(0) = F_H(\underline v_H) = 0\) in this equilibrium — note: H atoms
+at 0 occur in <em>other</em> equilibria, cf. the worked example file, but not in this one).
+Deviations above \(\bar b_H\) are dominated (win probability already 1).</p>
+
+<p><strong>(e) Cost function (R1's point 3).</strong> The model states linear cost
+explicitly: "Ex-post payoffs are: \(v_i - b_i\) when \(i\) wins a prize, and \(-b_i\)
+otherwise" (14d line 188). The §"Preview of Results" examples of 14d are
+<strong>consistent with linear cost</strong>: I derived the asymmetric 2H+1L equilibrium of
+the implicit-bias example in closed form —
+\(G_H(b) = (b/\bar b)^p\), \(G_L(b) = (b/\bar b)^q\) with
+\(p = \frac{1+\beta}{3+\beta}\), \(q = \frac{1-\beta}{3+\beta}\),
+\(\bar b = \frac{2p \cdot 10}{1+\beta}\) — and every plotted curve in Figure&nbsp;1 (all four
+\(G_L\) curves, all four winning-probability-ratio curves, and all four plot domains
+\(20/3\), \(80/13\), \(40/7\), \(16/3\)) matches these formulas exactly
+(footnote&nbsp;<a href="#fn1"><sup>1</sup></a>). So R1's quadratic-cost complaint survives
+only against <strong>v2 line 91</strong> ("An individual with ability \(v_i\) who exerts
+effort \(b\) incurs the cost \(b^2/v_i\)"). When drafting the new version: either drop that
+framing or add the normalization lemma R1 sketched. Bonus from the closed form: as
+\(\beta \to 1\), \(q \to 0\) and L's bid distribution collapses to the drop-out
+distribution — the example degenerates continuously into the theorem's conclusion exactly at
+\(\beta = k/(h-k) = 1\).</p>
+
+<h4>1.2 The gaps</h4>
+
+<ul>
+<li><strong>G1 (the one real gap).</strong> The proof concludes from
+"\(\partial U_L/\partial b &lt; 0\) for almost all \(b\)" that L prefers 0, which needs
+\(U_L(\cdot \mid v_L)\) absolutely continuous in \(b\) — equivalently, enough regularity of
+\(\varphi_H\). This holds if \(f_H &gt; 0\) a.e. on \([\underline v_H, \bar v_H]\), an
+assumption the paper never states (line 180 gives only absolute continuity of \(F_H\)).
+Without it, \(F_H\) flat on a positive-measure set makes \(\varphi_H\) non-AC and the
+a.e.-derivative argument incomplete as written. Patch: state the assumption, or replace the
+proof by §1.3 (which needs only continuity of \(F_H\)).</li>
+<li><strong>G2.</strong> "Clearly best responding" — see (d); two sentences, but they should
+be on the page.</li>
+<li><strong>G3.</strong> The derivative is signed only on \((0, b_H(\bar v_H)]\); deviations
+at \(b = 0\) (the tie among the \(\ell\) L's and the no-atom claim) and \(b &gt; \bar b_H\)
+are never mentioned. Half a sentence each.</li>
+<li><strong>G4 (free improvement, not a gap).</strong> \(h\lambda &gt; 1\) can be weakened to
+<strong>\(h\lambda \ge 1\)</strong>: at \(h\lambda = 1\) the chain still closes strictly
+because Definition&nbsp;1's \(\sup\) inequality is strict. This also aligns
+Proposition&nbsp;1 (\(k = 1\)) exactly with Theorem&nbsp;1's hypothesis
+\(\lambda \ge k/h\).</li>
+</ul>
+
+<h4>1.3 Replacement proof (new material — integrate, don't differentiate)</h4>
+
+<blockquote>
+<p><strong>Proposed restatement.</strong> Let \(k = 1\), \(F_H\) continuous, \(V_H\)
+\(\lambda\)-intimidate \(V_L\), and \(h\lambda \ge 1\). Then [H plays
+\(b_H(v) = \int_{\underline v_H}^{v} s\, dF_H^{h-1}(s)\); every L bids 0 regardless of type]
+is an equilibrium.</p>
+</blockquote>
+
+<p><em>Proof.</em> <strong>H side:</strong> as in 1.1(d)(i)–(ii). <strong>L side:</strong>
+\(b_H\) is continuous, strictly increasing, \(b_H(\underline v_H) = 0\), so any deviation
+\(b \in (0, \bar b_H]\) equals \(b_H(z)\) for some \(z\) with \(F_H(z) &gt; 0\). For any
+\(v_L \le \bar v_L\), writing \(F = F_H\),</p>
+$$\begin{aligned}
+U_L(b_H(z) \mid v_L)
+&amp;= F(z)^h v_L - \int_{\underline v_H}^{z} s\, dF^{h-1}(s) \\[2pt]
+&amp;&lt; F(z)^h v_L - \frac{\bar v_L}{1-\lambda} \int_{\underline v_H}^{z} F(s)\, dF^{h-1}(s) \\[2pt]
+&amp;= F(z)^h v_L - \frac{\bar v_L}{1-\lambda} \cdot \frac{h-1}{h}\, F(z)^h \\[2pt]
+&amp;= F(z)^h \left[\, v_L - \frac{(h-1)\,\bar v_L}{(1-\lambda)\,h} \right]
+\;\le\; F(z)^h\, \bar v_L \left[\, 1 - \frac{h-1}{(1-\lambda)\,h} \right]
+\;\le\; 0,
+\end{aligned}$$
+<p>using: (first inequality) intimidation pointwise inside the Stieltjes integral —
+\(s &gt; F(s) \cdot \bar v_L/(1-\lambda)\) for all \(s &gt; 0\), strict on the full
+\(F^{h-1}\)-mass of \([\underline v_H, z]\); (second equality)
+\(\int F\, dF^{h-1} = (h-1)\int F^{h-1}\, dF = \frac{h-1}{h} F^h\) for continuous \(F\);
+(last) \(h\lambda \ge 1 \iff \frac{h-1}{(1-\lambda)h} \ge 1\). Deviations
+\(b &gt; \bar b_H\) are dominated by \(\bar b_H\); \(b = 0\) yields exactly
+\(0 &gt; U_L(b)\) for every \(b &gt; 0\) (no atom of \(G_H\) at 0, so the \(b = 0\) win
+probability is 0). ∎</p>
+
+<p><strong>Properties:</strong> no density, no differentiability, no "almost everywhere",
+all deviation points covered, strict even for the top type at \(h\lambda = 1\). Three lines
+longer than the current proof and strictly weaker hypotheses. <strong>Sharpness:</strong>
+both hypotheses bind. With \(F_H\) uniform on \([0, V]\),
+\(U_L(b_H(z) \mid v_L) = z^h V^{1-h}\!\left(\frac{v_L}{V} - \frac{h-1}{h}\right)\) exactly;
+as \(\lambda \downarrow 1/h\) and \(\bar v_L \uparrow (1-\lambda)V\) the top L type's payoff
+\(\uparrow 0\) — at the boundary she is indifferent across <em>all</em> bids (this is the
+\(\beta = 1\) boundary of the implicit-bias example:
+\(U_L = (v_L/5 - 1)\,b\)).</p>
+
+<p><strong>Counterexample search (brief's request): none
+found.</strong><a href="#fn1"><sup>1</sup></a></p>
+
+<hr>
+
+<h3>2. Task 2 — The tipping point, corrected</h3>
+
+<p><strong>Derivation.</strong> Theorem&nbsp;1 (line 238) needs (i)&nbsp;\(h &gt; k\) and
+(ii)&nbsp;\((k/h)\)-intimidation. Given that \(V_H\) \(\lambda\)-intimidates \(V_L\):
+\(\lambda\)-intimidation implies \(\lambda'\)-intimidation for every \(\lambda' \le \lambda\)
+(lines 197–198), so (ii) holds iff \(k/h \le \lambda\), i.e.
+<strong>\(h \ge k/\lambda\)</strong>; and \(h \ge k/\lambda &gt; k\) is then automatic since
+\(\lambda &lt; 1\). Hence:</p>
+
+<blockquote>
+<p><strong>Definition (corrected).</strong>
+\(\hat h(\lambda, k) := \min\{h \in \mathbb{Z}_+ : h\lambda \ge k\} = \lceil k/\lambda \rceil.\)</p>
+<p><strong>Corollary (corrected).</strong> For \(\lambda \in (0,1)\), if \(V_H\)
+\(\lambda\)-intimidates \(V_L\) and <strong>\(h \ge \hat h(\lambda, k)\)</strong>, then in any
+continuous equilibrium all L individuals drop out.<br>
+<em>Proof:</em> \(h \ge \lceil k/\lambda \rceil \implies \lambda \ge k/h\), so
+\(\lambda\)-intimidation implies \((k/h)\)-intimidation; and \(h \ge k/\lambda &gt; k\).
+Theorem&nbsp;1 applies. ∎</p>
+</blockquote>
+
+<p>After the G4 patch, Proposition&nbsp;1 (\(k = 1\), \(h\lambda \ge 1\)) coincides exactly
+with this at \(k = 1\).</p>
+
+<p><strong>Errata uncovered (all line-cited, for the new draft):</strong></p>
+
+<ol>
+<li><strong>14d line 276:</strong>
+\(\hat h = \min\{h : k/(1-\lambda) &lt; h\}\) has \((1-\lambda)\) where \(\lambda\) belongs;
+it agrees with the correct definition only at \(\lambda = 1/2\). For \(\lambda &lt; 1/2\) the
+printed Corollary (line 279) is <strong>false as stated</strong>, not merely inelegant: e.g.
+\(\lambda = 0.1\), \(k = 1\) gives printed \(\hat h = 2\), so the corollary asserts drop-out
+at \(h = 3\) — but the theorem needs \(\lambda \ge 1/3\). For \(\lambda &gt; 1/2\) it is
+conservative (\(\lambda = 0.9\), \(k = 1\): printed \(\hat h = 11\) vs correct
+\(\hat h = 2\)).</li>
+<li><strong>v2 line 220:</strong>
+\(\hat h = \min\{h \in \mathbb{Z}_+ : \lambda k &lt; h \text{ and } h &gt; k\}\) —
+\(\lambda k &lt; k &lt; h\) is implied by \(h &gt; k\), so this collapses to
+\(\hat h = k + 1\) for every \(\lambda\): false for small \(\lambda\) by the same
+example.</li>
+<li><strong>v2 line 223:</strong> "For \(\lambda \in (0,2)\)" — typo for \((0,1)\).</li>
+<li><strong>v2 line 215</strong> (the \(h &gt; 2k\), \(\tfrac12\)-intimidation corollary) is
+correct, and can be strengthened to \(h \ge 2k\) (\(= \hat h(\tfrac12, k)\)).</li>
+<li><strong>14d line 103</strong> (implicit-bias threshold): claimed
+\(\beta \ge k/(h-k)\); correct is <strong>strict</strong>, \(\beta &gt; k/(h-k)\).
+Derivation: in the example \(\sup F_H(v)/v = 1/10\) and \(\bar v_L = 10/(1+\beta)\), so
+\(\lambda\)-intimidation \(\iff \lambda &lt; \beta/(1+\beta)\);
+\(k/h \le \lambda &lt; \beta/(1+\beta)\) for some \(\lambda\)
+\(\iff k/h &lt; \beta/(1+\beta) \iff \beta &gt; k/(h-k)\). At equality (\(\beta = 1\),
+\(h = 2\), \(k = 1\)) the hypothesis fails and the drop-out is only weak: the top L type is
+exactly indifferent across all bids (§1.3 sharpness). The drop-out <em>equilibrium</em>
+still exists at the boundary, but the any-continuous-equilibrium claim is not available
+there. Recommend strict inequality plus an optional boundary remark.</li>
+<li><strong>14d line 197:</strong> "necessary that \(\lambda \cdot \bar v_H &gt; \bar v_L\)"
+— wrong; should be <strong>\((1-\lambda) \cdot \bar v_H &gt; \bar v_L\)</strong> (v2 line 155
+has it right). From \(\sup \ge F_H(\bar v_H)/\bar v_H = 1/\bar v_H\).</li>
+<li><strong>Example tipping-point formulas (v2 lines 231, 237, 242; 14d commented line
+297):</strong> the pattern \(\hat h = \lceil 1 + \bar v/\varepsilon_2 \rceil \cdot k\) (and
+the FOSD analogue, v2 line 231) is correct only for \(k = 1\) and non-integer argument. The
+correct general form is
+\(\min\{h \in \mathbb{Z} : h &gt; k(1 + \bar v_L/\varepsilon_2)\}\) — note
+<strong>STRICT</strong> inequality here, because in these uniform examples
+\(\lambda\)-intimidation holds only for \(\lambda\) strictly below
+\(\varepsilon_2/(\bar v_L + \varepsilon_2)\); \(\lceil x \rceil \cdot k\) can overshoot
+\(\lceil kx \rceil\) by up to \(k - 1\) for \(k \ge 2\).</li>
+<li><strong>Table 1 (v2 lines 246–253; 14d commented lines 299–306), corrected</strong> for
+\(k = 1\), \(V_L \sim U[1000, 1001]\), \(V_H \sim U[1, 1001 + \varepsilon_2]\) (so
+\(\Pr[V_H &lt; V_L] = 999.5/(1000 + \varepsilon_2)\), i.e.
+\(\varepsilon_2 = (1999 - 2000 \Pr)/(2 \Pr)\), and drop-out iff
+\(h &gt; 1 + 1001/\varepsilon_2\)):
+
+<table>
+<thead>
+<tr><th>\(\Pr[V_H &lt; V_L]\)</th><th>\(\varepsilon_2\)</th><th>correct \(\hat h\)</th>
+<th>v2 says</th><th>14d (commented) says</th></tr>
+</thead>
+<tbody>
+<tr><td>1/2</td><td>999</td><td><strong>3</strong></td><td>2 <span class="bad">✗</span></td><td>2 <span class="bad">✗</span></td></tr>
+<tr><td>2/3</td><td>499.25</td><td>4</td><td>4 <span class="ok">✓</span></td><td>3 <span class="bad">✗</span></td></tr>
+<tr><td>3/4</td><td>332.67</td><td>5</td><td>5 <span class="ok">✓</span></td><td>5 <span class="ok">✓</span></td></tr>
+<tr><td>4/5</td><td>249.375</td><td>6</td><td>6 <span class="ok">✓</span></td><td>6 <span class="ok">✓</span> (row mislabeled "5/9")</td></tr>
+<tr><td>9/10</td><td>110.56</td><td>11</td><td>11 <span class="ok">✓</span></td><td>11 <span class="ok">✓</span></td></tr>
+</tbody>
+</table>
+
+<p>Also: v2's caption says \(U[1000, \mathbf{10001}]\) (typo) and its
+\(\varepsilon_2(\Pr)\) formula \((2001 - 2002 \Pr)/(2 \Pr)\) corresponds to
+\(\underline v_H = 0\), contradicting its own \(V_H \sim U[1, \cdot]\).</p></li>
+<li><strong>v2 line 175 (Theorem statement):</strong> the explicit formula
+\(b_H(v) = \int_{\underline v_L}^{v} (h-k)\, F_H(s)^{h-k-1} f(s)\, ds\) is garbled: missing
+the \(s\) factor inside the integral, missing the \((1-F)^{k-1}\) and binomial structure of
+the \(k\)-prize order statistic, and the lower limit should be \(\underline v_H\). 14d
+wisely dropped the formula; do not resurrect this one.</li>
+</ol>
+
+<hr>
+
+<h3>3. Uniqueness — state of knowledge and a starting kit (addendum requested by Sergio)</h3>
+
+<p>Framing per Sergio: aim for <strong>uniqueness within a class</strong>, even if uniqueness
+is probably true in general. That is also exactly what the resubmission needs: a clean
+statement "within class \(\mathcal{C}\), the equilibrium outcome under
+\(k/h\)-intimidation is unique (L out, H symmetric)" answers R1 and Bénabou
+(TECHNICAL-DOSSIER.md Part&nbsp;1.1) without solving the general \(n \ge 3\) asymmetric
+all-pay uniqueness problem, which has been open since before 2015.</p>
+
+<div class="scope">
+<p><strong>Caveat:</strong> every literature item below is from model training data (cutoff
+Jan 2026), not verified against sources this session. Confidence tags as in the dossier. A
+retrieval pass (Track&nbsp;A or a dedicated session) should pin exact statements before
+anything enters a draft.</p>
+</div>
+
+<h4>3.1 What the paper already delivers, conditionally</h4>
+
+<p>Theorem&nbsp;1 (line 238) + line 275's claim = outcome uniqueness <em>within continuous
+equilibria</em>, conditional on three supporting results that are currently sketched or
+outsourced:</p>
+<ul>
+<li><strong>Lemma A (regularity):</strong> any equilibrium has \(G_i\) atomless and gap-free
+on \((0, \bar b]\); atoms only at 0. Standard overbid/undercut arguments; used at 14d line
+190 fn.&nbsp;4 without proof. <span class="tag">[HIGH]</span> that this is standard; must be
+written in-house.</li>
+<li><strong>Lemma B (within-group symmetry):</strong> appendix Claim (lines 339–388) — the
+revealed-preference part (lines 344–369) looks self-contained, but differentiability is
+delegated to <code>\cite{LiParreiras16}</code> (line 371) and the ODE step has a
+<em>local</em> uniqueness only, with \(\det \nabla \Psi \ne 0\) unproven and the \(b = 0\)
+boundary unhandled.</li>
+<li><strong>Lemma C (no full reverse equilibrium):</strong> see §3.4 — now essentially
+proved, easy.</li>
+</ul>
+
+<p>The class must admit atoms at 0: the worked example
+(<code>Parreiras14d_example.tex</code> lines 47–79) has \(G_H(0) &gt; 0\) with L active —
+legitimately, since that example sits <em>outside</em> the intimidation region
+(\(V_H \sim U[0,1]\), \(h = 2\), \(k = 1\) needs \(\bar v_L &lt; 1/2\), but
+\(\bar v_L = 1 - \varepsilon &gt; 1/2\)). Good illustration that outside the region,
+participation patterns multiply — Bénabou's "sufficiently different" question (dossier
+1.1(c)) is about characterizing exactly that.</p>
+
+<h4>3.2 Existence of monotone equilibrium — does Athey apply to the all-pay auction?</h4>
+
+<p><strong>Yes, in substance — with checkable caveats.</strong> The logic: given rivals using
+(weakly) increasing strategies, an all-pay bidder's interim payoff \(v \cdot W(b) - b\) has
+strictly increasing differences in \((b, v)\) (\(W(\cdot)\) increasing), so best replies are
+monotone and Athey's single crossing condition holds. Athey (2001, <em>Econometrica</em>
+69(4), 861–889) then gives existence of a monotone pure-strategy equilibrium; my
+recollection <span class="tag">[CHECK]</span> is that her applications explicitly include
+all-pay auctions alongside first-price. Caveats to verify when reading:</p>
+<ol>
+<li><strong>Tie handling.</strong> Athey's auction existence results work through finite bid
+grids + limits; ties matter at atoms. In our setting Lemma A confines atoms to \(b = 0\),
+where the payoff discontinuity is real (an atom of rivals at 0 makes \(W\) jump at 0). The
+standard resolution — deviating to \(0^+\) — should be checked against her exact
+tie-breaking assumptions.</li>
+<li><strong>\(k\) prizes.</strong> Athey's theorems are for one-dimensional actions and cover
+our \(k\)-prize winner-take-top-\(k\) payoff in principle (it is still a monotone-in-rank
+allocation), but the cleanest citations for general monotone existence beyond the
+single-prize case are <strong>McAdams (2003, <em>Econometrica</em>, multi-unit)</strong> and
+especially <strong>Reny (2011, <em>Econometrica</em> 79(2), "On the Existence of Monotone
+Pure-Strategy Equilibria in Bayesian Games")</strong>, which generalizes Athey and is the
+modern workhorse cite. <span class="tag">[HIGH]</span></li>
+<li>For symmetric all-pay/war-of-attrition benchmarks: Krishna &amp; Morgan (1997,
+<em>JET</em>). <span class="tag">[HIGH]</span></li>
+</ol>
+
+<p>Why this matters for uniqueness-within-a-class: if \(\mathcal{C}\) = monotone-strategy
+equilibria, Athey/Reny guarantee \(\mathcal{C} \ne \varnothing\), so "unique within
+\(\mathcal{C}\)" is a statement about a nonempty, canonical class — the strongest defensible
+claim short of full uniqueness.</p>
+
+<h4>3.3 What is known about uniqueness in asymmetric IPV all-pay auctions</h4>
+
+<ul>
+<li><strong>\(n = 2\):</strong> solved. Amann &amp; Leininger (1996, <em>GEB</em> 14, 1–18):
+existence <strong>and uniqueness</strong> for two asymmetric bidders, via reduction to a
+single ODE. <span class="tag">[HIGH]</span> Lizzeri &amp; Persico (2000, <em>GEB</em>) prove
+uniqueness for a class of two-bidder auctions with a reserve —
+<span class="tag">[CHECK]</span> whether the class includes the all-pay payoff. Lu &amp;
+Parreiras (GEB, ~2017, "Monotone equilibrium of two-bidder all-pay auctions Redux") —
+Sergio's own; postdates the AER submission; may contain reusable machinery.
+<span class="tag">[CHECK]</span> — pull the actual paper.</li>
+<li><strong>\(n \ge 3\) asymmetric:</strong> open in general. Parreiras &amp; Rubinchik
+(2010, <em>GEB</em> 68) document the pathologies (non-monotone expected payoffs, atoms at
+zero, drop-out) showing \(n \ge 3\) is qualitatively different.
+<span class="tag">[HIGH]</span> — own paper. The companion WP Li/Fei–Parreiras
+(<code>~/Dropbox/Research/TeX/LiParreiras15/</code>) reportedly proves within-group symmetry
+and has uniqueness machinery — <strong>status unknown, folder not yet read; top retrieval
+priority.</strong></li>
+<li><strong>Symmetric benchmark:</strong> the no-L continuation game. The symmetric
+equilibrium is unique <em>among symmetric</em> equilibria (standard); uniqueness among ALL
+equilibria is what Theorem&nbsp;1's line-275 claim needs. Chawla &amp; Hartline (2013, EC,
+"Auctions with unique equilibria") prove the symmetric equilibrium is the unique equilibrium
+for rank-based/all-pay formats with iid bidders — <span class="tag">[CHECK]</span> exact
+scope: \(n\) bidders, \(k\) prizes, atom treatment — if it covers \(k\) prizes, it closes
+the H-side gap outright.</li>
+<li><strong>Technique to mine — the first-price uniqueness program:</strong> Lebrun (1999
+<em>IER</em>; 2006 <em>GEB</em>), Maskin &amp; Riley (2003, <em>GEB</em>, "Uniqueness of
+equilibrium in sealed high-bid auctions"). The method — characterize equilibria as solutions
+of the inverse-bid ODE system and pin the solution by a boundary condition at the
+<em>bottom</em> of the bid range — is precisely what the Online Appendix's ODE sketch (lines
+380–385) is missing: our singularity sits at \(b = 0\) where atoms can live, the exact
+analogue of their low-end boundary analysis. <span class="tag">[HIGH]</span></li>
+<li><strong>Sidestep option:</strong> Olszewski &amp; Siegel (2016, <em>Econometrica</em>,
+"Large Contests") — the limit approach pins outcomes without resolving finite-game
+multiplicity; relevant as a robustness section, not a substitute.
+<span class="tag">[HIGH]</span></li>
+<li><strong>Scoop watch:</strong> any 2015–2026 paper proving \(n \ge 3\) asymmetric all-pay
+uniqueness would change both the risk and the opportunity here. Track A's scoop-check
+(TRACK-A-REPORT.md) covered the drop-out result; a <em>uniqueness-specific</em> search is
+still TODO.</li>
+</ul>
+
+<h4>3.4 Lemma C — no full reverse equilibrium (maestro's sketch, completed)</h4>
+
+<p><strong>Claim:</strong> under Assumption&nbsp;1 (\(\bar v_H &gt; \bar v_L\)), no
+equilibrium has all H individuals inactive. Argument, now with the needed case split:</p>
+<ul>
+<li><strong>\(\ell \ge k\):</strong> if all H bid 0 and the L's play any equilibrium among
+themselves, the L top bid satisfies \(\bar b_L \le \bar v_L\) (no type bids above own value
+in equilibrium). An H of type near \(\bar v_H\) deviating to \(\bar b_L + \varepsilon\) wins
+a prize with probability 1 and earns
+\(\bar v_H - \bar b_L - \varepsilon \ge \bar v_H - \bar v_L - \varepsilon &gt; 0\), versus at
+most 0 from bidding 0 (with \(\ell \ge k\) actives, all \(k\) prizes go to positive bids).
+Contradiction.</li>
+<li><strong>\(\ell &lt; k\):</strong> prizes outnumber the active L's, so even a zero bid
+wins with positive probability; but then every L strictly prefers 0 (winning is free), so
+all \(h + \ell\) players pool at 0 and each wins w.p. \(k/(h+\ell) &lt; 1\); any high type
+deviating to \(\varepsilon &gt; 0\) wins surely — contradiction again.</li>
+</ul>
+<p>So R1's literal "women enter, men stay out" scenario dies unconditionally (no intimidation
+needed). What remains live is <em>partial</em> multiplicity, which is exactly what the
+class-uniqueness theorem (§3.5) addresses inside the intimidation region and what examples
+should map outside it (dossier 1.1(b)–(c)).</p>
+
+<h4>3.5 Proposed target statement and what stands between us and it</h4>
+
+<blockquote>
+<p><strong>Target Theorem (uniqueness within a class).</strong> Let \(h &gt; k\) and let
+\(V_H\) \((k/h)\)-intimidate \(V_L\). Then within the class \(\mathcal{C}\) of
+monotone-strategy equilibria, the equilibrium outcome is unique: every L type bids 0, and
+the H side plays the symmetric \(k\)-prize equilibrium of the \(h\)-player game.
+(Athey/Reny: \(\mathcal{C} \ne \varnothing\).)</p>
+</blockquote>
+
+<p>Status of the required pieces: Lemma A (atoms only at 0) — standard, unwritten.
+Lemma B (within-group symmetry) — appendix has the core argument; needs the differentiability
+and ODE steps made in-house (Maskin–Riley/Lebrun technique for the \(b = 0\) boundary;
+LiParreiras15 folder may already contain it). Lemma C — done above, write up.
+Continuity-is-WLOG (or restate Theorem&nbsp;1 for monotone strategies directly) — Lemma A
+should deliver this, turning "continuous equilibrium" from an assumption into a theorem.
+Symmetric-side uniqueness — Chawla–Hartline if its scope covers \(k\) prizes, else an
+in-house ODE argument. Plus, ideally, one worked <strong>multiplicity example outside the
+intimidation region</strong> (the example file is the natural seed) to answer Bénabou's
+"sufficiently different in terms of primitives" constructively.</p>
+
+<h4>3.6 Suggested reading order for Sergio</h4>
+
+<ol>
+<li>LiParreiras15 folder (what's already proven in-house; decides how much of Lemma B
+exists).</li>
+<li>Maskin &amp; Riley (2003) §§ on the low-end boundary condition; then Lebrun (2006) — the
+uniqueness <em>technique</em> to transplant.</li>
+<li>Amann &amp; Leininger (1996) — the \(n = 2\) solved case, for contrast and ODE
+setup.</li>
+<li>Athey (2001) §4–5 + Reny (2011) intro and examples — to nail the existence cite for
+\(\mathcal{C}\) and confirm all-pay coverage (the <span class="tag">[CHECK]</span> in
+§3.2).</li>
+<li>Chawla &amp; Hartline (2013) — scope check; if \(k\) prizes are covered, the symmetric
+side is free.</li>
+<li>Own papers: Parreiras–Rubinchik (2010) §pathologies; Lu–Parreiras Redux.</li>
+<li>Olszewski–Siegel (2016) — only when drafting the robustness/large-contests
+discussion.</li>
+</ol>
+
+<hr>
+
+<h3>4. Session notes</h3>
+
+<ul>
+<li><strong>Blockers:</strong> none. Deferred per brief: Theorem&nbsp;1's own hostile
+verification (the multi-prize FOC system at \(\bar b_L\), lines 240–273) — next natural
+Track&nbsp;B assignment, now feeding §3.5.</li>
+<li><strong>For the maestro's status board:</strong> Task&nbsp;1 SOUND WITH GAPS (G1–G3
+patchable; replacement proof supplied in §1.3); Task&nbsp;2 corrected statements in §2;
+uniqueness addendum §3 added at Sergio's in-session direction — sequencing of Lemmas A–D now
+has Sergio reading §3.6 in parallel.</li>
+<li><strong>New files this session:</strong> this report; <code>scratch-prop1.wl</code>,
+<code>scratch-prop1.jl</code>, <code>scratch-prop1b.jl</code>
+(footnote&nbsp;<a href="#fn1"><sup>1</sup></a>). No pre-existing file was modified.</li>
+</ul>
+
+<hr>
+
+<p class="fn" id="fn1"><sup>1</sup> Computational corroboration (kept per the original brief,
+compressed per Sergio's directive): <code>scratch-prop1.wl</code> (wolframscript) verifies
+symbolically the (1)→(2) substitution, the §1.1(e) closed-form equilibrium against every
+Figure&nbsp;1 curve and domain, the threshold equivalences of §2, and the Table&nbsp;1
+recomputation. <code>scratch-prop1.jl</code> + corrected harness
+<code>scratch-prop1b.jl</code> (julia) compute \(U_L(b \mid \bar v_L)\) over the whole bid
+range for the brief's uniform \(h = 2\), \(k = 1\) example (decreasing, with
+\(10^6\)-draw Monte Carlo cross-check of \(W_L\)) and run the requested counterexample
+search: 8,000 random CDFs × \(h \in \{2, \dots, 8\}\) at the tightest admissible
+\((\lambda, \bar v_L)\) — no violation of Proposition&nbsp;1's conclusion; worst case
+\(U_L\) stays strictly negative with relative margin \(\sim 5 \times 10^{-4}\) at the
+engineered near-boundary parameters. Two false positives in the first harness were bugs in
+the test harness (sup-estimation grid too coarse near 0; float cancellation at \(z^h\)
+scale), not in the proposition — documented in the headers of the b-file.</p>
+
+</body>
+</html>

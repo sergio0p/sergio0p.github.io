@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Jacobian is the recovery map, and its coupling vector obeys the W·G law</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">The Jacobian is the recovery map, and its coupling vector obeys the $W\!\cdot\!G$ law</p>
+
+<p class="note">4-WinProb · arbitrary distinct players · $k$ arbitrary · Symbolics residual 0 (all pairs, $n,k$ tested) · 2026-06-13</p>
+
+<p>Two recursions sit in the WinProb notes that look unrelated. One, in <code>dy_plan_3.html</code>, builds the matrix $M$ whose determinant the sign-uniformity conjecture concerns; it adds one player by conditioning, $W_i(k,n{+}1)=G_{n+1}W_i(k,n)+(1-G_{n+1})W_i(k{-}1,n)$. The other, in <code>wg-difference-recursion.html</code>, is the recovery-side identity $W_iG_i-W_jG_j=(G_i-G_j)\widehat W^{(k-1)}_{ij}$. This note shows they are the same problem seen twice: $M$ is exactly the Jacobian of the recovery map, the conditioning recursion is the induction step on that Jacobian, and the coupling vector that step turns on satisfies a difference identity of the very same shape as the $W\!\cdot\!G$ recursion.</p>
+
+<p class="section">1. $M$ is the recovery Jacobian</p>
+
+<p>Players $\ell$ are above the in-the-money threshold with probability $1-G_\ell$ and below with $G_\ell$; odds $r_\ell=\tfrac{1-G_\ell}{G_\ell}$. With $k$ prizes, player $i$ wins iff at most $k-1$ of the others are above, so the win probability is the cumulative</p>
+
+$$W_i=W_i^{(k,n)}=\sum_{m=0}^{k-1}\ \sum_{\substack{A\subseteq[n]\setminus\{i\}\\|A|=m}}\ \prod_{\ell\in A}(1-G_\ell)\prod_{\ell\notin A\cup\{i\}}G_\ell.$$
+
+<p>Recovery is the inverse of the forward map $\Phi:(0,1)^n\to\mathbb R^n$, $\;\Phi(G)=(W_1,\dots,W_n)$. Differentiate. Because $W_i$ does not contain $G_i$, the diagonal vanishes; for $j\neq i$, lowering the $j$-factor telescopes the cumulative sum to its top layer:</p>
+
+<div class="box key">
+$$\frac{\partial W_i}{\partial G_j}=\sum_{\substack{A\subseteq[n]\setminus\{i,j\}\\|A|=k-1}}\prod_{\ell\in A}(1-G_\ell)\prod_{\ell\notin A\cup\{i,j\}}G_\ell=m_{ij},\qquad \frac{\partial W_i}{\partial G_i}=0.$$
+</div>
+
+<p>That right-hand side is verbatim the matrix entry $m_{ij}$ of <code>dy_plan_3.html</code> (its $x_\ell=G_\ell$, $y_\ell=1-G_\ell$). So $M=\big[\partial W_i/\partial G_j\big]$ is the Jacobian of $\Phi$, symmetric, zero diagonal. The sign-uniformity conjecture $\det M=(-1)^{n-1}P(x,y)$ with $P>0$ on the positive orthant is therefore not a curiosity about a determinant: it says the recovery Jacobian never vanishes on $(0,1)^n$ — local recoverability everywhere. <em>[Correction 2026-07-12: the global upgrade needs properness of $\Phi$ onto its image <strong>plus</strong> a singleton fiber (proper local diffeo = covering of the image, not yet injective); neither is proven — see <code>globalization-gap.md</code>.]</em> The <code>Dy</code> program and the recovery problem are one program.</p>
+
+<p class="section">2. The conditioning recursion is the induction step</p>
+
+<p>Add a player $n{+}1$ and condition on whether its bid falls below player $i$'s threshold (probability $G_{n+1}$):</p>
+
+$$W_i(k,n{+}1)=G_{n+1}\,W_i(k,n)+(1-G_{n+1})\,W_i(k{-}1,n).$$
+
+<p>The new win probability is a convex combination of two smaller contests — the $k$-prize and the $(k{-}1)$-prize fields on the original $n$ players. This is the exact form of the obstruction noted earlier against an "extension" reading of the induction: dropping in one bidder does not append a coordinate, it re-mixes every incumbent's probability. Differentiating the convex combination in the $G_j$ ($j\le n$) and in $G_{n+1}$ gives the bordered Jacobian</p>
+
+<div class="box">
+$$M^{(k,n+1)}=\begin{pmatrix}A & b\\[2pt] b^{\top} & 0\end{pmatrix},\qquad
+A=G_{n+1}\,M^{(k,n)}+(1-G_{n+1})\,M^{(k-1,n)},\qquad
+b_i=W_i^{(k,n)}-W_i^{(k-1,n)}.$$
+</div>
+
+<p>The interior block $A$ inherits the same convex combination; the border $b$ is the sensitivity of each incumbent to the new player, $b_i=\partial W_i(k,n{+}1)/\partial G_{n+1}$, and the bottom row is $b^{\top}$ by symmetry of $M$. For invertible $A$ the Schur complement of the zero corner is $\det M^{(k,n+1)}=\det(A)\,(0-b^{\top}A^{-1}b)$, and since $\operatorname{adj}(A)=\det(A)\,A^{-1}$ this is a polynomial identity valid throughout:</p>
+
+<div class="box key">
+$$\det M^{(k,n+1)}=-\,b^{\top}\!\operatorname{adj}(A)\,b=-\sum_{i,l=1}^{n}b_i\,b_l\,C_{il}(A),\qquad C_{il}(A)=(-1)^{i+l}\det A_{\hat i,\hat l}.$$
+</div>
+
+<p>So the induction on $(k,n)$ closes if one controls the sign of the quadratic form $b^{\top}\!\operatorname{adj}(A)\,b$. Here is the difficulty in one line: $A$ has zero diagonal, so it is never definite, and the sign of $b^{\top}\!\operatorname{adj}(A)\,b$ is not fixed by $\det A$ alone — it depends on the direction of $b$. The induction needs structure on $b$, not just on $A$.</p>
+
+<p class="section">3. The coupling vector is the bubble probability</p>
+
+<p>Telescoping the cumulative win probability identifies $b$ with a single layer:</p>
+
+$$b_i=W_i^{(k,n)}-W_i^{(k-1,n)}=\sum_{\substack{A\subseteq[n]\setminus\{i\}\\|A|=k-1}}\prod_{\ell\in A}(1-G_\ell)\prod_{\ell\notin A\cup\{i\}}G_\ell
+=\Pr[\text{exactly }k{-}1\text{ of the others are above}].$$
+
+<p>This is the "bubble" probability: player $i$ sits exactly on the in-the-money margin. It is the precise quantitative form of the remixing in §2 — the amount by which the new player perturbs $W_i$ is exactly the chance player $i$ was on the bubble. Pulling out the common $\prod G$ and writing each ratio as an odds, with $g(t)=\prod_\ell(1+r_\ell t)$ and $\omega:=\prod_{\ell=1}^{n}G_\ell=1/g(1)$,</p>
+
+$$b_i=e_{k-1}(r_{-i})\prod_{\ell\neq i}G_\ell,\qquad\text{hence}\qquad \beta_i:=G_ib_i=\omega\,e_{k-1}(r_{-i}).$$
+
+<p class="section">4. The coupling vector obeys the $W\!\cdot\!G$ law</p>
+
+<p>The rescaled coupling $\beta_i=G_ib_i$ is the universal weight $\omega$ times a single elementary-symmetric layer of the deleted odds — structurally the same object the $W\!\cdot\!G$ note handled, one layer up. Apply its pairwise-deletion lemma,</p>
+
+$$e_m(r_{-i})-e_m(r_{-j})=(r_j-r_i)\,e_{m-1}(r_{-ij}),$$
+
+<p>at $m=k-1$:</p>
+
+$$\beta_i-\beta_j=\omega\big[e_{k-1}(r_{-i})-e_{k-1}(r_{-j})\big]=\omega\,(r_j-r_i)\,e_{k-2}(r_{-ij}).$$
+
+<p>Convert back. Clearing denominators in $r=\tfrac{1-G}{G}$ gives $(r_j-r_i)G_iG_j=G_i-G_j$, and $\omega=G_iG_j\prod_{\ell\neq i,j}G_\ell$, so $\omega(r_j-r_i)=(G_i-G_j)\prod_{\ell\neq i,j}G_\ell$. The trailing factor $e_{k-2}(r_{-ij})\prod_{\ell\neq i,j}G_\ell$ is itself a bubble probability — exactly $k{-}2$ above among the $n{-}2$ players with $i,j$ removed. Writing it $\widehat b^{(k-2)}_{ij}$,</p>
+
+<div class="box key">
+$$\boxed{\;G_ib_i-G_jb_j=(G_i-G_j)\,\widehat b^{(k-2)}_{ij}\;}$$
+</div>
+
+<p>— the same shape as the recovery identity $W_iG_i-W_jG_j=(G_i-G_j)\widehat W^{(k-1)}_{ij}$, now on the single-layer bubble vector rather than the cumulative win probability, and one prize deeper. The two coordinates of the bordered Jacobian — the data $W$ that fills $A$ and the border $b$ — are governed by one and the same comonotone rank-one law.</p>
+
+<p class="section">5. The handle this gives the induction</p>
+
+<p>Since $\widehat b^{(k-2)}_{ij}>0$ on the interior for $k\ge2$ (it is a probability; at $k=2$ it is $\prod_{\ell\neq i,j}G_\ell$), the boxed identity fixes the order of the rescaled border:</p>
+
+$$\operatorname{sign}\!\big(G_ib_i-G_jb_j\big)=\operatorname{sign}(G_i-G_j)=\operatorname{sign}(r_j-r_i)\quad\text{for all }k.$$
+
+<p>So $i\mapsto G_ib_i$ is comonotone with the player ordering, with rank-one increments — the diagonal rescaling $b_i\mapsto G_ib_i$ aligns $b$ to the same monotone direction that orders the contest. That is precisely the directional control on $b$ that §2 found missing: the sign of $b^{\top}\!\operatorname{adj}(A)\,b$ was undetermined by $A$ alone, and the obstruction lived in the unknown direction of $b$. The boxed identity pins that direction. It does not by itself close the sign of the quadratic form, but it converts "control $b$" from an open question into a known rank-one comonotone structure the induction can carry.</p>
+
+<p>Two boundary checks. At $k=1$, $b_i=\prod_{\ell\neq i}G_\ell=\omega/G_i$, so $G_ib_i=\omega$ for every $i$: the border is constant, all differences vanish, and $\widehat b^{(-1)}\equiv0$. At $k=2$, $\widehat b^{(0)}_{ij}=\prod_{\ell\neq i,j}G_\ell$ and $G_ib_i-G_jb_j=(G_i-G_j)\prod_{\ell\neq i,j}G_\ell$ — the affine-in-odds case, matching the $k=2$ collapse seen for the win probabilities.</p>
+
+<p class="section">6. Honest status</p>
+
+<div class="box">
+Like the $W\!\cdot\!G$ identity, the boxed relation is a structural law among the unknowns: $b_i$ carries the counterfactual $W_i^{(k-1)}$, which is not observed data. So this is leverage for the injectivity / sign route — it is the missing directional control on the border $b$ in the Jacobian induction $\det M^{(k,n+1)}=-b^{\top}\!\operatorname{adj}(A)\,b$ — not a closed-form data constraint for direct algebraic inversion. The contribution is to fuse the two recursions: the determinant program of <code>dy_plan_3.html</code> is the recovery problem (§1), and the $W\!\cdot\!G$ machinery of <code>wg-difference-recursion.html</code> supplies exactly the object that program's induction step turns on (§4). Closing the sign of the quadratic form for all $n$ remains open.
+</div>
+
+<p class="section">7. Symbolic verification</p>
+
+<p>All checks in Symbolics.jl, $\operatorname{expand}$ over $\mathbb{Q}(G)$, $G_\ell$ independent indeterminates, win probabilities built from the exact "$\le k-1$ above" expansion. The bordered-Jacobian bridges</p>
+
+$$\frac{\partial W_i}{\partial G_j}=m_{ij},\qquad \frac{\partial W_i}{\partial G_i}=0,\qquad b_i=W_i^{(k,n)}-W_i^{(k-1,n)}$$
+
+<p>hold identically (residual $0$) for $(n,k)\in\{(4,2),(4,3),(5,2),(5,3),(6,3)\}$, all $i,j$. The boxed coupling identity</p>
+
+$$G_ib_i-G_jb_j-(G_i-G_j)\,\widehat b^{(k-2)}_{ij}$$
+
+<p>simplifies to identically $0$ for every ordered pair $(i,j)$ at $(n,k)\in\{(4,2),(4,3),(5,2),(5,3),(5,4),(6,3),(6,4),(7,4)\}$ — all pairs, no residual. (An early run reported false positives at $k\ge3$ from a buggy subset enumerator that returned the empty list for $|A|\ge1$, collapsing both sides to $0$; the corrected enumerator confirms the genuine cancellation, including the nontrivial $k=2$ case the bug had flagged.)</p>
+
+<p class="note">Companion to wg-difference-recursion.html (the cumulative-layer identity), odds_ratio_global_polynomial.html (the deletion lemma), dy_plan_3.html (the matrix $M$, the conditioning recursion, the Schur complement). Cross-project: Meritocracy WG-identity.html.</p>
+
+</body>
+</html>

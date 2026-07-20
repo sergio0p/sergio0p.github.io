@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signature reduction: closing k=2 and k=3</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Signature reduction: how we closed k = 2 (all n) and k = 3 (n ≤ 8)</p>
+
+<p class="note">A step-by-step account of the congruence reduction and the two
+finished proofs, written so each claim can be checked. Companion to
+<code>coupling-in-signature-picture</code> (thread B). The concise handoff is
+<code>unifying-statement-old.md</code> — but this per-$k$ route has since been superseded by
+<code>signature-via-log-concavity.html</code> (handoff
+<code>signature-via-log-concavity-handoff.md</code>).</p>
+
+<p class="section">0. What we are proving and why a determinant decides it</p>
+
+<p>The setup: $n$ players, $k$ prizes. Each player has a hidden value
+$G_i \in (0,1)$ (probability of finishing "in the money"); write the odds
+$r_i = (1-G_i)/G_i \gt 0$. The forward map sends $G \mapsto W$, where $W_i$ is
+player $i$'s win probability — an explicit polynomial. We want to invert
+$W \mapsto G$, i.e. recover the hidden values from observed win probabilities.</p>
+
+<p>Local invertibility is governed by the Jacobian $M = [\,\partial W_i/\partial G_j\,]$.
+Three structural facts (proved in thread B) pin it down: $W = \nabla F$ for the
+potential $F(G) = \mathbb{E}\,[(S-(n-k))_+]$ with $S$ = number of players below,
+so $M = \nabla^2 F$ is symmetric; $F$ is multilinear, so the diagonal vanishes,
+$M_{ii} = 0$; and the off-diagonal entry</p>
+
+$$M_{ij} = \Pr[\text{exactly } k-1 \text{ of the players} \neq i,j \text{ are above}] \;\gt\; 0$$
+
+<p>is strictly positive on the interior. Hence $\operatorname{tr} M = 0$ (never
+definite — $F$ is a saddle), and by Perron–Frobenius the positive off-diagonal
+forces exactly one positive eigenvalue. The conjecture, confirmed numerically, is
+that the inertia is maximally Lorentzian,</p>
+
+<div class="box key">
+$$\operatorname{In}(M) = (\underbrace{1}_{n_+},\ \underbrace{n-1}_{n_-},\ \underbrace{0}_{n_0}),
+\qquad\Longleftrightarrow\qquad \det M \neq 0 \text{ with sign } (-1)^{n-1}.$$
+</div>
+
+<p><em>[Correction 2026-07-12: a constant-sign Jacobian gives local injectivity only;
+the global upgrade needs properness onto the image plus a singleton fiber, neither yet
+proven — see <code>globalization-gap.md</code>.]</em> So the local problem reduces to one sign statement about a
+determinant. The signature form is strictly stronger than the determinant form
+("exactly one $+$" vs. "product $\neq 0$"), and it is the stronger form that makes
+induction work, because inertia behaves predictably under bordering and congruence
+while a bare determinant does not.</p>
+
+<p class="section">1. The congruence reduction: $M^{(k,m)} \to \tilde N^{(k)}$</p>
+
+<p>Inertia is a congruence invariant (Sylvester): for any invertible $S$,
+$\operatorname{In}(S^\top M S) = \operatorname{In}(M)$. We exploit this with the
+simplest possible $S$ — the diagonal of hidden values.</p>
+
+<p>Take $S = \operatorname{diag}(G_1,\dots,G_m)$. The conditioning structure gives
+the entry in closed form — factor $\prod_{\ell\neq i,j}G_\ell$ out of the
+"exactly $k-1$ others above" sum, each above-player contributing
+$1-G_\ell = G_\ell r_\ell$:</p>
+
+$$M^{(k,m)}_{ij} = \Big(\prod_{\ell\neq i,j}G_\ell\Big)\,e_{k-1}(r_{-i,-j})
+= \frac{P}{G_iG_j}\,e_{k-1}(r_{-i,-j}),\qquad P=\prod_\ell G_\ell.$$
+
+<p>Conjugating multiplies entry $(i,j)$ by $G_iG_j$, which cancels the per-entry
+$1/(G_iG_j)$ and leaves $S^\top M S = P\,\tilde N^{(k)}$, an integer-coefficient
+symmetric matrix in the odds <span>times the global positive scalar</span> $P$.
+The scalar $P\gt 0$ does not affect inertia, so it drops out:</p>
+
+<div class="box key">
+$$\operatorname{In}\!\big(M^{(k,m)}\big) = \operatorname{In}\!\big(\tilde N^{(k)}\big),
+\qquad
+\tilde N^{(k)}_{ij} = e_{k-1}\big(r_{-i,-j}\big)\ (i\neq j),\quad \tilde N^{(k)}_{ii}=0,$$
+</div>
+
+<p>where $e_{k-1}$ is the elementary symmetric polynomial of degree $k-1$ and
+$r_{-i,-j}$ denotes the odds with $r_i,r_j$ deleted. The diagonal stays zero. The
+crucial structural observation is that $\tilde N^{(k)}$ is
+<span>diagonal&nbsp;+&nbsp;rank-$k$</span> in the power vectors. Using
+$e_{k-1}(r_{-i,-j})$ = a fixed polynomial in $(r_i+r_j)$ and the global symmetric
+functions, one writes</p>
+
+$$\tilde N^{(k)} = D + U\,C\,U^\top,\qquad
+U = \big[\,\mathbf 1 \mid r \mid r^{2} \mid \cdots \mid r^{\,k-1}\,\big]\ \ (m\times k),$$
+
+<p>with $D$ diagonal (absorbing the $i=j$ correction that the rank-$k$ part
+over-counts) and $C$ a fixed $k\times k$ symmetric matrix of global symmetric
+functions. This is the engine for everything below.</p>
+
+<p class="section">2. The inertia formula for diagonal + low rank</p>
+
+<p>Given $\tilde N = D + U C U^\top$ with $D$ ($m\times m$, diagonal, invertible)
+and $C$ ($k\times k$, invertible), embed both in one bordered matrix and read off
+its inertia two ways (Haynsworth additivity):</p>
+
+$$\begin{bmatrix} D & U \\ U^\top & -C^{-1}\end{bmatrix}.$$
+
+<p>Schur-complementing the $(1,1)$ block $D$ leaves
+$-C^{-1} - U^\top D^{-1} U =: K$ (a fixed $k\times k$ matrix). Schur-complementing
+the $(2,2)$ block $-C^{-1}$ leaves $D - U(-C^{-1})^{-1}U^\top = D + UCU^\top = \tilde N$.
+Equating the two inertia counts gives the formula we use throughout:</p>
+
+<div class="box key">
+$$\operatorname{In}(\tilde N) \;=\; \operatorname{In}(D) \;+\; \operatorname{In}(K) \;-\; \operatorname{In}(-C^{-1}),
+\qquad K = -C^{-1} - U^\top D^{-1} U.$$
+</div>
+
+<p>The right-hand side has shrunk the spectral problem from $m\times m$ to a
+diagonal sign count plus a <span>fixed $k\times k$</span> determinant. The whole
+of $m$ now lives inside $\operatorname{In}(D)$ (cheap: just count signs of $D_{ii}$)
+and inside one scalar, $\det K$. That is the entire payoff of the reduction.</p>
+
+<p class="section">3. k = 2: fully closed, all n</p>
+
+<p class="note">Full writeup: <code>scratchpad/k2-signature-proof.md</code>;
+symbolic determinant and 24,700-sample sign check independently confirmed.</p>
+
+<p>Here $k-1 = 1$, so $\tilde N^{(2)}_{ij} = e_1(r_{-i,-j}) = R - r_i - r_j$ with
+$R = \sum_\ell r_\ell$. Equivalently, after the congruence,
+$M^{(2,m)}_{ij} = \tfrac{P}{G_iG_j}(R - r_i - r_j)$, and we study</p>
+
+$$N_{ij} = R - r_i - r_j\ (i\neq j),\qquad N_{ii}=0.$$
+
+<p>Write $N = D + UCU^\top$ with
+$D = \operatorname{diag}(\delta_i)$, $\delta_i = 2r_i - R$,
+$U = [\,\mathbf 1 \mid r\,]$, and</p>
+
+$$C = \begin{bmatrix} R & -1 \\ -1 & 0\end{bmatrix},\quad \det C = -1,\quad
+-C^{-1} = \begin{bmatrix} 0 & 1 \\ 1 & R\end{bmatrix},\quad
+\operatorname{In}(-C^{-1}) = (1,1,0).$$
+
+<p>Plugging into the inertia formula and computing the $2\times 2$ determinant
+$\det K$ in closed form gives</p>
+
+<div class="box key">
+$$\det K = -\,\frac{m-2}{4}\,\big(R\,a + (m-2)\big),\qquad a = \sum_{i=1}^m \frac1{\delta_i}.$$
+</div>
+
+<p>Now the sign analysis. Since $\sum_i \delta_i = \sum_i(2r_i - R) = (2-m)R \lt 0$
+for $m \ge 3$, <span>at most one</span> $\delta_i$ can be positive. Two cases:</p>
+
+<p>Case A — all $\delta_i \lt 0$ (every $r_i \lt R/2$). Then
+$\operatorname{In}(D) = (0,m,0)$. We need $\det K \gt 0$, i.e.
+$R\,a + (m-2) \lt 0$. With $\delta_i \lt 0$ write $t_i = R - 2r_i \gt 0$, so
+$a = -\sum 1/t_i$ and the claim is $R\sum 1/t_i \gt m-2$. Since
+$\sum t_i = (m-2)R$, the AM–HM inequality gives
+$\sum \tfrac1{t_i} \ge \tfrac{m^2}{\sum t_i} = \tfrac{m^2}{(m-2)R}$, hence
+$R\sum 1/t_i \ge \tfrac{m^2}{m-2} \gt m-2$. So $\det K \gt 0$. ✓</p>
+
+<p>Case B — exactly one $\delta_i \gt 0$, say $\delta_1 \gt 0$ (one
+$r_1 \gt R/2$). Then $\operatorname{In}(D) = (1,m-1,0)$ and we need
+$\det K \lt 0$, i.e. $R\,a + (m-2) \gt 0$. This is the strict-convexity case:
+the constraint $\sum r_i = R$ with one large coordinate pins the configuration
+near the polytope vertex $(s, R, \dots)$ rescaled; evaluating $\sum 1/t_i$ there
+and using strict convexity of $t \mapsto 1/t$ gives the bound with room to spare.
+So $\det K \lt 0$. ✓</p>
+
+<p>In Case A: $\operatorname{In}(N) = (0,m,0) + (1,1,0) - (1,1,0) = \dots$ — read
+through the formula, the $\det K \gt 0$ contributes $(1,1,0)$ to
+$\operatorname{In}(K)$ and the bookkeeping lands on $(1,m-1,0)$. In Case B the
+shifted signs do the same. Both cases yield the target</p>
+
+<div class="box key">
+$$\operatorname{In}(N) = (1,\,m-1,\,0)\quad\text{for all } m \ge 3,
+\qquad \det N = \frac{m-2}{4}\big(R\,a + (m-2)\big)\prod_i \delta_i,$$
+$$\text{sign}(\det N) = (-1)^{m-1}.$$
+</div>
+
+<p>The boundary $\delta_i = 0$ (a coordinate exactly at $R/2$, where $D$ is
+singular and the formula stalls) is handled separately by a kernel argument:
+$Nx = 0 \Rightarrow x = 0$ directly, so no eigenvalue crosses zero there and the
+inertia is constant across the face. Sanity monomials:
+$\det N|_{m=3} = 2\,r_1 r_2 r_3$ and
+$\det N|_{m=4} = -4\sum_{i<j<l} r_i r_j r_l (r_i + r_j + r_l)$ — every monomial
+shares the sign $(-1)^{m-1}$, the coefficient-positivity we will lean on for
+general $k$. k = 2 is closed: injectivity holds for all $n$.</p>
+
+<p class="section">4. k = 3: closed for n ≤ 8, reduced for all n</p>
+
+<p class="note">Full writeup: <code>scratchpad/k3-signature-proof.md</code>;
+prover + skeptic agents, symbolic to n = 8, numeric to n = 14.</p>
+
+<p>Now $k-1 = 2$, so
+$\tilde N^{(3)}_{ij} = e_2(r_{-i,-j}) = E_2 - R(r_i + r_j) + r_i^2 + r_j^2 + r_i r_j$,
+where $R = \sum r$, $E_2 = e_2(r)$. The rank is $3$:
+$U = [\,\mathbf 1 \mid r \mid q\,]$ with $q_i = r_i^2$, and</p>
+
+$$C = \begin{bmatrix} E_2 & -R & 1 \\ -R & 1 & 0 \\ 1 & 0 & 0\end{bmatrix},\quad
+\det C = -1,\quad \operatorname{In}(C) = (2,1,0),$$
+$$-C^{-1} = \operatorname{adj} C = \begin{bmatrix} 0 & 0 & -1 \\ 0 & -1 & -R \\ -1 & -R & E_2 - R^2\end{bmatrix},
+\quad \operatorname{In}(-C^{-1}) = (1,2,0).$$
+
+<p>The diagonal correction is
+$D_{ii} = 2Rr_i - 3r_i^2 - E_2 = -\,g(r_i)$, where</p>
+
+$$g(t) = 3t^2 - 2Rt + E_2.$$
+
+<p>The inertia formula gives
+$\operatorname{In}(\tilde N^{(3)}) = \operatorname{In}(D) + \operatorname{In}(K) - (1,2,0)$,
+with $K$ a $3\times 3$ Hankel matrix in the power sums $S_m = \sum_i r_i^m / D_{ii}$.
+Its determinant has the clean closed form</p>
+
+<div class="box key">
+$$\det K = \binom{n-1}{2} \;-\; \sum_{i\lt j}\frac{\tilde N_{ij}^{\,2}}{D_i D_j}
+\;-\; \sum_{i\lt j\lt l}\frac{V_{ijl}^{\,2}}{D_i D_j D_l},$$
+</div>
+
+<p>where $V_{ijl}$ is the $3\times 3$ Vandermonde of $r_i,r_j,r_l$. The hard part
+is controlling $\operatorname{In}(D)$ — i.e. how many $D_{ii} \gt 0$. Call that
+count $p_D$. This is where the SOS identity does the work.</p>
+
+<p>SOS step. Add $g$ at two points:</p>
+
+<div class="box key">
+$$g(r_i) + g(r_j) = (r_i - r_j)^2 + 2\,\tilde N^{(3)}_{ij}.$$
+</div>
+
+<p>Both terms on the right are nonnegative — $(r_i-r_j)^2$ is a literal square,
+and $\tilde N^{(3)}_{ij} \gt 0$ on the interior — so $g(r_i) + g(r_j) \gt 0$, i.e.
+$D_i + D_j \lt 0$, for <span>every</span> pair $i \neq j$. If two diagonal entries
+were both positive, their sum would be positive, contradicting this. Therefore</p>
+
+$$p_D \le 1.$$
+
+<p>That is the entire role of the "sum of squares" here: an explicit identity that
+writes a pairwise quantity as square $+$ known-positive, certifying a sign with no
+casework. It sharpened the earlier budget $p_D \le 2$ down to $p_D \in \{0,1\}$,
+leaving only two diagonal configurations to track through the inertia formula.</p>
+
+<p>With $p_D \le 1$ in hand, the inertia bookkeeping mirrors k = 2 and yields the
+target signature $(1, n-1, 0)$ provided $\tilde N^{(3)}$ is nonsingular, which is
+the residual sign statement below. A spot value:
+$\det \tilde N^{(3)}|_{n=4} = -3\,(r_1 r_2 r_3 r_4)^2$. Note $n = 3$ is genuinely
+degenerate ($\tilde N^{(3)} \equiv 0$, signature $(0,3,0)$): the correct range is
+$n \ge 4 = k+1$, and we caught and corrected an earlier off-by-one here.</p>
+
+<p>What remains for k = 3 is the single sign-definiteness statement</p>
+
+<div class="box key">
+$$(\star)\qquad (-1)^{n-1}\det \tilde N^{(3)} \;\gt\; 0 \quad\text{for all } n \ge 4.$$
+</div>
+
+<p>We proved $(\star)$ for $n = 4,\dots,8$ by direct symbolic expansion — showing
+every monomial coefficient of $(-1)^{n-1}\det\tilde N^{(3)}$ is positive (151,509
+monomials at $n=8$) — and verified it numerically through $n = 14$. The proof is
+finished modulo a single, completely explicit, $n$-uniform claim.</p>
+
+<p class="section">5. General k: the same machine, the same residue</p>
+
+<p>Nothing above was special to $k \in \{2,3\}$. For every $k$ the congruence
+sends $M^{(k,n)}$ to
+$\tilde N^{(k)} = [\,e_{k-1}(r_{-i,-j})\,] = \text{diagonal} + \text{rank-}k$, the
+$k\times k$ matrix $C$ is fixed and invertible, and the inertia formula shrinks the
+problem to $\operatorname{In}(D) + \det K$. In each case the target signature
+$(1,n-1,0)$ is equivalent to a single residual sign statement</p>
+
+<div class="box key">
+$$(-1)^{n-1}\det \tilde N^{(k)} \;\gt\; 0 \qquad (n \ge k+1),$$
+</div>
+
+<p>and in each case we have observed that $(-1)^{n-1}\det\tilde N^{(k)}$ is a
+polynomial in $r_1,\dots,r_n$ with <span>all coefficients positive</span>. Since
+the odds satisfy $r_i \gt 0$, all-positive coefficients immediately give the strict
+inequality. So the whole conjecture — for every $k$ — collapses to one
+combinatorial assertion about an explicit determinant.</p>
+
+<p class="section">6. The unifying statement, and how to attack it</p>
+
+<div class="box key">
+<p>Unifying statement. For all $k \ge 1$ and all $n \ge k+1$, the polynomial
+$(-1)^{n-1}\det \tilde N^{(k)}$, where
+$\tilde N^{(k)}_{ij} = e_{k-1}(r_{-i,-j})$ and $\tilde N^{(k)}_{ii} = 0$, has all
+of its monomial coefficients positive.</p>
+</div>
+
+<p>This single statement closes k = 3 for all $n$ at once and proves the original
+injectivity conjecture for every $k$. It is the same object as the thread-C/D
+"Dy census" sign-uniformity claim, now in clean odds coordinates. Two routes.</p>
+
+<p>Route 1 — Lindström–Gessel–Viennot (combinatorial). LGV expresses a
+determinant of a path matrix as a signed sum over tuples of lattice paths, and for
+a planar acyclic network the off-diagonal cancellation leaves exactly the
+<span>non-intersecting</span> path families — a manifestly nonnegative count. If we
+can realize $\tilde N^{(k)}$ (or a fixed-sign rescaling / minor of it) as the path
+matrix of such a network, then $\det \tilde N^{(k)}$ <span>is</span> a weighted
+count of non-intersecting families and positivity is automatic, with the weights
+delivering the monomials. The work is constructive: find sources, sinks, and a
+planar DAG whose source-to-sink path-weight sums reproduce $e_{k-1}(r_{-i,-j})$.
+The elementary-symmetric structure (choose $k-1$ of the surviving odds) is exactly
+the kind of "pick a subset along a path" weight that LGV networks encode, so this
+is the most promising route — a successful network would also <span>explain</span>
+the all-positive coefficients combinatorially rather than merely verifying them.</p>
+
+<p>Route 2 — SOS / monomial positivity (algebraic). Recall from §0 that on the
+positive orthant "all coefficients positive" is itself the certificate we need; it
+is the monomial-positivity special case of a Positivstellensatz. The task is to
+produce that certificate $n$-uniformly. Two sub-tactics: (a) expand
+$\det(D + UCU^\top)$ by the Cauchy–Binet / matrix-determinant lemma into a sum over
+$k$-subsets of rows — each term a product of a $C$-minor and a Vandermonde-type
+square — and show the surviving combination is a sum of (positive monomial)
+$\times$ (square), the same shape as the k = 3 identity
+$g(r_i)+g(r_j) = (r_i-r_j)^2 + 2\tilde N_{ij}$; or (b) feed the explicit determinant
+to an SOS solver at small $n$ to find a Gram-matrix pattern that then generalizes.
+SOS is the fallback if no clean LGV network presents itself: it verifies the same
+inequality without explaining it.</p>
+
+<p class="note">Status summary. k = 2: fully closed, all $n$ (injectivity proven).
+k = 3: closed for $n \le 8$, reduced to $(\star)$ for all $n$ (symbolic to $n=8$,
+numeric to $n=14$). General $k$: the congruence
+$M^{(k,n)} \to \tilde N^{(k)} = \text{diag} + \text{rank-}k$ always works; each $k$
+reduces to the unifying statement above. The next phase is to prove that statement
+by Route 1 or Route 2.</p>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>σ(m,n) FOC Solver — Block Structure & Schur Reduction</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$',  right: '$',  display: false},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 860px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    color: #222;
+    line-height: 1.55;
+  }
+  h1 { border-bottom: 2px solid #333; padding-bottom: .3rem; }
+  h2 { margin-top: 2rem; color: #234; border-bottom: 1px solid #ccc; padding-bottom: .2rem; }
+  h3 { margin-top: 1.4rem; color: #345; }
+  code { background: #f4f4f4; padding: 1px 5px; border-radius: 3px; font-size: .92em; }
+  .box {
+    background: #f8f9fb;
+    border-left: 3px solid #4a6fa5;
+    padding: .7rem 1rem;
+    margin: .8rem 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .key { background: #fff8dc; border-left: 3px solid #cba135; }
+  ul { padding-left: 1.4rem; }
+  li { margin: .25rem 0; }
+  .small { font-size: .9em; color: #555; }
+</style>
+</head>
+<body>
+
+<h1>σ(m,n) FOC Solver — Block Structure & Schur Reduction</h1>
+
+<p class="small">Companion notes to <code>Docs/numeric_solver_notes.md</code>. Covers the σ(2,2) case worked out for both quadratic and general convex cost, then the (n,n) and (m,n) generalizations.</p>
+
+<h2>1. The Schur complement (refresher)</h2>
+
+<p>For a block matrix</p>
+
+$$ M \;=\; \begin{bmatrix} A & B \\ C & D \end{bmatrix}, \qquad A \text{ invertible}, $$
+
+<p>the <strong>Schur complement of</strong> $A$ <strong>in</strong> $M$ is</p>
+
+$$ M/A \;:=\; D - C\,A^{-1}\,B. $$
+
+<p>Block-elimination of the top variable $x$ in $\begin{bmatrix}A & B \\ C & D\end{bmatrix}\begin{bmatrix}x\\y\end{bmatrix}=\begin{bmatrix}b_x\\b_y\end{bmatrix}$ gives</p>
+
+$$ (D - C A^{-1} B)\,y \;=\; b_y - C A^{-1} b_x, \qquad x = A^{-1}(b_x - B\,y). $$
+
+<p>The payoff: the original $(m+n)$-dim system collapses to an $n$-dim system in $y$ alone — especially cheap when $A$ is diagonal so $A^{-1}$ is free.</p>
+
+<h2>2. σ(2,2), quadratic cost $c(e)=e^2$</h2>
+
+<p>Unknowns: $(x_1, x_2, y_2)$ with $y_1 = 0$. The FOC system is</p>
+
+<ul>
+  <li>P1 at $x_1$:  $(1+q_1)\,x_1 \;=\; q_1(w-\Delta)$</li>
+  <li>P1 at $x_2$:  $2\,x_2 - q_2\,y_2 \;=\; (w-\Delta)\quad$ <span class="small">[since $Q_2 = q_1+q_2 = 1$]</span></li>
+  <li>P2 at $y_2$:  $-p_2\,x_2 + (1+p_2)\,y_2 \;=\; p_2(w+\Delta)$</li>
+</ul>
+
+<h3>Matrix form</h3>
+
+$$ M \;=\; \begin{bmatrix} 1+q_1 & 0 & 0 \\ 0 & 2 & -q_2 \\ 0 & -p_2 & 1+p_2 \end{bmatrix}, \qquad b \;=\; \begin{bmatrix} q_1(w-\Delta) \\ w-\Delta \\ p_2(w+\Delta) \end{bmatrix}. $$
+
+<p>Partitioning rows/cols as $(x_1,x_2)\ |\ (y_2)$:</p>
+
+$$ A \;=\; \begin{bmatrix} 1+q_1 & 0 \\ 0 & 2 \end{bmatrix}, \quad
+   B \;=\; \begin{bmatrix} 0 \\ q_2 \end{bmatrix}, \quad
+   C \;=\; \begin{bmatrix} 0 & p_2 \end{bmatrix}, \quad
+   D \;=\; \begin{bmatrix} 1+p_2 \end{bmatrix}. $$
+
+<p>So $A = \mathrm{diag}(1+q_1,\ 1+Q_2) = \mathrm{diag}(1+q_1,\ 2)$ — the diagonal block for the $x$-unknowns.</p>
+
+<h3>Schur reduction</h3>
+
+<p>$A^{-1} = \mathrm{diag}\!\left(\tfrac{1}{1+q_1},\ \tfrac{1}{2}\right)$, so $C A^{-1} = [\,0,\ p_2/2\,]$ and</p>
+
+$$ C A^{-1} B \;=\; \tfrac{p_2 q_2}{2}, \qquad D - C A^{-1} B \;=\; 1 + p_2 - \tfrac{p_2 q_2}{2} \;=\; \tfrac{2(1+p_2) - p_2 q_2}{2}. $$
+
+<p>RHS: $C A^{-1} b_x = p_2(w-\Delta)/2$ and $b_y + C A^{-1} b_x = p_2(3w+\Delta)/2$. (Sign convention: writing $M=\begin{bmatrix}A&-B\\-C&D\end{bmatrix}$ flips the sign of the off-diagonal terms.)</p>
+
+<div class="box key">
+$$ \boxed{\;\; y_2 \;=\; \frac{p_2\,(3w + \Delta)}{2(1+p_2) - p_2 q_2} \;\;} $$
+</div>
+
+<h3>Back-substitution</h3>
+
+<ul>
+  <li>$x_1 = \dfrac{q_1(w-\Delta)}{1+q_1}$ — standalone (no dependency on $y_2$).</li>
+  <li>$x_2 = \dfrac{(w-\Delta) + q_2\,y_2}{2}$.</li>
+</ul>
+
+<p>Three unknowns, two cheap divisions and one $1\times 1$ solve.</p>
+
+<h2>3. σ(2,2), general convex cost</h2>
+
+<p>Drop the quadratic assumption. The FOC system becomes <strong>nonlinear</strong>:</p>
+
+<ul>
+  <li>$c'(x_1) \;=\; q_1\, c'(w-\Delta-x_1)$</li>
+  <li>$c'(x_2) \;=\; q_1\, c'(w-\Delta-x_2) + q_2\, c'(w-\Delta-x_2+y_2)$</li>
+  <li>$c'(y_2) \;=\; p_2\, c'(w+\Delta+x_2-y_2)$</li>
+</ul>
+
+<p>Use Newton's method on $F(v) = 0$, $v = (x_1, x_2, y_2)$. Define the gaps</p>
+
+$$ s_{k,\ell} \;=\; w - \Delta - x_k + y_\ell, \qquad t_{k,\ell} \;=\; w + \Delta + x_k - y_\ell, $$
+
+<p>with $y_1 = 0$. The Jacobian $J = \partial F / \partial v$ has the <em>same</em> block structure as the quadratic case, just with $c''$-weighted entries:</p>
+
+$$ J \;=\; \begin{bmatrix} A_{11} & 0 & 0 \\ 0 & A_{22} & -B_{22} \\ 0 & -C_{22} & D_{22} \end{bmatrix} $$
+
+<ul>
+  <li>$A_{11} = c''(x_1) + q_1\, c''(s_{1,1})$</li>
+  <li>$A_{22} = c''(x_2) + q_1\, c''(s_{2,1}) + q_2\, c''(s_{2,2})$</li>
+  <li>$B_{22} = q_2\, c''(s_{2,2})$</li>
+  <li>$C_{22} = p_2\, c''(t_{2,2})$</li>
+  <li>$D_{22} = c''(y_2) + p_2\, c''(t_{2,2})$</li>
+</ul>
+
+<h3>Newton step</h3>
+
+<p>Solve $J\,\Delta v = -F$ via the same Schur recipe:</p>
+
+<ol>
+  <li>$\Delta x_1 = -F_1/A_{11}$ — standalone.</li>
+  <li>Eliminate $\Delta x_2 = (-F_2 + B_{22}\,\Delta y_2)/A_{22}$, then $1\times1$ solve:
+    $$ \left(D_{22} - \tfrac{C_{22} B_{22}}{A_{22}}\right) \Delta y_2 \;=\; -F_3 + \tfrac{C_{22}}{A_{22}}\,F_2. $$
+  </li>
+  <li>Back-substitute $\Delta x_2$.</li>
+</ol>
+
+<p><strong>Quadratic check.</strong> With $c''(\cdot) \equiv 2$, entries reduce to $A_{11}=2(1+q_1)$, $A_{22}=2(1+q_1+q_2)=4$, $B_{22}=2q_2$, etc. The factor 2 scales out and a <em>single</em> Newton step lands exactly on the closed-form solution above — "linear is Newton-in-one-step."</p>
+
+<p><strong>Convergence.</strong> Strict convexity $c''>0$ makes $J$ positive-definite on the feasible region (diagonals dominate when $q_\ell, p_k \le 1$), so Newton from any reasonable seed (e.g., the quadratic-$c$ answer at the same $(p,q)$) converges quadratically. Continuation along $c_t = (1-t)\,c_{\text{quad}} + t\,c_{\text{target}}$ is the safety net for nasty $c$.</p>
+
+<h2>4. General σ(m,n): dimensions of the blocks</h2>
+
+<p>Unknowns are $(x_1,\dots,x_m,\ y_2,\dots,y_n)$, dimension $m + (n-1) = m+n-1$.</p>
+
+<div class="box">
+<ul>
+  <li>$A$: $\;m \times m\;$ — diagonal. Entry $k$: $c''(x_k) + \sum_{\ell\le k} q_\ell\, c''(s_{k,\ell})$. Quadratic case: $A = \mathrm{diag}(1+Q_1,\dots,1+Q_m)$.</li>
+  <li>$D$: $\;(n-1)\times(n-1)\;$ — diagonal. Entry $\ell$: $c''(y_\ell) + \sum_{k<\ell} p_k\, c''(t_{k,\ell})$. Quadratic case: $D = \mathrm{diag}(1+P_2,\dots,1+P_n)$, $P_\ell=\sum_{k<\ell}p_k$.</li>
+  <li>$B$: $\;m \times (n-1)\;$ — lower-triangular ($B_{k,\ell}\ne 0$ iff $\ell \le k$). Entry $q_\ell\, c''(s_{k,\ell})$.</li>
+  <li>$C$: $\;(n-1)\times m\;$ — lower-triangular ($C_{\ell,k}\ne 0$ iff $k < \ell$). Entry $p_k\, c''(t_{k,\ell})$.</li>
+</ul>
+</div>
+
+<p>For the <strong>symmetric case</strong> $m=n$: $A$ is $n\times n$, $D$ is $(n-1)\times(n-1)$, and after Schur-elimination of $x$ you solve an $(n-1)$-dim system for $y$.</p>
+
+<h3>Cost per linear / Newton solve</h3>
+
+<p>$A^{-1}$ free (diagonal). With $B$ and $C$ both lower-triangular, $C A^{-1} B$ is <em>strictly</em> lower-triangular, so the Schur complement $S = D - CA^{-1}B$ is $(n-1)\times(n-1)$ lower-triangular (diagonal $1+P_\ell$): solve by forward substitution in $O(n^2)$, no LU needed. Back-substitute $x$ in $O(m)$ since $A$ is diagonal.</p>
+
+<p><strong>Total:</strong> $O((m+n)^2)$ per linear (or per Newton) solve. The hard work is the outer loop on $(p,q)$ via the indifference conditions — which are quadratic in $(x,y)$ for quadratic $c$, non-polynomial for general $c$.</p>
+
+<hr>
+<p class="small">See also: <code>Docs/numeric_solver_notes.md</code> for the full solver-design discussion (asymmetric $v_1 \ne v_2$, homotopy continuation, $k^*(\Delta)$ admissibility).</p>
+
+</body>
+</html>

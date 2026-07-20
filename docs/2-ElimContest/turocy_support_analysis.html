@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What (if anything) Turocy's algorithm gives us for the elimination contest</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  body{max-width:820px;margin:2rem auto;padding:0 1.2rem;font:16px/1.6 Georgia,serif;color:#1a1a1a}
+  h1{font-size:1.6rem;line-height:1.3;border-bottom:2px solid #333;padding-bottom:.4rem}
+  h2{font-size:1.25rem;margin-top:2.2rem;color:#243b53}
+  h3{font-size:1.05rem;color:#334e68;margin-top:1.6rem}
+  code{background:#f0f0f0;padding:.1em .3em;border-radius:3px;font-size:.9em}
+  .box{border-left:4px solid #999;background:#fafafa;padding:.6rem 1rem;margin:1rem 0;border-radius:0 4px 4px 0}
+  .yes{border-left-color:#2e7d32;background:#f1f8f2}
+  .no{border-left-color:#c62828;background:#fdf1f1}
+  .maybe{border-left-color:#f9a825;background:#fffbf0}
+  .tag{display:inline-block;font:bold 11px/1 sans-serif;padding:3px 7px;border-radius:3px;color:#fff;vertical-align:middle;margin-right:.4rem}
+  .t-yes{background:#2e7d32}.t-no{background:#c62828}.t-maybe{background:#f9a825;color:#333}
+  table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+  th,td{border:1px solid #ccc;padding:.45rem .6rem;text-align:left;vertical-align:top}
+  th{background:#eef2f7}
+  .small{font-size:.85rem;color:#555}
+  hr{border:none;border-top:1px solid #ddd;margin:2rem 0}
+</style>
+</head>
+<body>
+
+<h1>Can we borrow anything from Rentschler &amp; Turocy (2015) for the elimination contest?</h1>
+<p class="small">Internal note · 2-ElimContest · June 17, 2026. Scope: theory only (deep-learning / numerical
+solver ignored, per request). Question: do the <em>bid-support tools</em> in Turocy's algorithm transfer
+to our two-round IPV elimination contest? Short answer below, reasoning after.</p>
+
+<div class="box maybe">
+<strong>Bottom line.</strong> The IPV-vs-common-value contrast is <em>not</em> the obstacle — Turocy's framework
+already nests private values as a special case, so it applies verbatim to our <strong>Round&nbsp;2 subgame</strong>.
+The real obstacle is that our game is <strong>two-stage with an endogenous, bid-dependent continuation value</strong>,
+which Turocy's single-shot machinery does not model. The genuinely transferable pieces are
+(i)&nbsp;the <strong>admissible-active-set feasibility test</strong> as a support-pruning tool, and
+(ii)&nbsp;the <strong>piecewise-uniform / finite-disjoint-interval structural predictions</strong>, which can be
+used as a fixed-point inner module and as a validation target for the numerical binary solver.
+No eureka, but two concrete, usable hooks.
+</div>
+
+<h2>1. The two models, side by side</h2>
+<table>
+<tr><th>&nbsp;</th><th>Our elimination contest</th><th>Rentschler–Turocy (2015)</th></tr>
+<tr><td>Players / structure</td><td>4 players, 2 rounds (2 groups of 2, then winners meet)</td><td>2 players, single all-pay auction</td></tr>
+<tr><td>Values</td><td>IPV: $v$ i.i.d. from $f$ on $[\underline v,\bar v]$; winning final pays $v$</td><td>Interdependent: $V_{k,l}$ = posterior value when own type $t_k$, rival $t_l$ (arbitrary)</td></tr>
+<tr><td>Types</td><td>Continuum in general; <strong>binary</strong> $\{v_L,v_H\}$ in current focus</td><td>Finite type set $T$</td></tr>
+<tr><td>Information</td><td>Full revelation of Round-1 bids before Round 2</td><td>Static; no revelation stage</td></tr>
+<tr><td>Key difficulty</td><td>Non-separating; (binary) non-monotone bidding: high hides low, low bluffs high</td><td>Non-monotone when KMS fails (highly correlated / "competitive" values)</td></tr>
+</table>
+
+<p>The decisive observation: Turocy's primitive is the matrix
+$\psi_{l|k}\equiv h_{l|k}\,V_{k,l}$, where $h_{l|k}$ is the belief that the rival is type $t_l$ given own
+type $t_k$, and $V_{k,l}$ is the value of winning. <strong>Pure IPV is just the special case</strong>
+$V_{k,l}=v_k$ (value independent of rival), with $h$ the prior. So "they are common value, we are IPV"
+is a non-issue: their construction was built to span <em>both</em>. What matters is whether the
+<em>monotonicity condition KMS</em> ("$\psi_{l|k}$ strictly increasing in $k$ for every $l$") holds — and in
+our non-separating binary case it precisely fails, which is exactly the regime their algorithm targets.</p>
+
+<h2>2. The Turocy machinery, in one screen</h2>
+<p>Expected payoff to bidding $b$ as type $t_k$ against rival strategy $\Pi$:</p>
+$$ u_k(b\mid\Pi)=\sum_{l:t_l\in T} \psi_{l|k}\Big[\Pi_l\big([0,b)\big)+\tfrac12\Pi_l(\{b\})\Big]-b .$$
+<p>The construction characterizes <em>where</em> bids pile up:</p>
+<ul>
+<li><strong>Active set</strong> $A$ on an interval $(e,e{+}L)$: the types indifferent (best-responding) there.</li>
+<li><strong>Admissible active set</strong> (Def. 3): $A$ for which the linear system
+$$\sum_{l:t_l\in T}\psi_{l|k}\,\mu_l = L \quad \forall k:t_k\in A,\qquad \mu_k\ge 0,\ \mu_k=0\ \forall t_k\notin A,\ L\ge 0$$
+has a solution. This is a <strong>Farkas / linear-feasibility test</strong> — it decides, without ever fixing
+the bid level, which <em>subsets of types are allowed to randomize on a common bid interval</em>.</li>
+<li><strong>Partial order $\succ$ on admissible sets</strong> $\to$ directed graph $\Gamma$; any equilibrium is a
+<strong>path through $\Gamma$</strong>. Boundaries between intervals = active-set changes.</li>
+<li><strong>Gap subpaths</strong> (Def. 6): a type active, then inactive, then active again $\Rightarrow$ its support
+has <em>disjoint components</em>. Non-monotone bidding lives here.</li>
+<li>Feasibility of a whole path = linear system (5)–(6) (mass conservation $\sum_A\mu_k^A=1$ + zero net-payoff
+over each gap).</li>
+</ul>
+<p>Structural guarantees worth keeping:</p>
+<div class="box yes">
+<strong>P4 / P7.</strong> There always exists an equilibrium with <em>piecewise-uniform</em> randomization, and each
+type randomizes over <strong>no more than $|\mathcal X_k|+1$ disjoint intervals</strong> (finite). Also $\inf E(\Pi)=0$:
+the bottom of the overall support is $0$, so the lowest-value active type's support starts at $0$.
+</div>
+
+<h2>3. What transfers — item by item</h2>
+
+<h3><span class="tag t-yes">USE</span> Round 2 <em>is</em> a Turocy instance</h3>
+<div class="box yes">
+After full revelation, the final (winner-A vs winner-B) all-pay subgame is <strong>literally</strong> a two-bidder
+all-pay auction with discrete types and interdependent beliefs: types = finalists' realized values, beliefs
+$h_{l|k}$ = posteriors inferred from the observed Round-1 bids, $V_{k,l}=v_k$ (IPV). So Turocy's admissibility
+test and support characterization apply directly to Round 2.
+<br><br>
+<em>Caveat / honesty:</em> the README says Round 2 is already solved in closed form (Q-function, Lu–Parreiras;
+closed form in the binary case). So here Turocy mostly <em>confirms structure</em> rather than adding firepower —
+useful as an independent cross-check, not a new result.
+</div>
+
+<h3><span class="tag t-maybe">ADAPT</span> Admissibility test as a Round-1 support-pruner</h3>
+<p>For the binary case the candidate active sets are only $\{L\},\{H\},\{L,H\}$. The admissibility system for the
+co-randomizing set $\{L,H\}$ on an interval is just two equations:</p>
+$$\psi_{L|L}\mu_L+\psi_{H|L}\mu_H=L,\qquad \psi_{L|H}\mu_L+\psi_{H|H}\mu_H=L,\qquad \mu_L,\mu_H\ge0 .$$
+<p>Solving this (and the singleton cases) tells you, <em>before</em> guessing bid levels, whether both types can
+share a bid interval and in what mass ratio — exactly the "where do the bid supports sit / do they overlap"
+question. The "hide low, bluff high" non-monotonicity should show up as a <strong>gap subpath</strong> for the high
+type (active low, inactive in the middle, active high) and/or an active-set ordering that reverses the
+naive value order.</p>
+<div class="box maybe">
+<strong>The obstruction (be explicit).</strong> In <em>Round 1</em> the entries $\psi$ are <em>not constants</em>.
+The "value of winning Round 1" is the <strong>continuation value</strong> $Q$, which is endogenous: it depends on the
+rival's full Round-1 bid distribution <em>and</em> on the off-path beliefs your bid induces in the finalists you
+will face. So $\psi^{R1}_{l|k}=\psi^{R1}_{l|k}(b)$ — bid-dependent — whereas Turocy's whole linear-algebra
+edifice requires fixed $\psi$. The admissibility test does <strong>not</strong> drop in unchanged for Round 1.
+</div>
+
+<h3><span class="tag t-maybe">ADAPT</span> Turocy as the inner module of a fixed point</h3>
+<p>This is the most promising idea. Wrap the static construction in an outer continuation-value iteration:</p>
+<ol>
+<li>Fix a candidate Round-2 continuation-value function $Q(\cdot)$ (from the closed-form binary R2 solver).</li>
+<li>On a bid grid, <em>linearize</em> Round-1 payoffs into an effective, locally-constant $\psi^{R1}$ matrix per
+interval, treating $Q$ as the value of advancing.</li>
+<li>Run Turocy's admissible-set enumeration to get candidate Round-1 support structures (which intervals,
+which active sets, gap subpaths).</li>
+<li>Recompute beliefs and $Q$ from the resulting bid distribution; iterate to a fixed point.</li>
+</ol>
+<p>This uses Turocy's <em>combinatorial support enumeration</em> as a structure generator inside the loop our
+project already runs numerically — potentially giving an analytic skeleton (interval count, active-set
+sequence) that the deep-learning solver currently only discovers empirically.</p>
+
+<h3><span class="tag t-yes">USE</span> Structural predictions as validation targets</h3>
+<div class="box yes">
+Even with no algorithmic import, P4/P7 give <strong>falsifiable predictions for the binary Round-1 equilibrium</strong>
+that <code>binary_report.py</code> can check directly:
+<ul style="margin:.4rem 0">
+<li>Each type's support = <strong>finite union of intervals, piecewise-uniform density</strong> (not smooth/atomic).</li>
+<li>Binary $\Rightarrow$ at most <strong>2 disjoint intervals per type</strong> ($|\mathcal X_k|\le1$ with two types).</li>
+<li>Lowest bid in the union of supports is <strong>exactly 0</strong>.</li>
+<li>Non-monotone bidding manifests as <strong>interleaved/overlapping active-set intervals</strong> with a gap for one type
+— a sharp signature to look for in the histograms, distinct from mere noise.</li>
+</ul>
+</div>
+
+<h3><span class="tag t-no">SKIP</span> Direct reuse of the code &amp; the path enumerator</h3>
+<div class="box no">
+The companion <code>enumerator.py</code> (sympy, networkx, Python 2.7) solves the <em>static</em> game by enumerating
+paths through $\Gamma$. It cannot be pointed at our two-stage game as-is: it has no notion of a revelation stage
+or an endogenous, bid-dependent $V$. Cycles in $\Gamma$ (their Example 5) also signal that brute-force path
+enumeration is fragile — irrelevant for binary (only singletons + one pair) but a warning if we ever push to
+$K\ge3$ analytic types. Reuse the <em>idea</em> (admissibility + paths), not the code.
+</div>
+
+<h2>4. Selection — a side benefit</h2>
+<p>Turocy's Examples&nbsp;3a/3b dwell on <em>multiplicity and selection</em> when KMS fails (multiple equilibrium
+supports; a "bid-0-in-everyone's-support" degenerate selection vs. a separating one). Our project already imposes
+an off-path belief refinement ($\mu_h=1$ above the iterated-dominance cap) to pin down the equilibrium. Turocy's
+discussion is a useful external reference point: it confirms that <strong>without a refinement, non-monotone all-pay
+games generically have multiple equilibria with different supports and payoffs</strong> — i.e. our $\mu=1$ device is
+doing necessary work, not cosmetic.</p>
+
+<h2>5. Verdict</h2>
+<table>
+<tr><th>Turocy tool</th><th>Transfers?</th><th>Where</th></tr>
+<tr><td>IPV nested in interdependent framework</td><td><span class="tag t-yes">YES</span></td><td>Removes the "wrong model" worry entirely</td></tr>
+<tr><td>$\psi=hV$ payoff representation</td><td><span class="tag t-yes">YES</span></td><td>Clean way to write Round-2 subgame</td></tr>
+<tr><td>Admissible-active-set feasibility (Farkas)</td><td><span class="tag t-maybe">ADAPT</span></td><td>R2 directly; R1 only inside a fixed point</td></tr>
+<tr><td>Piecewise-uniform + finite-interval support (P4/P7)</td><td><span class="tag t-yes">YES</span></td><td>Validation targets for binary solver</td></tr>
+<tr><td>Partial order / path enumeration on $\Gamma$</td><td><span class="tag t-maybe">ADAPT</span></td><td>Structure generator; watch cycles for $K\ge3$</td></tr>
+<tr><td>Companion Python code</td><td><span class="tag t-no">NO</span></td><td>Static-only; no endogenous $V$ or revelation</td></tr>
+</table>
+
+<p class="small">Honest summary, as requested: no breakthrough. Turocy does not solve the elimination contest, because
+it is single-stage and our hard part (Round 1) has an endogenous, bid-dependent value of advancing. But two
+things are worth carrying forward — (1) its <em>support-structure theorems</em> as concrete predictions to test
+the binary Round-1 numerics against, and (2) its <em>admissibility/Farkas test</em> as a candidate inner module in
+a continuation-value fixed-point. The common-value vs IPV distinction, which prompted the worry, turns out to be
+the one thing that is <em>not</em> a problem.</p>
+
+</body>
+</html>

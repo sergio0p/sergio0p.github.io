@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>General off-diagonal: common term and proportionality constant</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<h1>Off-diagonal entries in general: common term $z$ and the constant $h/\ell$</h1>
+<p>Notation $x=G_L$, $y=G_H$. The off-diagonals are $a_{12}=\partial W_L/\partial y$ and
+$a_{21}=\partial W_H/\partial x$. Both equal the <em>same</em> polynomial $z$ times a group size:</p>
+
+<div class="box key">
+$$a_{12}=h\,z,\qquad a_{21}=\ell\,z,\qquad \boxed{\dfrac{a_{12}}{a_{21}}=\dfrac{h}{\ell}}$$
+$$\boxed{\,z(k,h,\ell;x,y)=\!\!\sum_{a=\max(0,\,k-\ell)}^{\min(h-1,\,k-1)}\!\!\binom{h-1}{a}\binom{\ell-1}{k-1-a}\,(1-y)^{a}\,y^{\,h-1-a}\,(1-x)^{\,k-1-a}\,x^{\,\ell-k+a}\,}$$
+</div>
+
+<p>So the proportionality constant is $h/\ell$ — depending on the group sizes alone, free of
+$k,x,y$ — and the common term $z$ has a clean reading:</p>
+<div class="box">
+$$z=\Pr\!\big[\text{exactly }k-1\text{ of the reduced rival pool }(h-1)\text{ H}+(\ell-1)\text{ L are above}\big].$$
+</div>
+<p class="note">$z$ is the <em>pivotal</em> probability of the once-smaller pool (drop one rival
+from each group): $\binom{h-1}{a}(1-y)^a y^{h-1-a}$ is "exactly $a$ of $h-1$ H-rivals above,"
+$\binom{\ell-1}{k-1-a}(1-x)^{k-1-a}x^{\ell-1-(k-1-a)}$ is "exactly $k-1-a$ of $\ell-1$ L-rivals
+above," summed over the split that totals $k-1$. It is the same boundary object that drives the
+$\widehat W^{(k-1)}_{h-1,\ell-1}$ recursion.</p>
+
+<h2>Derivation</h2>
+<p><b>One identity does it.</b> For a binomial CDF in its success probability $q$,</p>
+<div class="box">
+$$\frac{d}{dq}\Pr\!\big[\mathrm{Bin}(\ell,q)\le m\big]=-\ell\binom{\ell-1}{m}q^{m}(1-q)^{\ell-1-m}.$$
+</div>
+<p>An H-bidder wins iff $N_H+N_L\le k-1$ with $N_H\sim\mathrm{Bin}(h-1,1-y)$ and
+$N_L\sim\mathrm{Bin}(\ell,1-x)$ independent. Here $x$ enters only through $N_L$ via $q=1-x$, so
+condition on $N_H=a$, apply the identity at $m=k-1-a$, and use
+$\partial/\partial x=-\partial/\partial q$:</p>
+<div class="box">
+$$a_{21}=\frac{\partial W_H}{\partial x}
+=\ell\sum_{a}\underbrace{\binom{h-1}{a}(1-y)^a y^{h-1-a}}_{\Pr[N_H=a]}
+\binom{\ell-1}{k-1-a}(1-x)^{k-1-a}x^{\ell-k+a}=\ell\,z.$$
+</div>
+<p>For $a_{12}$, the tagged L-bidder faces $h$ H-rivals and $\ell-1$ L-rivals; $y$ enters only
+through $N_H\sim\mathrm{Bin}(h,1-y)$, so the identity now pulls out the factor $h$ and a
+$\binom{h-1}{\,\cdot\,}$. Reindexing $a\leftrightarrow k-1-b$ shows the leftover sum is the
+<em>identical</em> $z$:</p>
+<div class="box">
+$$a_{12}=\frac{\partial W_L}{\partial y}=h\,z\quad\Longrightarrow\quad \frac{a_{12}}{a_{21}}=\frac{h}{\ell}.$$
+</div>
+
+<h2>Relation to the artifacts' $(\alpha,\beta,z_{\text{art}})$</h2>
+<p>Taking the common term to be this $z$, the proportionality scalars are simply
+$\beta=h,\ \alpha=\ell$. The fully-factored $z_{\text{art}}$ and integer scalars printed by Nemo
+just pull a further constant $c$ out of $z$ (so $z=c\,z_{\text{art}}$, $\alpha=\ell c$,
+$\beta=hc$). E.g. Draw 5 $(k{=}5,h{=}8,\ell{=}2)$: $z=35\,(y-1)^3y^3(x+y-2xy)$, $c=35$,
+$(\alpha,\beta)=(70,280)$.</p>
+
+<p class="note">Symbolically verified ($\partial W_L/\partial y-h\,z=0$ and
+$\partial W_H/\partial x-\ell\,z=0$, residual $0$ over $\mathbb Q$) for
+$(k,h,\ell)\in\{(2,3,2),(2,8,6),(3,8,6),(5,8,2),(2,6,8),(3,8,1),(4,6,5),(3,5,4),(5,9,7),(4,10,1),(2,4,3)\}$.</p>
+
+</body>
+</html>

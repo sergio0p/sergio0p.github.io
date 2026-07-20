@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CDFs with non-increasing F(x)/x — a survey</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+<style>
+  table.gallery{border-collapse:collapse;margin:1em 0;width:100%;font-size:.95em}
+  table.gallery th,table.gallery td{border:1px solid #ccc;padding:.45em .6em;text-align:left;vertical-align:top}
+  table.gallery th{background:#f4f4f4}
+  .yes{color:#137333;font-weight:600}
+  .no{color:#a50e0e;font-weight:600}
+</style>
+</head>
+<body>
+
+<p class="title">Cumulative distribution functions with non-increasing $F(x)/x$</p>
+
+<p class="note">A standalone survey of the class of (continuous, compactly supported) CDFs $F$ for
+which the ratio $F(x)/x$ is non-increasing — what it is, whether it is empty, its examples,
+equivalent definitions, properties, where it sits among classical classes, the finite-limit
+subclass $\lim_{x\downarrow 0}F(x)/x<\infty$, and applications. Results are stated with proof
+sketches; pointers to the literature are collected at the end.</p>
+
+<p class="section">0. The object, and a normalization</p>
+
+<p>Throughout, $F$ is the CDF of a non-negative random variable $X$, <em>continuous</em> (atomless)
+and with <em>compact support</em> $[a,b]\subseteq[0,\infty)$, so $F(a)=0$, $F(b)=1$. The class of
+interest is</p>
+
+<div class="box key">
+$$\mathcal{S}\;=\;\Bigl\{\,F:\ \text{continuous CDF, compact support}\subseteq[0,\infty),\ \ x\mapsto \tfrac{F(x)}{x}\ \text{non-increasing on }(0,\infty)\,\Bigr\}.$$
+</div>
+
+<p><strong>Scale invariance &rArr; normalize $b=1$.</strong> If $X\in\mathcal{S}$ and $c\gt 0$, then
+$cX$ has CDF $F(x/c)$ and
+$\dfrac{F(x/c)}{x}=\dfrac1c\cdot\dfrac{F(x/c)}{x/c}$, a positive constant times a non-increasing
+function of $x$ — still non-increasing. So $\mathcal{S}$ is closed under positive scaling and we may
+rescale the support to $[0,1]$ without loss. (It is <em>not</em> translation-invariant; see §2.)</p>
+
+<p>One observation used repeatedly: because $F(x)/x$ is non-increasing on $(0,\infty)$, its supremum
+is its left limit,</p>
+
+<div class="box key">
+$$m\;:=\;\sup_{x\gt 0}\frac{F(x)}{x}\;=\;\lim_{x\downarrow 0}\frac{F(x)}{x}\ \in\ \Bigl[\tfrac1b,\,+\infty\Bigr].$$
+</div>
+
+<p>The finiteness of this single number $m$ splits the class into two regimes and defines the
+subclass studied in §6.</p>
+
+<p class="section">1. Is the class empty? &mdash; No; it is large</p>
+
+<p>The class is non-empty and infinite-dimensional. A representative gallery (all on $[0,1]$):</p>
+
+<table class="gallery">
+<tr><th>$F(x)$ on $[0,1]$</th><th>$F(x)/x$</th><th>in $\mathcal S$?</th><th>$m=\lim_{x\downarrow0}F/x$</th><th>note</th></tr>
+<tr><td>$x$ (uniform)</td><td>$1$ (constant)</td><td class="yes">yes</td><td>$1$</td><td>boundary case; unique constant ratio</td></tr>
+<tr><td>$x^{\alpha},\ \alpha\in(0,1]$</td><td>$x^{\alpha-1}$</td><td class="yes">yes</td><td>$+\infty$ if $\alpha\lt1$; $1$ if $\alpha=1$</td><td>constant-elasticity family</td></tr>
+<tr><td>$2x-x^2$</td><td>$2-x$</td><td class="yes">yes</td><td>$2$</td><td>concave (density $2(1-x)\downarrow$)</td></tr>
+<tr><td>$x+3x(\tfrac12-x)^2$ on $[0,\tfrac12]$, then $x$</td><td>$1+3(\tfrac12-x)^2$, then $1$</td><td class="yes">yes</td><td>$\tfrac74$</td><td><strong>not concave</strong> — see below</td></tr>
+<tr><td>$x^2$</td><td>$x$ (increasing)</td><td class="no">no</td><td>—</td><td>ratio rises: excluded</td></tr>
+</table>
+
+<p><strong>Three structural sources of members.</strong></p>
+<ul>
+<li><strong>The uniform</strong> $F(x)=x/b$ is the unique member with <em>constant</em> ratio
+$F/x\equiv 1/b$. It is the "boundary" of $\mathcal{S}$ (weakly, not strictly, non-increasing) and, as
+§5 shows, the extremal least-concentrated member.</li>
+<li><strong>Every concave CDF with $F(0)=0$</strong> belongs to $\mathcal{S}$: along a concave graph
+through the origin, chord slopes $F(x)/x$ fall as $x$ grows. Concavity $\iff$ non-increasing
+density, so this already supplies an infinite family (e.g. all $x^{\alpha}$, $\alpha\le 1$;
+all $1-(1-x)^{k}$).</li>
+<li><strong>Genuinely non-concave members exist</strong>, so $\mathcal{S}$ is strictly larger than the
+concave CDFs. Take, on $[0,1]$,
+$$F(x)=\begin{cases} x+c\,x\bigl(\tfrac12-x\bigr)^2,&0\le x\le\tfrac12,\\[2pt] x,&\tfrac12\le x\le1,\end{cases}\qquad 0\lt c\le 12.$$
+Then $F(x)/x = 1+c(\tfrac12-x)^2$ on $[0,\tfrac12]$ (falling from $1+\tfrac c4$ to $1$) and $\equiv1$
+afterward — non-increasing, so $F\in\mathcal{S}$. But its density
+$f(x)=1+c(\tfrac14-2x+3x^2)$ on $[0,\tfrac12]$ has $f'(x)=2c(3x-1)$: it <em>falls then rises</em>
+(minimum at $x=\tfrac13$), so $F$ is <em>not</em> concave. (Validity: the density's minimum is
+$1-\tfrac{c}{12}\ge0$ exactly when $c\le12$.) This single example certifies the strict inclusion
+of §4.</li>
+</ul>
+
+<p class="section">2. The left endpoint is forced to $0$ (continuity vs. $a\gt0$)</p>
+
+<div class="box key">
+<p><strong>Proposition (left endpoint).</strong> If $F\in\mathcal{S}$ is a proper continuous CDF with
+support $[a,b]$, then $a=0$. Moreover</p>
+$$F(x)\ \ge\ \frac{x}{b}\qquad\text{for all }x\in[0,b].$$
+</div>
+
+<p><strong>Sketch.</strong> Non-increasing ratio gives, for every $0\lt x\le b$,
+$\dfrac{F(x)}{x}\ge\dfrac{F(b)}{b}=\dfrac1b$, hence $F(x)\ge x/b\gt0$ for <em>all</em> $x\gt0$. So
+$F$ is already positive arbitrarily close to $0$: the left endpoint of the support is $0$. If instead
+$a\gt0$, then $F\equiv0$ on $(0,a)$ forces $F(x)/x=0\lt\frac1b$ there, contradicting the ratio being
+non-increasing down to its supremum. $\square$</p>
+
+<div class="note">
+<p><strong>Why a strictly positive lower support bound needs an atom (or a restricted domain).</strong>
+The obstruction is exactly continuity at $a$. For a continuous $F$ with support $[a,b]$ one has
+$F(a)=0$, so the ratio <em>starts</em> at $F(a)/a=0$ and must rise — impossible for a non-increasing
+function. There are precisely two ways to live with $a\gt0$:</p>
+<ul>
+<li><strong>Allow an atom at the left endpoint.</strong> A mass $p\gt0$ at $a$ gives
+$F(a)/a=p/a\gt0$; the ratio can then be non-increasing on $[a,b]$ (it is seeded positive at $a$ and
+decays). This leaves the continuous class but is the honest way to obtain a genuinely positive lower
+bound. The quantity $\sup_{x\gt0}F(x)/x$ remains well defined and is automatically finite
+($\le 1/a$).</li>
+<li><strong>Impose the ratio condition only on a subinterval $[a,b]$ bounded away from $0$.</strong>
+Then $a\gt0$ is unconstrained; what one loses is the clean global statement that $\sup F/x$ is
+attained at the origin.</li>
+</ul>
+<p>So: for a continuous CDF, "non-increasing $F(x)/x$ on the whole support" and "left endpoint
+$\gt0$" are mutually exclusive — the support must begin at $0$.</p>
+</div>
+
+<p><strong>Two immediate corollaries</strong> of $F\ge x/b$ (valid for the whole class, finite $m$ or
+not):</p>
+<ul>
+<li><em>Domination by the uniform.</em> $F\ge F_{U[0,b]}$ pointwise, i.e. $X\preceq_{\mathrm{st}}U[0,b]$
+(uniform first-order stochastically dominates every member). Members pile mass toward $0$.</li>
+<li><em>Mean bound.</em> $\mathbb{E}[X]=\int_0^b(1-F)\le\int_0^b(1-\tfrac xb)\,dx=\tfrac b2$, and more
+generally $\mathbb{E}[X^k]\le b^k/(k+1)$. The uniform maximizes every such moment within $\mathcal S$.</li>
+</ul>
+
+<p class="section">3. Equivalent definitions</p>
+
+<p>For absolutely continuous $F$ on $[0,b]$ with $F(0)=0$ and density $f$, the following are equivalent
+(and (C1)–(C3) need no density):</p>
+
+<table class="gallery">
+<tr><th></th><th>condition</th><th>reading</th></tr>
+<tr><td>(C1)</td><td>$F(x)/x$ non-increasing on $(0,b]$</td><td>definition</td></tr>
+<tr><td>(C2)</td><td>$F(\alpha x)\ge \alpha F(x)$ for all $\alpha\in[0,1]$</td><td>super-homogeneity ("star-shaped from below")</td></tr>
+<tr><td>(C3)</td><td>$F(x)\ge \tfrac{x}{y}F(y)$ for $0\lt x\le y$</td><td>graph lies above every chord from the origin</td></tr>
+<tr><td>(C4)</td><td>$\eta_F(x):=\dfrac{x f(x)}{F(x)}\le 1$ a.e.</td><td><strong>CDF-elasticity</strong> $\le 1$</td></tr>
+<tr><td>(C5)</td><td>$\tilde r(x):=\dfrac{f(x)}{F(x)}\le \dfrac1x$</td><td><strong>reversed hazard rate</strong> $\le 1/x$</td></tr>
+<tr><td>(C6)</td><td>$\dfrac1x\displaystyle\int_0^x f(t)\,dt$ non-increasing</td><td>running <em>average</em> density non-increasing</td></tr>
+</table>
+
+<p><strong>Sketch of the links.</strong> (C1)$\Leftrightarrow$(C2)$\Leftrightarrow$(C3) is the
+algebra of $F(\alpha x)/(\alpha x)\ge F(x)/x$. Differentiating,
+$\frac{d}{dx}\frac{F}{x}=\frac{xf-F}{x^2}\le0\iff xf\le F$, which is (C4); dividing by $F$ gives (C5),
+since $\tilde r=\frac{d}{dx}\log F$. And $F(x)=\int_0^x f$ makes (C6) a restatement of (C1). The
+log–log form is memorable: (C1) $\iff \log F(x)-\log x$ non-increasing $\iff$ the elasticity
+$\dfrac{d\log F}{d\log x}\le1$. $\square$</p>
+
+<p><strong>One sufficient (not necessary) condition:</strong> $F$ <em>concave</em> on $[0,b]$ (equivalently
+$f$ non-increasing) $\Rightarrow$ $F\in\mathcal S$. The non-concave example of §1 shows the converse
+fails.</p>
+
+<p><strong>Geometry.</strong> (C2) says the hypograph $\{(x,y):0\le y\le F(x)\}$ is
+<em>star-shaped with respect to the origin</em>: every segment from $(0,0)$ to a graph point
+$(x,F(x))$ stays under the graph. This is the precise sense in which $\mathcal S$ is a
+"star-shapedness" class — see §4.</p>
+
+<p class="section">4. Where the class sits among classical classes</p>
+
+<p><strong>The Bruckner–Ostrow hierarchy, mirrored.</strong> Bruckner &amp; Ostrow (1962) study, on
+$[0,b]$, the chain of strict inclusions
+$$\underbrace{K}_{\text{convex}}\ \subsetneq\ \underbrace{S}_{\substack{\text{star-shaped:}\\ \phi(x)/x\ \uparrow}}\ \subsetneq\ \underbrace{\bar S}_{\text{superadditive}}.$$
+Our class is the reflection of this picture — replace "non-decreasing ratio / convex / superadditive"
+by "non-increasing ratio / concave / subadditive":</p>
+
+<div class="box key">
+$$\bigl\{\text{concave CDF},\,F(0)=0\bigr\}\ \subsetneq\ \mathcal{S}\ \subsetneq\ \bigl\{\text{subadditive CDF}\bigr\}.$$
+</div>
+
+<p><strong>Sketch.</strong> <em>Left inclusion:</em> concave through origin $\Rightarrow$ chord slopes
+fall $\Rightarrow$ (C1); strictness is the §1 non-concave example. <em>Right inclusion:</em> for
+$x,y\gt0$ put $s=x+y$; by (C3), $F(x)\ge\frac{x}{s}F(s)$ and $F(y)\ge\frac{y}{s}F(s)$, so
+$$F(x)+F(y)\ \ge\ \frac{x+y}{s}\,F(s)\ =\ F(x+y),$$
+i.e. $F$ is subadditive. (For $s\gt b$ use $F(x)+F(y)\ge\frac{x+y}{b}\gt1=F(s)$ from §2.) Strictness:
+a subadditive CDF with a non-monotone $F/x$ lies in $\bar S\setminus\mathcal S$. $\square$</p>
+
+<p><strong>Reliability analogue (IFRA).</strong> A life distribution is <em>IFRA</em> (increasing failure
+rate average) iff its cumulative hazard $\Lambda(x)=-\log\bar F(x)$ is star-shaped, i.e.
+$\Lambda(x)/x$ is non-<em>de</em>creasing. Our condition is the very same star-shaped template, but
+applied to $F$ itself (not to $\Lambda$) and with the opposite monotonicity. So $\mathcal S$ is to the
+<em>CDF</em> what IFRA is to the <em>cumulative hazard</em>: a structurally parallel, logically
+independent "star-shapedness" class. In the reversed-hazard language of (C5), $\mathcal S$ is the set
+of distributions whose reversed hazard never exceeds the benchmark $1/x$ of the uniform.</p>
+
+<p><strong>The concave core is Khinchin's class.</strong> A CDF $F$ is concave on $[0,\infty)$ $\iff$ its
+density is non-increasing $\iff$ $X$ is unimodal with mode $0$ $\iff$ (Khinchin)
+$X\stackrel{d}{=}U\cdot Y$ with $U\sim\mathrm{Unif}[0,1]$ independent of $Y\ge0$ — a
+<em>scale mixture of uniforms</em>. These are exactly the concave members of $\mathcal S$; the class
+$\mathcal S$ relaxes "density non-increasing" to "<em>average</em> density non-increasing" (C6),
+admitting the non-concave members of §1.</p>
+
+<div class="box key">
+<p><strong>$\mathcal S$ is the star order relative to the uniform.</strong> Recall the classical
+<em>star order</em>: $X\le_{*}Y$ iff $F_Y^{-1}\!\bigl(F_X(x)\bigr)/x$ is non-decreasing. Taking the
+benchmark $Y\sim U[0,1]$ (so $F_Y^{-1}(p)=p$) gives</p>
+$$F\in\mathcal S\quad\Longleftrightarrow\quad U[0,1]\ \le_{*}\ X,$$
+<p>i.e. $\mathcal S$ is exactly the set of laws lying <em>above the uniform in the star order</em>, with
+the uniform as the star-minimal element. (Check: $U\le_* X \iff F_X^{-1}(x)/x\uparrow \iff F_X(x)/x\downarrow$,
+which is (C1).) Since the star order implies the Lorenz order, every member is at least as Lorenz-spread
+as the uniform — the inequality reading of $F\ge x/b$ in §5.</p>
+</div>
+
+<p class="section">Relationship to log-concave distributions</p>
+
+<p><strong>"Log-concave" is three conditions, not one.</strong> For a law on $[0,b]$ one can ask
+log-concavity of the density, of the CDF, or of the survival function:</p>
+
+<table class="gallery">
+<tr><th>object</th><th>"log-concave" means</th><th>standard name</th></tr>
+<tr><td>density $f$</td><td>$\log f$ concave</td><td>strongest of the three (Bagnoli–Bergstrom)</td></tr>
+<tr><td>CDF $F$</td><td>$\log F$ concave</td><td><strong>DRHR</strong>: reversed hazard $f/F$ non-increasing</td></tr>
+<tr><td>survival $\bar F$</td><td>$\log\bar F$ concave</td><td><strong>IFR</strong>: hazard $f/\bar F$ non-decreasing</td></tr>
+</table>
+
+<p>By Bagnoli–Bergstrom, log-concave <em>density</em> $\Rightarrow$ both log-concave CDF and log-concave
+survival; the converses fail. The notion that touches $\mathcal S$ is the middle one,
+<strong>log-concave CDF = DRHR</strong>, since both are conditions on $F$ itself.</p>
+
+<div class="box key">
+<p><strong>Same variable, different demand.</strong> Both conditions constrain $\log F$ through the
+reversed hazard rate $\tilde r:=(\log F)'=f/F$:</p>
+$$F\in\mathcal S\ \Longleftrightarrow\ \tilde r(x)\le \tfrac1x\quad(\text{a \emph{level} bound: reversed hazard}\le\text{the uniform's}),$$
+$$F\ \text{log-concave CDF}\ \Longleftrightarrow\ \tilde r\ \text{non-increasing}\quad(\text{a \emph{monotonicity}: DRHR}).$$
+<p>In the log–log picture of §3: $\mathcal S$ caps the elasticity, $\dfrac{d\log F}{d\log x}\le1$;
+log-concavity of $F$ instead makes $\log F$ concave <em>in $x$</em>. One bounds the slope of $\log F$;
+the other forces that slope to trend down. They are independent demands.</p>
+</div>
+
+<p><strong>Neither class contains the other.</strong></p>
+<ul>
+<li><em>Log-concave but not in $\mathcal S$.</em> $F(x)=x^2$ on $[0,1]$ has density $2x$ with $\log(2x)$
+concave — so $F$ is log-concave at the <em>density</em> level, a fortiori a log-concave CDF. Its
+reversed hazard $\tilde r=2/x$ is decreasing (DRHR holds), but it sits <em>above</em> the benchmark:
+$2/x\gt1/x$. Equivalently $F/x=x$ increases. So $F\notin\mathcal S$.</li>
+<li><em>In $\mathcal S$ but not log-concave.</em> Take the density $f=1.5$ on $[0,\tfrac12]$, then $f$
+rising linearly from $0.2$ to $0.8$ on $[\tfrac12,1]$ (so $F(\tfrac12)=0.75$, $F(1)=1$). One checks
+$F(x)/x$ is non-increasing and $\tilde r\le 1/x$ throughout, so $F\in\mathcal S$; yet $\tilde r=f/F$
+<em>rises</em> on $[\tfrac12,1]$ (from $\approx0.28$ to $0.8$ — verified), so $\log F$ is not concave and
+$F$ is not a log-concave CDF. The structural reason such members exist: $\mathcal S$ is convex (closed
+under mixtures, §5), whereas the log-concave classes are <em>not</em> mixture-closed.</li>
+</ul>
+
+<div class="box key">
+<p><strong>The overlap is the concave core.</strong> A concave CDF with support from $0$ lies in both
+classes: concave $\Rightarrow$ star-shaped ($\in\mathcal S$, §4) and concave $\Rightarrow$ log-concave
+(the log of a concave positive function is concave). Sharper, a <em>non-increasing</em> log-concave
+density forces $F$ concave, hence into $\mathcal S$. So the Khinchin scale-mixtures of the uniform (§4)
+sit squarely in $\mathcal S\cap\{\text{log-concave}\}$, and the two classes diverge exactly when the
+reversed hazard either exceeds $1/x$ while staying monotone ($x^2$) or stays under $1/x$ while wiggling
+(the mixture-type example).</p>
+</div>
+
+<p class="section">5. Properties</p>
+
+<ul>
+<li><strong>Trapped above the diagonal.</strong> $F(x)\ge x/b$ on $[0,b]$ (§2); equality everywhere iff
+$F$ is uniform. So the uniform is the pointwise-smallest CDF in $\mathcal S$ — the
+<em>least concentrated</em> member — and the unique one attaining the minimal $m=1/b$.</li>
+<li><strong>Supremum at the origin.</strong> $m=\sup_x F/x=\lim_{x\downarrow0}F/x$, with $m\ge1/b$ and
+$m=1/b\iff$ uniform.</li>
+<li><strong>Convexity of the class.</strong> $\mathcal{S}$ (fixed support) is convex: a mixture
+$\lambda F_1+(1-\lambda)F_2$ has ratio $\lambda\frac{F_1}{x}+(1-\lambda)\frac{F_2}{x}$, a sum of
+non-increasing functions. Mixtures of members are members.</li>
+</ul>
+
+<p><strong>Closure under operations.</strong></p>
+<table class="gallery">
+<tr><th>operation</th><th>in $\mathcal S$?</th><th>reason / witness</th></tr>
+<tr><td>positive scaling $X\mapsto cX$</td><td class="yes">closed</td><td>§0 (scale invariance)</td></tr>
+<tr><td>mixture $\lambda F_1+(1-\lambda)F_2$</td><td class="yes">closed</td><td>ratios add</td></tr>
+<tr><td>power $F\mapsto F^{\alpha},\ \alpha\in(0,1]$</td><td class="yes">closed</td><td>$\eta_{F^\alpha}=\alpha\,\eta_F\le\alpha\le1$ (C4)</td></tr>
+<tr><td>power $F\mapsto F^{n},\ n\gt1$ (max of iid)</td><td class="no">fails</td><td>uniform$^2=x^2$ has ratio $x\uparrow$</td></tr>
+<tr><td>convolution / sum $X_1+X_2$</td><td class="no">fails</td><td>uniform$\ast$uniform = triangular: ratio $\sim x\uparrow$ near $0$</td></tr>
+<tr><td>translation $X\mapsto X+a,\ a\gt0$</td><td class="no">fails</td><td>creates left endpoint $a\gt0$ (§2)</td></tr>
+</table>
+
+<p>The power-$\le 1$ closure is worth isolating: the elasticity of $F^\alpha$ is exactly $\alpha$ times
+that of $F$, so raising a member to a power in $(0,1]$ can only <em>reduce</em> the elasticity below the
+threshold $1$ — the class is closed downward under the "make-the-tail-thinner-at-0" operation, but
+taking a maximum (power $\gt1$) drives elasticity up through $1$ and exits.</p>
+
+<p class="section">6. The subclass $\lim_{x\downarrow0}F(x)/x\lt\infty$</p>
+
+<p>Because the ratio is monotone, its left limit equals its supremum, so the defining condition of the
+subclass is the finiteness of $m$:</p>
+
+<div class="box key">
+$$\mathcal{S}_0\;=\;\Bigl\{\,F\in\mathcal S:\ m=\lim_{x\downarrow0}\tfrac{F(x)}{x}\lt\infty\,\Bigr\}
+\;=\;\Bigl\{\,F\in\mathcal S:\ \sup_{x\gt0}\tfrac{F(x)}{x}\lt\infty\,\Bigr\}.$$
+</div>
+
+<p><strong>Equivalent descriptions of $\mathcal S_0$.</strong></p>
+<ul>
+<li><em>Linear bound at the origin:</em> $\exists\,m\lt\infty$ with $F(x)\le m x$ for all $x$ (the
+least such $m$ is the limit). $F$ is Lipschitz at $0$.</li>
+<li><em>Right-differentiable at $0$:</em> since $F(0)=0$, finiteness of $m$ is exactly
+$F'(0^+)=m\lt\infty$. If the density has a right limit, $m=f(0^+)$.</li>
+<li><em>Bounded reversed-hazard benchmark:</em> $x\,\tilde r(x)\le 1$ <em>and</em> the elasticity stays
+bounded as $x\downarrow0$ (no infinite spike of mass at the origin).</li>
+</ul>
+
+<div class="box key">
+<p><strong>Sandwich.</strong> Every $F\in\mathcal S_0$ on $[0,b]$ is trapped between two lines through the
+origin:</p>
+$$\frac{x}{b}\ \le\ F(x)\ \le\ m\,x,\qquad x\in[0,b],\qquad m\ge \tfrac1b.$$
+</div>
+
+<p>The lower bound is §2; the upper bound is the definition of $m$ together with monotonicity. Geometrically
+$\mathcal S_0$ members leave the origin with a <em>finite</em> slope wedged in $[1/b,m]$.</p>
+
+<p><strong>What lives in $\mathcal S_0$ vs. its complement.</strong></p>
+<ul>
+<li><strong>In $\mathcal S_0$:</strong> the uniform ($m=1/b$), the concave $2x-x^2$ ($m=2$), the
+non-concave §1 example ($m=1+\tfrac c4$), and any member with bounded density at $0$.</li>
+<li><strong>In $\mathcal S\setminus\mathcal S_0$ ($m=+\infty$):</strong> the "infinite-spike" members,
+whose density blows up at $0$ while the law stays atomless. The prototypes are
+$F(x)=x^{\alpha}$, $\alpha\in(0,1)$: density $\alpha x^{\alpha-1}\to\infty$, ratio
+$x^{\alpha-1}\to\infty$. These are precisely the laws <em>regularly varying at the origin</em> with
+index $\alpha\lt1$ (more generally $F(x)=x^{\alpha}\ell(x)$ with $\ell$ slowly varying at $0$,
+$\alpha\in(0,1)$). They are "almost an atom at $0$" — all the action is an unbounded reversed hazard
+near the origin — without ever being one.</li>
+</ul>
+
+<p>Thus $\mathcal S_0$ is exactly the "Lipschitz-at-the-origin" part of $\mathcal S$, equivalently the
+part on which the functional $\sup_x F(x)/x$ — a natural measure of how much mass a law concentrates
+near $0$ relative to linear — is finite.</p>
+
+<p class="section">7. Applications</p>
+<ul>
+<li><strong>Auction &amp; contest theory.</strong> Three distinct strands meet here.
+<ul>
+<li><em>The order itself.</em> The condition (C1) is the <strong>star order against the uniform</strong>
+(§4): a member is star-larger than $U[0,1]$. The star order — and its companions the convex-transform
+and dispersive orders — are standard comparison devices for value/cost distributions (Shaked–Shanthikumar
+2007 §4.B; Marshall–Olkin–Arnold 2011).</li>
+<li><em>The reverse-hazard reading.</em> Condition (C5), $f/F\le1/x$, is a reverse-hazard-rate comparison
+of a member against the uniform benchmark. The <strong>reverse-hazard-rate order</strong> is the workhorse
+assumption for ranking bidders in asymmetric all-pay/first-price auctions and contests — see Kirkegaard's
+program (Econometrica 2012; GEB 2012, 2014; EER 2013).</li>
+<li><em>The supremum statistic.</em> The functional $\sup_{x\gt0}F(x)/x$ — finite exactly on $\mathcal
+S_0$ — quantifies near-zero concentration relative to the uniform, and (C1) is what makes it
+endpoint-attained, $=\lim_{x\downarrow0}F/x$. <strong>This precise sup-functional</strong>, used as an
+intimidation/stochastic-order criterion, is the device of Parreiras' contest model rather than a
+standard textbook order; the survey above isolates the real-analytic class on which it is well-behaved.</li>
+</ul></li>
+<li><strong>Mechanism design / pricing.</strong> The elasticity $\eta_F=xf/F$ and the reversed hazard
+rate $\tilde r=f/F$ are standard regularity inputs; "$\eta_F\le1$" (an <em>inelastic CDF</em>) and
+"$\tilde r\le1/x$" are exactly conditions (C4)–(C5). The economics literature (Veres-Ferrer &amp;
+Pavía; Belzunce–Candel–Ruiz) develops the reversed-hazard-as-elasticity reading directly.</li>
+<li><strong>Reliability / ageing.</strong> $\mathcal S$ is the CDF-side analogue of IFRA (§4): a positive
+"star-shapedness" condition, here on $F$ via its reversed hazard rather than on the cumulative hazard.</li>
+<li><strong>Extreme behaviour at the left endpoint.</strong> The complement $\mathcal S\setminus\mathcal
+S_0$ is governed by regular variation at $0$ (index $\lt1$), which controls the laws of minima and the
+lowest order statistics near $0$.</li>
+<li><strong>Simulation.</strong> The concave core is Khinchin's scale-mixture class, giving the direct
+generator $X=U\cdot Y$ ($U$ uniform); useful whenever a member happens to be concave.</li>
+<li><strong>Inequality / distributional comparison.</strong> $F\ge x/b$ is a Lorenz-type domination:
+every member places at least as much mass below each level as the uniform — "more at the bottom, at
+every scale."</li>
+</ul>
+
+<p class="section">8. One-line summary of the structure</p>
+<div class="box key">
+<p>$\mathcal S$ = continuous compactly-supported CDFs whose <em>hypograph is star-shaped about the
+origin</em> $\iff$ $F(x)/x\downarrow$ $\iff$ CDF-elasticity $\le1$ $\iff$ reversed hazard $\le1/x$.
+It necessarily begins at $0$, dominates the uniform from above ($F\ge x/b$, mean $\le b/2$), sits
+strictly between the concave CDFs (Khinchin scale-mixtures) and the subadditive CDFs, is convex and
+closed under scaling, mixtures and powers $\le1$ (but not maxima, sums, or shifts), and is split by the
+single number $m=\lim_{x\downarrow0}F/x=\sup_x F/x$ into the Lipschitz-at-$0$ subclass $\mathcal S_0$
+($m\lt\infty$, sandwiched $x/b\le F\le mx$) and the regularly-varying-at-$0$ remainder ($m=\infty$,
+e.g. $x^{\alpha}$, $\alpha\lt1$).</p>
+</div>
+
+<p class="section">References &amp; pointers</p>
+<ul>
+<li>A. M. Bruckner &amp; E. Ostrow, <em>Some function classes related to the class of convex
+functions</em>, Pacific J. Math. <strong>12</strong> (1962) 1203–1215 — the star-shaped /
+superadditive hierarchy mirrored in §4.</li>
+<li>R. E. Barlow &amp; F. Proschan, <em>Statistical Theory of Reliability and Life Testing</em> (1975)
+— IFRA = star-shaped cumulative hazard.
+<a href="https://www.sciencedirect.com/topics/mathematics/increasing-failure-rate">overview</a>.</li>
+<li>A. Ya. Khinchin (1938); see also <em>A characterisation of scale mixtures of the uniform
+distribution</em>, Statist. Probab. Lett. (2008)
+<a href="https://www.sciencedirect.com/science/article/abs/pii/S0167715208002307">link</a> —
+concave CDF $\iff$ non-increasing density $\iff$ scale mixture of uniforms.</li>
+<li>V. J. Veres-Ferrer &amp; J. M. Pavía, <em>On the relationship between the reversed hazard rate and
+elasticity</em>, Statistical Papers <strong>55</strong> (2014)
+<a href="https://link.springer.com/article/10.1007/s00362-012-0470-1">link</a>; and F. Belzunce, J.
+Candel &amp; J. M. Ruiz (1995) — reversed hazard rate as CDF-elasticity (C4)–(C5).</li>
+<li>N. H. Bingham, C. M. Goldie &amp; J. L. Teugels, <em>Regular Variation</em> (1987) — regular
+variation at the origin for $\mathcal S\setminus\mathcal S_0$.</li>
+<li>M. Bagnoli &amp; T. Bergstrom, <em>Log-concave probability and its applications</em>, Economic
+Theory <strong>26</strong> (2005) 445–469 — the three log-concavity notions (density / CDF / survival)
+and their hierarchy, used in the log-concave comparison section.</li>
+<li>M. Shaked &amp; J. G. Shanthikumar, <em>Stochastic Orders</em> (2007) — §4.B the <strong>star
+order</strong> $X\le_{*}Y\iff F_Y^{-1}F_X(x)/x\uparrow$ (the §4 characterization of $\mathcal S$),
+the reversed-hazard order (C5), and FOSD domination (§2). With Marshall, Olkin &amp; Arnold,
+<em>Inequalities: Theory of Majorization</em> (2nd ed., 2011) and Barlow &amp; Proschan (1975) for the
+star order and its link to the Lorenz order.</li>
+<li>L. Lando &amp; L. Bertoli-Barsotti et al., <em>Stochastic orderings induced by star-shaped
+functions</em>, Int. J. Math. Math. Sci. (2009)
+<a href="https://ideas.repec.org/a/hin/jijmms/328417.html">link</a> — the order generated by (C1)-type
+star-shapedness, between FOSD and SOSD.</li>
+<li><strong>Asymmetric auctions / contests — reverse-hazard &amp; dispersive orders as ranking devices
+(C5).</strong> R. Kirkegaard, <em>A Mechanism Design Approach to Ranking Asymmetric Auctions</em>,
+Econometrica <strong>80</strong> (2012); <em>Favoritism in Asymmetric Contests: Head Starts and
+Handicaps</em>, Games Econ. Behav. (2012); <em>Ranking Asymmetric Auctions: Filling the Gap between a
+Distributional Shift and Stretch</em>, Games Econ. Behav. (2014); <em>Handicaps in Incomplete
+Information All-Pay Auctions with a Diverse Set of Bidders</em>, Eur. Econ. Rev. (2013).
+<a href="http://www.renekirkegaard.com/publications">author's list</a>.</li>
+<li><strong>The specific functional $\sup_{x\gt0}F(x)/x$</strong> as an "intimidation" / stochastic-order
+criterion: S. Parreiras, contest-drop-out manuscript (the model that motivates this survey) — to my
+knowledge the only place the <em>supremum of the ratio itself</em> is used as a named order, as opposed
+to the star / reverse-hazard orders it specializes.</li>
+</ul>
+
+</body>
+</html>

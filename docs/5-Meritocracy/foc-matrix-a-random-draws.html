@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factoring the FOC matrix A — random (k,h,ℓ) draws</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<h1>Factoring the FOC matrix $A$ — random $(k,h,\ell)$ draws</h1>
+<p>Write $x=G_L$, $y=G_H$. The matrix in the density FOCs
+$A\,(g_L,g_H)^\top=(1/\varphi_L,1/\varphi_H)^\top$ is the Jacobian</p>
+<div class="box">
+$$A=\frac{\partial(W_L,W_H)}{\partial(x,y)}
+=\begin{pmatrix}\partial W_L/\partial x & \partial W_L/\partial y\\[4pt]
+\partial W_H/\partial x & \partial W_H/\partial y\end{pmatrix},$$
+</div>
+<p>where $W_i$ is the interim win probability (win $=$ at most $k-1$ of the rivals bid above:
+own group minus one, plus the other group in full).</p>
+
+<h2>1. The generator (Julia / Nemo)</h2>
+<p>Draws $k\in\{2,\dots,5\}$, $h\in\{k{+}1,\dots,k{+}6\}$, $\ell\in\{1,\dots,k{+}6\}$; builds each
+$W_i$ over $\mathbb Q[x,y]$, differentiates, and factors each entry over $\mathbb Q$
+(<code>Random.seed!(13)</code>, so the five draws below are reproducible).</p>
+<div class="box">
+<pre><code>R,(x,y)=polynomial_ring(QQ,["x","y"])           # x=GL, y=GH
+function winprob(k,h,l,group)
+    rH = group==:H ? h-1 : h;  rL = group==:L ? l-1 : l
+    W = zero(R)
+    for a in 0:rH, b in 0:rL
+        if a+b &lt;= k-1
+            W += binomial(rH,a)*binomial(rL,b)*(1-y)^a*y^(rH-a)*(1-x)^b*x^(rL-b)
+        end
+    end; W
+end
+matrixA(k,h,l) = (WL=winprob(k,h,l,:L); WH=winprob(k,h,l,:H);
+    (derivative(WL,x),derivative(WL,y),derivative(WH,x),derivative(WH,y)))
+# each entry then passed through Nemo factor()</code></pre>
+</div>
+
+<h2>2. Five random draws — $A$ factored</h2>
+
+<p><b>Draw 1 — $k=2,\ h=8,\ \ell=6$.</b></p>
+<div class="box key">
+$$A=\begin{pmatrix}
+-20y^{7}x^{3}(3xy-2x-y) & -8y^{6}x^{4}(12xy-7x-5y)\\[6pt]
+-6y^{6}x^{4}(12xy-7x-5y) & -42y^{5}x^{5}(2xy-x-y)
+\end{pmatrix}$$
+</div>
+
+<p><b>Draw 2 — $k=2,\ h=6,\ \ell=8$.</b></p>
+<div class="box key">
+$$A=\begin{pmatrix}
+-42y^{5}x^{5}(2xy-x-y) & -6y^{4}x^{6}(12xy-5x-7y)\\[6pt]
+-8y^{4}x^{6}(12xy-5x-7y) & -20y^{3}x^{7}(3xy-x-2y)
+\end{pmatrix}$$
+</div>
+
+<p><b>Draw 3 — $k=3,\ h=8,\ \ell=1$.</b> (lone $L$: $a_{11}=0$, the system is triangular)</p>
+<div class="box key">
+$$A=\begin{pmatrix}
+0 & 168(y-1)^{2}y^{5}\\[6pt]
+21(y-1)^{2}y^{5} & 21(y-1)y^{4}(7xy-5x-2y)
+\end{pmatrix}$$
+</div>
+
+<p><b>Draw 4 — $k=3,\ h=8,\ \ell=6$.</b></p>
+<div class="box key">
+$$A=\begin{pmatrix}
+10y^{6}x^{2}(33x^{2}y^{2}-44x^{2}y+14x^{2}-22xy^{2}+16xy+3y^{2}) & 8y^{5}x^{3}(66x^{2}y^{2}-77x^{2}y+21x^{2}-55xy^{2}+35xy+10y^{2})\\[6pt]
+6y^{5}x^{3}(66x^{2}y^{2}-77x^{2}y+21x^{2}-55xy^{2}+35xy+10y^{2}) & 21y^{4}x^{4}(22x^{2}y^{2}-22x^{2}y+5x^{2}-22xy^{2}+12xy+5y^{2})
+\end{pmatrix}$$
+</div>
+
+<p><b>Draw 5 — $k=5,\ h=8,\ \ell=2$.</b></p>
+<div class="box key">
+$$A=\begin{pmatrix}
+70(y-1)^{4}y^{4} & 280(y-1)^{3}y^{3}(2xy-x-y)\\[6pt]
+70(y-1)^{3}y^{3}(2xy-x-y) & 35(y-1)^{2}y^{2}(14x^{2}y^{2}-14x^{2}y+3x^{2}-14xy^{2}+8xy+3y^{2})
+\end{pmatrix}$$
+</div>
+
+<h2>3. What recurs</h2>
+<ul>
+<li><b>Off-diagonals are proportional.</b> In every draw $a_{12}$ and $a_{21}$ carry the
+<em>identical</em> irreducible polynomial; only the rational prefactor differs. The ratio is
+$a_{12}/a_{21}=h/\ell$ throughout (Draws 1–5: $8/6,\ 6/8,\ 8/1,\ 8/6,\ 8/2$ — and $3/2$ in the
+earlier $h{=}3,\ell{=}2$ case). An empirical regularity here, not yet proved in general.</li>
+<li><b>$\ell=1\Rightarrow a_{11}=0$</b> (Draw 3): the lone $L$ has no $L$-rival, so $W_L$ is free
+of $x$ and the system goes triangular.</li>
+<li><b>Each entry $=$ (rational scalar)$\cdot x^{p}y^{q}\cdot$(irreducible factor).</b> The
+monomial $x^{p}y^{q}$ records how many rivals of each pool sit "all below"; small $\ell$ thins
+the $x$-content and leaves high powers of $(y-1)=-(1-G_H)$ (Draws 3, 5).</li>
+</ul>
+<p class="note">Sign: factorization over $\mathbb Q$ is unique only up to $\pm$ units, so FLINT
+may carry a negative leading constant — e.g. $-20y^{7}x^{3}(3xy-2x-y)=20y^{7}x^{3}(2x+y-3xy)$.
+All entries Nemo/FLINT-factored (complete over $\mathbb Q$).</p>
+
+</body>
+</html>

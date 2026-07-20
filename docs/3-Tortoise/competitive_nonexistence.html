@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dead-zone obstruction — equilibrium structure when Δ &gt; 0</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false}
+            ]
+          });"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+                     "Liberation Sans", Arial, sans-serif;
+         max-width: 880px; margin: 2em auto; padding: 0 1em; line-height: 1.55; color: #1a1a1a; }
+  h1   { font-size: 1.6em; margin-top: 0.2em; }
+  h2   { font-size: 1.2em; border-bottom: 1px solid #ddd; padding-bottom: 0.2em; margin-top: 1.8em; }
+  h3   { font-size: 1.05em; margin-top: 1.4em; color: #333; }
+  .meta    { color: #666; font-size: 0.92em; }
+  .fbox    { background: #f7f7fb; border-left: 3px solid #5b6ee1;
+             padding: 0.8em 1.2em; margin: 1em 0; border-radius: 4px; }
+  .theorem { background: #eef5ff; border-left: 3px solid #2a5cb8;
+             padding: 0.8em 1.2em; margin: 1em 0; border-radius: 4px; }
+  .summary { background: #fff8e1; padding: 0.6em 1em; border-radius: 4px;
+             border-left: 3px solid #f0a500; margin: 1em 0; }
+  .remark  { background: #f3f7f1; padding: 0.6em 1em; border-radius: 4px;
+             border-left: 3px solid #6aa84f; margin: 1em 0; }
+  .proof   { margin: 0.4em 0 0.8em 0; }
+  .qed     { float: right; font-size: 1.1em; }
+  .figcap  { font-size: 0.9em; color: #555; margin-top: 0.3em; }
+  #plotPayoff  { width: 100%; height: 360px; }
+  #plotAnatomy { width: 100%; height: 220px; margin-top: 1em; }
+</style>
+</head>
+<body>
+
+<h1>Dead-zone obstruction: equilibrium structure in $\Gamma(\Delta, v, v)$ when $\Delta > 0$</h1>
+<p class="meta">Two-round dynamic contest of Joffrion–Parreiras with equal valuations $v_1 = v_2 = v$ and entering lead $\Delta > 0$ for player 1. We derive a unilateral constraint on player 2's strategy — valid for <em>any</em> player-1 strategy — and work out its implications for the structure of equilibria (continuous, discrete, or mixed). Source: <code>Docs/joffrion_part_I_v12.md</code> (Lemma 1, Prop.&nbsp;2, Prop.&nbsp;5) and <code>Docs/proof_ideas.md</code>.</p>
+
+<h2>Setup</h2>
+
+<p>Each player chooses round-1 effort $e_i \geq 0$ at cost $c(e_i)$, where $c$ is strictly increasing, convex, with $c(0)=0$. Set $w = c^{-1}(v)$. The round-2 (last round) is a static contest with leads; by Lemma 1, player 2's round-2 continuation value as a function of the round-2 lead $\Delta_2 = \Delta + e_1 - e_2$ is</p>
+
+<div class="fbox">
+$$ U^T_2(\Delta_2 \mid v, v) \;=\; \begin{cases} 0 & \Delta_2 \geq 0,\\ v - c(w + \Delta_2) & -w \leq \Delta_2 \leq 0,\\ v & \Delta_2 \leq -w. \end{cases} $$
+<p style="margin:0.4em 0 0 0">Under symmetric values, <strong>player 2 gets zero round-2 payoff whenever player 1 still leads</strong> ($\Delta_2 \geq 0$).</p>
+</div>
+
+<p>Player 2's <em>round-1</em> expected payoff at effort $e_2$, against <em>any</em> player-1 strategy $G_1$ supported on $[0,\infty)$, is</p>
+<div class="fbox">
+$$ U_2(e_2) \;=\; \mathbb{E}_{e_1 \sim G_1}\bigl[U^T_2(\Delta + e_1 - e_2 \mid v,v)\bigr] \;-\; c(e_2). $$
+<p style="margin:0.4em 0 0 0">This is <em>not</em> a Siegel-style payoff: $e_1$ enters through the smooth continuation $U^T_2$ via the lead $\Delta_2$, not through a 0/1 win indicator.</p>
+</div>
+
+<h2>The dead-zone lemma</h2>
+
+<div class="theorem">
+<strong>Lemma.</strong> For any $\Delta > 0$, $v > 0$, cost $c$, and <em>any</em> $G_1$ on $[0,\infty)$:
+$$ U_2(e_2) \;=\; -\,c(e_2) \qquad \text{for all } e_2 \in [0,\, \Delta]. $$
+In particular $U_2(0) = 0$ and $U_2(e_2) < 0$ for $e_2 \in (0, \Delta]$.
+</div>
+
+<div class="proof">
+<strong>Proof.</strong> For $e_2 \in [0,\Delta]$ and any $e_1 \geq 0$: $\;\Delta + e_1 - e_2 \geq \Delta - e_2 \geq 0$, so $U^T_2(\Delta + e_1 - e_2) = 0$ pointwise. Hence $\mathbb{E}_{G_1}[U^T_2(\cdots)] = 0$ and $U_2(e_2) = -c(e_2)$. <span class="qed">∎</span>
+</div>
+
+<div class="theorem">
+<strong>Corollary.</strong> Every $e_2 \in (0,\Delta]$ is strictly dominated by $e_2 = 0$, for <em>any</em> $G_1$. Therefore in any Nash equilibrium: $G_2$ assigns zero mass to $(0,\Delta)$ — neither continuous density nor atoms — and player 2's equilibrium payoff satisfies $u_2^* \geq U_2(0) = 0$.
+</div>
+
+<h2>Structure of equilibrium strategies</h2>
+
+<h3>P2's forced gap</h3>
+
+<p>The corollary implies $\mathrm{supp}(G_2) \subseteq \{0\} \cup ({\Delta}, \infty)$. In fact the gap is slightly wider: $U_2(\Delta) = \mathbb{E}_{G_1}[U^T_2(e_1)] - c(\Delta)$. Since $e_1 \geq 0$ gives $U^T_2(e_1) = 0$, we get $U_2(\Delta) = -c(\Delta) < 0$, so $\Delta$ itself is not in P2's support either. Defining $a^* = \inf(\mathrm{supp}(G_2) \setminus \{0\})$, we have $a^* > \Delta$.</p>
+
+<p>The location of $a^*$ is determined by the indifference condition at the lower boundary of P2's active region:</p>
+<div class="fbox">
+$$ \mathbb{E}_{e_1 \sim G_1}\bigl[U^T_2(e_1 - a^* + \Delta)\bigr] \;=\; u_2^* + c(a^*). $$
+</div>
+<p>The left side is positive only when P1 has mass below $a^* - \Delta$ (i.e. the overtake event). For $a^*$ near $\Delta$ this probability is small and the equation cannot balance $c(a^*) > 0$; $a^*$ must therefore be bounded away from $\Delta$ by an amount that depends on $G_1$'s mass near zero.</p>
+
+<h3>Two cases: $u_2^* = 0$ vs. $u_2^* > 0$</h3>
+
+<p><strong>$u_2^* = 0$.</strong> Action $e_2 = 0$ is a best response (though P2 need not play it). P2's support is a subset of $\{0\} \cup [a^*, b]$ with $a^* > \Delta$. The atom mass $p_0 = G_2(\{0\}) \geq 0$ — "concede with probability $p_0$" — is a free parameter to be pinned by P1's indifference.</p>
+
+<p><strong>$u_2^* > 0$.</strong> Action $e_2 = 0$ yields payoff $0 < u_2^*$, so P2 never plays 0. Her support lies entirely in $[a^*, b]$ with $a^* > \Delta$. For the indifference condition to hold at $a^*$ at a positive level, P1 must place sufficient mass below $a^* - \Delta$. In equilibrium this couples P1's strategy to the location of $a^*$.</p>
+
+<h3>Candidate P2 strategy structures</h3>
+<ol>
+  <li><strong>Discrete (atoms only).</strong> $G_2 = \sum_l \tilde p_l \,\delta_{y_l}$ with $y_1 = 0$ and $y_l \geq a^* > \Delta$ for $l \geq 2$. This is the $\sigma(m,n)$ family — the paper's main equilibrium object. The interleaving constraint $x_j + \Delta < y_{j+1}$ is the discrete restatement of the gap.</li>
+  <li><strong>Mixed: atom at 0 plus continuous density on $[a^*, b]$.</strong> $G_2 = p_0\,\delta_0 + (1-p_0)\,H_2$ with $H_2$ absolutely continuous on $[a^*, b]$. Indifference of P2 on $[a^*, b]$ gives an ODE for the density $h_2$; P1's strategy $G_1$ must simultaneously satisfy P1's indifference. Natural candidate for a "continuous limit" of the $\sigma(m,n)$ chain.</li>
+  <li><strong>Continuous on $[a^*, b]$ with $u_2^* > 0$ (no atom at 0).</strong> P2 never concedes. The existence of such an equilibrium — whether some $G_1$, $G_2$ pair with these properties satisfies mutual indifference — is the open question in the $(v_1 = v_2, \Delta > 0)$ case; the dead-zone argument does not rule it out.</li>
+</ol>
+
+<h2>What the dead zone immediately rules out</h2>
+
+<p>Any strategy $G_2$ that is <em>continuous with $G_2(0) = 0$</em> places positive density immediately above $0$, hence mass in $(0, \varepsilon)$ for all $\varepsilon > 0$. Some of that mass falls in $(0, \min(\varepsilon, \Delta))$, which is dominated. Contradiction.</p>
+
+<p>This dispenses in particular with the <em>symmetric competitive equilibrium</em> $G_1 = G_2 = G$ with $G(0) = 0$ (Proposition 2 of the paper). Its failure under $\Delta > 0$ is unsurprising — the environment is asymmetric, so identical strategies are not the natural equilibrium object — but the dead-zone gives the clean mechanism.</p>
+
+<h2>Illustration</h2>
+
+<p>Fix $c(x) = x^2$, $v = 1$, $\Delta = 0.1$. Taking as a specific $G_1$ the $\Delta = 0$ competitive CDF $G_0(x) = e^x - 1$ on $[0, \ln 2]$, the integral $U_2(e_2)$ evaluates in closed form:
+$$ U_2(e_2) \;=\; \begin{cases} -\,e_2^2 & 0 \leq e_2 \leq \Delta, \\[3pt] \Delta(\Delta - 2\,e_2) & \Delta \leq e_2 \leq \Delta + \ln 2. \end{cases} $$
+(Second piece: $\int_0^{a}[1-(1-u)^2]e^{a-u}\,du = a^2$ with $a = e_2 - \Delta$.)
+$U_2$ is negative throughout except at $e_2 = 0$, so $G_0$ cannot be P1's equilibrium strategy when $\Delta > 0$ — a concrete illustration of the dead-zone obstruction.</p>
+
+<div id="plotPayoff"></div>
+<div class="figcap">$U_2(e_2)$ computed against $G_1 = G_0$ (the $\Delta=0$ competitive CDF) with $\Delta = 0.1$. The shaded red band is the dead zone $(0,\Delta)$ where $U_2 = -e_2^2$ regardless of $G_1$. Beyond $\Delta$ the payoff continues to be negative under $G_0$, confirming $G_0$ is not an equilibrium strategy for P1 when $\Delta > 0$.</div>
+
+<div id="plotAnatomy"></div>
+<div class="figcap">Schematic anatomy of a candidate P2 strategy. Atom at $e_2 = 0$ (mass $p_0$, "concede"); forced gap $(0, a^*)$ with $a^* > \Delta$ (no mass from dead-zone corollary); continuous density on $[a^*, b]$. In the discrete $\sigma(m,n)$ family the continuous part is replaced by atoms at $y_2 < \cdots < y_n$.</div>
+
+<h2>Remarks</h2>
+
+<div class="remark">
+<p><strong>Asymmetric valuations ($v_1 \neq v_2$).</strong> Proposition 5 of the paper handles the asymmetric-values case via an ODE argument. P2's indifference on her continuous support gives a linear ODE for $G_1$; the explicit solution is
+$$ G_1(x) \;=\; \frac{\sqrt{v_1}+\Delta}{\sqrt{v_2}-\underline{e}_1}\;\exp\!\Bigl(\tfrac{x-\underline{e}_1}{\sqrt{v_2}}\Bigr)-1. $$
+The top-of-support condition $G_i(\overline{e}_i) = 1$ combined with the support-difference constraint (Lemma 3: $\overline{e}_2 - \overline{e}_1 = \underline{e}_2 - \underline{e}_1 = \sqrt{v_1}+\Delta-\sqrt{v_2}$) yields a transcendental equation with no valid solution. The dead zone plays the same role with $w_1 - w_2 = \sqrt{v_1} - \sqrt{v_2}$ in place of $\Delta$.</p>
+</div>
+
+<div class="remark">
+<p><strong>The open case: asymmetric continuous, $v_1 = v_2$, $\Delta > 0$.</strong> Neither the dead-zone lemma nor Prop.&nbsp;5 closes candidate structure (3) above — a continuous $G_2$ on $[a^*, b]$ with $a^* > \Delta$ and $u_2^* > 0$. Transporting the Prop.&nbsp;5 ODE machinery to the degenerate $v_1 = v_2$ boundary, or constructing an explicit obstruction, is the open problem in this regime.</p>
+</div>
+
+<div class="summary">
+<strong>Takeaway.</strong> The dead-zone lemma is a unilateral constraint on P2: for any $G_1$, any effort in $(0, \Delta]$ is dominated by $e_2 = 0$. This forces a gap $(0, a^*)$ with $a^* > \Delta$ in P2's strategy, and either an atom at 0 or a positive equilibrium payoff. The real content is the structural constraint on all candidates — discrete, continuous, or mixed — that survive: forced gap $(0, a^*)$ with $a^* > \Delta$, and either an atom at 0 or a positive equilibrium payoff for P2.
+</div>
+
+<script>
+(function () {
+  const Delta = 0.1;
+  const xBar  = Math.log(2);
+  const xMax  = xBar + Delta;
+
+  // ---- Plot 1: U2(e2) against G0 ----
+  const N = 600, xs = [], u2 = [];
+  for (let i = 0; i <= N; i++) {
+    const x = i * xMax / N;
+    xs.push(x);
+    u2.push(x <= Delta ? -x * x : Delta * (Delta - 2 * x));
+  }
+
+  Plotly.newPlot('plotPayoff', [{
+    x: xs, y: u2, mode: 'lines', line: { color: '#5b6ee1', width: 2.5 }
+  }], {
+    title: 'U₂(e₂) against G₁ = G₀ (Δ = 0 competitive CDF), with Δ = 0.1',
+    xaxis: { title: 'e₂', range: [0, xMax], zeroline: false, gridcolor: '#eee' },
+    yaxis: { title: 'U₂(e₂)', zeroline: false, gridcolor: '#eee' },
+    margin: { l: 60, r: 25, t: 50, b: 55 },
+    showlegend: false,
+    shapes: [
+      { type: 'rect', xref: 'x', yref: 'paper',
+        x0: 0, x1: Delta, y0: 0, y1: 1,
+        fillcolor: 'rgba(220,80,80,0.12)', line: { width: 0 } },
+      { type: 'line', xref: 'x', yref: 'y',
+        x0: 0, x1: xMax, y0: 0, y1: 0,
+        line: { color: '#888', width: 1, dash: 'dot' } }
+    ],
+    annotations: [
+      { x: Delta / 2, y: 0.004, xanchor: 'center', yanchor: 'bottom',
+        text: 'dead zone<br>(0, Δ)', showarrow: false,
+        font: { size: 11, color: '#a23' } },
+      { x: 0, y: 0, text: 'U₂(0) = 0', showarrow: true,
+        arrowhead: 2, ax: 45, ay: -28, font: { size: 11, color: '#555' } },
+      { x: Delta, y: -Delta * Delta, text: 'U₂(Δ) = −Δ²',
+        showarrow: true, arrowhead: 2, ax: 60, ay: -35,
+        font: { size: 11, color: '#a23' } }
+    ]
+  }, { displayModeBar: false, responsive: true });
+
+  // ---- Plot 2: schematic anatomy of a candidate P2 strategy ----
+  // Parameters (schematic only — not from a solved equilibrium)
+  const p0    = 0.30;   // atom mass at 0
+  const aStar = 0.28;   // lower boundary of active region (> Delta)
+  const bEnd  = 0.75;   // upper boundary
+
+  // Density on [aStar, bEnd]: use a gentle increasing shape scaled to integrate to (1-p0)
+  const M = 300;
+  const dx  = [], dy  = [];
+  const totalMass = 1 - p0;
+  // density f(x) ∝ 1 + 2*(x-aStar)/(bEnd-aStar), normalized
+  // integral of (1 + 2t) dt from 0 to 1 = 1 + 1 = 2  → scale by totalMass/2/(bEnd-aStar)
+  const scale = totalMass / (2 * (bEnd - aStar));
+  for (let i = 0; i <= M; i++) {
+    const x = aStar + i * (bEnd - aStar) / M;
+    dx.push(x);
+    const t = (x - aStar) / (bEnd - aStar);
+    dy.push(scale * (1 + 2 * t));
+  }
+
+  // Atom at 0 as a vertical bar using a shape; also plot a marker
+  const atomHeight = p0 / (bEnd - aStar) * 1.6;  // visual scale relative to density
+
+  Plotly.newPlot('plotAnatomy', [
+    // density curve
+    { x: dx, y: dy, mode: 'lines', fill: 'tozeroy',
+      line: { color: '#2a9d8f', width: 2 },
+      fillcolor: 'rgba(42,157,143,0.18)', name: 'density on [a*, b]' },
+    // atom at 0 (two-point vertical segment)
+    { x: [0, 0], y: [0, atomHeight], mode: 'lines',
+      line: { color: '#c0392b', width: 4 }, name: 'atom at 0  (mass p₀)' },
+    { x: [0], y: [atomHeight], mode: 'markers',
+      marker: { symbol: 'triangle-up', size: 10, color: '#c0392b' },
+      showlegend: false }
+  ], {
+    xaxis: {
+      title: 'e₂', range: [-0.04, bEnd + 0.05], zeroline: false, gridcolor: '#eee',
+      tickvals: [0, Delta, aStar, bEnd],
+      ticktext: ['0', 'Δ', 'a*', 'b']
+    },
+    yaxis: { title: 'density (schematic)', zeroline: false, gridcolor: '#eee',
+             showticklabels: false },
+    margin: { l: 60, r: 25, t: 20, b: 50 },
+    legend: { x: 0.55, y: 0.95, font: { size: 11 } },
+    shapes: [
+      // dead zone (0, Delta)
+      { type: 'rect', xref: 'x', yref: 'paper',
+        x0: 0.001, x1: Delta, y0: 0, y1: 1,
+        fillcolor: 'rgba(220,80,80,0.12)', line: { width: 0 } },
+      // gap (Delta, aStar)
+      { type: 'rect', xref: 'x', yref: 'paper',
+        x0: Delta, x1: aStar, y0: 0, y1: 1,
+        fillcolor: 'rgba(180,180,180,0.15)', line: { width: 0 } }
+    ],
+    annotations: [
+      { x: Delta / 2, y: 0.5, xref: 'x', yref: 'paper',
+        text: 'dead<br>zone', showarrow: false,
+        font: { size: 10, color: '#a23' } },
+      { x: (Delta + aStar) / 2, y: 0.5, xref: 'x', yref: 'paper',
+        text: 'gap', showarrow: false,
+        font: { size: 10, color: '#777' } }
+    ]
+  }, { displayModeBar: false, responsive: true });
+})();
+</script>
+
+</body>
+</html>

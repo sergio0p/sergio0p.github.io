@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SOSD Analysis — Tortoise Chain</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  body { font-family: Georgia, serif; max-width: 1200px; margin: 40px auto; padding: 0 20px; background: #fafafa; color: #222; }
+  h1 { font-size: 1.4em; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
+  h2 { font-size: 1.1em; color: #444; margin-top: 30px; }
+  p  { line-height: 1.65; }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; }
+  .grid2 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; }
+  .panel { background: #fff; border: 1px solid #ddd; border-radius: 4px; }
+  .panel-title { text-align: center; font-size: 0.85em; color: #555; padding: 4px 0 0 0; }
+  .tabs { display: flex; gap: 6px; margin: 20px 0 0 0; flex-wrap: wrap; }
+  .tab { padding: 5px 14px; cursor: pointer; border: 1px solid #bbb; border-radius: 3px;
+         font-size: 0.9em; background: #f0f0f0; }
+  .tab.active { background: #2c5f8a; color: #fff; border-color: #2c5f8a; }
+  .section { margin-top: 40px; }
+  table { border-collapse: collapse; font-size: 0.88em; margin-top: 10px; }
+  th, td { padding: 4px 12px; border: 1px solid #ddd; text-align: right; }
+  th { background: #eef; }
+  td:first-child, th:first-child { text-align: left; }
+</style>
+</head>
+<body>
+
+<h1>Second-Order Stochastic Dominance — Equilibrium Strategies Along the Chain</h1>
+
+<p>
+  Setting: 2-round dynamic contest, v₁=v₂=1, Δ=0, quadratic costs.
+  Chain: (1,1) ≻ (1,2) ≻ (2,2) ≻ … ≻ (5,6).
+  <br>
+  <strong>Finding:</strong> In every chain element (m,n), Player 1 second-order stochastically dominates Player 2:
+  Φ₁(z) ≤ Φ₂(z) for all z ≥ 0, where Φ_i(z) = ∫₀ᶻ Fᵢ(t) dt.
+</p>
+
+<div class="section">
+  <h2>Integrated CDFs: Φ₁(z) vs Φ₂(z) — all chain elements</h2>
+  <p style="font-size:0.9em;color:#555">Φ₁ (blue) lies below Φ₂ (red) everywhere ⟺ P1 SOSD-dominates P2. Select a view:</p>
+  <div class="tabs">
+    <div class="tab active" onclick="showView('both')">Φ₁ and Φ₂</div>
+    <div class="tab" onclick="showView('gap')">Gap Φ₂ − Φ₁</div>
+  </div>
+  <div id="view-both">
+    <div class="grid" id="grid-both"></div>
+  </div>
+  <div id="view-gap" style="display:none">
+    <div class="grid2" id="grid-gap"></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Summary statistics within each chain element</h2>
+  <table>
+    <tr>
+      <th>(m,n)</th><th>E[P1]</th><th>E[P2]</th><th>Var[P1]</th><th>Var[P2]</th>
+      <th>FOSD P1≥P2</th><th>SOSD P1≥P2</th>
+    </tr>
+    <tr><td>(1,1)</td><td>0.500000</td><td>0.000000</td><td>0.000000</td><td>0.000000</td><td>YES</td><td>YES</td></tr>
+    <tr><td>(1,2)</td><td>0.414214</td><td>0.207107</td><td>0.000000</td><td>0.103553</td><td>no</td><td>YES</td></tr>
+    <tr><td>(2,2)</td><td>0.418896</td><td>0.303721</td><td>0.035378</td><td>0.052869</td><td>no</td><td>YES</td></tr>
+    <tr><td>(2,3)</td><td>0.393839</td><td>0.345954</td><td>0.028607</td><td>0.060562</td><td>no</td><td>YES</td></tr>
+    <tr><td>(3,3)</td><td>0.399900</td><td>0.353483</td><td>0.038049</td><td>0.046069</td><td>no</td><td>YES</td></tr>
+    <tr><td>(3,4)</td><td>0.389710</td><td>0.368687</td><td>0.034353</td><td>0.048995</td><td>no</td><td>YES</td></tr>
+    <tr><td>(4,4)</td><td>0.393564</td><td>0.369033</td><td>0.038619</td><td>0.043014</td><td>no</td><td>YES</td></tr>
+    <tr><td>(4,5)</td><td>0.388229</td><td>0.376452</td><td>0.036410</td><td>0.044732</td><td>no</td><td>YES</td></tr>
+    <tr><td>(5,5)</td><td>0.390780</td><td>0.375714</td><td>0.038822</td><td>0.041564</td><td>no</td><td>YES</td></tr>
+    <tr><td>(5,6)</td><td>0.387537</td><td>0.380013</td><td>0.037371</td><td>0.042723</td><td>no</td><td>YES</td></tr>
+  </table>
+</div>
+
+<script>
+const DATA = [{"case": "(1,1)", "grid": [0.0, 0.5, 0.525], "phi1": [0.0, 0.0, 0.025000000000000022], "phi2": [0.0, 0.5, 0.525], "gap": [0.0, 0.5, 0.5]}, {"case": "(1,2)", "grid": [0.0, 0.41421356237309503, 0.7071067811865476, 0.742462120245875], "phi1": [0.0, 0.0, 0.29289321881345254, 0.32824855787277996], "phi2": [0.0, 0.2928932188134525, 0.5, 0.5353553390593274], "gap": [0.0, 0.2928932188134525, 0.20710678118654746, 0.20710678118654746]}, {"case": "(2,2)", "grid": [0.0, 0.2670350983613658, 0.47779097932055753, 0.6518606528803716, 0.6844536855243902], "phi1": [0.0, 0.0, 0.12758696115903836, 0.2329649016386342, 0.2655579342826528], "phi2": [0.0, 0.09728670990581809, 0.17406967355981418, 0.3481393471196283, 0.3807323797636469], "gap": [0.0, 0.09728670990581809, 0.04648271240077581, 0.11517444548099409, 0.11517444548099409]}, {"case": "(2,3)", "grid": [0.0, 0.22449789637428677, 0.4078366322259534, 0.5627700678492832, 0.6969193017743626, 0.7317652668630807], "phi1": [0.0, 0.0, 0.09155846599910021, 0.168931464300558, 0.3030806982256374, 0.33792666331435556], "phi2": [0.0, 0.06498925694830174, 0.11806346568376272, 0.24288662504713462, 0.350964853205802, 0.3858108182945202], "gap": [0.0, 0.06498925694830174, 0.02650499968466251, 0.07395516074657663, 0.04788415498016463, 0.04788415498016463]}, {"case": "(3,3)", "grid": [0.0, 0.17680077943922154, 0.32703927564711155, 0.45765435826101886, 0.5731800439010281, 0.6767416983991302, 0.7105787833190867], "phi1": [0.0, 0.0, 0.05782079884164773, 0.10808932926579154, 0.19707338472430053, 0.2768421041755754, 0.31067918909553194], "phi2": [0.0, 0.037971993691906535, 0.07023913215352554, 0.1495490563113409, 0.21969664710276754, 0.3232583016008697, 0.35709538652082623], "gap": [0.0, 0.037971993691906535, 0.012418333311877805, 0.04145972704554937, 0.022623262378467013, 0.04641619742529429, 0.04641619742529429]}, {"case": "(3,4)", "grid": [0.0, 0.15457988771774736, 0.28846398648141514, 0.4065396336393994, 0.5121457681242337, 0.6076645348811153, 0.694854978034956, 0.7295977269367038], "phi1": [0.0, 0.0, 0.04459073064091094, 0.08391638190414896, 0.15429680601512977, 0.21795457881120334, 0.30514502196504406, 0.33988777086679184], "phi2": [0.0, 0.028263985372107867, 0.05274387253520158, 0.11423463083640548, 0.16923158784687803, 0.2512765842644368, 0.32616804108579334, 0.3609107899875411], "gap": [0.0, 0.028263985372107867, 0.008153141894290644, 0.030318248932256514, 0.014934781831748262, 0.03332200545323344, 0.021023019120749276, 0.021023019120749276]}, {"case": "(4,4)", "grid": [0.0, 0.131343363777872, 0.24743841324126373, 0.35145737606993066, 0.4456758327549085, 0.5317815423683436, 0.6110608508659315, 0.6845166355487202, 0.7187424673261562], "phi1": [0.0, 0.0, 0.03249939352296673, 0.06161823383911376, 0.11438643649536065, 0.16261099561686582, 0.22922855896620375, 0.29095267692606064, 0.3251785087034966], "phi2": [0.0, 0.019859491643917024, 0.03741339462311569, 0.08255936598159216, 0.12345175359312878, 0.18518682350723004, 0.24202757976849112, 0.3154833644512798, 0.34970919622871577], "gap": [0.0, 0.019859491643917024, 0.00491400110014896, 0.020941132142478405, 0.00906531709776813, 0.02257582789036422, 0.01279902080228737, 0.02453068752521914, 0.02453068752521914]}, {"case": "(4,5)", "grid": [0.0, 0.11796996319111606, 0.22349154881080877, 0.31894114200942847, 0.4060739446424689, 0.48622312459730455, 0.5604250787738443, 0.6295014325153726, 0.6941145478459817, 0.7288202752382809], "phi1": [0.0, 0.0, 0.026365289786736627, 0.050214023388765516, 0.09376652431877165, 0.13382832801425557, 0.18947216924917273, 0.24127233682340926, 0.30588545215401836, 0.3405911795463175], "phi2": [0.0, 0.01577827470101085, 0.029891600837227948, 0.06670098497847365, 0.10030306431629643, 0.1514087349740146, 0.19872226499942747, 0.2601780818503449, 0.31766304691933733, 0.3523687743116365], "gap": [0.0, 0.01577827470101085, 0.00352631105049132, 0.016486961589708138, 0.006536539997524779, 0.017580406959759043, 0.009250095750254733, 0.01890574502693565, 0.011777594765318977, 0.011777594765318977]}, {"case": "(5,5)", "grid": [0.0, 0.10428498113171426, 0.19872163735141485, 0.28500955148789375, 0.3644432936970866, 0.43803163831064484, 0.5065759225167542, 0.5707232725323274, 0.6310037872699099, 0.687857151921718, 0.7222500095178039], "phi1": [0.0, 0.0, 0.02072368220165566, 0.039659161092903183, 0.07452831901416217, 0.10683151332592697, 0.15197115110323728, 0.1942152007364703, 0.24715081199961267, 0.29707685565254527, 0.33146971324863117], "phi2": [0.0, 0.012141537275307441, 0.023136468368967992, 0.05223674811165948, 0.07902548373505461, 0.12009726587505987, 0.1583538121072092, 0.20832787900490324, 0.25528948342647395, 0.3121428480782821, 0.346535705674368], "gap": [0.0, 0.012141537275307441, 0.0024127861673123308, 0.012577587018756296, 0.004497164720892441, 0.013265752549132898, 0.006382661003971918, 0.014112678268432932, 0.008138671426861283, 0.015065992425736807, 0.015065992425736807]}, {"case": "(5,6)", "grid": [0.0, 0.0954076587068208, 0.18250551487796893, 0.2626251247886298, 0.3368017337266786, 0.405856122288892, 0.470450018821215, 0.5311247011979627, 0.5883285577478228, 0.642437191759566, 0.6937683660483259, 0.7284567843507422], "phi1": [0.0, 0.0, 0.017412423875589864, 0.03342977114266839, 0.06309257488943742, 0.09070703186043239, 0.12945738888262856, 0.16585658030051736, 0.21161652400486414, 0.2549004596629143, 0.3062316339516742, 0.3409200522540905], "phi2": [0.0, 0.01006267787642813, 0.019248918082478528, 0.04379954292684637, 0.0665290856729488, 0.1015690185120531, 0.1343455855548488, 0.17733090440269517, 0.21785729723741942, 0.267069459776638, 0.3137555042234293, 0.3484439225258456], "gap": [0.0, 0.01006267787642813, 0.0018364942068886635, 0.01036977178417798, 0.0034365107835113706, 0.01086198665162072, 0.004888196672220235, 0.011474324102177802, 0.006240773232555286, 0.012169000113723683, 0.0075238702717551065, 0.0075238702717551065]}];
+
+const BLUE = '#2c6fad', RED = '#c0392b', GREEN = '#27ae60';
+const layout_base = {
+  margin: {l:32, r:8, t:28, b:32},
+  showlegend: false,
+  xaxis: {title: {text:'z', font:{size:10}}, tickfont:{size:9}},
+  yaxis: {tickfont:{size:9}},
+  paper_bgcolor:'#fff', plot_bgcolor:'#fff',
+  font: {size: 9}
+};
+
+function makePanelBoth(d, divId) {
+  const traces = [
+    {x: d.grid, y: d.phi1, mode:'lines', line:{color:BLUE,width:2,shape:'hv'},
+     name:'Φ₁ (P1)'},
+    {x: d.grid, y: d.phi2, mode:'lines', line:{color:RED,width:2,shape:'hv'},
+     name:'Φ₂ (P2)'},
+    {x: d.grid, y: d.gap, fill:'tonexty',
+     fillcolor:'rgba(200,230,200,0.35)',
+     mode:'none', showlegend:false,
+     // invisible trace just for fill between phi1 and phi2
+    },
+  ];
+  // shade between phi1 and phi2
+  const shade = {
+    x: [...d.grid, ...d.grid.slice().reverse()],
+    y: [...d.phi2, ...d.phi1.slice().reverse()],
+    fill:'toself', fillcolor:'rgba(39,174,96,0.12)',
+    line:{color:'transparent'}, mode:'lines', showlegend:false, hoverinfo:'skip'
+  };
+  const layout = {...layout_base,
+    title:{text: d.case, font:{size:11}, x:0.5},
+    yaxis:{...layout_base.yaxis, title:{text:'Φ(z)', font:{size:9}}}
+  };
+  Plotly.newPlot(divId, [shade,
+    {x:d.grid,y:d.phi1,mode:'lines',line:{color:BLUE,width:2,shape:'hv'},name:'Φ₁'},
+    {x:d.grid,y:d.phi2,mode:'lines',line:{color:RED,width:2,shape:'hv'},name:'Φ₂'}
+  ], layout, {responsive:true, displayModeBar:false});
+}
+
+function makePanelGap(d, divId) {
+  const layout = {...layout_base,
+    title:{text: d.case, font:{size:11}, x:0.5},
+    yaxis:{...layout_base.yaxis, title:{text:'Φ₂−Φ₁', font:{size:9}}, rangemode:'tozero'}
+  };
+  Plotly.newPlot(divId, [{
+    x: d.grid, y: d.gap,
+    mode: 'lines', fill:'tozeroy',
+    fillcolor:'rgba(39,174,96,0.2)',
+    line:{color:GREEN, width:2, shape:'hv'}
+  }], layout, {responsive:true, displayModeBar:false});
+}
+
+// Build grids
+const gridBoth = document.getElementById('grid-both');
+const gridGap  = document.getElementById('grid-gap');
+DATA.forEach((d, i) => {
+  const divB = document.createElement('div');
+  divB.className = 'panel';
+  divB.style.height = '180px';
+  divB.id = 'pb' + i;
+  gridBoth.appendChild(divB);
+
+  const divG = document.createElement('div');
+  divG.className = 'panel';
+  divG.style.height = '180px';
+  divG.id = 'pg' + i;
+  gridGap.appendChild(divG);
+});
+
+// Render after DOM is ready
+requestAnimationFrame(() => {
+  DATA.forEach((d, i) => {
+    makePanelBoth(d, 'pb' + i);
+    makePanelGap(d,  'pg' + i);
+  });
+});
+
+function showView(v) {
+  document.getElementById('view-both').style.display = v === 'both' ? '' : 'none';
+  document.getElementById('view-gap').style.display  = v === 'gap'  ? '' : 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Legend
+const legend = document.createElement('div');
+legend.style = 'margin-top:8px;font-size:0.82em;color:#555';
+legend.innerHTML = '<span style="color:#2c6fad">&#9644;</span> Φ₁(z) (Player 1) &nbsp;&nbsp; <span style="color:#c0392b">&#9644;</span> Φ₂(z) (Player 2) &nbsp;&nbsp; <span style="color:#27ae60">&#9632;</span> gap Φ₂−Φ₁ ≥ 0';
+document.getElementById('view-both').appendChild(legend);
+</script>
+
+</body>
+</html>

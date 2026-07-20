@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The MC(0) dial — marginal cost at the origin as an existence floor</title>
+<script>
+window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+  :root { --ink:#1a1a1a; --mut:#666; --accent:#7a2c2c; --good:#1c6b3c; --bad:#a3271f; --bg:#fcfbf9; --box:#f3f0ea; }
+  body { font: 16px/1.62 Georgia, 'Times New Roman', serif; color: var(--ink);
+         background: var(--bg); max-width: 820px; margin: 0 auto; padding: 2.4rem 1.4rem 5rem; }
+  h1 { font-size: 1.85rem; line-height: 1.22; margin: 0 0 .2rem; }
+  h2 { font-size: 1.32rem; color: var(--accent); border-bottom: 2px solid #e4ddd2;
+       padding-bottom: .25rem; margin-top: 2.4rem; }
+  h3 { font-size: 1.08rem; margin-top: 1.8rem; }
+  .sub { color: var(--mut); font-style: italic; margin: 0 0 1.6rem; }
+  .summary { background: var(--box); border-left: 4px solid var(--accent);
+             padding: 1rem 1.2rem; border-radius: 0 6px 6px 0; margin: 1.4rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: .95rem; }
+  th, td { border: 1px solid #ddd5c8; padding: .42rem .6rem; text-align: center; }
+  th { background: #efe9df; }
+  td.l, th.l { text-align: left; }
+  code, .mono { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: .9em; }
+  pre { background: #2b2b2b; color: #eee; padding: 1rem 1.1rem; border-radius: 6px;
+        overflow-x: auto; font-size: .85rem; line-height: 1.5; }
+  .good { color: var(--good); font-weight: bold; }
+  .bad { color: var(--bad); font-weight: bold; }
+  .note { color: var(--mut); font-size: .92rem; }
+  .keybox { background: #eef4ef; border: 1px solid #c9e0d0; border-radius: 6px;
+            padding: .8rem 1.1rem; margin: 1.2rem 0; }
+  .warn { background: #fbf3ec; border: 1px solid #e6c9a8; border-radius: 6px;
+            padding: .8rem 1.1rem; margin: 1.2rem 0; }
+  hr { border: none; border-top: 1px solid #e0d8cc; margin: 2.4rem 0; }
+  .tag { display:inline-block; background:#e4ddd2; color:#5a4636; border-radius:4px;
+         padding:.05rem .45rem; font-size:.78rem; font-family:monospace; }
+</style>
+</head>
+<body>
+
+<h1>The MC(0) dial</h1>
+<p class="sub">Marginal cost at the origin, $c'(0)$, as a new existence <em>floor</em> in
+the σ(m,n) family — and what it really does as the cost is made affine.
+Joffrion &amp; Parreiras (Tortoise). 2026‑06‑24 (revised, wider‑range rerun).</p>
+
+<div class="summary">
+<b>Summary.</b> Give the cost a linear part so the marginal cost of the very first unit
+of effort is strictly positive, $c'(0)=\mathrm{MC}(0)>0$ (pure powers have $c'(0)=0$).
+This single number is a <b>new dial</b>, independent of the exponent $\theta$, the lead
+$\Delta$, and the value gap $v_1/v_2$. It imposes an exact <b>floor on player 2's
+boundary mass</b>, $q_1 > c'(0)/c'(w)$. <b>Correction to the earlier draft:</b> this
+floor does <em>not</em> truncate the family at finite friction. For every finite friction
+level, <em>all</em> rungs $\sigma(m,n)$ exist; their boundary mass $q_1^*$ <b>approaches
+the floor from above</b> as $(m,n)$ grows — the margin $q_1^*-\text{floor}$ shrinks toward
+zero but never crosses. The friction <b>degenerates</b> the family ($q_1^*\!\to$ floor,
+payoffs $u_1^*\!\to 0$ extremely fast); it <b>collapses</b> to $\sigma(1,1)$ only in the
+strict limit where the cost becomes <b>affine</b>, $c'(0)/c'(w)\to1$. The earlier "finite
+death table / $N^\star(\mu)$ staircase" was a <b>numerical resolution artifact</b>.
+</div>
+
+<div class="warn">
+<b>What changed and why.</b> The previous version of this note claimed the high $(m,n)$
+rungs <em>die at finite</em> $\mu$ (a death table: $(2,2)$ at $\mu\approx8$, etc.). A
+rerun over a wider parameter range with adaptive grid refinement shows those were
+points where the admissible $q_1$‑window fell below the dial step <code>dstep</code>,
+not where the rung ceased to exist: <b>refine the grid and every "dead" rung comes back
+alive</b>, with $q_1^*$ sitting just above the floor. The floor <em>mechanism</em> is
+real and exact; the finite <em>truncation</em> was not.
+</div>
+
+<p class="note">All experiments symmetric — $v_1=v_2=1$, $\Delta=0$ — run with the
+general‑convex comb march <code>Julia/converge/convex_march.jl</code>.</p>
+
+<hr>
+
+<h2>1. The setup and the question</h2>
+
+<p>The project's discrete equilibrium family $\sigma(m,n)$ — player 1 mixing over $m$
+effort atoms, player 2 over $n$, on an interleaved "comb" — is built and ranked under
+<b>pure power costs</b> $c(e)=e^\theta$, whose marginal cost at zero vanishes
+($c'(e)=\theta e^{\theta-1}\to0$). Every standard knob keeps that property:</p>
+
+<ul>
+  <li><span class="tag">θ</span> the exponent (curvature) — Prop&nbsp;4 existence threshold $\theta^\star=\log2/\log(4/3)\approx2.409$;</li>
+  <li><span class="tag">Δ</span> the lead — death at $\Delta^\star(2,2)\approx0.211$ (support‑merge);</li>
+  <li><span class="tag">v₁/v₂</span> the value gap — death at $v_1^\star(2,2)\approx1.417$ (apex collapse).</li>
+</ul>
+
+<p>The new question: what if the marginal cost at the origin is <em>strictly positive</em>?
+We turn that knob two ways, both still strictly convex with $c(0)=0$ (so all the comb
+machinery applies unchanged):</p>
+
+<div class="keybox">
+$$\textbf{(A)}\quad c(e)=e^2+\mu e:\quad \text{fix curvature }=1,\ \text{raise the toll }c'(0)=\mu.$$
+$$\textbf{(B)}\quad c(e)=\tfrac{1}{k}e^2+e:\quad \text{fix the toll }c'(0)=1,\ \text{shrink curvature }\tfrac1k\ \text{so } c\to\text{linear as }k\to\infty.$$
+</div>
+
+<p>Family (B) is the clean way to watch "cost $\to$ linear" while holding $c'(0)$ pinned.
+Both drive the ratio $c'(0)/c'(w)\to1$ in their affine limit.</p>
+
+<h2>2. The mechanism: an exact floor on the boundary mass</h2>
+
+<p>The comb march builds player 1's smallest atom $x_1$ first, from the first‑node
+first‑order condition (symmetric case $w_1=w_2=w$, $f=0$):
+$$q_1\, c'(w-x_1) \;=\; c'(x_1),$$
+where $q_1$ is player 2's mass on the boundary atom at $0$ and $w=c^{-1}(v)$ is the reach.
+The residual $g(x)=c'(x)-q_1\,c'(w-x)$ is strictly increasing, with
+$g(w^-)=c'(w)-q_1c'(0)>0$ always. So an interior root $x_1$ exists exactly when
+$g(0^+)<0$:</p>
+
+<div class="keybox">
+$$g(0^+) = c'(0) - q_1\,c'(w) < 0
+\quad\Longleftrightarrow\quad
+\boxed{\,q_1 \;>\; \dfrac{c'(0)}{c'(w)}\;=\;\dfrac{\mathrm{MC}(0)}{\mathrm{MC}(w)}\,.}$$
+</div>
+
+<p>For pure powers $c'(0)=0$, the floor is $0$ and the condition is vacuous — the known
+case. For $c'(0)>0$ the floor is strictly positive. <b>This is a conditional on $q_1$.</b>
+Whether a given rung clears it depends on the rung's <em>equilibrium</em> value of $q_1$,
+which §4 settles. Closed forms at $v=1$:</p>
+
+<div class="keybox">
+$$\textbf{(A)}\ \ q_1^{\text{floor}}(\mu)=\frac{\mu}{\sqrt{\mu^2+4}}
+\qquad\qquad
+\textbf{(B)}\ \ q_1^{\text{floor}}(k)=\frac{1}{c'(w)},\ \ c'(w)=\tfrac{2w}{k}+1,\ \ w=\tfrac{-k+\sqrt{k^2+4k}}{2}.$$
+</div>
+
+<table>
+<tr><th class="l">family (B) — $k$</th><th>0.25</th><th>0.5</th><th>1</th><th>2</th><th>4</th><th>8</th><th>16</th><th>32</th><th>64</th><th>→∞</th></tr>
+<tr><th class="l">floor $1/c'(w)$</th><td>0.243</td><td>0.333</td><td>0.447</td><td>0.577</td><td>0.707</td><td>0.816</td><td>0.894</td><td>0.943</td><td>0.970</td><td>→1</td></tr>
+</table>
+
+<h2>3. What the solver actually shows: approach, not truncation</h2>
+
+<p>The boundary mass $q_1^*$ is pinned by the equilibrium, and along the chain it
+<b>decreases with rung size</b>. The earlier draft read that decrease as "$q_1^*$ falls
+below the floor at some finite $(m,n)$, killing the rung." It does not. For every finite
+friction level, $q_1^*(m,m)$ decreases monotonically toward the floor <b>from above</b>,
+and the gap $q_1^*-\text{floor}$ shrinks to near zero <em>without crossing</em>:</p>
+
+<table>
+<tr><th rowspan="2">$m$</th><th colspan="3">family (B), $k=0.5$ — floor $0.33333$</th><th colspan="3">family (B), $k=8$ — floor $0.81650$</th></tr>
+<tr><th>$q_1^*$</th><th>gap</th><th>$u_1^*$</th><th>$q_1^*$</th><th>gap</th><th>$u_1^*$</th></tr>
+<tr><td>1</td><td>1.000000</td><td>6.7e‑1</td><td>2.50e‑1</td><td>1.000000</td><td>1.8e‑1</td><td>5.05e‑2</td></tr>
+<tr><td>2</td><td>0.439646</td><td>1.1e‑1</td><td>8.83e‑3</td><td>0.821376</td><td>4.9e‑3</td><td>3.92e‑5</td></tr>
+<tr><td>3</td><td>0.369279</td><td>3.6e‑2</td><td>1.06e‑3</td><td>0.817767</td><td>1.3e‑3</td><td>2.67e‑6</td></tr>
+<tr><td>5</td><td>0.343334</td><td>1.0e‑2</td><td>8.38e‑5</td><td>0.816818</td><td>3.2e‑4</td><td>1.70e‑7</td></tr>
+<tr><td>10</td><td>0.335374</td><td>2.0e‑3</td><td>3.51e‑6</td><td>0.816560</td><td>6.4e‑5</td><td>6.68e‑9</td></tr>
+<tr><td>20</td><td>0.333794</td><td>4.6e‑4</td><td>1.79e‑7</td><td>0.816511</td><td>1.4e‑5</td><td>3.37e‑10</td></tr>
+<tr><td>30</td><td>0.333531</td><td>2.0e‑4</td><td>3.31e‑8</td><td>0.816503</td><td>6.1e‑6</td><td>6.21e‑11</td></tr>
+</table>
+
+<p>Two readings of the same numbers. The $q_1^*$ column: a sequence packing into an
+ever‑thinner layer just above the floor — approaching it asymptotically, never reaching
+it. The $u_1^*$ column: <b>this is where the "vanishing" really lives.</b> Player 1's
+equilibrium payoff collapses many orders of magnitude as the cost gets more linear
+($\sigma(5,5)$ at $k=8$ pays $u_1\approx1.7\times10^{-7}$), while the equilibrium itself
+formally persists. The friction does not delete rungs; it makes the high ones
+<em>economically negligible</em>.</p>
+
+<p>Across the wide $k$‑range, square rungs survive as high as the grid can resolve: to
+$m=30$ for $k\le16$, and to $m=22$ / $m=16$ for $k=32$ / $k=64$ — and those last two are
+capped only because the $q_1$‑window drops below <code>dstep</code>$=10^{-6}$, not
+because a rung dies.</p>
+
+<h2>4. The "deaths" were a grid artifact — shown by revival</h2>
+
+<p>The decisive test: take a rung the old (coarse) runs reported dead, and refine the
+dial grid. If it were genuine nonexistence the rung would stay dead; instead it revives,
+with $q_1^*$ microscopically above the floor.</p>
+
+<table>
+<tr><th class="l">claim (old, coarse grid)</th><th class="l">refined‑grid result</th></tr>
+<tr><td class="l">(B) $k=8$: $(8,8)$ INVALID</td><td class="l"><span class="good">VALID</span> at <code>dstep=1e‑4</code> ($q_1=0.81660$); was only INVALID at <code>5e‑4</code></td></tr>
+<tr><td class="l">(A) $(2,2)$ "dies at $\mu\approx8$"</td><td class="l"><span class="good">alive</span> at $\mu=7,8,9,12$ once <code>dstep≤5e‑5</code> (gap $\sim$1e‑4…3e‑5)</td></tr>
+<tr><td class="l">(A) $(3,3)$ "dies at $\mu\approx5.9$"</td><td class="l"><span class="good">alive</span> at $\mu=5.9,7,10$ (gap 9e‑5→1e‑5)</td></tr>
+<tr><td class="l">cubic $e^3{+}3e$: "$(5,5),(6,6)$ die"</td><td class="l"><span class="good">all</span> of $(3,3)\ldots(8,8)$ alive ($q_1\approx0.906$, floor $0.9055$)</td></tr>
+</table>
+
+<p>So the analytic floor is exact, but the old $\mu^\star(m,m)$ death values and the
+$N^\star(\mu)$ staircase marked where the admissible window fell below the grid step —
+not where existence ended. The honest statement is a <b>limit</b>, not a threshold: as
+$c'(0)/c'(w)\to1$ (i.e. $\mu\to\infty$ in (A), $k\to\infty$ in (B); the cost becomes
+affine), the gap for every $m\ge2$ rung is squeezed to zero and only $\sigma(1,1)$
+($q_1\equiv1$) can survive.</p>
+
+<h2>5. Survivors are genuine Nash; the right oracle</h2>
+
+<p>The comb march's post‑hoc global best‑response check certifies the revived rungs: across
+$(2,2),(3,3),(5,5)$ at $k=1$ and $(2,2),(4,4),(5,5)$ at $k=8$, both best‑response gains are
+$\sim10^{-17}$ — exact Nash. </p>
+
+<p class="note"><b>A solver caution.</b> The Newton outer solver in
+<code>Julia/solver/all_sizes.jl</code> gives <em>false negatives</em> on these costs: it
+seeds the outer Broyden loop from the pure‑quadratic GNE atoms, and as the cost gets
+linear that seed is far enough off that the loop collapses the support onto a lower rung
+(reporting nonexistence). The comb march with adequate <code>dstep</code>, plus its BR
+check, is the reliable existence oracle here — not the stale‑seeded Newton sweep.</p>
+
+<h2>6. It is MC(0), not the quadratic</h2>
+
+<p>The derivation used only $c'(0)$ and the monotonicity of $c'$, so the floor
+$q_1>c'(0)/c'(w)$ holds for <em>any</em> strictly convex cost. The cubic‑plus‑linear
+$c(e)=e^3+\mu e$ (floor $\mu/(3w^2+\mu)$) confirms it: at $\mu=3$ the floor is $0.9055$,
+and — correcting the earlier draft — <b>all</b> of $(3,3)$ through $(8,8)$ exist, with
+$q_1^*$ approaching $0.9055$ from above, exactly the same asymptotic squeeze. The
+relevant parameter is the marginal cost at the origin; the linear term is just the
+cleanest way to switch it on.</p>
+
+<h2>7. Contrast with the exponent dial θ</h2>
+
+<p>It is tempting to file MC(0) as "θ's mirror image — θ kills the small rungs, MC(0)
+kills the large ones." That symmetry is <em>false</em>, and the correction is exactly
+why. The threshold $\theta^\star$ is a <b>genuine finite death</b>: below it the small
+rungs $\sigma(1,1),\sigma(1,2)$ still solve their local system but <em>lose Nash to a
+real upward deviation</em> beyond the top atom — nonexistence at a finite parameter
+value. MC(0) is different in kind: an <b>asymptotic squeeze</b> with <em>no finite
+death</em>. It removes no particular rung at finite friction; it presses the whole family
+against the $q_1$‑floor, and only the affine limit extinguishes the $m\ge2$ rungs. Two
+independent dials acting at opposite ends of the chain — but one is a threshold, the
+other a limit.</p>
+
+<h2>8. Economic interpretation</h2>
+
+<p>Read the first‑node condition $q_1\,c'(w-x_1)=c'(x_1)$ as economics.</p>
+
+<h3>An entry toll versus a pivot probability</h3>
+
+<p><b>The right side is an entry toll.</b> With $c'(0)>0$ the marginal cost of a tiny
+first effort is positive: effort near zero is no longer almost‑free — there is a
+non‑vanishing toll on <em>participating at all</em> in the low‑effort range. (Pure powers
+have $c'(0)=0$: the first unit is free, so anyone can dabble at the bottom for nothing.)</p>
+
+<p><b>The left side is a pivot probability.</b> A small $e_1$ is pivotal essentially only
+when the rival sits at the bottom, $e_2=0$ — an event of probability $q_1$. So
+$q_1\,c'(w)$ is the expected marginal <em>return</em> to a tiny effort, and a player
+participates at the bottom only if that return clears the toll.</p>
+
+<div class="keybox">
+In words: <b>a player puts probability on tiny efforts only when the opponent stays at
+the bottom often enough that those tiny efforts are pivotal often enough to pay the
+entry toll.</b> A positive $c'(0)$ makes small efforts a gamble that must pay.
+</div>
+
+<h3>Where the mass actually is</h3>
+
+<p>It is tempting to picture high‑$(m,n)$ equilibria as <em>clustered near zero</em>. The
+opposite is true: the bottom is where they are <b>thinnest</b>. The boundary atom shrinks
+toward the floor, the support climbs toward the competitive ceiling $\ln 2\approx0.693$,
+the interior atoms carry roughly equal mass ($\approx 1/m$ each) with spacing tightening
+<em>upward</em> — so local density <b>rises</b> toward the top. For the quadratic
+symmetric case the competitive equilibrium is</p>
+
+<div class="keybox">
+$$G(x)=e^{x}-1,\qquad g(x)=e^{x}\quad\text{on }[0,\ln 2],$$
+a density that is <b>strictly increasing</b> — $g(0)=1$ at the bottom, $g(\ln 2)=2$ at
+the top. Effort near zero is the <em>least</em> populated region, not the most.
+</div>
+
+<p>The match is sharp; for σ(6,6) the empirical interval density (mass / gap) versus
+$e^x$ at each interval midpoint:</p>
+
+<table>
+<tr><th class="l">interval</th><th>density $q/\text{gap}$</th><th>$e^x$ at midpoint</th></tr>
+<tr><td class="l">0.17 – 0.31</td><td>1.27</td><td>1.27</td></tr>
+<tr><td class="l">0.31 – 0.43</td><td>1.45</td><td>1.45</td></tr>
+<tr><td class="l">0.43 – 0.54</td><td>1.64</td><td>1.63</td></tr>
+<tr><td class="l">0.54 – 0.64</td><td>1.82</td><td>1.81</td></tr>
+</table>
+
+<h3>The friction bites on the extensive margin — in the limit</h3>
+
+<p>The toll $c'(0)$ sits exactly where the equilibrium is thinnest — the lower tail,
+where the boundary atom is being pushed toward the floor. So it does <b>not</b> kill high
+$(m,n)$ by displacing probability; there is hardly any down there to displace. Instead it
+makes the thin lower tail <em>worth less and less</em>: the pivot return at the bottom is
+driven toward the toll, the rung's payoff $u_1^*$ collapses toward zero, and only in the
+affine limit does the willingness to maintain that tail disappear entirely. A positive
+$c'(0)$ <b>kills cheap jockeying at the bottom</b> — but as a limit, by starving it, not
+as a finite cull.</p>
+
+<p><b>Corollary — an obstruction to competitive convergence (sharpened).</b> The $\mu=0$
+family converges to the competitive equilibrium with $q_1\to0$ (no atom at the bottom).
+A positive $c'(0)$ pins $q_1 \ge \text{floor} > 0$ for <em>every</em> rung. So the
+degenerate limit of the discrete family is <b>floor‑pinned, never competitive</b>: MC(0)
+is an obstruction to the $\sigma(m,n)\to$ competitive convergence that the frictionless
+family exhibits — the family approaches a positive‑$q_1$ wall instead of the
+zero‑$q_1$ competitive density.</p>
+
+<h2>9. Asymmetric values $v_1\neq v_2$ — a third dial, and the all‑pay limit</h2>
+
+<p>Repeating the $e^2/k+e$ linear‑limit sweep off symmetry (<b>$v_1=1.2,\ v_2=1,\ \Delta=0$</b>)
+gives a qualitatively different — and cleaner — picture. First, the <b>value gap truncates
+the ladder by itself</b>, with $k$ held fixed at 1:</p>
+
+<table>
+<tr><th class="l">$v_1$ ($v_2=1,\ k=1$)</th><th class="l">rungs that exist</th></tr>
+<tr><td class="l">1.00 (sym)</td><td class="l">(1,1)(1,2)(2,2)(2,3)(3,3)(3,4)(4,4)… full ladder</td></tr>
+<tr><td class="l">1.05</td><td class="l">(1,1)(1,2)(2,2)(2,3)</td></tr>
+<tr><td class="l">1.20</td><td class="l">(1,1)(1,2) only</td></tr>
+</table>
+
+<p>These are <b>genuine non‑closures, not grid artifacts</b>: for (2,2) at $v_1=1.2$ the comb's
+termination function never crosses zero (<code>nFcross=0, nroots=0</code>) at every
+<code>dstep</code> down to <code>1e‑7</code> — qualitatively unlike the MC(0) "window&lt;dstep"
+deaths of §4, which revive on refinement. The value asymmetry simply forbids the comb from
+closing. So <b>the value gap is a third dial: a genuine finite truncator</b> (like the
+exponent $\theta$ of §7, unlike MC(0)).</p>
+
+<p>Then $k$ removes the last non‑trivial rung. Of the two survivors at $v_1=1.2$, $\sigma(1,2)$
+lives only to <b>$k\approx 2$</b> (it dies genuinely — <code>nFcross=0</code> — between
+$k=1.5$ and $k=2$, not a window artifact), while $\sigma(1,1)$ survives for all $k$. So for
+any large $k$, <b>$\sigma(1,1)$ is the unique equilibrium</b> (already alone past $k\approx2$).</p>
+
+<p>The surviving payoff is the all‑pay rent. $\sigma(1,1)$'s payoff as cost $\to$ linear:</p>
+
+<table>
+<tr><th class="l">$k$</th><th>1</th><th>4</th><th>16</th><th>64</th><th>256</th><th>1024</th><th>4096</th></tr>
+<tr><th class="l">$u_1(1,1)$</th><td>0.3910</td><td>0.2858</td><td>0.2279</td><td>0.2076</td><td>0.2019</td><td>0.2005</td><td>0.2001</td></tr>
+</table>
+
+<p>$u_1\to \boxed{v_1-v_2 = 0.2}$ exactly, with clean <b>$1/k$</b> convergence (the residual
+$u_1-0.2$ quarters each time $k$ quadruples), and $u_2\equiv0$ throughout ($P2$ is the
+indifferent, zero‑rent player by construction). The linear‑cost limit collapses the whole
+dynamic contest to the <b>complete‑information all‑pay auction</b>: the high‑value player
+wins, keeps exactly the value gap $v_1-v_2$, and the low‑value player is fully dissipated
+to 0.</p>
+
+<p>This <em>sharpens</em> the symmetric result rather than contradicting it. Symmetric is the
+knife‑edge $v_1=v_2$ of the <em>same</em> rule $u_1\to v_1-v_2$: there the limit rent is 0
+(full dissipation) and — because the gap is zero — the ladder is <em>not</em> truncated at
+finite $k$ (all rungs persist to the resolution ceiling, each separately degenerating). Off
+symmetry the gap does two things at once: it <b>genuinely truncates</b> the ladder to
+$\{(1,1),(1,2)\}$ even at $k=1$, and it leaves a <b>positive</b> limit rent $v_1-v_2$ for
+$\sigma(1,1)$. (This also settles §10's prior open item on the asymmetric floor: with
+$v_1>v_2$ the binding obstruction off symmetry is not the $q_1$‑floor but comb non‑closure.)</p>
+
+<h2>10. Caveats and open ends</h2>
+
+<ul>
+  <li><b>Resolution, not death.</b> Near the floor the admissible $q_1$‑window has
+  near‑zero measure, so any fixed dial grid eventually reports nonexistence. That is a
+  grid limit, not a result — always refine <code>dstep</code> before claiming a rung is
+  gone. (The old default <code>4e‑3</code>, even <code>3e‑4</code>, badly under‑resolves.)</li>
+  <li><b>The asymptote is numerical, not proven.</b> "$q_1^*(m,m)\to\text{floor}^+$,
+  never crossing at finite friction" rests on monotone‑positive gaps out to the
+  resolution ceiling, not a theorem; it reduces to the open closed form for
+  $q_1^*(m,m)$. A genuine finite truncation at very large $(m,n)$ cannot be excluded by
+  numerics alone.</li>
+  <li><b>Asymmetry (resolved, see §9).</b> The off‑symmetry first‑node FOC is
+  $q_1 c'(w_2-\Delta-x_1)=c'(x_1)$, with floor $q_1>c'(0)/c'(w_2-\Delta)$. But for $v_1>v_2$
+  the <em>binding</em> obstruction turns out not to be this floor at all — it is the comb's
+  failure to close (the value gap is a genuine finite truncator). The linear limit then
+  yields the all‑pay auction rent $u_1\to v_1-v_2$, $u_2\to 0$.</li>
+  <li><b>Paper angle.</b> The defensible result is a friction that <b>degenerates</b> the
+  equilibrium family — collapsing payoffs, $q_1$ pinned to a positive floor — and
+  <b>obstructs competitive convergence</b>, with full collapse to $\sigma(1,1)$ only in
+  the affine limit. <em>Not</em> a finite top‑down truncation. It pairs with, but is
+  structurally unlike, the $\theta^\star$ threshold.</li>
+</ul>
+
+<h2>11. Reproduce</h2>
+
+<pre>// in the Julia MCP workspace (include into Main; refer via Main if needed)
+Base.include(Main, "Julia/converge/convex_march.jl")
+qk(k)  = PolyCost([0.0, 1.0, 1.0/k])      // (B) c(e) = e²/k + e   (→ linear as k→∞)
+qmu(m) = PolyCost([0.0, m, 1.0])          // (A) c(e) = e² + μe
+
+// ADAPTIVE dstep — refine until the (thin) window resolves, else you get FALSE deaths:
+function alive(cost, m, n)
+    for ds in (5e-4, 1e-4, 2e-5, 5e-6, 1e-6)
+        r = solve_rung(cost=cost, v1=1, v2=1, Δ=0, m=m, n=n, dstep=ds, check=true)
+        r.exists && return (true, r.q1, r.u1, r.br)   // r.br.g1, r.br.g2 ~ 1e-17 ⇒ Nash
+    end
+    return (false,)
+end
+
+// floor = c'(0)/c'(w):   (A) μ/√(μ²+4)    (B) 1 / (2w/k + 1), w = (−k+√(k²+4k))/2</pre>
+
+<hr>
+<p class="note">Companion low‑token handoff: <code>Docs/mc0_dial.md</code>.
+Solver: <code>Julia/converge/convex_march.jl</code>. Theory context:
+<code>Docs/monotonicity_general_case.md</code> (general‑convex first‑node FOC),
+<code>Docs/power_cost_recursion.html</code> ($\theta^\star$ existence threshold),
+QUICKSTART §0/§2.</p>
+
+</body>
+</html>

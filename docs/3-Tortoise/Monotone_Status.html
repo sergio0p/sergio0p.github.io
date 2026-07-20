@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monotonicity status: what is proven (2026-07-09)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+<style>
+  table.status { border-collapse: collapse; margin: 1em 0; width: 100%; }
+  table.status th, table.status td { border: 1px solid #bbb; padding: .4em .6em; text-align: left; vertical-align: top; }
+  table.status th { background: #f0f0f0; }
+  .yes { color: #137333; font-weight: 600; }
+  .open { color: #b06000; font-weight: 600; }
+  .partial { color: #7a5; font-weight: 600; }
+  .dead { color: #a33; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<p class="title">Monotonicity status: what is proven</p>
+<p class="note">2026-06-22, updated 2026-07-09. A single-page map of the chain-monotonicity results for Tortoise σ(m,n) all-pay contests, across cost classes: what is closed, what is open, where the primary writeups live, and what to do next. Prerequisite: QUICKSTART §0 (notation) and §2 (the σ(m,n) FOC + indifference system). For a from-scratch tutorial on the comb march itself, read Docs/comb_march_tutorial.html first.</p>
+
+<div class="box key">
+<p>Summary — the state of play in three tiers. <b>Tier 1, quadratic cost $c(e)=e^2$:</b> chain monotonicity is <span class="yes">fully PROVEN</span>, in every asymmetry regime and at every rung, by one closed recursion whose derivatives telescope into a ladder of positive factors. <b>Tier 2, cubic cost:</b> also <span class="yes">PROVEN</span> — first for $c(e)=e^3$ (2026-07-07, the "margin field" theorem) and, after the 2026-07-09 CAS closure, for <em>every</em> strictly convex cubic. This was the first complete route beyond quadratic. <b>Tier 3, everything else:</b> <span class="open">open but sharply reduced</span>. The 2026-07-08/09 quartic campaign both closed the friendly half numerically (all coefficients $\ge0$: one polynomial inequality (SUFF6′) away from a proof) and found — then resolved — a genuine hole in the unfriendly half ($b<0$): the per-node inequality this program had been chasing is <em>actually false</em> on dials the theorem visits, yet everything the theorem <em>consumes</em> survives with growing margin. Consequence: for general costs the proof burden moves from "every atom's mass grows with the dial" to the aggregate "$F'>0$" — which is precisely the one lemma the new homotopy route was already built around.</p>
+</div>
+
+<p class="section">1. What "monotonicity" means here, in plain words</p>
+
+<p>Each equilibrium σ(m,n) is a "rung" on a ladder: deeper rungs mean both players spread their bids over more atoms, competition is fiercer, and the leader (the tortoise) should keep less rent. <b>Chain monotonicity</b> is that statement made precise: the leader's equilibrium payoff $u_1^\ast$ falls as you descend the ladder of rungs. It is what connects the finite theory to the competitive limit.</p>
+
+<p>How one proves it: the comb march builds the whole equilibrium candidate forward from a single input, the <b>dial</b> $t:=q_1$ (the mass the follower puts on her bottom atom). Turning the dial up makes every atom's mass grow; the equilibrium dial $q_1^\ast$ for rung $(m,n)$ is where the total mass hits exactly 1 — the root of the normalization defect $F(t)=\sum_\ell q_\ell(t)-1$. The operational targets (chain_monotonicity_reduction.md) are two "everything moves the right way when you turn the dial" facts about the off-equilibrium comb:</p>
+
+<ul>
+<li><b>Gap-widening:</b> every gap between neighboring atoms opens as the dial turns: $\delta_k'(t)>0$, $d_k'(t)>0$.</li>
+<li><b>Mass-widening:</b> every atom's mass grows with the dial: $p_k'(t)\ge0$, $q_k'(t)\ge0$. Summing gives $F'(t)>0$, so $F$ crosses zero once — the equilibrium dial is unique, and the roots of successive rungs are ordered, which is what makes the payoff ladder monotone.</li>
+</ul>
+
+<p>Gap-widening and $F'>0$ both follow from mass-widening (this step is cost-general), so for a long time the whole program rested on one per-node sign: the node residual $\mathrm{RG2}_k\ge0$, which is the statement "atom $k+1$'s mass grows". <b>The 2026-07-09 finding (§3.5 below) shows that per-node sign is false for some admissible costs, while the aggregate $F'>0$ it was meant to deliver is not</b> — so the honest target is now the aggregate, and this page tracks both.</p>
+
+<p class="section">2. Quadratic cost — <span class="yes">PROVEN</span> (all regimes, all rungs)</p>
+
+<table class="status">
+<tr><th>Regime</th><th>Status</th><th>Primary writeup</th></tr>
+<tr><td>Symmetric ($v_1=v_2$, $\Delta=0$)</td><td class="yes">Proven (closed form)</td><td>symmetric_quadratic_closed_form.{md,html}; symmetric_quadratic_recursion.{md,html}</td></tr>
+<tr><td>Base rung $\sigma(2,2)$, asymmetric</td><td class="yes">Proven</td><td>asym_quadratic_sigma22_monotonicity.{md,html}</td></tr>
+<tr><td>Value axis ($\Delta=0$, $v_1\ge v_2$)</td><td class="yes">Proven</td><td>value_axis_monotonicity.md; value_axis_induction_brainstorm.md</td></tr>
+<tr><td>Lead axis ($s=1$, $\Delta\ne0$) &amp; mixed</td><td class="yes">Proven</td><td>asymmetric_quadratic_monotonicity.md (capstone)</td></tr>
+</table>
+
+<p>All four regimes are <b>one theorem</b>, and the reason quadratic is easy is worth stating plainly: when $c(e)=e^2$, marginal cost is a straight line, so every atom is a <em>rational</em> function of the dial and the whole comb obeys one closed recursion. Normalizing $v_2=1$ (so $w_1=s=\sqrt{v_1}$, $f=1-s-\Delta$), the value asymmetry $s$ is the only asymmetry symbol inside the recursion, and the head start $\Delta$ enters only through the very first gap:</p>
+
+$$\delta_k=\frac{A_{k-1}\,d_{k-1}(d_{k-1}+s)}{s\,A_k},\qquad
+d_k=\frac{B_{k-1}\,\delta_k(\delta_k+1)}{B_k},\qquad
+\delta_1=\frac{t(1-\Delta)}{1+t}+(s-1)+\Delta.$$
+
+<p>Differentiating in $\log t$ makes the unsigned cumulative terms cancel (telescoping), leaving a ladder in which each derivative is the previous one times a manifestly positive factor:</p>
+
+$$\delta_k'=\delta_k\cdot\frac{s\,d_{k-1}'}{d_{k-1}(d_{k-1}+s)},\qquad
+d_k'=d_k\cdot\frac{\delta_k'}{\delta_k(\delta_k+1)},$$
+
+<p>seeded by $\delta_1'=(1-\Delta)/(1+t)^2>0$ (needs only $\Delta<1$, and does not involve $s$ at all). Positivity then propagates down the ladder for free; mass-widening follows by the product rule; $F'>0$ follows by summing. In the symmetric case everything collapses to the one-liner $G_i=t/(1+it)$, $G_i'=(1+it)^{-2}>0$.</p>
+
+<div class="box">
+<p>Three facts worth carrying into the paper: (1) <b>the asymmetries factor cleanly</b> — $s$ deforms the ladder's multipliers, $(s,\Delta)$ shift the base, and the seed $\delta_1'$ sees only $\Delta$; (2) the <b>lead axis is the easy direction</b> ($\Delta$ is a single scalar dent in the first gap; the recursion itself is pure-symmetric) — the old intuition "value hard, lead easy" was backwards; (3) monotonicity <b>decouples from existence</b>: the $\Delta<1$ bound is far looser than the existence-death threshold (e.g. $\Delta^\ast(2,2)\approx0.211$). All identities are exact-symbolic verified over $\mathbb{Q}(s,\Delta,t)$ through $(5,5)$ [ladder] / $(4,4)$ [mass].</p>
+</div>
+
+<p><b>Quadratic caveat.</b> The §3 telescoping/ladder/mass identities are machine-verified but not yet hand-checked; that hand-verification, plus folding the four regimes into one stated paper theorem, is the remaining bookkeeping (a lower-priority Next item).</p>
+
+<p class="section">3. General strictly convex cost — <span class="yes">cubic PROVEN</span>, rest <span class="open">OPEN but reduced</span></p>
+
+<p>Primary records: <b>rg2_positivity_attack.md</b> (the frontier doc — start at its §0 checklist), <b>theta3_monotonicity_theorem.md</b> (the standalone cubic theorem), general_cost_monotonicity_handoff.md §4.9 (the bridge from the old plan). The power family $c(e)=e^\theta$ is the test bed; §3.5 covers quartics and beyond.</p>
+
+<p><b>Why the quadratic proof does not transfer.</b> The atoms are rational functions of the dial <em>iff</em> marginal cost $c'$ is affine <em>iff</em> $c$ is quadratic. For any other cost the atoms are genuinely algebraic — there is no closed recursion over $\mathbb{Q}(t)$ and nothing for the log-derivative ladder to telescope. A different idea was needed; it came in three steps (§3.1–§3.3).</p>
+
+<p><b>Groundwork that survives from the first attack (triangular-Jacobian analysis):</b></p>
+<ul>
+<li><b>Local solvability is free.</b> Each march node is a $2\times2$ root-find whose Jacobian is lower-triangular with positive diagonal, forced by convexity alone; the analytic derivative assembly reproduces finite differences to $\sim2\times10^{-9}$ ($\theta=2,3,4$).</li>
+<li><b>Everything reduces to mass-widening.</b> Atom positions move the right way automatically once masses do, so gap-widening and $F'>0$ all hang on the single per-node sign $\mathrm{RG2}_k\ge0$.</li>
+<li><b>The offset that pays for it.</b> $\mathrm{RG2}$ is positive only thanks to the envelope-theorem term $u_1'=v_1-c(m_0)>0$, constant across nodes; the march identities alone are circular, so any proof must import an inequality from outside the identity algebra. That impossibility result (2026-07-07) is what forced the margin-field reformulation below.</li>
+</ul>
+
+<p class="section">3.1 The margin field: turning a node inequality into a picture</p>
+
+<p>The reformulation replaces "is this residual number nonnegative?" with "is this <em>function</em> nonnegative on an interval?" — which has shape, and shape can be argued. Fix node $k$ and look at the interval $[x_k,x_{k+1}]$ between two consecutive leader atoms. Two natural fields live there (margins $r_\ell(z)=w_1+Y_\ell-z$):</p>
+
+$$G_k(z)=c'(z)-\sum_{\ell\le k}q_\ell\,c'(r_\ell(z)),\qquad
+\Phi_k(z)=-\partial_t G_k(z)=\sum_{\ell\le k}\Big[q_\ell'\,c'(r_\ell(z))+q_\ell\,c''(r_\ell(z))\,Y_\ell'\Big].$$
+
+<p>$G_k$ is the <b>FOC field</b> (it vanishes at $x_k$ — that <em>is</em> the first-order condition — and rises with slope equal to the <b>stiffness</b> $W_k(z)=c''(z)+\sum q_\ell c''(r_\ell(z))>0$); $\Phi_k$ is the <b>flux</b> (how fast the FOC level drifts as the dial turns). The key integral identity (machine-verified to $2\times10^{-15}$) writes the node residual as the integral of a pointwise <b>margin</b>:</p>
+
+$$\mathrm{RG2}_k=\int_{x_k}^{x_{k+1}} D_k(z)\,dz,\qquad
+D_k(z)=Y_{k+1}'\,W_k(z)-\Phi_k(z).$$
+
+<p>In words: mass-widening at node $k$ asks whether the frontier atom's motion, weighted by stiffness, outruns the flux <em>on average over the interval</em>. Three structural facts make the frame work:</p>
+
+<ul>
+<li><b>The induction hypothesis sits at the left endpoint:</b> $D_k(x_k)=W_k(x_k)\,\gamma_{k+1}'$ — gap-widening from the previous node is <em>literally</em> the margin's starting value, so the induction hands each node a nonnegative start.</li>
+<li><b>Gap-widening becomes a shape condition</b> $(M_k)$: $\bar D_k\ \ge\ \theta_k\,D_k(x_{k+1})$, where $\bar D_k$ is the mean margin and $\theta_k=M_1/(h_kM_0)$ is the interval's <b>stiffness-moment centroid</b>.</li>
+<li><b>Two exact identities control the shape:</b> the trapezoid-error identity (E1)
+$$\theta_k-\tfrac12=-\frac{1}{2h_kM_0}\int_{x_k}^{x_{k+1}}(z-x_k)(x_{k+1}-z)\,W_k'(z)\,dz,$$
+so "centroid below ½" is exactly "stiffness-slope $W_k'\ge0$ on average"; and the endpoint split (E2) $D(r)-D(l)=Y_{k+1}'\,\Delta W+J_0$ with $J_0\ge0$ free under the IH.</li>
+</ul>
+
+<p class="section">3.2 The on-window realization</p>
+
+<p>The single most consequential observation of 2026-07-07 is also the simplest. The theorem only ever needs dials up to the equilibrium root — the window $\mathcal{W}=\{F\le0\}$ — never beyond. On $\mathcal{W}$ every <em>partial</em> mass satisfies $Q_k=\sum_{\ell\le k}q_\ell<1$ and $P_k<1$, simply because $Q_k=(1+F)-\sum_{\ell>k}q_\ell<1+F\le1$ — a consequence of the <em>value</em> of $F$, not of its monotonicity, so nothing is circular. Every numerical "counterexample" the program had logged up to then turned out to live <em>off-window</em>. The right question was never "does the inequality hold everywhere?" but "does it hold where the theorem needs it?" (This lesson repeats, with the opposite outcome, in §3.5: the quartic corner is the first violation that survives the on-window test.)</p>
+
+<div class="box key">
+<p class="section">3.3 The cubic theorem — <span class="yes">PROVEN</span> (theta3_monotonicity_theorem.md)</p>
+<p>At $c(e)=e^3$ the two cost facts $c'''\equiv6$, $c''''\equiv0$ collapse every shape question into the window fact $Q_k<1$:</p>
+<p>$$W_k'(z)\equiv 6(1-Q_k)>0,\qquad
+\theta_k-\tfrac12=-\frac{(1-Q_k)h_k^2}{2M_0}<0,\qquad
+D_k''=-6\sum_{\ell\le k}q_\ell'\le0.$$</p>
+<p>So on-window the margin $D_k$ is <b>concave with nonnegative endpoints</b> (left = IH; right = left $+\,Y'\Delta W+J_0$, all $\ge0$), hence $D_k\ge0$ pointwise, hence $\mathrm{RG2}_k\ge0$; and concavity gives $\bar D\ge\tfrac12(D(l)+D(r))\ge\theta_k D(r)$, which is $(M_k)$, i.e. gap-widening. The mirror argument is verbatim ($V'=6(1-P_k)$), the base case is the $k=0$ instance of the same integral identity with <em>empty</em> flux, and the induction closes: mass-widening at every node, $F'>0$, unique dial, chain monotonicity. Every step is an exact identity (verified $10^{-13}$–$10^{-16}$) plus a sign — <b>no estimates anywhere</b>.</p>
+<p><b>Update 2026-07-09 (CAS closure):</b> the symbolic skeleton is now machine algebra end to end — field identities, telescoping, assembly, mirror pack, base case — for the <em>general</em> convex cubic $ae^3+be^2+c_0e$ (Julia/converge/_cubic_symbolic_cas2.wl §G1–§G6b, clean run, all residuals 0). The base-case gap-widening reduces to cost log-concavity, which every convex cubic satisfies (the transient "$c_0$-hole" was retracted), so the earlier $b,c\ge0$ restriction is lifted: <b>chain monotonicity holds for every strictly convex cubic</b>. Only the chain-assembly step is still inherited from the quadratic write-up rather than CAS-verified. Worklist: cubic_symbolic_gaps_worklist.md.</p>
+</div>
+
+<p class="section">3.4 Power costs $\theta\ne2,3$ — what remains, regime by regime</p>
+
+<p><b>Powers $\theta\in(2,3)$ — the hard regime.</b> Here $c'''$ is decreasing, so old depleted margins fight the transfer from the FOC (a $c'$-level constraint) to the stiffness slope (a $c'''$-level claim). This is genuinely delicate: pointwise $W'\ge0$ fails on-window in deep combs ($\theta=2.25$, $m\ge12$), and even the clean centroid bound $\theta_k\le\tfrac12$ <em>crosses</em> at last nodes for $m\ge20$ (excess $\sim10^{-6}$). The surviving target is the <b>buffered</b> centroid lemma</p>
+$$\text{(M-buf)}\qquad \theta_k-\tfrac12\ \le\ \frac{D_k(x_k)}{2\,D_k(x_{k+1})},$$
+<p>and here the frame pays off: (E1) gives $\theta_k-\tfrac12\le h\cdot\max(-W')_+/(12\bar W)$ — the excess carries a <b>free factor of the atom spacing $h$</b>, which shrinks as combs deepen, while the buffer stays flat at $O(0.15)$. At the observed crossing there are five orders of magnitude of room. Plus one endpoint lemma (TR-a): $D(r)\ge0$ (empirically $\ge2.4$, never close).</p>
+
+<p><b>Powers $\theta>3$ — the easy regime (one lemma missing).</b> For $\theta\ge3$ the transfer inequality <em>reverses direction</em>: H&ouml;lder against the FOC constraint gives, on-window,</p>
+$$\sum_{\ell\le k}q_\ell\,r_\ell^{\theta-3}\ \le\ Q_k^{2/(\theta-1)}\,z^{\theta-3}\ &lt;\ z^{\theta-3}
+\qquad\Longrightarrow\qquad W_k'\ge0\ \text{ FREE},$$
+<p>so the centroid bound and $D(r)\ge D(l)$ come for free at every $\theta\ge3$ — the same transfer that is provably false for $\theta<3$. What breaks is only the concavity step: $c''''>0$ makes $D$ mildly convex. Numerically everything the theorem needs still holds with slack at $\theta=4,5,6,7$ on-window ($m\le16$), and the slack <em>grows</em> with depth. Missing: a bounded-convexity replacement for the concavity argument, with the H&ouml;lder slack $1-Q^{2/(\theta-1)}$ as the budget.</p>
+
+<p><b>Powers $\theta<2$</b> swap the hard lemmas (regime duality): the shape/centroid side comes free while right-endpoint positivity becomes the fight. First systematic sub-quadratic data (2026-07-09, homotopy probes): $\theta=1.9$ is chain-monotone through $m\le12$. Beyond probes, unexplored.</p>
+
+<p><b>$\theta=2$ re-proof as sanity:</b> the quadratic case is the degenerate instance of the same machine — $W'\equiv0$, $D$ linear, $\theta_k\equiv\tfrac12$ — and the whole §3.3 argument collapses to one line per node, reproducing the ladder proof.</p>
+
+<p class="section">3.5 Quartics and beyond — the 2026-07-08/09 campaign</p>
+
+<p>Power costs have $c'''$ of one sign. Quartics $c=Ae^4+Be^3+D_2e^2$ are the first family where $c'''=24Ae+6B$ can <em>change sign</em> ($B<0$), and that turned out to be exactly the fault line. The campaign split the family in two.</p>
+
+<p><b>All coefficients $\ge0$ (sub-problem A) — numerically closed, one inequality from proof.</b> For $B\ge0$ a cascade argument (quartic_monotonicity_findings.md §3bis) closes gap- and mass-widening numerically: a composite margin is bounded below along the march, its audited floor is $1.2305$ (268 cells, 0 deaths; the earlier "$\ge2.48$" and "$1.52$" figures were artifacts, both retracted), and — the useful surprise — the binding case is always the base node, so <b>the cascade floor <em>is</em> lemma L1's infimum: prove L1 and the whole sub-problem follows</b>. L1 was then symbolically reduced (L1_symbolic_reduction.md, 2026-07-09): seven lemmas are now exact (31/31 Wolfram checks, generic coefficients), and everything rests on one radical-free polynomial inequality <b>(SUFF6′)</b>, numerical margin $1.1828$, zero violations on a 71275-point grid, unproved. Two supporting cascade lemmas (L3 dichotomy, L5 telescoped closure) also remain.</p>
+
+<p><b>Sign-crossing $c'''$ ($B<0$) — a real hole, found and resolved.</b> Near the convexity budget ($D_2\lesssim 1.1\times 3B^2/8A$) the curvature $c''$ has a nearly-degenerate interior dip. When a few early atoms straddle that dip, the per-node inequality $\mathrm{RG2}_k\ge0$ <em>genuinely fails</em> — on thin dial bands at $t\lesssim2.6\times10^{-4}$, one band per atom index crossing the dip (the 1.86 audit, rg2_dial_domain_finding.md). The natural hope was that such tiny dials are never visited by the theorem. <b>That hope is false</b>: the march is a pure forward recursion, so rung windows tile the whole dial axis, and the violation was certified <em>on-window</em> — the worst dial sits at 99.98% of the equilibrium dial of rung $m=1220$ (yes, the ladder reaches that deep: $t^\ast(m)\sim C/m^{1.5}$). The pointwise induction hypothesis also flips there (at exactly one atom).</p>
+
+<p><b>Why this is a redirection, not a defeat.</b> Everything the chain argument actually <em>consumes</em> was certified to survive at the violation, with margin that grows with depth: the aggregate $F'=\sum q'_\ell$ stays above the $q_1'=1$ subsidy at every rung tested ($\le1800$) and is $\approx+4180$ at the exposed rungs against a deficit of $\sim10^{-3}$ at one atom; $F$ single-crosses; the roots stay ordered; the payoff ladder stays monotone. Mechanism: near a deep root $F'\sim O(m)$ while the corner deficit is $O(10^{-3})$ at a handful of nodes — scale separation. Verdict (rg2_dial_domain_finding.md §8, handoff rg2_dial_domain_handoff.md): per-node $\mathrm{RG2}\ge0$ is dead as an all-costs lemma; the proof must target the aggregate $F'>0$ / single-crossing directly. Quadratic, all convex cubics, $\theta$-powers, and $B\ge0$ quartics are structurally immune (no dip to straddle).</p>
+
+<p><b>The homotopy route — where the aggregate target already lives.</b> Independently (2026-07-09), a cascade-free continuation strategy was opened: deform the cost along $c_s=(1-s)e^2+s\,c$ from the proven quadratic to the target cost and track the equilibrium. Its single remaining lemma is precisely "$F'>0$ at zeros of $F$" — the aggregate quantity that never fails, even at the $B<0$ corner. Rung death along the path was falsified-but-absorbed (rectangle rungs can die inside the convex family; squares survive; interiority absorbs the holes). The dial-domain resolution above independently validates this as the right formulation. Read homotopy_route_handoff.md + homotopy_route_probe.md.</p>
+
+<p><b>Arbitrary degree — a warning from the base case.</b> The base-case lemma "$b_1\ge0$" is equivalent to cost log-concavity $c'^2-c''c\ge0$, which is free through degree 5 but <b>dies at degree $\ge6$</b> (exact sweep: $e^n+ae^2$ fails for $n\ge6$). So for high degrees even the base case is march-geometry, not algebra; the worst case is the one-parameter scaling slice with limiting cost $\hat c(z)=z^n+z^2$. Read arbitrary_degree_transfer_insights.md before attacking any degree $\ge5$.</p>
+
+<p class="note">Drivers (Julia/converge/): margin-field program — _flux_decomp{,_core}.jl, _motion_order.jl, _cascade_centroid.jl, _psi_phi_split.jl, _j_slack.jl, _pointwise_velocity.jl, _margin_shape.jl, _onwindow_check.jl, _theta3_proof_check.jl, _deep_comb_scan.jl, _harmonic_limit_tr.jl, _theta_above3_scan.jl; CAS — _cubic_symbolic_cas{,2}.wl; quartic campaign — _quartic_*.jl, _rg2_chain_domain_check{,2}.jl, _logconcavity_sweep.wl; homotopy — _homotopy_probe{,2,3}.jl. Historical route: _jac_sign_theta3.jl, _tri_jacobian_theta.jl, _crux_massdrift.jl, _accum_bound.jl, _rg2_monotone.jl, and kin.</p>
+
+<p class="section">4. Status table</p>
+
+<table class="status">
+<tr><th>Cost class</th><th>Chain monotonicity</th><th>Notes</th></tr>
+<tr><td>Quadratic $c(e)=e^2$, symmetric</td><td class="yes">Proven</td><td>closed form; one-line gap-widening; re-derived as the linear-margin case of §3.3</td></tr>
+<tr><td>Quadratic, full asymmetry (value/lead/mixed), all $(m,n)$</td><td class="yes">Proven</td><td>one theorem; §3 identities hand-check pending</td></tr>
+<tr><td>Every strictly convex cubic $ae^3+be^2+c_0e$</td><td class="yes">Proven (2026-07-07; CAS closure &amp; $b,c\ge0$ restriction lifted 2026-07-09)</td><td>margin-field theorem, on-window, exact identities only; theta3_monotonicity_theorem.md + _cubic_symbolic_cas2.wl</td></tr>
+<tr><td>Power $\theta\in(2,3)$</td><td class="partial">Open — reduced</td><td>two lemmas: (M-buf) buffered centroid (free $h$ factor vs flat buffer) + (TR-a) right endpoint</td></tr>
+<tr><td>Power $\theta>3$</td><td class="partial">Open — reduced</td><td>one lemma: bounded-convexity form of $(M)$; $W'\ge0$ + centroid FREE by H&ouml;lder $\forall\theta\ge3$; numerics clean θ=4–7</td></tr>
+<tr><td>Power $\theta<2$</td><td class="open">Open</td><td>regime duality (hard lemmas swap); first data: θ=1.9 chain-monotone $m\le12$</td></tr>
+<tr><td>Quartic, all coefficients $\ge0$ (sub-problem A)</td><td class="partial">Numerically closed — one inequality from proof</td><td>cascade floor 1.2305 = L1's infimum; open: (SUFF6′) + L3/L5; L1_symbolic_reduction.md</td></tr>
+<tr><td>Quartic, $b<0$ near budget (sign-crossing $c'''$)</td><td class="open">Open — target reframed (2026-07-09)</td><td>per-node $\mathrm{RG2}\ge0$ <span class="dead">provably fails on-window</span> at visited dials; aggregate $F'>0$ never observed to fail (certified to rung 1800); rg2_dial_domain_{finding,handoff}.md</td></tr>
+<tr><td>General strictly convex $c$</td><td class="open">Open</td><td>margin-field reduction holds cost-generally; per-class shape lemmas remain; homotopy route reduces everything to "$F'>0$ at zeros of $F$"; base-case algebra dies at degree $\ge6$</td></tr>
+</table>
+
+<p class="section">5. Next</p>
+
+<ul>
+<li><b>(SUFF6′) for L1:</b> one radical-free polynomial inequality delivers all of quartic sub-problem A. Recommended opening: the face $x_1=\frac12$ two-parameter reduction (L1_symbolic_reduction.md).</li>
+<li><b>The homotopy lemma:</b> $F'>0$ at zeros of $F$ along the continuation $c_s$ — now doubly motivated, since the dial-domain resolution shows the aggregate is the only per-cost quantity that never fails.</li>
+<li><b>(M-buf) for $\theta\in(2,3)$:</b> bound $\max(-W')_+$ by the mass ladder, lower-bound $D(l)/D(r)$, let the free $h$ factor close it; then (TR-a).</li>
+<li><b>Bounded convexity for $\theta>3$:</b> bound $D''$ via motion-ordering and absorb the chord sag with the H&ouml;lder slack $1-Q^{2/(\theta-1)}$.</li>
+<li><b>Optional salvage of the per-node induction:</b> the two-band split (near-root band keeps the pointwise induction under a dial-floor hypothesis; deep band needs only $F<0$) — proposed in rg2_dial_domain_handoff.md, unexplored.</li>
+<li><b>Lower priority:</b> hand-verify the §2 quadratic ladder identities and the margin-field identity chain; CAS-verify the cubic chain-assembly step; fold quadratic + cubic into one paper-ready statement; extend the $b<0$ certification past rung 1800.</li>
+</ul>
+
+<p class="note">Sources: Docs/rg2_positivity_attack.md (frontier, §0 checklist), Docs/theta3_monotonicity_theorem.md (cubic theorem), Docs/cubic_symbolic_I2_derivation.md + Docs/cubic_symbolic_gaps_worklist.md (CAS closure), Docs/quartic_monotonicity_findings.md (quartic campaign), Docs/L1_symbolic_reduction.md, Docs/rg2_dial_domain_finding.md + Docs/rg2_dial_domain_handoff.md (the $b<0$ hole and its resolution), Docs/homotopy_route_handoff.md, Docs/arbitrary_degree_transfer_insights.md, Docs/general_cost_monotonicity_handoff.md, Docs/asymmetric_quadratic_monotonicity.md, Docs/symmetric_quadratic_closed_form.{md,html}, Docs/chain_monotonicity_reduction.md.</p>
+
+</body>
+</html>

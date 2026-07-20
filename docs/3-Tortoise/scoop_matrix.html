@@ -1,0 +1,440 @@
+<meta charset="utf-8">
+<title>Were we scooped? — Dynamic-contest scoop matrix</title>
+<style>
+  :root{
+    --paper:#f6f7f9; --surface:#ffffff; --surface-alt:#eef0f4;
+    --ink:#16181d; --ink-soft:#535a68; --ink-faint:#8b93a2;
+    --line:#e0e3ea; --line-strong:#c9cdd8;
+    --accent:#2b3a67; --accent-soft:#4a5b93; --accent-tint:#eef1f8;
+    --ok:#2f7a57; --ok-tint:#e6f2ec; --ok-line:#bfe0cd;
+    --warn:#9a6a10; --warn-tint:#f8f0dc; --warn-line:#e8d5a3;
+    --bad:#b23a3a; --bad-tint:#f7e7e7; --bad-line:#e7c2c2;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --r:8px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0f1116; --surface:#171a21; --surface-alt:#1d212a;
+      --ink:#e8eaef; --ink-soft:#a3aab8; --ink-faint:#6b7385;
+      --line:#282d38; --line-strong:#39404e;
+      --accent:#93a7e2; --accent-soft:#7d92d4; --accent-tint:#1a2233;
+      --ok:#63c193; --ok-tint:#152a20; --ok-line:#25493a;
+      --warn:#d7a64c; --warn-tint:#2a2213; --warn-line:#4a3d1c;
+      --bad:#e28787; --bad-tint:#2c1a1a; --bad-line:#4d2d2d;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#f6f7f9; --surface:#ffffff; --surface-alt:#eef0f4;
+    --ink:#16181d; --ink-soft:#535a68; --ink-faint:#8b93a2;
+    --line:#e0e3ea; --line-strong:#c9cdd8;
+    --accent:#2b3a67; --accent-soft:#4a5b93; --accent-tint:#eef1f8;
+    --ok:#2f7a57; --ok-tint:#e6f2ec; --ok-line:#bfe0cd;
+    --warn:#9a6a10; --warn-tint:#f8f0dc; --warn-line:#e8d5a3;
+    --bad:#b23a3a; --bad-tint:#f7e7e7; --bad-line:#e7c2c2;
+  }
+  :root[data-theme="dark"]{
+    --paper:#0f1116; --surface:#171a21; --surface-alt:#1d212a;
+    --ink:#e8eaef; --ink-soft:#a3aab8; --ink-faint:#6b7385;
+    --line:#282d38; --line-strong:#39404e;
+    --accent:#93a7e2; --accent-soft:#7d92d4; --accent-tint:#1a2233;
+    --ok:#63c193; --ok-tint:#152a20; --ok-line:#25493a;
+    --warn:#d7a64c; --warn-tint:#2a2213; --warn-line:#4a3d1c;
+    --bad:#e28787; --bad-tint:#2c1a1a; --bad-line:#4d2d2d;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-sans); font-size:16px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:clamp(20px,4vw,56px) clamp(16px,3vw,40px) 72px;}
+
+  .m{font-family:var(--font-mono); font-size:.92em; letter-spacing:-.01em; color:var(--accent-soft);}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-faint); margin:0 0 14px;
+  }
+
+  /* ---- masthead ---- */
+  .masthead{border-bottom:1px solid var(--line); padding-bottom:26px; margin-bottom:30px;}
+  h1{
+    font-family:var(--font-serif); font-weight:600; font-size:clamp(2rem,4.4vw,3rem);
+    line-height:1.05; letter-spacing:-.015em; margin:0 0 .35em; text-wrap:balance;
+  }
+  .lede{font-size:clamp(1rem,1.6vw,1.16rem); color:var(--ink-soft); max-width:62ch; margin:0;}
+  .lede b{color:var(--ink); font-weight:600;}
+
+  /* ---- verdict hero ---- */
+  .hero{
+    margin-top:28px; background:var(--surface); border:1px solid var(--line);
+    border-left:4px solid var(--ok); border-radius:var(--r);
+    padding:22px 24px; display:flex; flex-direction:column; gap:14px;
+  }
+  .hero .stamp{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--ok); font-weight:600;
+  }
+  .hero p{margin:0; font-family:var(--font-serif); font-size:clamp(1.15rem,2vw,1.5rem); line-height:1.32; text-wrap:balance;}
+  .hero .tags{display:flex; flex-wrap:wrap; gap:8px;}
+
+  /* ---- section ---- */
+  section{margin-top:44px;}
+  h2{
+    font-family:var(--font-serif); font-weight:600; font-size:1.4rem;
+    letter-spacing:-.01em; margin:0 0 4px;
+  }
+  .sub{color:var(--ink-soft); font-size:.95rem; margin:0 0 20px; max-width:70ch;}
+
+  /* ---- matrix ---- */
+  .scroll{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--surface);}
+  table.matrix{border-collapse:separate; border-spacing:0; width:100%; min-width:940px; font-size:.83rem;}
+  table.matrix th, table.matrix td{
+    text-align:left; vertical-align:top; padding:12px 14px;
+    border-bottom:1px solid var(--line); border-right:1px solid var(--line);
+  }
+  table.matrix tr td:last-child, table.matrix tr th:last-child{border-right:none;}
+  table.matrix tbody tr:last-child td{border-bottom:none;}
+
+  /* row-label column (sticky) */
+  .rowlabel{
+    position:sticky; left:0; z-index:2; width:148px; min-width:148px;
+    background:var(--surface-alt);
+    font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--ink-soft); line-height:1.35;
+    border-right:1px solid var(--line-strong);
+  }
+  thead .rowlabel{z-index:5; background:var(--surface-alt);}
+
+  /* header row */
+  thead th{
+    position:sticky; top:0; z-index:3; background:var(--surface);
+    border-bottom:2px solid var(--line-strong);
+  }
+  .phead{min-width:198px;}
+  .phead .pname{font-family:var(--font-sans); font-weight:700; font-size:.95rem; color:var(--ink); letter-spacing:-.01em; display:block;}
+  .phead .ptitle{font-family:var(--font-serif); font-style:italic; font-size:.86rem; color:var(--ink-soft); display:block; margin-top:3px; line-height:1.3; text-transform:none; letter-spacing:0;}
+  .phead .venue{
+    display:inline-block; margin-top:8px; font-family:var(--font-mono);
+    font-size:.63rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-faint); border:1px solid var(--line-strong); border-radius:4px; padding:2px 6px;
+  }
+  /* our-paper column emphasis */
+  th.ours, td.ours{background:var(--accent-tint);}
+  thead th.ours{border-top:3px solid var(--accent); border-bottom:2px solid var(--accent);}
+  .phead.ours .pname{color:var(--accent);}
+  .baseline-tag{
+    display:inline-block; margin-top:8px; font-family:var(--font-mono);
+    font-size:.63rem; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+    color:#fff; background:var(--accent); border-radius:4px; padding:2px 7px;
+  }
+  @media (prefers-color-scheme:dark){ .baseline-tag{color:#0f1116;} }
+  :root[data-theme="dark"] .baseline-tag{color:#0f1116;}
+  :root[data-theme="light"] .baseline-tag{color:#fff;}
+
+  td strong{font-weight:650; color:var(--ink);}
+
+  /* decisive rows */
+  tr.decisive .rowlabel{color:var(--accent); border-left:3px solid var(--accent); box-shadow:inset 3px 0 0 var(--accent);}
+  tr.decisive .rowlabel::after{content:" ◂"; color:var(--accent);}
+  tr.decisive td{background:linear-gradient(0deg,var(--accent-tint),transparent 140%);}
+  tr.decisive td.ours{background:var(--accent-tint);}
+
+  /* verdict row */
+  tr.verdict td, tr.verdict th{border-top:2px solid var(--line-strong); background:var(--surface-alt); padding-top:15px; padding-bottom:15px;}
+  tr.verdict td.ours{background:var(--accent-tint);}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono);
+    font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; font-weight:600;
+    padding:4px 9px; border-radius:5px; border:1px solid; white-space:nowrap;
+  }
+  .chip.ok{color:var(--ok); background:var(--ok-tint); border-color:var(--ok-line);}
+  .chip.warn{color:var(--warn); background:var(--warn-tint); border-color:var(--warn-line);}
+  .chip.bad{color:var(--bad); background:var(--bad-tint); border-color:var(--bad-line);}
+  .chip.base{color:var(--accent); background:transparent; border-color:var(--accent);}
+  .vnote{display:block; margin-top:9px; font-size:.8rem; color:var(--ink-soft); line-height:1.4;}
+
+  /* legend */
+  .legend{display:flex; flex-wrap:wrap; gap:18px 26px; margin-top:16px; font-size:.8rem; color:var(--ink-soft); align-items:center;}
+  .legend .item{display:flex; align-items:center; gap:8px;}
+  .swatch{width:22px; height:12px; border-radius:3px; border:1px solid;}
+  .dec-mark{font-family:var(--font-mono); color:var(--accent); font-weight:700;}
+
+  /* synthesis */
+  .kill{
+    background:var(--accent); color:#fff; border-radius:var(--r); padding:24px 26px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  :root[data-theme="dark"] .kill{color:#0f1116;}
+  @media (prefers-color-scheme:dark){ .kill{color:#0f1116;} }
+  :root[data-theme="light"] .kill{color:#fff;}
+  .kill .k-label{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; opacity:.8;}
+  .kill p{margin:0; font-family:var(--font-serif); font-size:clamp(1.1rem,1.9vw,1.4rem); line-height:1.35; text-wrap:balance;}
+
+  .axes{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin-top:22px;}
+  .axis{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:18px 18px 16px;}
+  .axis h3{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600;}
+  .axis p{margin:0; font-size:.9rem; color:var(--ink-soft); line-height:1.5;}
+  .axis p b{color:var(--ink); font-weight:600;}
+
+  .facts{margin-top:26px; display:flex; flex-direction:column; gap:14px;}
+  .fact{display:flex; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px;}
+  .fact .fmark{font-family:var(--font-serif); font-size:1.4rem; color:var(--accent); line-height:1; flex:none;}
+  .fact p{margin:0; font-size:.92rem; color:var(--ink-soft); line-height:1.5;}
+  .fact p b{color:var(--ink); font-weight:600;}
+
+  footer{margin-top:48px; padding-top:22px; border-top:1px solid var(--line); font-size:.82rem; color:var(--ink-soft);}
+  footer h4{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px;}
+  footer ul{margin:0 0 20px; padding-left:18px; line-height:1.6;}
+  footer li{margin-bottom:5px;}
+  footer .cite b{color:var(--ink);}
+
+  @media (prefers-reduced-motion:no-preference){
+    .fade{animation:rise .55s cubic-bezier(.2,.6,.2,1) both;}
+    .fade.d1{animation-delay:.06s;} .fade.d2{animation-delay:.12s;} .fade.d3{animation-delay:.18s;}
+    @keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  }
+  a{color:var(--accent-soft);}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px;}
+  @media (max-width:560px){ body{font-size:15px;} }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead fade">
+    <p class="eyebrow">Priority check · dynamic contests with deadlines</p>
+    <h1>Were we scooped?</h1>
+    <p class="lede">Three deadline-contest papers pulled from the same May&nbsp;2026 literature sweep, contrasted attribute-by-attribute against <b>Joffrion&nbsp;&amp;&nbsp;Parreiras (2026)</b>. Papers are columns; model and result attributes are rows. The bottom row is the verdict.</p>
+
+    <div class="hero">
+      <span class="stamp">Verdict — not scooped</span>
+      <p>Every rival resolves to a <b>single equilibrium</b>. Our paper's headline is a <b>ranked family of payoff-distinct equilibria</b>. They don't have the phenomenon, so they can't hold priority on it.</p>
+      <div class="tags">
+        <span class="chip ok">Ryvkin 2022 · not a threat</span>
+        <span class="chip ok">Seel 2018 · not a threat</span>
+        <span class="chip ok">Clark–Nilssen 2018 · not a threat</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="fade d1">
+    <h2>The comparison matrix</h2>
+    <p class="sub">Rows marked <span class="dec-mark">◂</span> are the <b>decisive axes</b> — where the scoop question is actually settled. Everything above them is context; the verdict follows from those rows plus the winner-rule and cost lines.</p>
+
+    <div class="scroll" role="region" aria-label="Scoop comparison matrix, scrolls horizontally">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="rowlabel" scope="col">Attribute</th>
+            <th class="phead ours" scope="col">
+              <span class="pname">Joffrion &amp; Parreiras</span>
+              <span class="ptitle">A Theory of Dynamic Contests With Deadlines and Effort Smoothing</span>
+              <span class="baseline-tag">Our paper · 2026</span>
+            </th>
+            <th class="phead" scope="col">
+              <span class="pname">Ryvkin</span>
+              <span class="ptitle">To Fight or to Give Up? Dynamic Contests with a Deadline</span>
+              <span class="venue">Mgmt. Sci. · 2022</span>
+            </th>
+            <th class="phead" scope="col">
+              <span class="pname">Seel</span>
+              <span class="ptitle">Contests with Endogenous Deadlines</span>
+              <span class="venue">JEMS · 2018</span>
+            </th>
+            <th class="phead" scope="col">
+              <span class="pname">Clark &amp; Nilssen</span>
+              <span class="ptitle">Keep On Fighting: The Dynamics of Head Starts in All-Pay Auctions</span>
+              <span class="venue">Working ms. · 2018</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <th class="rowlabel" scope="row">Players</th>
+            <td class="ours">2 (A, B)</td>
+            <td>2</td>
+            <td>2 + a contest designer</td>
+            <td>2</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Time</th>
+            <td class="ours"><strong>Discrete</strong> · finite <span class="m">T</span> rounds (core <span class="m">T=2</span>)</td>
+            <td><strong>Continuous</strong> · <span class="m">t∈[0,T]</span></td>
+            <td><strong>Continuous</strong> · <span class="m">t∈[T̲,T]</span></td>
+            <td><strong>Discrete</strong> · series of <span class="m">T≥2</span> stage contests</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Deadline</th>
+            <td class="ours">Fixed / exogenous — highest <em>accumulated</em> effort at <span class="m">T</span> wins</td>
+            <td>Fixed / exogenous <span class="m">T</span></td>
+            <td><strong>Endogenous</strong> — the <em>designer</em> chooses start <span class="m">T̲</span> and deadline <span class="m">T</span> (a mechanism-design question)</td>
+            <td>Fixed — after <span class="m">T</span> sequential stages</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Cost</th>
+            <td class="ours"><strong>Per-round, general convex</strong> (<span class="m">c(0)=c′(0)=0, c′&gt;0, c″≥0</span>); the split across rounds is payoff-relevant</td>
+            <td>Convex <strong>quadratic flow</strong> cost <span class="m">cᵢμ²⁄2</span> (cost of the effort path)</td>
+            <td><strong>Linear</strong> flow cost (binary effort × discounting); no smoothing margin</td>
+            <td><strong>Linear</strong> — cost 1 per unit effort; split is not the mechanism</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Winner rule / CSF</th>
+            <td class="ours"><strong>Deterministic all-pay</strong> — noiseless, highest score wins</td>
+            <td><strong>Noisy</strong> — Brownian score <span class="m">dX=(μ₁−μ₂)dt+σdW</span>; effort <em>plus luck</em> (<span class="m">σ&gt;0</span> is load-bearing)</td>
+            <td>Deterministic all-pay (designer pays top effort); Tullock in an extension</td>
+            <td>Deterministic all-pay <em>per stage</em>; score = effort + head start</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Information</th>
+            <td class="ours">Complete; effort observed each round → running lead <span class="m">Δₜ</span> known</td>
+            <td>Complete; score observed in real time</td>
+            <td>Complete params, but effort is <strong>unobservable</strong> → interaction "remains static" (Nash, not SPE)</td>
+            <td>Complete; win-count state observed each stage</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Valuations / prizes</th>
+            <td class="ours">Single prize; symmetric core + asymmetry &amp; lead in comparative statics</td>
+            <td>Single prize <span class="m">V</span>; heterogeneity via abilities <span class="m">cᵢ</span></td>
+            <td>Single prize <span class="m">P</span>; symmetric + asymmetric costs</td>
+            <td><strong>One prize per stage</strong> (multiple); symmetric ex ante, asymmetry earned via wins</td>
+          </tr>
+
+          <tr class="decisive">
+            <th class="rowlabel" scope="row">Equilibrium</th>
+            <td class="ours"><strong>Mixed · multiple · payoff-distinct</strong> — the family <span class="m">σ(m,n)</span>, interleaved supports</td>
+            <td><strong>Unique</strong> pure-strategy MPE, closed form</td>
+            <td><strong>Unique</strong> Nash, closed form</td>
+            <td><strong>Unique</strong> mixed equilibrium each stage — one payoff prediction</td>
+          </tr>
+
+          <tr class="decisive">
+            <th class="rowlabel" scope="row">Rent dissipation</th>
+            <td class="ours"><strong>Central — a ranked spectrum</strong> from collusive (minimal) to competitive (full)</td>
+            <td>Not a multiplicity device; total effort nonmonotone in prize/ability</td>
+            <td>Zero-profit (full) in the single equilibrium; no ranking</td>
+            <td>Full dissipation as one number (payoff 0, total effort <span class="m">vT</span>); no ranked family</td>
+          </tr>
+
+          <tr class="decisive">
+            <th class="rowlabel" scope="row">Mechanism (the engine)</th>
+            <td class="ours">Payoff-relevant <strong>lead magnitude → kink</strong> in the continuation → penultimate game not strategically zero-sum → multiplicity</td>
+            <td>Noise <em>smooths</em> the win probability → differentiable value (PDE), <strong>no kink</strong> → uniqueness ("momentum" effect)</td>
+            <td>Unobservable effort → static war of attrition → uniqueness</td>
+            <td>Head start = discrete <em>count</em> of past wins, independent of the effort margin → <strong>no magnitude channel</strong></td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Main technical result</th>
+            <td class="ours">One forward recursion <em>builds</em> every equilibrium, <em>ranks</em> them by dissipation, and <em>locates</em> existence thresholds; comparative statics discipline the set</td>
+            <td>Closed-form unique MPE: effort is a scaled-normal in a "window of opportunity" <span class="m">~σ√(T−t)</span>; total effort nonmonotone</td>
+            <td>Unique NE across three duration regimes (≈ discounted all-pay / war of attrition); designer optimum = announce now, short deadline</td>
+            <td>Laggard's win prob always <span class="m">&lt;½</span>, yet he eventually out-exerts the leader ("keeps on fighting"), especially late / far behind</td>
+          </tr>
+
+          <tr>
+            <th class="rowlabel" scope="row">Core message</th>
+            <td class="ours">Dynamic scoring + convex per-round cost make leads payoff-relevant → payoff-distinct multiplicity, overturning the single-payoff prediction</td>
+            <td>In a noisy deadline race, a momentum effect makes effort collapse once a lead opens — stronger incentives need not raise effort</td>
+            <td>With a designer-chosen deadline and unobservable effort, launch immediately with a short deadline</td>
+            <td>A discrete head start from winning doesn't permanently discourage the laggard — he fights hardest near the end</td>
+          </tr>
+
+          <tr class="decisive verdict">
+            <th class="rowlabel" scope="row">Scoop verdict</th>
+            <td class="ours">
+              <span class="chip base">Baseline</span>
+              <span class="vnote">The claims (i)–(iii) being checked: constructive, ranked, payoff-distinct multiplicity in a deterministic dynamic contest driven by a continuation kink.</span>
+            </td>
+            <td>
+              <span class="chip ok">✓ Not a threat</span>
+              <span class="vnote">Noisy &amp; unique. Its deterministic <span class="m">σ→0</span> limit — exactly our world — is the one regime it never occupies. Same intuition, opposite mechanism: a clean cite-and-contrast.</span>
+            </td>
+            <td>
+              <span class="chip ok">✓ Not a threat</span>
+              <span class="vnote">A different question (optimal contest <em>duration</em>). Unobservable effort forces a unique, zero-profit equilibrium — no observable-lead kink, no ranking.</span>
+            </td>
+            <td>
+              <span class="chip ok">✓ Not a threat</span>
+              <span class="vnote">Cites Joffrion &amp; Parreiras (2013) and states the difference: binary win-count head start (no magnitude), linear cost, one unique equilibrium.</span>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="legend">
+      <div class="item"><span class="dec-mark">◂</span> decisive axis</div>
+      <div class="item"><span class="swatch" style="background:var(--ok-tint); border-color:var(--ok-line);"></span> not a threat</div>
+      <div class="item"><span class="swatch" style="background:var(--warn-tint); border-color:var(--warn-line);"></span> partial overlap</div>
+      <div class="item"><span class="swatch" style="background:var(--bad-tint); border-color:var(--bad-line);"></span> scooped</div>
+      <div class="item" style="color:var(--ink-faint);">(amber / red defined for reuse — none occur here)</div>
+    </div>
+  </section>
+
+  <section class="fade d2">
+    <h2>Why we're not scooped</h2>
+    <p class="sub">The verdict rests on one structural fact, reached along four independent axes.</p>
+
+    <div class="kill">
+      <span class="k-label">The one-line kill</span>
+      <p>All three rivals predict a single equilibrium payoff. We prove a whole ranked family of them. Priority cannot attach to a phenomenon a paper does not exhibit.</p>
+    </div>
+
+    <div class="axes">
+      <div class="axis">
+        <h3>Winner rule</h3>
+        <p>We are a <b>deterministic all-pay</b> contest. Ryvkin is <b>noisy</b> — and that noise is precisely what smooths away the kink our multiplicity depends on. Our model is his σ→0 limit.</p>
+      </div>
+      <div class="axis">
+        <h3>Cost</h3>
+        <p>We use a <b>general convex per-round</b> cost, so how effort splits across rounds is payoff-relevant. Seel and Clark–Nilssen are <b>linear</b>; Ryvkin is quadratic-flow. None share the substitution motive.</p>
+      </div>
+      <div class="axis">
+        <h3>The kink</h3>
+        <p>Our engine is the <b>payoff-relevant lead magnitude</b> that kinks the continuation. Seel removes it (effort unobservable), Ryvkin smooths it (noise), Clark–Nilssen delete it (binary win-count).</p>
+      </div>
+      <div class="axis">
+        <h3>Output</h3>
+        <p>We deliver a <b>ranked family built by a recursion</b> and disciplined by comparative statics. Each rival delivers a single closed-form equilibrium — no ranking, no construction, no spectrum.</p>
+      </div>
+    </div>
+
+    <div class="facts">
+      <div class="fact">
+        <span class="fmark">†</span>
+        <p><b>The title collision is cosmetic.</b> Ryvkin's <em>To Fight or to Give Up? Dynamic Contests with a Deadline</em> is nearly your old working title, but on the merits it's a natural cite: shared intuition (a lead makes you give up), opposite mechanism (smooth momentum vs. a kinked multiplicity), opposite prediction (unique vs. ranked). It sharpens our contribution rather than pre-empting it.</p>
+      </div>
+      <div class="fact">
+        <span class="fmark">‡</span>
+        <p><b>Clark–Nilssen already fenced themselves off — and date your footprint.</b> They cite <em>Joffrion &amp; Parreiras (2013)</em> and write that in your model "the margin of victory is important," whereas theirs "limits the advantage that can be gained from winning… independent of previous efforts." That both pre-differentiates their paper and corroborates a 2013 draft — consistent with the ~decade-dormant, GEB-rejection-≈2015 timeline.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="fade d3">
+    <h4>Citations</h4>
+    <ul>
+      <li class="cite"><b>Joffrion, J. L. &amp; Parreiras, S. O.</b> (2026). <i>A Theory of Dynamic Contests With Deadlines and Effort Smoothing.</i> Working paper. — baseline.</li>
+      <li class="cite"><b>Ryvkin, D.</b> (2022). <i>To Fight or to Give Up? Dynamic Contests with a Deadline.</i> Management Science 68(11), 8144–8165.</li>
+      <li class="cite"><b>Seel, C.</b> (2018). <i>Contests with Endogenous Deadlines.</i> Journal of Economics &amp; Management Strategy 27, 119–133.</li>
+      <li class="cite"><b>Clark, D. J. &amp; Nilssen, T.</b> (2018). <i>Keep On Fighting: The Dynamics of Head Starts in All-Pay Auctions.</i> Working manuscript (May 3, 2018).</li>
+    </ul>
+    <h4>Reading caveats (recorded)</h4>
+    <ul>
+      <li>The Ryvkin PDF on disk is a <b>7-page excerpt</b> (pp. 8144–8150) of a 22-page article; the model and the uniqueness result (Prop 1) are fully covered, so the verdict is robust, but §§4.2–6 (design / comparative statics) were not in the file.</li>
+      <li>The Clark–Nilssen file is a <b>working manuscript</b>; its journal venue is not printed on it. It is the longer-horizon "Keep On Fighting" paper — distinct from their two-stage all-pay note also dated 2018.</li>
+      <li>Verdicts assess <b>priority on results (i)–(iii)</b> only. All three remain natural related-work citations.</li>
+    </ul>
+  </footer>
+
+</div>

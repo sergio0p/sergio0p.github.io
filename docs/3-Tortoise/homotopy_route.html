@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The homotopy route to general-cost chain monotonicity — a pedagogical walkthrough</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ],
+            ignoredTags: ['script','noscript','style','textarea','pre','code','option','svg']
+        });"></script>
+<style>
+  :root{
+    --fg:#1a1a1a; --muted:#5a5a5a; --accent:#1f6feb; --bg:#fafafa;
+    --card:#ffffff; --border:#e3e3e3; --tag:#f0f4ff; --tag-border:#c8d6ff;
+    --good:#2f8a3d; --warn:#b5651d; --bad:#c0392b;
+    --p1:#1f6feb; --p2:#d6336c;
+  }
+  body{
+    font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--fg); background:var(--bg);
+    max-width:960px; margin:2rem auto; padding:0 1.25rem 5rem; line-height:1.62;
+  }
+  h1{font-size:1.65rem; margin-bottom:.2rem;}
+  .subtitle{color:var(--muted); margin-bottom:1.4rem;}
+  h2{font-size:1.28rem; border-bottom:1px solid var(--border); padding-bottom:.35rem; margin-top:2.8rem;}
+  h3{font-size:1.06rem; margin-top:1.7rem;}
+  .tldr{background:var(--tag); border:1px solid var(--tag-border); border-radius:8px;
+        padding:1rem 1.25rem; margin:1.2rem 0 1.6rem;}
+  .tldr strong{color:var(--accent);}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:8px;
+        padding:.9rem 1.4rem; margin:1.2rem 0; box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .keybox{border-left:4px solid var(--accent); background:#f7faff;}
+  .warnbox{border-left:4px solid var(--warn); background:#fdf8f1;}
+  .goodbox{border-left:4px solid var(--good); background:#f4fbf5;}
+  .defbox{border-left:4px solid #8250df; background:#faf7ff;}
+  .defbox .deft{color:#8250df; font-weight:700; font-size:.82rem; letter-spacing:.06em;
+                text-transform:uppercase;}
+  /* KaTeX inherits text-transform, which would upcase math in the small-caps labels
+     (turning the shift f into F, colliding with the residual). Keep math as written. */
+  .defbox .deft .katex{text-transform:none; letter-spacing:normal; font-size:1.05em;}
+  .lemma{border:1px solid var(--tag-border); border-left:4px solid var(--accent);
+         background:#f7faff; border-radius:8px; padding:.9rem 1.4rem; margin:1.2rem 0;}
+  .note{font-size:.92rem; color:var(--muted);}
+  code,kbd{font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.88em;
+           background:#eef0f3; padding:.06rem .32rem; border-radius:4px;}
+  pre{background:#f4f5f7; border:1px solid var(--border); border-radius:6px;
+      padding:.8rem 1rem; overflow-x:auto; font-size:.84rem; line-height:1.5;}
+  pre code{background:none; padding:0;}
+  table{border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem;}
+  th,td{border:1px solid var(--border); padding:.42rem .6rem; text-align:right;}
+  th{background:#f0f2f5; text-align:center;}
+  td.lbl,th.lbl{text-align:left;}
+  .ok{color:var(--good); font-weight:600;}
+  .bad{color:var(--bad); font-weight:600;}
+  .p1{color:var(--p1); font-weight:600;}
+  .p2{color:var(--p2); font-weight:600;}
+  .fig{margin:1.4rem 0; text-align:center;}
+  .fig svg{max-width:100%; height:auto;}
+  .figcap{font-size:.86rem; color:var(--muted); margin-top:.5rem; text-align:center;
+          max-width:760px; margin-left:auto; margin-right:auto;}
+  .toc{columns:2; font-size:.92rem; margin:1rem 0 0;}
+  .toc a{color:var(--accent); text-decoration:none;}
+  ol.steps{padding-left:1.3rem;} ol.steps li{margin:.4rem 0;}
+  .footer{margin-top:3.5rem; padding-top:1rem; border-top:1px solid var(--border);
+          font-size:.85rem; color:var(--muted);}
+  .pill{display:inline-block; font-size:.78rem; padding:.05rem .5rem; border-radius:10px;
+        border:1px solid var(--tag-border); background:var(--tag); color:var(--accent);
+        font-weight:600; vertical-align:middle;}
+  .checklist li{margin:.45rem 0;}
+</style>
+</head>
+<body>
+
+<h1>The homotopy route to chain monotonicity</h1>
+<p class="subtitle">A step-by-step walkthrough of the continuation strategy for proving that player&nbsp;1's payoff $u_1^*$ decreases along the rung chain at <em>general convex costs</em>. Prerequisites, if you want them: <code>Docs/chain_monotonicity_reduction.html</code> (Parts I–II) and <code>Docs/comb_march_tutorial.html</code> — but every concept used here is defined when it first appears.</p>
+
+<div class="tldr">
+<strong>Summary:</strong> Chain monotonicity — the claim that the equilibrium payoff $u_1^*$ strictly decreases along the ladder $\sigma(1,1)\to\sigma(1,2)\to\sigma(2,2)\to\cdots$ — is proved for quadratic cost but open for general convex costs. The incumbent proof program (the &ldquo;cascade&rdquo;) pushes node-by-node inequalities through the equilibrium construction, and at one known corner of cost space (quartics with a sign-changing third derivative) <em>every one of its intermediate inequalities is false</em> while the theorem itself keeps holding numerically. The homotopy route sidesteps the cascade entirely: it reformulates monotonicity as an <em>ordering of scalar dials</em>, proves that ordering follows from a <em>single-crossing</em> property of a scalar residual function $F$, and transports single-crossing from the proved quadratic case to any target convex cost by a continuous deformation $c_s=(1-s)e^2+s\,c$. A numerical stress test at the four nastiest known cost corners collapsed the route's hypothesis list to <strong>one analytic obligation</strong>: $F'&gt;0$ at every zero of $F$, along the whole deformation path — an <em>aggregate</em> inequality needed <em>only at roots</em>, and the one quantity never observed to fail, anywhere. The stress test also falsified one original hypothesis (rungs can die along the path) and showed the failure is harmless: the ordering argument never needed the dying rungs. Off the symmetric slice one further obligation appears — the admissible dial window has a moving lower edge, and a root can slide out through it (§5.1).
+</div>
+
+<nav class="toc">
+<ol>
+  <li><a href="#sec1">The theorem we want</a></li>
+  <li><a href="#sec2">Why the incumbent program is hard</a></li>
+  <li><a href="#sec3">The dial picture: one axis for all rungs</a></li>
+  <li><a href="#sec4">The separator: birth mass + single-crossing</a></li>
+  <li><a href="#sec5">The homotopy: transporting single-crossing</a><br><span class="note">— incl. <a href="#sec51">5.1 The moving floor</a></span></li>
+  <li><a href="#sec6">The stress test: what was run</a></li>
+  <li><a href="#sec7">Results I — robust regimes</a></li>
+  <li><a href="#sec8">Results II — the corner that bites</a></li>
+  <li><a href="#sec9">Interiority absorbs rung death</a></li>
+  <li><a href="#sec10">The hypothesis ledger, before and after</a></li>
+  <li><a href="#sec11">The one remaining lemma</a></li>
+  <li><a href="#sec12">Methodological caveats</a></li>
+  <li><a href="#sec13">Next steps, ordered by leverage</a></li>
+  <li><a href="#sec14">Files and reproduction</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="sec1">1&nbsp;·&nbsp;The theorem we want</h2>
+
+<p>The setting is the paper's two-round all-pay contest: two players exert costly effort in each of two rounds, the second round is a static contest with a lead, and round one is played anticipating the round-two continuation values. For every pair $(m,n)$ with $n\in\{m,m+1\}$, the paper constructs a mixed equilibrium $\sigma(m,n)$ in which <span class="p1">player&nbsp;1</span> randomizes over $m$ atoms and <span class="p2">player&nbsp;2</span> over $n$ atoms. The two indices carry fixed roles throughout — player&nbsp;1 earns the rent, player&nbsp;2 is held at zero payoff — and §3.0 makes those roles precise.</p>
+
+<div class="card defbox"><span class="deft">Definition — rung, chain</span><br>
+A <strong>rung</strong> is one member $\sigma(m,n)$ of the equilibrium family; a <strong>square</strong> rung has $n=m$, a <strong>rectangle</strong> rung has $n=m+1$. The <strong>chain</strong> is the ladder of rungs ordered by total support size,
+$$\sigma(1,1)\ \to\ \sigma(1,2)\ \to\ \sigma(2,2)\ \to\ \sigma(2,3)\ \to\ \sigma(3,3)\ \to\ \cdots$$
+so squares and rectangles alternate, each step adding one atom to one player.</div>
+
+<div class="card keybox"><strong>The claim (chain monotonicity).</strong> Along the chain, player&nbsp;1's equilibrium payoff $u_1^*$ strictly decreases:
+$$u_1^*(1,1) \;&gt;\; u_1^*(1,2) \;&gt;\; u_1^*(2,2) \;&gt;\; u_1^*(2,3) \;&gt;\; \cdots$$
+Economically: richer mixing dissipates more rent, marching the family toward the competitive (full-dissipation) pole where $u_1^*\to 0$.</div>
+
+<p>Where the incumbent program stands, cost regime by cost regime:</p>
+
+<table>
+<tr><th class="lbl">cost regime</th><th class="lbl">status</th></tr>
+<tr><td class="lbl">quadratic $c(e)=e^2$</td><td class="lbl"><span class="ok">proved</span> (Part I of the reduction document)</td></tr>
+<tr><td class="lbl">cubic $\theta=3$ (and all convex cubics)</td><td class="lbl"><span class="ok">proved</span> on a CAS-verified symbolic skeleton</td></tr>
+<tr><td class="lbl">powers $\theta&gt;3$</td><td class="lbl">one bounded-convexity lemma left</td></tr>
+<tr><td class="lbl">powers $\theta\in(2,3)$</td><td class="lbl">two lemmas left (buffered centroid + terminal positivity)</td></tr>
+<tr><td class="lbl">powers $\theta\in(1,2)$</td><td class="lbl">never computed at all before the stress test of §6</td></tr>
+<tr><td class="lbl">quartics with sign-changing $c'''$ (&ldquo;$b&lt;0$&rdquo;)</td><td class="lbl"><span class="bad">every pointwise proof anchor false</span>, yet the claim itself never fails numerically</td></tr>
+</table>
+
+<div class="card warnbox"><strong>Scope — read this before quoting any number below.</strong> Every measurement reported here was taken at <em>symmetric</em> primitives: $v_1=v_2=1$, no head start ($\Delta=0$). The target is the full <strong>primitive box</strong> $(v_1\gtrless v_2)\times(\Delta\lessgtr0)$ — four quadrants, run in both labelings (§3.0).<br><br>
+The symmetric slice is not a neutral sample. It is exactly the slice on which the quantity $f=w_2-w_1-\Delta$ vanishes (§3.0), hence the dial floor $t_0$ of §3.3 is identically zero, hence the admissible dial window is all of $(0,1)$ and the fourth boundary event of §5.1 cannot occur. So: <em>the numbers are safe, and they are silent about the half of the box where the interesting failures live.</em> Extending them is §13, item&nbsp;4.</div>
+
+<!-- ============================================================ -->
+<h2 id="sec2">2&nbsp;·&nbsp;Why the incumbent program is hard</h2>
+
+<p>The incumbent program — <em>the cascade</em>, Part II of <code>chain_monotonicity_reduction.html</code> — works at a <em>fixed</em> target cost and derives monotonicity from signed inequalities imposed at every node of the equilibrium construction.</p>
+
+<div class="card defbox"><span class="deft">Definition — termwise vs. aggregate; the cascade</span><br>
+The equilibrium assigns player&nbsp;2's masses $q_1, q_2, \dots, q_n$ to her atoms, each a function of the construction parameter (the &ldquo;dial,&rdquo; defined in §3). Call a condition <strong>termwise</strong> (or <em>pointwise</em>) if it must hold at every node separately — e.g. &ldquo;each mass derivative $q_{k+1}'\ge 0$&rdquo; — and <strong>aggregate</strong> if it constrains only a sum — e.g. &ldquo;$\sum_\ell q_\ell'&gt;0$.&rdquo; The <strong>cascade</strong> is the program that proves the termwise family: at each node $k$ an inequality $RG2_k\ge 0$ (&ldquo;mass-widening at node $k$&rdquo; — turning the dial up widens the mass at that node), realized through shape conditions on an auxiliary <em>margin field</em> $D_k(z)$.</div>
+
+<p>Two structural facts make the cascade expensive:</p>
+
+<ol class="steps">
+<li><strong>The circularity theorem</strong> (Part II §10). The construction's internal identity algebra can never sign $RG2$ by itself; a genuine convexity inequality must be imported from outside — and it has had to be re-imported, in a different form, for every regime ($\theta=2$, $\theta=3$, $\theta&gt;3$, $\theta\in(2,3)$ each needed different lemmas).</li>
+<li><strong>The $b&lt;0$ quartic corner</strong> (<code>Docs/quartic_monotonicity_findings.md</code>). For quartic costs $c(e)=e^4+Be^3+D_2e^2$ with $B&lt;0$, the third derivative $c'''$ changes sign on the effort domain. At this corner <em>every pointwise anchor the cascade leans on is false</em> — gap-widening fails, concavity of the margin field fails, centroid bounds fail — and yet chain monotonicity itself never fails numerically.</li>
+</ol>
+
+<div class="card warnbox"><strong>The moral.</strong> The cascade's intermediate conditions are <em>strictly stronger</em> than the theorem, and at the $b&lt;0$ corner the gap between them is real: the strong conditions die, the theorem survives. That gap is the opening for a different route — find a formulation whose intermediate conditions are only as strong as the theorem itself.</div>
+
+<!-- ============================================================ -->
+<h2 id="sec3">3&nbsp;·&nbsp;The dial picture: one axis for all rungs</h2>
+
+<p>Everything in this section is established (Part I of the reduction document) and holds for <em>arbitrary</em> convex costs. The homotopy route uses <em>only</em> these facts, so it is worth rebuilding them slowly. The one subtlety to watch for arrives in §3.3: the dial has an admissible range, and it is narrower than it looks.</p>
+
+<h3>3.0&nbsp;&nbsp;Who the players are, and what the primitive box looks like</h3>
+
+<div class="card defbox"><span class="deft">Definition — rent-earner, marginal player</span><br>
+The march imposes two roles <em>by construction</em>:
+<ul>
+<li><strong><span class="p2">Player 2 is the marginal player</span>: $u_2=0$.</strong> The march's Step&nbsp;B pins her indifference level to zero.</li>
+<li><strong><span class="p1">Player 1 is the rent-earner</span>.</strong> Step&nbsp;C pins her indifference level to $u_1$ — a number the base equations <em>compute</em>, not one we choose.</li>
+</ul>
+These are roles, not physical players. They are also the reason the rung family is $n\in\{m,m+1\}$ and never $\sigma(m+1,m)$: the zero-payoff player is the one who can carry the extra atom. The cell in which the <em>other</em> physical player earns the rent is reached by the paper's relabeling symmetry $(v_1,v_2,\Delta)\mapsto(v_2,v_1,-\Delta)$, so <strong>the whole box is covered by this single family run in both labelings.</strong></div>
+
+<p>Two quantities organize the box. Write $w_i=c^{-1}(v_i)$ for player $i$'s <em>reach</em> (the effort at which winning is worth exactly its cost), and define</p>
+
+$$f \;=\; w_2 - w_1 - \Delta, \qquad\qquad IR_1 \;=\; w_2 - 2\,c^{-1}(v_1/2).$$
+
+<div class="card defbox"><span class="deft">Definition — $f$, the favorite condition; $IR_1$; the competitive range</span><br>
+<strong>$f$</strong> is where player&nbsp;2's zero-effort atom sits ($Y_1=f$). Its sign is the <em>final-round favorite</em> condition:
+$$f\le 0 \iff \Delta \ge w_2-w_1 \iff \textbf{player 1 is Siegel's final-round favorite.}$$
+<strong>Symmetric primitives sit exactly on the edge, $f=0$</strong> — which is why everything that turns on the <em>sign</em> of $f$ stays invisible to the measurements of §§6–8.<br><br>
+<strong>$IR_1$</strong> — individual rationality for player&nbsp;1, the paper's $IR_A$ — is the existence threshold: the rung family is nonempty iff $\Delta\ge IR_1$. Convexity gives $2c^{-1}(v_1/2)\ge w_1$, hence $IR_1\le w_2-w_1$ <em>always</em> — so there is a band $IR_1\le\Delta&lt;w_2-w_1$ where player&nbsp;1 is <em>not</em> the favorite and <em>still earns a rent</em>. That band is the collusive phenomenon proper, and it is the region the paper's <em>tortoise–hare equilibrium</em> picks out: the words name a part of the box, never a player index.<br><br>
+The <strong>competitive range</strong> is $-w_1&lt;\Delta&lt;w_2$. Outside it one player has a decisive lead and the unique equilibrium is both players at zero effort; the march has nothing to say there, and the engine rejects such primitives up front rather than reporting a spurious convergence failure.</div>
+
+<h3>3.1&nbsp;&nbsp;The march is rung-independent</h3>
+
+<div class="card defbox"><span class="deft">Definition — comb march, dial</span><br>
+The <strong>comb march</strong> is the forward-shooting algorithm that constructs candidate equilibria (full tutorial: <code>Docs/comb_march_tutorial.html</code>). It treats one number as free — the <strong>dial</strong> $t = q_1 \in (0,1)$, player&nbsp;2's probability mass on her zero atom — and then generates everything else by forward substitution: alternating $2\times 2$ steps (one first-order condition, one indifference condition) produce the sequence
+$$x_1(t),\; Y_2(t),\; p_1(t),\; q_2(t),\; x_2(t),\; Y_3(t),\; p_2(t),\; q_3(t),\;\dots$$
+of atom locations and masses, each a well-defined function of the dial alone. Crucially, this sequence makes <strong>no reference to any rung</strong>: it depends only on the primitives $(v_1,v_2,\Delta,c)$ and on $t$.</div>
+
+<p>A rung, in this picture, is nothing but a <em>stopping-and-closure rule</em> imposed on the shared sequence — stop after so many atoms, and require the appropriate masses to sum to one:</p>
+
+<div class="card defbox"><span class="deft">Definition — rung residual $F_R$</span><br>
+The <strong>residual</strong> of rung $R$ is the closure deficit as a function of the dial:
+$$F_{(m,m)}(t) \;\equiv\; \sum_{\ell \le m} q_\ell(t) \;-\; 1
+\qquad\text{(squares: player 2's masses must total 1),}$$
+$$F_{(m,m+1)}(t) \;\equiv\; \sum_{k \le m} p_k(t) \;-\; 1
+\qquad\text{(rectangles: player 1's masses must total 1).}$$
+The <strong>equilibrium dial</strong> $t^*_R$ is the first up-crossing of $F_R$ — the smallest $t$ where the deficit reaches zero from below — <em>provided</em> two side conditions hold:
+<ol class="steps">
+<li><strong>interiority</strong>: all masses in the profile are strictly positive;</li>
+<li><strong>the root clears the dial floor</strong>: $t^*_R &gt; t_0$, where $t_0$ is defined in §3.3.</li>
+</ol>
+Both side conditions are real, and <em>both are invisible to the march itself</em>, which solves first-order and indifference conditions and therefore cannot see a violated <em>inequality</em>. A root of $F$ carrying a negative mass is a genuine root of the equation but not an equilibrium; a root below the floor is likewise a genuine root, but one at which player&nbsp;1 strictly prefers to abandon the contest. Both traps have caught working code, which is why they are flagged again in §12.</div>
+
+<h3>3.2&nbsp;&nbsp;The payoff is also a dial-level object</h3>
+
+<p>Here is the reduction's first small miracle. Player&nbsp;1's payoff $u_1$ is pinned down at the very <em>base</em> of the march, before any rung is chosen. The base pair $(x_1,u_1)$ solves the bottom-of-comb first-order and indifference conditions against player&nbsp;2's zero atom. Writing $m_0$ for player&nbsp;1's <em>win-margin</em> against that atom — the second-round effort she must still pay to see player&nbsp;2 off, having arrived with lead $\Delta+x_1$ against a rival whose reach is $w_2$ —</p>
+
+$$m_0 \;=\; w_2 - (\Delta + x_1) \;=\; w_1 + f - x_1,$$
+
+<p>so a bigger bottom atom is a bigger lead, and a bigger lead leaves less to pay: $m_0$ <em>falls</em> as $x_1$ rises. The base pair and its derivatives are then</p>
+
+$$t\,c'(m_0) = c'(x_1), \qquad u_1(t) = t\,\big[v_1 - c(m_0)\big] - c(x_1),$$
+
+$$x_1'(t) \;=\; \frac{c'(m_0)}{\,c''(x_1) + t\,c''(m_0)\,} \;&gt;\; 0, \qquad\qquad u_1'(t) \;=\; v_1 - c(m_0) \quad(\text{envelope: the first-order condition kills the indirect terms}).$$
+
+<p>Everything downstream leans on the sign of that last derivative: $u_1$ must be <em>increasing</em> in the dial. Since $c$ is increasing and $c(w_1)=v_1$, that sign unwinds to something concrete:</p>
+
+$$u_1'(t)&gt;0 \iff c(m_0) &lt; c(w_1) \iff m_0 &lt; w_1 \iff x_1(t) \;&gt;\; f.$$
+
+<p>So it is not an algebraic triviality but an economic condition, and one we can read off the comb: <em>player&nbsp;1's base atom earns a margin only once it clears player&nbsp;2's zero atom</em>, which sits at $f$ (§3.0). When $f\le0$ that is automatic, since $x_1&gt;0$ on the whole dial. When $f&gt;0$ it is not — and because $x_1(t)$ rises from $x_1(0)=0$, the condition $x_1&gt;f$ is nothing other than a <em>floor on the dial</em>. That floor is §3.3, and it is the reason the admissible dial set is not all of $(0,1)$.</p>
+
+<p>The sign itself is free anyway. It just comes from economics rather than from algebra:</p>
+
+<div class="card keybox"><strong>Standing hypothesis: $u_1 &gt; 0$.</strong> Then
+$$u_1 &gt; 0 \;\Longrightarrow\; t\,\big[v_1-c(m_0)\big] &gt; c(x_1) &gt; 0 \;\Longrightarrow\; v_1 - c(m_0) &gt; 0 \;\Longrightarrow\; u_1'(t) &gt; 0.$$
+($c(x_1)&gt;0$ because the first-order condition $c'(x_1)=t\,c'(m_0)&gt;0$ forces $x_1&gt;0$.) <strong>Individual rationality — part of what &ldquo;equilibrium&rdquo; means — delivers the load-bearing sign.</strong> Nothing is assumed that the theorem does not already require. The price is only that the admissible dial set is now $\{t: u_1(t)&gt;0\}$.</div>
+
+<div class="card keybox"><strong>The master equivalence</strong> (valid on the whole primitive box, restricted to the admissible dial set). Since $u_1'(t)&gt;0$:
+$$\textbf{chain monotonicity} \iff \textbf{the equilibrium dials decrease along the chain,}\quad t^*_{(1,1)} &gt; t^*_{(1,2)} &gt; t^*_{(2,2)} &gt; \cdots$$
+This is the single most important simplification in the whole program: we never have to compare payoffs across two different equilibrium <em>structures</em> (different support sizes, different mass patterns); we only have to order <em>scalars</em> $t^*$ on one shared axis.</div>
+
+<h3>3.3&nbsp;&nbsp;The dial floor $t_0$ — the admissible window is $(t_0,1)$, not $(0,1)$</h3>
+
+<p>Where <em>is</em> the admissible set? Since $x_1'&gt;0$, the margin $m_0$ is strictly decreasing in the dial, so $u_1' = v_1-c(m_0)$ is strictly <em>increasing</em>: $u_1$ is <strong>strictly convex in the dial</strong>, starts at $u_1(0)=0$, and leaves the origin with slope</p>
+
+$$u_1'(0) \;=\; v_1 - c(w_2-\Delta),$$
+
+<p>whose sign is precisely the favorite condition of §3.0. Two regimes follow (all of this verified numerically over 11 cells × three cost families, <code>Julia/converge/_asym_base_audit.jl</code>):</p>
+
+<div class="card defbox"><span class="deft">Definition — dial floor ($t_0$ = the highest $t$ with $u_1(t)=0$)</span><br>
+<ul>
+<li><strong>$f\le0$ &nbsp;(player 1 <em>is</em> the final-round favorite):</strong> $u_1&gt;0$ and $u_1'&gt;0$ on the entire dial. The floor is $t_0=0$, the admissible window is all of $(0,1)$, and Part&nbsp;I's statements hold verbatim. <strong>Symmetric primitives are this case</strong> — which is why no floor ever surfaces in the measurements of §§6–8.</li>
+<li><strong>$f&gt;0$:</strong> $u_1$ dips <em>negative</em> near $t=0$, bottoms out at the dial where $x_1=f$ (the trough, by §3.2), and by convexity climbs back to zero at a unique <strong>dial floor $t_0&gt;0$</strong>, strictly beyond the trough. Only $t\in(t_0,1)$ is admissible — and there, $u_1'&gt;0$.</li>
+<li>The family is nonempty at all iff $u_1(1)\ge0$ iff $\Delta\ge IR_1$ — an exact match with the paper's $IR_A$ in every cell tested.</li>
+</ul></div>
+
+<div class="card warnbox"><strong>The floor is not a technicality — it truncates chains.</strong> At $c=e^2$, $v_1=v_2=1$, $\Delta=-0.3$ (symmetric <em>values</em>, mild negative lead — well inside the competitive range) the floor sits at $t_0=0.6905$, and the roots of $\sigma(2,2)$, $\sigma(2,3)$, $\sigma(3,3)$ <em>all lie below it</em>. Those rungs have roots. They have interior combs. They are not equilibria: at their dial, player&nbsp;1's best response is to walk away and take zero. In that cell the chain is <strong>truncated to $\sigma(1,1)$</strong>.<br><br>
+Why a first-order construction cannot see this: on $[0,x_1]$ player&nbsp;1's payoff is $q_1\max\big(0,\,v_1-c(w_1+f-e)\big)-c(e)$, which for $e\in(0,f)$ wins nothing and simply <em>falls</em> to $-c(f)$, climbing back only above $e=f$ to reach $u_1$ at $x_1$. Her best response on that interval is $\max(0,u_1)$, attained at the <strong>corner $e=0$</strong> whenever $u_1&lt;0$. A march that solves first-order and indifference conditions is structurally blind to a corner deviation, so the floor has to enter the engine as an explicit gate: <code>solve_rung</code> reports the floor <code>t0</code> alongside the root, and refuses a root that falls below it.</div>
+
+<!-- ============================================================ -->
+<h2 id="sec4">4&nbsp;·&nbsp;The separator: birth mass + single-crossing</h2>
+
+<p>How do we order two dials? The reduction document's boxed identity (Part I §2) supplies a purpose-built tool — but the tool looks like a lucky coincidence until one sees where residuals come from, so we build it from the bookkeeping first.</p>
+
+<h3>4.1&nbsp;&nbsp;Where a residual comes from: the leftover ladder</h3>
+
+<p>The march supplies every atom and every mass — with exactly one exception. The <strong>topmost atom of the comb</strong> has no rival atom above it, so no rival indifference condition ever references its mass, and the march never writes an equation for it. That mass is a <strong>leftover</strong>, pinned instead by its own player's &ldquo;probabilities sum to one.&rdquo; Spending one normalization that way leaves the <em>other</em> player's normalization unused — and that unused equation is the residual. Writing the two march partial sums (rung-free, like everything the march produces)</p>
+
+$$P_m(t) \;=\; \sum_{k\le m} p_k(t), \qquad\qquad Q_m(t) \;=\; \sum_{\ell\le m} q_\ell(t),$$
+
+<p>the bookkeeping is then forced:</p>
+
+<table>
+<tr><th class="lbl">rung</th><th class="lbl">top atom</th><th class="lbl">leftover mass (pinned by $\textstyle\sum=1$)</th><th class="lbl">residual (the unused normalization)</th></tr>
+<tr><td class="lbl">$\sigma(m,m)$</td><td class="lbl">$x_m$ &nbsp;(player 1)</td><td class="lbl">$p_m = 1 - P_{m-1}(t)$</td><td class="lbl">$F_{(m,m)}(t) = Q_m(t)-1$</td></tr>
+<tr><td class="lbl">$\sigma(m,m{+}1)$</td><td class="lbl">$y_{m+1}$ &nbsp;(player 2)</td><td class="lbl">$q_{m+1} = 1 - Q_m(t)$</td><td class="lbl">$F_{(m,m+1)}(t) = P_m(t)-1$</td></tr>
+</table>
+
+<p>So there are only <em>two</em> residual families, one per player, and the ladder alternates between them — because the ladder alternates which player grows an atom. That is the whole trick. Climb one rung: the new atom goes <strong>on top</strong>, and it belongs to the <em>other</em> player — the very player whose normalization the rung below was shooting to zero. Hence</p>
+
+<div class="card keybox"><strong>The newborn atom is the new leftover atom.</strong> Its mass is therefore $1$ minus that player's march partial sum — which is exactly minus the residual of the rung below.</div>
+
+<h3>4.2&nbsp;&nbsp;The birth-mass identity and the separator</h3>
+
+<div class="card defbox"><span class="deft">Definition — birth mass; the birth-mass identity</span><br>
+Let $R\to\tilde R$ be consecutive rungs, so $\tilde R$ has exactly one atom more than $R$. The <strong>birth mass</strong> is the mass the deeper rung's profile assigns to its <em>newborn</em> atom, viewed as a function of the dial. By §4.1 that mass is the leftover, and reading the table off:
+$$\underbrace{q_{m+1} = 1-Q_m(t)}_{\sigma(m,m)\,\to\,\sigma(m,m+1)} \;=\; -\,F_{(m,m)}(t),
+\qquad
+\underbrace{p_{m+1} = 1-P_m(t)}_{\sigma(m,m+1)\,\to\,\sigma(m+1,m+1)} \;=\; -\,F_{(m,m+1)}(t),$$
+which is one statement, the <strong>birth-mass identity</strong>:
+$$\text{newborn mass in } \tilde R \text{'s profile at dial } t \;=\; -\,F_R(t).$$
+It is not a lemma but a piece of bookkeeping: both rungs read the same march, and whatever mass $R$'s closure failed to account for at dial $t$ is precisely what must sit on the one atom $\tilde R$ adds.</div>
+
+<p>The name now explains itself. At $R$'s own dial the residual vanishes, so the newborn atom is born with <em>exactly zero</em> mass; it acquires mass only as the dial falls below $t^*_R$. The separator is the observation that it must acquire some.</p>
+
+<p class="note"><strong>One thing to keep straight.</strong> The march also generates a mass $q_{m+1}(t)$ from its own equation, and that number is <em>not</em> the leftover $1-Q_m(t)$ — at a generic dial the two differ (in the tutorial's worked trace the marched $p_2=0.6075$ against a reported $p_2=0.3946$). The march value is simply discarded on any rung whose top atom it would sit on. The two coincide only where the deeper rung closes.</p>
+
+<p>Now evaluate at the deeper rung's own equilibrium dial $t^*_{\tilde R}$. There, the newborn mass is a mass in a genuine equilibrium profile, hence strictly positive — that is just <em>interiority</em>, part of what &ldquo;$\tilde R$'s equilibrium exists&rdquo; means. So, for free:</p>
+
+$$F_R\big(t^*_{\tilde R}\big) \;=\; -\,\big(\text{newborn mass}\big) \;&lt;\; 0. \tag{4.1}$$
+
+<div class="card defbox"><span class="deft">Definition — single-crossing</span><br>
+A function $F$ on the dial interval is <strong>single-crossing</strong> if it crosses zero exactly once, from below. Equivalently: $F&lt;0$ strictly to the left of its unique root and $F&gt;0$ strictly to the right. For a differentiable $F$, a sufficient certificate is <strong>transversality at roots</strong>: $F'&gt;0$ at every zero of $F$ (a function that only ever crosses upward can cross only once), plus a definite sign at the accessible boundary.</div>
+
+<p>Suppose $F_R$ is single-crossing with root $t^*_R$. Then the set where $F_R$ is negative is exactly $(0,\,t^*_R)$, and (4.1) says $t^*_{\tilde R}$ lies in that set. In one line:</p>
+
+<div class="card keybox"><strong>The separator argument.</strong>
+$$\textbf{dial ordering } \big(t^*_{\tilde R} &lt; t^*_R\big) \impliedby \underbrace{\textbf{successor interiority}}_{\text{definitional — free}} \;+\; \underbrace{\textbf{single-crossing of } F_R}_{\text{the only real obligation}}$$
+Successor interiority costs nothing. <em>All</em> the weight of the theorem lands on single-crossing.</div>
+
+<div class="card goodbox"><strong>Note what the separator does <em>not</em> use: individual rationality.</strong> The birth-mass identity and inequality (4.1) need only that the successor's comb has strictly positive <em>masses</em>. They say nothing whatever about $u_1$, and they hold at a root whether or not that root clears the dial floor of §3.3. So the <em>ordering of roots</em> is available for every rung with an interior comb, and the floor of §3.3 sits on top of it as a pure filter. Hold on to that separation: it is what makes the moving floor of §5.1 absorbable rather than fatal.</div>
+
+<div class="fig">
+<svg viewBox="0 0 660 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Single-crossing residual with birth mass and separation">
+  <!-- shaded F<0 region under axis, left of root -->
+  <rect x="62" y="172" width="366" height="98" fill="#f0f4ff"/>
+  <!-- axes -->
+  <line x1="60" y1="30" x2="60" y2="272" stroke="#9aa4b2" stroke-width="1.4"/>
+  <line x1="60" y1="170" x2="620" y2="170" stroke="#9aa4b2" stroke-width="1.4"/>
+  <text x="626" y="174" font-size="13" fill="#5a5a5a">t</text>
+  <text x="46" y="26" font-size="13" fill="#5a5a5a">F</text>
+  <text x="70" y="188" font-size="12" fill="#8ea0c0">F&lt;0 on (0, t*ᴿ)</text>
+  <!-- residual curve: rises, single crossing near x=430 -->
+  <path d="M 80 252 C 200 242, 330 216, 420 176 C 460 158, 530 118, 600 82"
+        fill="none" stroke="#1f6feb" stroke-width="2.6"/>
+  <text x="560" y="70" font-size="13" fill="#1f6feb" font-weight="600">F_R(t)</text>
+  <!-- root marker -->
+  <circle cx="433" cy="170" r="4.5" fill="#1f6feb"/>
+  <text x="424" y="192" font-size="13" fill="#1a1a1a" font-weight="600">t*ᴿ</text>
+  <!-- tangent at root -->
+  <line x1="393" y1="190" x2="473" y2="150" stroke="#2f8a3d" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="470" y="143" font-size="12" fill="#2f8a3d">slope F′ &gt; 0 (transversality)</text>
+  <!-- successor dial marker -->
+  <line x1="300" y1="170" x2="300" y2="228" stroke="#d6336c" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="300" cy="228" r="4.5" fill="#d6336c"/>
+  <text x="242" y="192" font-size="13" fill="#1a1a1a" font-weight="600">t*ᴿ̃</text>
+  <text x="90" y="245" font-size="12.5" fill="#d6336c">−F_R(t*ᴿ̃) = birth mass &gt; 0</text>
+  <!-- separation brace -->
+  <line x1="300" y1="288" x2="433" y2="288" stroke="#5a5a5a" stroke-width="1.3"/>
+  <line x1="300" y1="283" x2="300" y2="293" stroke="#5a5a5a" stroke-width="1.3"/>
+  <line x1="433" y1="283" x2="433" y2="293" stroke="#5a5a5a" stroke-width="1.3"/>
+  <text x="322" y="305" font-size="12.5" fill="#5a5a5a">sep = t*ᴿ − t*ᴿ̃</text>
+</svg>
+<div class="figcap"><strong>Figure 1.</strong> The separator argument in one picture. The residual $F_R$ (blue) is single-crossing with root $t^*_R$. The successor's dial $t^*_{\tilde R}$ must sit where $F_R$ equals minus the newborn mass — strictly below zero (pink) — hence strictly to the left of $t^*_R$. The two quantities the probe tracks are the horizontal gap (<em>separation</em>) and the vertical gap (<em>birth mass</em>); to first order, birth $\approx F' \times{}$sep.</div>
+</div>
+
+<p>Single-crossing of $F$ is <em>proved</em> for the quadratic cost: Part I §4 identifies $F'$ at a root with the <em>Schur complement</em> of the equilibrium Jacobian, and Theorems 1 and 3 show it is positive there — regularity and uniqueness in one stroke.</p>
+
+<div class="card defbox"><span class="deft">Definition — Schur complement</span><br>
+For a block matrix $\begin{pmatrix} A &amp; B \\ C &amp; D\end{pmatrix}$ with $A$ invertible, the <strong>Schur complement</strong> of $A$ is $D - C A^{-1} B$: the effective coefficient that remains on the $D$-block after the $A$-block variables are eliminated. Here the full equilibrium Jacobian has a large &ldquo;comb block&rdquo; (the interior atoms and masses) and one scalar closure equation; eliminating the comb block leaves a $1\times 1$ Schur complement, and Part I §4 shows this scalar <em>is</em> $F'(t^*)$. Its positivity therefore encodes, simultaneously, local uniqueness of the equilibrium and upward-crossing of the residual. The identification is march-structural — cost-general — but the quadratic <em>proof of positivity</em> uses quadratic algebra. Transporting that positivity is exactly the homotopy's job.</div>
+
+<!-- ============================================================ -->
+<h2 id="sec5">5&nbsp;·&nbsp;The homotopy: transporting single-crossing</h2>
+
+<div class="card defbox"><span class="deft">Definition — homotopy, continuation</span><br>
+A <strong>homotopy</strong> is a continuous one-parameter deformation connecting a problem you can solve to the problem you want to solve. <strong>Continuation</strong> is the accompanying argument (or numerical procedure) that tracks the solution as the parameter moves, certifying that nothing qualitative changes along the way. Here the deformation acts on the <em>cost function</em>:
+$$c_s(e) \;=\; (1-s)\,e^2 \;+\; s\,c(e), \qquad s\in[0,1],$$
+sliding from the proved quadratic base ($s=0$) to the target convex cost $c$ ($s=1$). Every $c_s$ is a convex combination of convex functions, hence convex — <em>the path never leaves the admissible family</em>. Each rung's residual becomes a function of two variables, $F(t;s)$, jointly continuous wherever the march is defined.</div>
+
+<p>The continuation logic is the standard one-dimensional index argument, and it is worth spelling out. At $s=0$ the residual has exactly one zero, and $F'&gt;0$ there (§4). As $s$ increases, the number of zeros of $t\mapsto F(t;s)$ can change <em>only</em> through:</p>
+
+<ol class="steps">
+<li><strong>A tangency</strong>: some $(\tau,s_0)$ with $F=0$ and $\partial F/\partial t=0$ simultaneously. Geometrically, the curve of roots in the $(t,s)$-strip folds back on itself — a pair of roots is born or dies in the interior.</li>
+<li><strong>A boundary event</strong>: a root enters or exits through an edge of the dial domain. There are <strong>four</strong> edges, not three:
+  <ol type="a">
+  <li>$t\to 0^+$;</li>
+  <li>$t\to 1^-$;</li>
+  <li>the edge of a <em>march-failure hole</em>;</li>
+  <li><strong>the dial floor $t_0(s)$</strong> — the lower edge of the <em>admissible window</em> $(t_0,1)$ of §3.3, which <strong>moves along the homotopy</strong>, because $c_s$ changes the reaches $w_1,w_2$ and hence $f$ and $IR_1$. This is the subtle one, and it gets §5.1 to itself.</li>
+  </ol>
+</li>
+</ol>
+
+<div class="card defbox"><span class="deft">Definition — march-failure hole</span><br>
+For some dial values the march simply cannot be run to the required depth: one of its node equations loses its solution (concretely, the bisection solving a $2\times2$ double step loses its bracket — an overshoot-geometry failure). On such a sub-interval of dials, $F$ is <em>undefined</em>, and the dial domain has a <strong>hole</strong>. Roots cannot be counted inside a hole, so a complete continuation argument must control roots at hole edges just as at $t=0$ and $t=1$. Empirically the holes sit in a single top-of-dial interval, far above the tracked root (§12, caveat 2).</div>
+
+<p>Rule both events out along the whole path and the root count stays pinned at one; single-crossing — hence dial ordering, hence chain monotonicity over the surviving chain — transfers from $s=0$ to $s=1$:</p>
+
+<div class="card keybox"><strong>The route in one sentence.</strong> The entire cascade is replaced by <em>one transversality lemma</em> ($F'&gt;0$ at every zero of $F$, all $s$ — no tangency can then occur) <em>plus boundary control</em> ($F$ has a definite sign at the accessible boundary below the root — no root can sneak in from the edge), where boundary control must reach all four edges, the moving floor included.</div>
+
+<div class="fig">
+<svg viewBox="0 0 660 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Continuation strip in the (t,s) rectangle">
+  <!-- domain -->
+  <rect x="80" y="60" width="480" height="200" fill="#ffffff" stroke="#9aa4b2" stroke-width="1.4"/>
+  <!-- hole region top right -->
+  <path d="M 470 60 L 560 60 L 560 150 C 525 135, 495 105, 470 60 Z" fill="#fdf8f1" stroke="#b5651d" stroke-width="1.1" stroke-dasharray="5 3"/>
+  <text x="478" y="88" font-size="12" fill="#b5651d">march-failure</text>
+  <text x="478" y="103" font-size="12" fill="#b5651d">hole (F undefined)</text>
+  <!-- root path -->
+  <path d="M 400 260 C 385 200, 365 130, 340 60" fill="none" stroke="#1f6feb" stroke-width="2.8"/>
+  <circle cx="400" cy="260" r="4.5" fill="#1f6feb"/>
+  <circle cx="340" cy="60" r="4.5" fill="#1f6feb"/>
+  <text x="404" y="278" font-size="12.5" fill="#1f6feb" font-weight="600">t*(0): unique quadratic root, F′&gt;0</text>
+  <text x="256" y="52" font-size="12.5" fill="#1f6feb" font-weight="600">t*(1): target cost</text>
+  <!-- forbidden fold -->
+  <path d="M 250 120 C 175 140, 175 185, 250 205" fill="none" stroke="#8a8f98" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="150" y="112" font-size="12" fill="#8a8f98">forbidden: fold / tangency</text>
+  <text x="150" y="127" font-size="12" fill="#8a8f98">(F = F′ = 0)</text>
+  <!-- forbidden boundary entry -->
+  <path d="M 80 230 C 110 226, 130 220, 148 210" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 4"/>
+  <circle cx="80" cy="230" r="3.5" fill="#c0392b"/>
+  <text x="92" y="250" font-size="12" fill="#c0392b">forbidden: root entering from boundary</text>
+  <!-- axes labels -->
+  <text x="620" y="264" font-size="13" fill="#5a5a5a">t</text>
+  <line x1="80" y1="260" x2="614" y2="260" stroke="#9aa4b2" stroke-width="1.2"/>
+  <text x="46" y="266" font-size="12.5" fill="#5a5a5a">s=0</text>
+  <text x="46" y="66" font-size="12.5" fill="#5a5a5a">s=1</text>
+  <text x="30" y="170" font-size="13" fill="#5a5a5a" transform="rotate(-90 30 170)">s (quadratic → target)</text>
+</svg>
+<div class="figcap"><strong>Figure 2.</strong> The continuation strip. The root of $F(\cdot\,;s)$ traces a curve from the proved quadratic root at $s=0$ to the target cost's root at $s=1$. The root count can change only at a fold (a tangency $F=F'=0$, gray) or by a root crossing the domain edge (red), including the edges of march-failure holes (orange). Transversality at roots forbids the first; boundary control forbids the second. Empirically the holes sit far above the tracked root.</div>
+</div>
+
+<div class="card"><strong>Relation to the archived Sard/degree-theory program.</strong> An earlier attempt ran degree-theoretic arguments on the <em>full equilibrium system</em> (all atoms and masses as unknowns) and stalled on <em>uniform properness</em> — ruling out solutions escaping to infinity along the deformation. That obstruction does not exist here: the dial lives in the compact box $[0,1]$ and the comb in a compact effort box. What replaces properness is the boundary/hole control above — a real obligation, but far more concrete, because the march's failure modes are explicit (a node bisection loses its bracket) rather than asymptotic.</div>
+
+<h3 id="sec51">5.1&nbsp;&nbsp;The moving floor</h3>
+
+<p>The fourth edge is the one that does real damage, so take it slowly. Along the continuation the cost changes, so the reaches $w_1=c_s^{-1}(v_1)$ and $w_2=c_s^{-1}(v_2)$ change with it, so $f$ changes, so the dial floor $t_0$ of §3.3 changes. In the $(t,s)$-strip we therefore have <em>two</em> curves, not one: the root curve $t^*(s)$ and the floor curve $t_0(s)$. They can cross.</p>
+
+<div class="card warnbox"><strong>What a crossing costs.</strong> At a transversal crossing of $t^*(s)$ and $t_0(s)$ the rung stops being an equilibrium — discontinuously — while the residual $F$ does nothing remarkable at all: no tangency, no hole, no visible event of any kind. So the bookkeeping claim &ldquo;the number of <em>admissible roots</em> is constant along $s$&rdquo; is false. A continuation lemma that counts <em>equilibria</em> must handle this; a lemma that counts <em>roots of $F$</em> never sees it.</div>
+
+<p>That last sentence is the escape route, and §4 has already paid for it. The two objects have to be kept apart:</p>
+
+<div class="card goodbox"><strong>The intended resolution.</strong>
+<ol class="steps">
+<li><strong>Prove single-crossing of $F$ on the full march domain.</strong> $F$, the birth-mass identity, and the transversality lemma of §11 know nothing about $u_1$ and do not care where the floor sits. The floor does not touch this obligation.</li>
+<li><strong>Apply the floor afterwards, as a post-filter.</strong> By the §4 note, the <em>ordering</em> of roots follows from single-crossing plus interiority of the combs alone — no appeal to individual rationality. So the roots are ordered, $t^*_{(1,1)} &gt; t^*_{(1,2)} &gt; \cdots$, whatever the floor is doing. And $t_0$ is a <strong>single dial value</strong>. Hence the admissibility test $t^*&gt;t_0$ keeps an <strong>initial segment</strong> of the chain: <em>the floor eats the chain from the deep end and cannot punch a hole in its middle.</em></li>
+</ol>
+If that holds, the theorem absorbs the moving floor exactly as it absorbs rung death (§9): chain monotonicity is asserted over the <strong>surviving prefix</strong> — which for $f&gt;0$ is finite, and can be as short as $\{\sigma(1,1)\}$, as in the $\Delta=-0.3$ cell of §3.3. The transversality lemma is untouched.</div>
+
+<div class="card warnbox"><strong>What is still owed.</strong> The resolution above is an argument, not yet a proof. It leans on the roots being ordered <em>before</em> the filter is applied — single-crossing plus interiority — which is consistent with every cell measured but has been checked at only a handful of $f&gt;0$ cells. And the interaction between the floor and <em>negative-mass</em> deaths (rungs that have roots but no interior comb, which the ordering argument never reaches) has not been examined at all. Until both are settled, the moving floor is an <strong>open item</strong> in the continuation lemma. It is why §13's item&nbsp;3 is not bookkeeping.</div>
+
+<p class="note">At symmetric primitives $f=0$, so $t_0\equiv0$ for every $s$: the fourth edge coincides with the first, and the event cannot occur. Every number in §§6–8 was taken there, and none of them is affected. The event goes live the moment the route leaves that slice — which is where it is headed (§13, item&nbsp;4).</p>
+
+<!-- ============================================================ -->
+<h2 id="sec6">6&nbsp;·&nbsp;The stress test: what was run</h2>
+
+<p>As first conceived, the route rested on three hypotheses (the full ledger is in §10). A numerical probe tested all of them at the four nastiest known or suspected corners of cost space, using the march engine <code>Julia/converge/convex_march.jl</code> wrapped in three harnesses (<code>_homotopy_probe.jl</code>, <code>_homotopy_probe2.jl</code>, <code>_homotopy_probe3.jl</code>). &ldquo;The probe&rdquo; below always means this computation.</p>
+
+<h3>6.1&nbsp;&nbsp;The four targets</h3>
+
+<table>
+<tr><th class="lbl">tag</th><th class="lbl">cost</th><th class="lbl">why it is a stress case</th></tr>
+<tr><td class="lbl">θ=1.9</td><td class="lbl">$e^{1.9}$</td><td class="lbl">sub-quadratic: $c'''&lt;0$, and $c''(e)=\theta(\theta-1)e^{\theta-2}$ is <em>singular</em> at $0$; a regime never computed before — the cascade cannot even enter it</td></tr>
+<tr><td class="lbl">θ=2.1</td><td class="lbl">$e^{2.1}$</td><td class="lbl">the regime with the one <em>measured</em> on-window failure of the cascade's centroid lemma (at $m=20$)</td></tr>
+<tr><td class="lbl">Q163</td><td class="lbl">$e^4-1.63e^3+e^2$</td><td class="lbl">$b&lt;0$ sign-crossing $c'''$; falsifies <em>all</em> pointwise cascade anchors; sits 0.18% from the convexity boundary</td></tr>
+<tr><td class="lbl">Q28</td><td class="lbl">$e^4-2.8e^3+3.511e^2$</td><td class="lbl">$c'''&lt;0$ on the <em>entire</em> effort domain $[0,w]$ (the $c'''$ zone edge coincides with the reach, $w=0.7$)</td></tr>
+</table>
+
+<div class="card defbox"><span class="deft">Definition — the convexity boundary (quartic family)</span><br>
+For $c(e)=e^4+Be^3+D_2e^2$ one has $c''(e)=12e^2+6Be+2D_2$, which stays nonnegative for all $e$ iff $B^2\le \tfrac{8}{3}D_2$. With $D_2=1$ the <strong>convexity boundary</strong> is $B_{\text{crit}}=-\sqrt{8/3}\approx-1.63299$; Q163's $B=-1.63$ is $0.18\%$ away from it, with $\min_e c''=2-\tfrac34B^2=0.0073$ — convex, but barely. Along the homotopy path to Q163 the minimum curvature interpolates linearly: $\min_e c_s'' = 2 - 1.9927\,s$.</div>
+
+<h3>6.2&nbsp;&nbsp;What was measured</h3>
+
+<p>For each adjacent rung pair $R\to\tilde R$ and each $s\in\{0,0.1,\dots,1\}$ (with zooms where needed), the probe recorded the three quantities the route's margins are made of:</p>
+
+<ol class="steps">
+<li><strong>Separation</strong> $\;t^*_R - t^*_{\tilde R}$ — the horizontal gap between adjacent roots (how much room the ordering has);</li>
+<li><strong>Birth mass</strong> $\;-F_R(t^*_{\tilde R})$ — the vertical gap of Figure 1 (how far from violating interiority the successor is);</li>
+<li><strong>Transversality</strong> $\;F'$ at both roots, by central difference (how far from a tangency the path is);</li>
+</ol>
+
+<p>plus <code>nFcross</code>, the number of sign crossings of $F$ over a full dial scan at the endpoints (single-crossing check). Pairs continued along $s$: $(4,4)\to(4,5)$, $(4,5)\to(5,5)$, $(8,8)\to(8,9)$. At $s=1$: the full chain to $m=12$ (power targets) / $m=10$ (quartics), plus a $\theta=2.1$ spot check at $m=20$. Dial roots were tracked by warm-started local bracketing seeded from the previous $s$, with full <code>solve_rung</code> scans at $s=0$ and as fallback.</p>
+
+<p class="note"><strong>Wiring check.</strong> At $s=0$ the harness reproduces the quadratic dial table ($q_1^*(4,4)=0.15120$ vs. the table's $0.151$). The birth-mass identity is structural in the engine (adjacent-rung marches share the recursion code path), so its numerical &ldquo;verification&rdquo; is really a wiring check; the informative measurements are the positivity and the margins.</p>
+
+<!-- ============================================================ -->
+<h2 id="sec7">7&nbsp;·&nbsp;Results I — robust regimes (θ=1.9, θ=2.1, Q28)</h2>
+
+<h3>7.1&nbsp;&nbsp;Continuation margins: the path is essentially a straight line</h3>
+
+<p>Minima over the whole path $s\in[0,1]$, per pair:</p>
+
+<table>
+<tr><th class="lbl">target</th><th class="lbl">pair</th><th>min sep</th><th>min birth</th><th>min $F'$</th><th>nFcross</th></tr>
+<tr><td class="lbl">θ=1.9</td><td class="lbl">(4,4)→(4,5)</td><td>0.01745 (s=0)</td><td>0.11032 (s=0)</td><td>6.28</td><td>1</td></tr>
+<tr><td class="lbl">θ=1.9</td><td class="lbl">(4,5)→(5,5)</td><td>0.01676 (s=1)</td><td>0.11760 (s=1)</td><td>6.97</td><td>1</td></tr>
+<tr><td class="lbl">θ=1.9</td><td class="lbl">(8,8)→(8,9)</td><td>0.00415 (s=0)</td><td>0.05871 (s=1)</td><td>13.67</td><td>1</td></tr>
+<tr><td class="lbl">θ=2.1</td><td class="lbl">(4,4)→(4,5)</td><td>0.01718 (s=1)</td><td>0.10774 (s=1)</td><td>6.23</td><td>1</td></tr>
+<tr><td class="lbl">θ=2.1</td><td class="lbl">(4,5)→(5,5)</td><td>0.01732 (s=0)</td><td>0.12185 (s=0)</td><td>6.88</td><td>1</td></tr>
+<tr><td class="lbl">θ=2.1</td><td class="lbl">(8,8)→(8,9)</td><td>0.00403 (s=1)</td><td>0.05835 (s=1)</td><td>14.14</td><td>1</td></tr>
+<tr><td class="lbl">Q28</td><td class="lbl">(4,4)→(4,5)</td><td>0.01745 (s=0)</td><td>0.10625 (s=0.8)</td><td>5.55</td><td>1</td></tr>
+<tr><td class="lbl">Q28</td><td class="lbl">(4,5)→(5,5)</td><td>0.01668 (s=1)</td><td>0.10325 (s=1)</td><td>6.14</td><td>1</td></tr>
+<tr><td class="lbl">Q28</td><td class="lbl">(8,8)→(8,9)</td><td>0.00415 (s=0)</td><td>0.05426 (s=1)</td><td>11.64</td><td>1</td></tr>
+</table>
+
+<p>Margins vary by at most ~15% along the entire path. No near-tangency, no fallback re-scans triggered, all endpoint scans single-crossing with valid profiles (validity spot-certified at rungs up to $(12,12)$).</p>
+
+<h3>7.2&nbsp;&nbsp;Decay in $m$: crowding is real, but transversality outruns it</h3>
+
+<p>At $s=1$, chains to $m=12$ (power targets) / $m=10$ (Q28) were computed — all rungs valid, $u_1^*$ strictly decreasing along every chain. Log-log fits over $m\ge4$:</p>
+
+<table>
+<tr><th class="lbl">target</th><th>sep</th><th>birth</th><th class="lbl">$F'$ at roots</th></tr>
+<tr><td class="lbl">θ=1.9</td><td>$\sim m^{-2.03}$</td><td>$\sim m^{-0.94}$</td><td class="lbl">grows $\approx 2m$ (6.3 → 21.8 over $m=4$→$12$)</td></tr>
+<tr><td class="lbl">θ=2.1</td><td>$\sim m^{-2.08}$</td><td>$\sim m^{-0.91}$</td><td class="lbl">grows $\approx 2m$ (6.2 → 23.9)</td></tr>
+<tr><td class="lbl">Q28</td><td>$\sim m^{-2.04}$</td><td>$\sim m^{-0.97}$</td><td class="lbl">grows $\approx 1.5m$ (5.6 → 15.4)</td></tr>
+</table>
+
+<div class="card goodbox"><strong>The interpretation that matters.</strong> Adjacent roots crowd together like $m^{-2}$ — alarming at first sight. But the slope $F'$ at the roots <em>grows</em> like $2m$, and to first order (Figure 1's right triangle)
+$$\text{birth} \;=\; -F_R\big(t^*_{\tilde R}\big) \;\approx\; F'_R \times \text{sep},$$
+so the route's effective margin — the birth mass — decays only like $m^{-1}$, not $m^{-2}$. The identity closes numerically to three digits: at θ=2.1, $m=12$: $\;22.9 \times 0.00174 = 0.0399$ vs. measured birth $0.0400$.</div>
+
+<p><strong>θ=1.9 deserves its own sentence.</strong> This is the first equilibrium computation ever performed below the quadratic in this project — a regime the cascade cannot even enter (its free lemma $J_k\ge0$ dies with $c'''&lt;0$, and $c''$ is singular at $0$). It behaves <em>identically</em> to θ=2.1 in every measured respect, including chain monotonicity of $u_1^*$ to $m=12$, with the same decay laws.</p>
+
+<p><strong>The $m=20$ centroid node.</strong> At θ=2.1, $m=20$ — the exact node where the cascade's centroid lemma $\theta_k\le\tfrac12$ is measured to fail — the route sees nothing special at all:
+$$\text{sep}=6.07\times10^{-4},\quad \text{birth}=0.0245,\quad F'_R=40.3,\ F'_S=41.3,\quad \text{nFcross}=(1,1).$$
+The node that is a counterexample for the cascade is entirely unremarkable for the homotopy: the aggregate quantity does not care that one termwise bound fails there.</p>
+
+<!-- ============================================================ -->
+<h2 id="sec8">8&nbsp;·&nbsp;Results II — the corner that bites (Q163 rung deaths)</h2>
+
+<p>The sign-crossing quartic Q163 is where something genuinely new happened: <strong>rungs die along the path</strong>.</p>
+
+<h3>8.1&nbsp;&nbsp;The death of σ(1,2), deep inside the convex family</h3>
+
+<p>Track $\max_t F_{(1,2)}(t;s)$ — the highest the rectangle's residual ever gets. It decreases monotonically in $s$ and crosses zero at</p>
+
+$$s^* = 0.5695, \qquad \min_e c''_{s^*} = 0.8651.$$
+
+<p>The second number is the point. The death happens with the cost still <em>strongly</em> convex ($\min c''$ at 43% of the quadratic's value of 2) — so rung death is <strong>not</strong> a convexity-boundary artifact. The hypothesis &ldquo;no rung death at symmetric primitives&rdquo; genuinely fails inside the family. (Calibration: $\min_e c_s'' = 2-1.9927\,s$ along this path; at $s=1$ it is $0.0073$.)</p>
+
+<h3>8.2&nbsp;&nbsp;The validity-tagged census at $s=1$</h3>
+
+<p>Probe 3 swept every root of every rung's residual over the full covered dial range and tagged each with <code>mm</code>, the smallest mass in the profile at that root (recall from §3.1: a root with a negative mass is not an equilibrium):</p>
+
+<table>
+<tr><th class="lbl">rung</th><th class="lbl">roots found</th><th class="lbl">verdict</th></tr>
+<tr><td class="lbl">σ(1,2)</td><td class="lbl">none ($\max F = -0.492$)</td><td class="lbl"><span class="bad">dead</span> — residual never reaches zero</td></tr>
+<tr><td class="lbl">σ(2,2)</td><td class="lbl">$t=0.6770$, mm $=+0.32$</td><td class="lbl"><span class="ok">valid</span>, $u_1 = 0.4215$</td></tr>
+<tr><td class="lbl">σ(2,3)</td><td class="lbl">$t=0.9871$, mm $=-0.38$</td><td class="lbl">root but <span class="bad">invalid — dead</span></td></tr>
+<tr><td class="lbl">σ(3,3)</td><td class="lbl">$t=0.4510$, mm $=+0.25$</td><td class="lbl"><span class="ok">valid</span>, $u_1 = 0.2432$</td></tr>
+<tr><td class="lbl">σ(3,4)</td><td class="lbl">$t=0.4978$, mm $=-0.081$</td><td class="lbl">root but <span class="bad">invalid — dead</span></td></tr>
+<tr><td class="lbl">σ(4,4)</td><td class="lbl">$t=0.31575$, mm $=+0.20$</td><td class="lbl"><span class="ok">valid</span>, $u_1 = 0.14437$</td></tr>
+<tr><td class="lbl">σ(4,5)</td><td class="lbl">$t=0.31571$, mm $=+9.8\times10^{-5}$</td><td class="lbl"><span class="ok">valid by a hair</span>, $u_1 = 0.14434$; Nash best-response check passes</td></tr>
+<tr><td class="lbl">σ(5,5)</td><td class="lbl">$t=0.2339$, mm $=+0.17$</td><td class="lbl"><span class="ok">valid</span>, $u_1 = 0.0904$</td></tr>
+<tr><td class="lbl">σ(5,6)</td><td class="lbl">$t=0.2260$, mm $=+0.026$</td><td class="lbl"><span class="ok">valid</span>, $u_1 = 0.0855$</td></tr>
+<tr><td class="lbl">σ(6,6)</td><td class="lbl">$t=0.1842$, mm $=+0.14$</td><td class="lbl"><span class="ok">valid</span>, $u_1 = 0.0611$</td></tr>
+</table>
+
+<p>With $u_1(\sigma(1,1)) = 0.6896$ at the top, $u_1^*$ is <strong>strictly decreasing over the surviving rungs</strong> — consistent with the quartic study's standing observation that the chain claim itself never fails.</p>
+
+<div class="card"><strong>Two mechanically different kinds of death.</strong> $\sigma(1,2)$ dies because its residual <em>never reaches zero</em> ($\max_t F&lt;0$: player 1's single atom can never carry full mass). $\sigma(2,3)$ and $\sigma(3,4)$ die because the residual still crosses zero but the profile there carries a negative mass — <em>the root exists, the equilibrium doesn't</em>. <em>(A third death mode exists off these primitives: the root falls below the dial floor, so $u_1&lt;0$ and player 1 walks away — §3.3. It cannot occur here, where $t_0=0$.)</em></div>
+
+<h3>8.3&nbsp;&nbsp;The rectangle-death ordering</h3>
+
+<div class="card keybox"><strong>Phenomenon.</strong> As the cost deforms toward the convexity boundary, <strong>rectangle rungs $\sigma(m,m+1)$ die bottom-up in $m$</strong> — $\sigma(1,2)$ first ($s^*=0.5695$), then $\sigma(2,3)$, then $\sigma(3,4)$, with $\sigma(4,5)$ at the death's edge at $s=1$ — while <strong>every square rung $\sigma(m,m)$ survives</strong>.</div>
+
+<p>This rhymes with two standing findings elsewhere in the project. Rectangles were already the fragile rung type in the asymmetric-value work — at asymmetric $v$ the square at $t_q^*$ is a non-equilibrium and the rectangle at $t_p^*$ has to carry the argument — and rung death and revival in one-parameter families is well documented on the Δ-dial and the MC(0)-dial. Cost shape is a third axis along which it happens, and the only one that does so at fully symmetric primitives.</p>
+
+<h3>8.4&nbsp;&nbsp;The near-collision, resolved</h3>
+
+<p>In the census, $\sigma(4,4)$ and $\sigma(4,5)$ sit at nearly the same dial ($0.31575$ vs. $0.31571$). Is that an incipient tangency — the event the route must forbid? The zoom says no. Separation and birth mass decrease smoothly and hit the floor exactly at $s=1$:</p>
+
+<table>
+<tr><th>$s$</th><th>sep</th><th>birth</th><th>$\min c_s''$</th></tr>
+<tr><td>0.850</td><td>0.01633</td><td>0.04855</td><td>0.306</td></tr>
+<tr><td>0.900</td><td>0.01319</td><td>0.03654</td><td>0.207</td></tr>
+<tr><td>0.950</td><td>0.00815</td><td>0.02095</td><td>0.107</td></tr>
+<tr><td>0.975</td><td>0.00456</td><td>0.01130</td><td>0.057</td></tr>
+<tr><td>1.000</td><td>0.000041</td><td>0.000098</td><td>0.0073</td></tr>
+</table>
+
+<p>$F'$ at both roots stays in $[2.0,\,2.9]$ throughout: the roots approach each other <strong>without any loss of transversality</strong>. This is not a fold of one residual — it is two <em>different</em> residuals whose roots happen to converge, because the rectangle $\sigma(4,5)$ is grazing its own death (top atom mass $\to0$, at which point its profile degenerates into $\sigma(4,4)$'s) precisely as the target cost touches the convexity boundary. Mid-path validity is comfortable (at $s=0.5$: mm $=0.16/0.09$; at $s=0.9$: $0.22/0.037$; single-rooted).</p>
+
+<p class="note"><strong>Sisters.</strong> $\sigma(1,2)$ is already dead at $s=1$ for $B=-1.5$ ($\max F=-0.373$) and for $(A,B,D_2)=(1,-0.81,0.25)$ ($\max F=-0.762$) — the death is not peculiar to the extreme corner. Caveat: the sisters' $(4,4)/(4,5)$ pair numbers in probe 2 are raw first-crossings, not validity-censused; the $(1,-0.81,0.25)$ pair numbers are negative, which by the Q163 lesson most likely means an invalid first root, i.e. more rung deaths. A census like probe 3's is pending (§12, caveat 4).</p>
+
+<!-- ============================================================ -->
+<h2 id="sec9">9&nbsp;·&nbsp;Interiority absorbs rung death</h2>
+
+<p>This is the probe's structural payoff, and it changes the shape of the proof obligation — so it gets the slow treatment.</p>
+
+<p><strong>The naive worry.</strong> The separator of §4 links <em>adjacent</em> ladder rungs. If an intermediate rung — say $\sigma(2,3)$ — dies along the path, the ladder $\sigma(2,2)\to\sigma(2,3)\to\sigma(3,3)$ has a hole, the telescoping chain of inequalities breaks, and the comparison $u_1(\sigma(2,2)) &gt; u_1(\sigma(3,3))$ seems orphaned.</p>
+
+<p><strong>The resolution.</strong> Look again at where the birth-mass identity lives: <em>on the shared dial recursion, not on the intermediate rung's equilibrium</em>. Because $q_1(t), q_2(t), q_3(t), \dots$ are rung-independent functions of the dial (§3.1), the residual $F_{(2,2)}(t)=q_1(t)+q_2(t)-1$ is a perfectly good function that can be evaluated at <em>any</em> other rung's equilibrium dial — whether or not $\sigma(2,3)$ exists in between. Evaluate it at $\sigma(3,3)$'s dial. Since $\sigma(3,3)$'s closure is $q_1+q_2+q_3=1$ at $t^*_{(3,3)}$,</p>
+
+$$F_{(2,2)}\big(t^*_{(3,3)}\big) \;=\; q_1+q_2-1 \;=\; -\,q_3\big(t^*_{(3,3)}\big) \;&lt;\; 0,$$
+
+<p>and the positivity of $q_3(t^*_{(3,3)})$ is nothing but $\sigma(3,3)$'s <strong>own</strong> interiority — definitional for a valid equilibrium; no rectangle needed anywhere. Combined with single-crossing of $F_{(2,2)}$, this forces $t^*_{(3,3)} &lt; t^*_{(2,2)}$ directly, and since $u_1(t)$ is dial-level and increasing, the payoffs stay ordered across the hole.</p>
+
+<div class="fig">
+<svg viewBox="0 0 660 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ordering argument skips the dead rung">
+  <!-- skip arc -->
+  <path d="M 145 78 C 250 8, 410 8, 515 78" fill="none" stroke="#1f6feb" stroke-width="2.4"/>
+  <path d="M 515 78 L 505 64 M 515 78 L 499 76" stroke="#1f6feb" stroke-width="2.4" fill="none"/>
+  <text x="216" y="30" font-size="12.5" fill="#1f6feb" font-weight="600">F₍₂,₂₎(t*₍₃,₃₎) = −q₃ &lt; 0  ⇒  t*₍₃,₃₎ &lt; t*₍₂,₂₎</text>
+  <!-- pills -->
+  <rect x="65" y="80" width="160" height="42" rx="10" fill="#f0f4ff" stroke="#c8d6ff" stroke-width="1.5"/>
+  <text x="145" y="106" font-size="15" fill="#1f6feb" font-weight="700" text-anchor="middle">σ(2,2)  valid</text>
+  <rect x="255" y="80" width="150" height="42" rx="10" fill="#f4f5f7" stroke="#d3d6da" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="330" y="106" font-size="15" fill="#8a8f98" font-weight="700" text-anchor="middle">σ(2,3)  ✕ dead</text>
+  <rect x="435" y="80" width="160" height="42" rx="10" fill="#f0f4ff" stroke="#c8d6ff" stroke-width="1.5"/>
+  <text x="515" y="106" font-size="15" fill="#1f6feb" font-weight="700" text-anchor="middle">σ(3,3)  valid</text>
+  <!-- broken ladder arrows -->
+  <line x1="225" y1="101" x2="255" y2="101" stroke="#c9ccd1" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="405" y1="101" x2="435" y2="101" stroke="#c9ccd1" stroke-width="2" stroke-dasharray="4 3"/>
+</svg>
+<div class="figcap"><strong>Figure 3.</strong> Dead rungs are invisible to the ordering. The residual $F_{(2,2)}$ lives on the shared dial recursion, so it can be evaluated at $\sigma(3,3)$'s dial directly; the answer is minus $\sigma(3,3)$'s own newborn mass $q_3$ — negative by the survivor's own interiority. The dead rectangle in between is never consulted.</div>
+</div>
+
+<p>The probe verified this numerically <em>across the actual Q163 holes</em>:</p>
+
+$$-F_{(2,2)}\big(t^*_{(3,3)}\big) = 0.29444 = q_3 \text{ newborn at } \sigma(3,3), \qquad -F_{(3,3)}\big(t^*_{(4,4)}\big) = 0.24590.$$
+
+<div class="card goodbox"><strong>General statement.</strong> For <em>any</em> two surviving rungs $R\to S$ with $S$ deeper in the chain — any number of dead rungs skipped in between — $F_R(t^*_S)$ equals minus the total mass that $S$'s equilibrium assigns beyond $R$'s atom set: strictly negative by $S$'s own interiority. Combined with single-crossing of $F_R$, this yields $t^*_S &lt; t^*_R$ directly. <strong>Rung death costs the route nothing.</strong> The obligations collapse to:
+<ol class="steps">
+<li><em>(definitional)</em> each surviving rung is an interior equilibrium — free;</li>
+<li><em>(the lemma)</em> single-crossing of each surviving rung's residual — §11.</li>
+</ol></div>
+
+<!-- ============================================================ -->
+<h2 id="sec10">10&nbsp;·&nbsp;The hypothesis ledger, before and after</h2>
+
+<p>Here is what became of the three hypotheses of §6 — together with a fourth that was never stated out loud, and is false:</p>
+
+<table>
+<tr><th>#</th><th class="lbl">hypothesis (as first posed)</th><th class="lbl">status</th></tr>
+<tr><td>H1</td><td class="lbl">Every chain rung keeps an equilibrium along the path</td><td class="lbl"><strong>False in general — and not the route's job.</strong> Rungs genuinely die: at Q163, $\sigma(1,2)$ dies at $s^*=0.5695$ where $\min c_s''=0.87$ — deep inside the convex family, not a boundary artifact. The theorem statement must simply be conditional on the <em>surviving</em> chain (which is how the chain-$u_1{\downarrow}$ claim already behaves in the quartic study).</td></tr>
+<tr><td>H2</td><td class="lbl">No rung death / no root collision, so the separator chain never breaks</td><td class="lbl"><strong>Falsified as stated — but absorbed.</strong> §9: the separator never needed the intermediate rung to exist, so deaths cost the route nothing.</td></tr>
+<tr><td>H3</td><td class="lbl">Transversality: $F'&gt;0$ at every zero of $F$, all $s$</td><td class="lbl"><strong>The one remaining lemma.</strong> Never observed to fail; $F'$ at the roots in fact <em>grows</em> linearly in $m$ ($\approx 2m$) while root spacing shrinks like $m^{-2}$, and the identity birth $\approx F'\cdot$sep closes to three digits.</td></tr>
+<tr><td>H4</td><td class="lbl"><em>(tacit)</em> The dial domain is $(0,1)$, so the only boundary events are $t\to0^+$, $t\to1^-$, and hole edges</td><td class="lbl"><strong>False — the fourth edge.</strong> The domain of <em>equilibria</em> is $(t_0,1)$, and the floor $t_0(s)$ <em>moves</em> along the path. Vacuous at symmetric primitives ($t_0\equiv0$), live everywhere else in the box. Absorbable in principle (§5.1: the floor truncates the chain to a prefix), <strong>not yet verified</strong>.</td></tr>
+</table>
+
+<p class="note">H4 is the only entry in this ledger the probe could not have found: at its primitives the event is impossible. It surfaces instead from the base analysis of §3.3 — the same blind spot that let the engine report sub-floor roots as equilibria.</p>
+
+<!-- ============================================================ -->
+<h2 id="sec11">11&nbsp;·&nbsp;The one remaining lemma</h2>
+
+<div class="lemma"><strong>Lemma (transversality at roots — target form).</strong> <em>Fix primitives $(v_1,v_2,\Delta)$ inside the competitive range, a convex cost $c$, and a chain rung $R$. For every $s\in[0,1]$ and every $\tau$ in the interior of the march domain with $F_R(\tau;s)=0$:</em>
+$$F_R'(\tau;s) \;&gt;\; 0.$$
+<em>Moreover $F_R$ has a definite (negative) sign at the accessible boundary of the march domain below the tracked root, so no root enters from the boundary.</em></div>
+
+<p class="note">Two things about the statement. The root variable is $\tau$; the symbol $t_0$ stays reserved for the dial floor of §3.3. And the lemma is deliberately about $F$ on the <strong>full march domain</strong>, not on the admissible window $(t_0,1)$ — that is the §5.1 split. Transversality is a statement about the <em>residual</em>; individual rationality is a <em>filter</em> applied afterwards. Keeping the two apart is exactly what leaves this lemma untouched by the moving floor.</p>
+
+<p>Three observations about why this is a <em>better</em> target than the cascade's lemmas:</p>
+
+<h3>(a)&nbsp;&nbsp;It is aggregate, not termwise</h3>
+<p>For square rungs, $F' = \sum_{\ell\le m} q_\ell'(t)$ — the <em>sum</em> of the mass derivatives, i.e. aggregate mass-widening. The cascade proves $RG2_k\ge0$ node by node, which gives $q_{k+1}'\ge0$ termwise — much stronger than the sum being positive. At the $b&lt;0$ quartic corner the termwise ladder collapses while the aggregate survives everywhere measured (the quartic findings' &ldquo;$\partial_t W\ge0$ aggregate-only&rdquo;; the probe: $F'$ at roots between 2.0 and 40, never near zero). <strong>The route asks precisely for the inequality that nature seems to satisfy — no more.</strong></p>
+
+<h3>(b)&nbsp;&nbsp;It is needed only at zeros of $F$</h3>
+<p>At a root, the comb is an equilibrium candidate: every partial mass is available, and the <em>on-window</em> facts hold.</p>
+<div class="card defbox"><span class="deft">Definition — on-window</span><br>
+A fact holds <strong>on-window</strong> if it is asserted only on the sub-interval of dials at or below the equilibrium root, where all partial mass sums are strictly less than one (Part II §12's <em>window lemma</em> is exactly this kind of statement) — as opposed to <em>pointwise</em> facts asserted at every dial. The cubic proof's decisive trick was realizing its inequalities on-window rather than pointwise; here, the restriction to the set $\{F=0\}$ is built into the lemma's statement from the start.</div>
+
+<h3>(c)&nbsp;&nbsp;The cascade, where it works, already implies it</h3>
+<p>For $\theta\in\{2,3\}$ (and conditionally for $b\ge0$ quartics) the proven termwise results sign $F'$ everywhere, hence in particular at roots. So the homotopy route is <em>conservative</em>: it can only extend, never contradict, what the cascade has closed. Its added value is exactly the regimes where termwise fails but aggregate holds — $b&lt;0$, and possibly $\theta\in(2,3)$ at a lower price than the two remaining buffered lemmas ((M-buf)+(TR-a)).</p>
+
+<h3>Attack lines, in rough order of promise</h3>
+
+<ol class="steps">
+<li><strong>Schur complement at the root, on-window.</strong> Part I §4's identification of $F'(t^*)$ with the Schur complement of the equilibrium Jacobian is march-structural — cost-general; only the <em>positivity proof</em> is quadratic. Redo the positivity argument using only on-window facts (partial masses &lt; 1, window lemma) plus convexity. Test bench: $\theta\in(2,3)$, where the answer is known to be &ldquo;true&rdquo; numerically and the cascade's remaining lemmas are already buffered — if transversality-at-roots is cheaper than (M-buf)+(TR-a), the regime closes via homotopy from $\theta=2$.</li>
+<li><strong>Joint $(t,s)$ index argument.</strong> The zero set $\{F(t;s)=0\}$ is a smooth 1-manifold wherever $(F_t,F_s)$ does not vanish simultaneously; a root can only be created or destroyed at $F=F_t=0$. One can therefore trade &ldquo;sign $F_t$ at all roots&rdquo; for &ldquo;rule out the codimension-2 event $F=F_t=0$&rdquo; — sometimes easier, because at such a point the comb would be a <em>degenerate</em> equilibrium candidate, and degeneracy may contradict interiority or the window structure.</li>
+<li><strong>Boundary control as a separate, concrete lemma.</strong> The march-failure set is explicit: a node bisection loses its bracket (overshoot geometry). Empirically the failure region is a single top-of-dial interval, far above the tracked root (at the worst quartic: $\sigma(5,5)$ fails only for $t\gtrsim0.86$, $\sigma(6,6)$ for $t\gtrsim0.60$ — roots at $0.23$, $0.18$). <em>Conjecture to prove:</em> below the first root the march is defined and $F&lt;0$; failure can only occur above. This would seal the boundary once and for all.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="sec12">12&nbsp;·&nbsp;Methodological caveats</h2>
+
+<ol class="steps">
+<li><strong>A first crossing of $F$ is not an equilibrium — and this trap has two faces.</strong> <code>solve_rung</code> returns the first up-crossing of $F$ and reports validity separately. Probe 2's first Q163 chain table read the raw crossings and was garbage at $(2,3)$ and $(3,4)$ (invalid roots, $u_1$ apparently non-monotone); probe 3's validity-tagged census supersedes it entirely. A residual root carrying a negative mass is a genuine object — it is how the second kind of rectangle death manifests — but it is not an equilibrium.
+<br><br>
+The other face appears off symmetric primitives: the first up-crossing can sit <em>below the dial floor</em> $t_0$ (§3.3), where $u_1&lt;0$ and player&nbsp;1 deviates to the corner $e=0$. The march cannot see it, for the same structural reason it cannot see a negative mass — it solves <em>equalities</em>. Both gates live in the engine: <code>solve_rung</code> tests the competitive range, the floor, and individual rationality, and returns <code>exists</code> plus a <code>reason</code> (<code>:root_below_floor</code>, <code>:ir_fail</code>, <code>:negative_mass</code>, <code>:decisive_lead</code>, <code>:no_ir_window</code>, …) and the floor <code>t0</code>. <em>A harness that reads <code>exists</code> inherits all of them; one that reads the raw root and marches on does not.</em> (Trap: <code>Julia/converge/general_march.jl</code> defines its own <em>ungated</em> <code>solve_rung</code>. Nothing includes it today; if something ever does, alongside <code>convex_march.jl</code>, the later definition wins and the gates silently vanish.)</li>
+<li><strong>March coverage holes.</strong> At Q163 the march fails on a single top-of-dial interval: $t\in[0.864,1)$ for $\sigma(5,5)/\sigma(5,6)$, $t\in[0.602,1)$ for $\sigma(6,6)$ (roots at $0.234/0.226/0.184$ — far below). Single-crossing is certified only on the covered segment; nothing can be said about roots inside a hole. The boundary conjecture (§11, attack line 3) would close this gap; the probe data are consistent with it everywhere.</li>
+<li><strong>Grids.</strong> Dial scans at <code>dstep</code> 0.002–0.004 (0.002 for $m=20$), $s$-grid 0.1 (zoom 0.025), local tracking windows $\pm0.08$. The $s^*$ death point is a bisection on $\max_t F$, grid-limited to about $\pm10^{-3}$. None of the conclusions are near these resolutions except the $\sigma(4,5)$ near-death margins ($4\times10^{-5}$ separation), which were confirmed by 80-iteration bisection at machine precision and by the independent Nash check.</li>
+<li><strong>Q081 sister uncensused</strong> (§8.4 note). Its raw pair numbers should not be quoted until a probe-3-style census is run.</li>
+<li><strong>Scope — and why this slice is exactly the blind one.</strong> Symmetric primitives only ($v_1=v_2=1$, $\Delta=0$), chains to $m=12$ with an $m=20$ spot check. The untested region is the <em>full primitive box</em> $(v_1\gtrless v_2)\times(\Delta\lessgtr0)$, in both labelings.
+<br><br>
+This matters more than a scope note usually does. The probe's slice is the one where $f=0$, hence $t_0\equiv0$, hence the admissible window is all of $(0,1)$ and the moving floor cannot bite. The numbers above are safe — and they are <em>silent</em> about the half of the box where the interesting failures live: a rung-death mode the probe never saw (death by the floor), and a continuation event the route's lemma does not yet handle (§5.1). The first thing a full-box probe should do is track $t_0(s)$ alongside $t^*(s)$ and look for crossings.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="sec13">13&nbsp;·&nbsp;Next steps, ordered by leverage</h2>
+
+<ol class="steps">
+<li><strong>Prototype the on-window Schur argument</strong> (attack line 1) at $\theta\in(2,3)$. Success criterion: a proof of $F'&gt;0$ at roots whose only regime-specific input is convexity-class information already available on-window. If it lands, $\theta\in(2,3)$ closes — and the template likely covers $\theta&gt;3$ too.</li>
+<li><strong>Prove the boundary conjecture</strong> (attack line 3): march defined and $F&lt;0$ strictly below the first root. This is march-geometry, not inequality-cascading, and the probe suggests it is clean.</li>
+<li><strong>Formalize the continuation lemma, moving floor included.</strong> Tangency-free + boundary-free $\Rightarrow$ constant root count, with the march's actual regularity (piecewise-smooth in $(t,s)$, holes allowed above the root). This is not bookkeeping: the boundary has a fourth edge, the moving dial floor $t_0(s)$, and the lemma must either rule out root/floor crossings or absorb them. §5.1 gives the intended absorption — prove single-crossing on the full march domain, apply the floor as a post-filter, show it truncates the chain to a <em>prefix</em> rather than holing it. Turning that argument into a proof <em>is</em> this item.</li>
+<li><strong>Extend the probe to the full primitive box.</strong> The box is $(v_1\gtrless v_2)\times(\Delta\lessgtr0)$, run in both labelings (§3.0), and the half that matters is $f&gt;0$, where the floor exists and chains can truncate. Concretely: track $t_0(s)$ alongside $t^*(s)$ along the continuation and hunt for crossings; check whether the floor really eats a <em>suffix</em> of the chain, or whether a negative-mass death can let it punch an interior hole; then the rest — how rectangles at $t_p^*$ behave at asymmetric $v$, adaptive $s$-refinement near death points, and a census of march-failure holes near the convexity boundary. The engine gates are in place, so a harness reading <code>exists</code> inherits them.</li>
+<li><strong>Characterize the rectangle-death surface</strong>: $\max_t F_{(m,m+1)}(t;c)=0$ is an implicit equation in cost space — the cost-space analogue of the (★)/(†) collapse equations from the asymmetric program. Even a one-parameter slice ($s^*(m)$ along the Q163 path: $s^*(1)=0.5695$, $s^*(4)\approx1$) would say how deaths march up the chain.</li>
+</ol>
+
+<div class="card goodbox"><strong>Verdict.</strong> The homotopy route survives its stress test in strengthened form. The two hypotheses that were supposed to be dangerous (existence, no-collision) turned out to be either not the route's job — existence is conditional by the theorem's own statement — or absorbable by interiority (§9); and the hypothesis that remains, $F'&gt;0$ at every zero of $F$, is an aggregate-at-roots inequality that held with <em>growing</em> margins in every regime measured, including the corner that falsifies all of the cascade's termwise anchors.<br><br>
+That is a verdict about <em>cost</em> space, taken along one slice of <em>primitive</em> space. On the symmetric slice the route is one lemma away. On the full box it is not, until the moving floor of §5.1 is either ruled out or absorbed — and no number here speaks to that, because at these primitives the floor is identically zero.</div>
+
+<!-- ============================================================ -->
+<h2 id="sec14">14&nbsp;·&nbsp;Files and reproduction</h2>
+
+<table>
+<tr><th class="lbl">file</th><th class="lbl">role</th></tr>
+<tr><td class="lbl"><code>Docs/homotopy_route_handoff.md</code></td><td class="lbl">the route — motivation, reduction, remaining lemma</td></tr>
+<tr><td class="lbl"><code>Docs/homotopy_route_probe.md</code></td><td class="lbl">the numerical stress test — exact numbers and caveats</td></tr>
+<tr><td class="lbl"><code>Docs/homotopy_asym_audit.md</code></td><td class="lbl">the asymmetric audit: conventions, the $u_1&gt;0$ argument, the dial floor, $IR_1$, the moving-floor event, and (§7) what the engine gates do</td></tr>
+<tr><td class="lbl"><code>Docs/chain_monotonicity_reduction.html</code></td><td class="lbl">Parts I–II: birth-mass identity (§2), Schur complement (§4), base derivatives (§9.1), window lemma (§12). <strong>Caveat:</strong> its §9.1 is scoped to $v_1=v_2=1,\Delta=0$ — the $u_1'&gt;0$ proof there does <em>not</em> survive off that point; use §3.2–3.3 above instead</td></tr>
+<tr><td class="lbl"><code>Julia/converge/_asym_base_audit.jl</code></td><td class="lbl">verifies §3.3: $u_1$ convex in the dial, $u_1'&gt;0$ on the admissible set, $IR_1$ = the paper's $IR_A$</td></tr>
+<tr><td class="lbl"><code>Julia/converge/_asym_ir_gate.jl</code></td><td class="lbl">regression for the engine gates: asserts no $u_1&lt;0$ profile is ever reported as an equilibrium</td></tr>
+<tr><td class="lbl"><code>Docs/comb_march_tutorial.html</code></td><td class="lbl">the march itself, from scratch</td></tr>
+<tr><td class="lbl"><code>Docs/quartic_monotonicity_findings.md</code></td><td class="lbl">why $b&lt;0$ kills pointwise anchors — the motivation for an aggregate-only route</td></tr>
+<tr><td class="lbl"><code>Julia/converge/_homotopy_probe.jl</code></td><td class="lbl">experiments A ($s$-continuation), B ($m$-decay), C ($m=20$ spot) — ~2 min</td></tr>
+<tr><td class="lbl"><code>Julia/converge/_homotopy_probe2.jl</code></td><td class="lbl">death-point bisection, collision zoom, sister quartics — ~1 min</td></tr>
+<tr><td class="lbl"><code>Julia/converge/_homotopy_probe3.jl</code></td><td class="lbl">validity-tagged root census (the corrected Q163 chain) — ~1 min</td></tr>
+<tr><td class="lbl"><code>Julia/converge/convex_march.jl</code></td><td class="lbl">the march engine (<code>march_general</code>, <code>solve_rung</code>)</td></tr>
+</table>
+
+<pre><code>julia Julia/converge/_homotopy_probe.jl     # A: s-continuation; B: m-decay; C: m=20 spot   (~2 min)
+julia Julia/converge/_homotopy_probe2.jl    # death bisection, collision zoom, sisters      (~1 min)
+julia Julia/converge/_homotopy_probe3.jl    # validity-tagged census + certification        (~1 min)</code></pre>
+
+<p class="note">Probe 2's part-3 table is superseded by probe 3 (see §12, caveat 1) and is kept only as a record of the validity lesson.</p>
+
+<div class="footer">
+Assembled from <code>Docs/homotopy_route_handoff.md</code>, <code>Docs/homotopy_route_probe.md</code>, and <code>Docs/homotopy_asym_audit.md</code>. All numbers are transcribed from the probe notes verbatim; nothing here is new research. Rendered with KaTeX 0.16.
+</div>
+
+</body>
+</html>

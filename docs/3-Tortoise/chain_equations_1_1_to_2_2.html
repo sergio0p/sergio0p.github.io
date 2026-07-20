@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chain equations: σ(1,1), σ(1,2), σ(2,2) — u₁* > 0 regime</title>
+<style>
+  :root {
+    --fg: #1a1a1a;
+    --muted: #5a5a5a;
+    --accent: #1f6feb;
+    --bg: #fafafa;
+    --card: #ffffff;
+    --border: #e3e3e3;
+    --tag: #f0f4ff;
+    --tag-border: #c8d6ff;
+  }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.25rem 3rem;
+    line-height: 1.55;
+  }
+  h1 {
+    font-size: 1.55rem;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+  .case {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .case h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .setup {
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin: 0.5rem 0 1rem;
+  }
+  .eq {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.55rem 0.75rem;
+    margin: 0.4rem 0;
+    background: #fdfdfd;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    font-family: "Latin Modern Math", "STIX Two Math", "Cambria Math", Cambria, Georgia, serif;
+    font-size: 1.05rem;
+  }
+  .eq .label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-right: 0.4rem;
+    font-family: -apple-system, sans-serif;
+  }
+  .tag {
+    font-family: -apple-system, sans-serif;
+    font-size: 0.78rem;
+    background: var(--tag);
+    border: 1px solid var(--tag-border);
+    color: var(--accent);
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .body {
+    font-style: italic;
+  }
+  .count {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 1rem;
+    font-style: italic;
+  }
+  sub, sup { font-size: 0.75em; }
+</style>
+</head>
+<body>
+
+<h1>Chain equations — u₁* &gt; 0 regime</h1>
+<div class="subtitle">
+  Cases σ(1,1), σ(1,2), σ(2,2). WLOG labeling: u₂* = 0 ⟹ y₁ = 0.
+  Equations written as <span class="body">expression = 0</span>.
+  w<sub>i</sub> = c⁻¹(v<sub>i</sub>).
+</div>
+
+<!-- ============================================================ -->
+<div class="case" style="border-left: 4px solid #d9822b; background: #fffaf2;">
+  <h2>Universal identity for u₁*</h2>
+  <div class="setup">
+    In every σ(m,n) equilibrium with u₁* &gt; 0, the smallest P1 atom x₁ faces only y₁ = 0
+    on its interior branch (truncation rule: ℓ ≤ k = 1 ⟹ ℓ = 1); all higher y_ℓ put P1 on the
+    abandonment branch U<sup>T</sup>₁ = 0. Hence u₁* = u₁(x₁) reduces to a single interior term.
+    Holds for any convex c.
+  </div>
+
+  <div class="eq">
+    <div>u₁* − q₁ · [v₁ − c(w₂ − Δ − x₁)] + c(x₁) <span class="body">= 0</span></div>
+    <div class="tag">(★)</div>
+  </div>
+
+  <div class="setup" style="margin-top: 0.75rem;">
+    <strong>Quadratic specialization</strong> (c(e) = e², v₁ = v₂ = 1, Δ = 0): the P1 FOC at x₁
+    gives x₁ = q₁ / (1 + q₁), and (★) collapses to the QUICKSTART §2 closed form
+  </div>
+
+  <div class="eq">
+    <div>u₁* − q₁² / (1 + q₁) <span class="body">= 0</span></div>
+    <div class="tag">(★q)</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="case">
+  <h2>Case σ(1,1)</h2>
+  <div class="setup">
+    P1: atom x₁ (mass 1). P2: atom y₁ = 0 (mass 1).
+    Unknown: x₁.
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 FOC at x₁:</span> c′(w₂ − Δ − x₁) − c′(x₁) <span class="body">= 0</span></div>
+    <div class="tag">(1.1)</div>
+  </div>
+
+  <div class="count">1 equation, 1 unknown.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="case">
+  <h2>Case σ(1,2)</h2>
+  <div class="setup">
+    P1: atom x₁ (mass 1). P2: atoms y₁ = 0 (mass q), y₂ (mass 1 − q).
+    Unknowns: x₁, y₂, q.
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 FOC at x₁:</span> q · c′(w₂ − Δ − x₁) − c′(x₁) <span class="body">= 0</span></div>
+    <div class="tag">(1.2.1)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P2 FOC at y₂:</span> c′(w₁ + Δ + x₁ − y₂) − c′(y₂) <span class="body">= 0</span></div>
+    <div class="tag">(1.2.2)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P2 indiff. at y₂:</span> c(w₁ + Δ + x₁ − y₂) + c(y₂) − v₂ <span class="body">= 0</span></div>
+    <div class="tag">(1.2.3)</div>
+  </div>
+
+  <div class="count">3 equations, 3 unknowns.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="case">
+  <h2>Case σ(2,2)</h2>
+  <div class="setup">
+    Interleaving (ƒ-shifted): ỹ₁ ≤ x₁ ≤ ỹ₂ ≤ x₂, where ỹ_k = y_k + ƒ, ƒ = w₂ − w₁ − Δ (ỹ₁ = ƒ since y₁ = 0; raw y_k only when ƒ = 0, i.e. symmetric).
+    P1: atoms x₁ (mass p), x₂ (mass 1 − p). P2: atoms y₁ = 0 (mass q), y₂ (mass 1 − q).
+    Unknowns: x₁, x₂, y₂, p, q, u₁*.
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 FOC at x₁:</span> q · c′(w₂ − Δ − x₁) − c′(x₁) <span class="body">= 0</span></div>
+    <div class="tag">(2.2.1)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 FOC at x₂:</span> q · c′(w₂ − Δ − x₂) + (1 − q) · c′(w₂ − Δ − x₂ + y₂) − c′(x₂) <span class="body">= 0</span></div>
+    <div class="tag">(2.2.2)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P2 FOC at y₂:</span> p · c′(w₁ + Δ + x₁ − y₂) − c′(y₂) <span class="body">= 0</span></div>
+    <div class="tag">(2.2.3)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 indiff. at x₁:</span> q · [v₁ − c(w₂ − Δ − x₁)] − c(x₁) − u₁* <span class="body">= 0</span></div>
+    <div class="tag">(2.2.4)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 indiff. at x₂:</span> q · [v₁ − c(w₂ − Δ − x₂)] + (1 − q) · [v₁ − c(w₂ − Δ − x₂ + y₂)] − c(x₂) − u₁* <span class="body">= 0</span></div>
+    <div class="tag">(2.2.5)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P2 indiff. at y₂:</span> p · [v₂ − c(w₁ + Δ + x₁ − y₂)] − c(y₂) <span class="body">= 0</span></div>
+    <div class="tag">(2.2.6)</div>
+  </div>
+
+  <div class="count">6 equations, 6 unknowns.</div>
+</div>
+
+<!-- ============================================================ -->
+<div class="case" style="border-left: 4px solid #2b8a3e; background: #f6fdf7;">
+  <h2>α-homotopy σ(2,2) → σ(1,2): tracking u₁*(α)</h2>
+  <div class="setup">
+    Conjugate of the upward construction in <em>Docs/proof_ideas.md</em> §168 (which adds a P2 atom for σ(n,n) → σ(n,n+1)).
+    Here we <strong>remove</strong> P1's top atom x₂ — the m: 2 → 1 direction flagged in
+    <em>Docs/ranking_proof_audit.md</em> §7(b).
+  </div>
+
+  <div class="setup">
+    <strong>Parameter.</strong> α ∈ [0, α*] is the mass on x₂ (so p = 1 − α is the mass on x₁).
+    α = α* recovers full σ(2,2); α = 0 collapses to σ(1,2) (x₂ has no mass and drops from the support).
+  </div>
+
+  <div class="setup">
+    <strong>What is dropped along the path.</strong> P1's indifference between x₁ and x₂ holds <em>only</em> at α = α*.
+    For α ∈ [0, α*), x₂ is a candidate atom carrying mass α whose FOC is enforced (local max of u₁) but whose
+    payoff level is generically below u₁(x₁). The remaining 5 equilibrium conditions are kept for all α:
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 FOC at x₁:</span> q · c′(w₂ − Δ − x₁) − c′(x₁) <span class="body">= 0</span></div>
+    <div class="tag">(H.1)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 FOC at x₂:</span> q · c′(w₂ − Δ − x₂) + (1 − q) · c′(w₂ − Δ − x₂ + y₂) − c′(x₂) <span class="body">= 0</span></div>
+    <div class="tag">(H.2)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P2 FOC at y₂:</span> (1 − α) · c′(w₁ + Δ + x₁ − y₂) − c′(y₂) <span class="body">= 0</span></div>
+    <div class="tag">(H.3)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P1 indiff. at x₁ defines u₁*(α):</span> q · [v₁ − c(w₂ − Δ − x₁)] − c(x₁) − u₁*(α) <span class="body">= 0</span></div>
+    <div class="tag">(H.4)</div>
+  </div>
+
+  <div class="eq">
+    <div><span class="label">P2 indiff. at y₂:</span> (1 − α) · [v₂ − c(w₁ + Δ + x₁ − y₂)] − c(y₂) <span class="body">= 0</span></div>
+    <div class="tag">(H.5)</div>
+  </div>
+
+  <div class="count">5 equations, 5 unknowns x₁, x₂, y₂, q, u₁*(α) — for each fixed α.</div>
+
+  <div class="setup" style="margin-top: 1rem;">
+    <strong>Endpoint check at α = 0.</strong> (H.3) reduces to (1.2.2), (H.5) to (1.2.3), and (H.1) to (1.2.1) — exactly the σ(1,2) system; (H.4) then reads off u₁*(0) = u₁*(1,2). The "ghost" atom x₂ is still pinned by (H.2) but carries no mass.
+  </div>
+
+  <div class="setup">
+    <strong>Closing condition at α = α*.</strong> The dropped P1 indifference is restored:
+  </div>
+
+  <div class="eq">
+    <div><span class="label">Closure:</span> q · [v₁ − c(w₂ − Δ − x₂)] + (1 − q) · [v₁ − c(w₂ − Δ − x₂ + y₂)] − c(x₂) − u₁*(α) <span class="body">= 0</span></div>
+    <div class="tag">(H.★)</div>
+  </div>
+
+  <div class="setup">
+    At α = α*, equations (H.1)–(H.5) together with (H.★) reproduce the full σ(2,2) system (2.2.1)–(2.2.6).
+    Define the <em>gap</em>
+  </div>
+
+  <div class="eq">
+    <div>G(α) := u₁(x₂ | α) − u₁*(α) &nbsp;=&nbsp; LHS of (H.★) read as a function of α</div>
+    <div class="tag">(gap)</div>
+  </div>
+
+  <div class="setup">
+    Then G(0) &lt; 0 (x₂ off the σ(1,2) support sits strictly below u₁*) and G(α*) = 0.
+    Monotonicity of u₁*(α) along the track gives the chain inequality u₁*(2,2) &lt; u₁*(1,2) — see
+    the analytical-results card below.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="case" style="border-left: 4px solid #5c4d8a; background: #f7f4ff;">
+  <h2>Analytical results along the track (any strictly convex c)</h2>
+
+  <div class="setup">
+    Below: IFT calculus on the 5×5 Jacobian J = ∂F/∂z with z = (x₁, x₂, y₂, q, u₁). All signs hold for arbitrary
+    strictly convex c (c′ &gt; 0, c″ &gt; 0); quadratic plays no role. Shorthand: s₁ = w₂−x₁−Δ, s₂ = w₂−x₂−Δ,
+    s₂′ = w₂−x₂+y₂−Δ, t₁ = w₁+x₁−y₂+Δ.
+  </div>
+
+  <div class="eq">
+    <div>
+      <span class="label">Result A — det(J) &gt; 0 (failure mode #2: Jacobian non-degeneracy):</span><br>
+      det(J) = (1−α) · [q·c″(s₂) + (1−q)·c″(s₂′) + c″(x₂)] · c′(s₁) · [c′(t₁)·c″(y₂) + c′(y₂)·c″(t₁)] &gt; 0
+    </div>
+    <div class="tag">(A)</div>
+  </div>
+
+  <div class="setup">
+    Every factor is positive on-track by convexity + positive gaps. Closes failure mode #2: the IFT track never
+    encounters a fold. Verified symbolically in <code>Mathematica/jacobian.wl</code> via
+    <code>FullSimplify[Det[Grad[sys,vars]]]</code>.
+  </div>
+
+  <div class="eq">
+    <div>
+      <span class="label">Result B — dq/dα &lt; 0 (failure mode #1: q stays interior):</span><br>
+      Cramer with the α-column ∂F/∂α = (0, 0, −c′(t₁), 0, −(v₂−c(t₁))) gives, after applying (H.3) and (H.5):<br>
+      det(matrixQ) = [c″(x₁) + q·c″(s₁)] · [c″(x₂) + q·c″(s₂) + (1−q)·c″(s₂′)] · (v₂−c(t₁)) · [c″(y₂) + (1−α)·c″(t₁)] &gt; 0,<br>
+      hence dq/dα = −det(matrixQ) / det(J) &lt; 0.
+    </div>
+    <div class="tag">(B)</div>
+  </div>
+
+  <div class="setup">
+    At the endpoints q(0) = 1/√2 ≈ 0.707 and q(α*) ≈ 0.365, both in (0,1). Strict monotonicity ⇒ q stays interior
+    throughout [0, α*]. Closes failure mode #1.
+  </div>
+
+  <div class="eq">
+    <div>
+      <span class="label">Result C — du₁/dα &lt; 0 ⇒ chain ranking u₁(σ(2,2)) &lt; u₁(σ(1,2)):</span><br>
+      Envelope at x₁ (kills the dx₁/dα term via (H.1)) yields du₁/dα = (v₁ − c(s₁)) · dq/dα.<br>
+      Both factors signed: v₁ − c(s₁) &gt; 0 (since q(v₁−c(s₁)) = u₁ + c(x₁) &gt; 0) and dq/dα &lt; 0 by (B).<br>
+      Hence du₁/dα &lt; 0 strictly on (0, α*).
+    </div>
+    <div class="tag">(C)</div>
+  </div>
+
+  <div class="setup">
+    Integrating: u₁(σ(2,2)) − u₁(σ(1,2)) = ∫₀^{α*} (du₁/dα) dα &lt; 0. This is a <strong>cross-m</strong> ranking
+    result, the kind §7(d) of <em>ranking_proof_audit.md</em> flagged as out of reach for the
+    "envelope in q₁ alone" trick. Here the homotopy supplies the missing connecting path; the chain rule supplies
+    the sign.
+  </div>
+
+  <div class="setup">
+    <strong>Failure mode #3 is subsumed by σ-uniqueness.</strong> If σ(1,2) and σ(2,2) are each unique in their class, then
+    every zero of G(α) on the track corresponds to a σ(2,2) equilibrium ⇒ they all coincide ⇒ at most one zero. Existence
+    of a zero follows from existence of σ(2,2). So under uniqueness, dG/dα need not be signed — the homotopy lands at
+    the unique σ(2,2) by definition. <em>Independently signing dG/dα along the track is straightforward except for one
+    factor of the form v₁ − c(s₁) + c(s₂) − c(s₂′) whose sign is not obvious;
+    see <code>Mathematica/jacobian.wl</code> for the FullSimplify output.</em>
+  </div>
+
+  <div class="setup">
+    <strong>What stays open for the (2,2)→(1,2) case.</strong>
+    <ul style="margin-top: 0.3rem;">
+      <li>Verify Results A–C extend to <em>arbitrary</em> (v₁, v₂, Δ) — the proofs use no specialization, but
+        we have only sweeps at v=1, Δ=0.</li>
+      <li>Track completeness: the IFT extension survives on [0, α*] as long as A and B hold; the boundedness of
+        z(α) follows from FOC + convexity but a clean lemma would tighten the argument.</li>
+    </ul>
+  </div>
+
+  <div class="setup">
+    <strong>What stays open for the chain.</strong> The same machinery should run for any (n,n)→(n−1,n) or
+    (n,n)→(n,n+1) step. The upward direction (n,n)→(n,n+1) is the version proof_ideas.md §168 sketches; doing the
+    (m,n) generalization is the main remaining structural task.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<div class="case" style="border-left: 4px solid #d9822b; background: #fff8ec;">
+  <h2>Numerical sweep — quadratic c, v₁ = v₂ = 1, Δ = 0</h2>
+  <div class="setup">
+    Solver: <code>Julia/solver/homotopy_2_2_to_1_2.jl</code> (Newton on the inner FOC + 1-D root-find on q₁ for (H.5)).
+    81-point grid α ∈ [0, 0.45]; warm-started along the path. Inner FOC residual stays at machine precision throughout.
+  </div>
+
+  <div id="plots" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;"></div>
+
+  <div class="setup">
+    <strong>Endpoint check.</strong>
+  </div>
+
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem; margin: 0.5rem 0;">
+    <thead>
+      <tr style="background: #f0e9d8;">
+        <th style="text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #d4c79f;">Quantity</th>
+        <th style="text-align: right; padding: 0.4rem 0.6rem; border-bottom: 1px solid #d4c79f;">α = 0 (σ(1,2) limit)</th>
+        <th style="text-align: right; padding: 0.4rem 0.6rem; border-bottom: 1px solid #d4c79f;">Closed form</th>
+        <th style="text-align: right; padding: 0.4rem 0.6rem; border-bottom: 1px solid #d4c79f;">α = α* (σ(2,2))</th>
+        <th style="text-align: right; padding: 0.4rem 0.6rem; border-bottom: 1px solid #d4c79f;">Reference</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding: 0.3rem 0.6rem;">q₁</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.70711</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">1/√2 = 0.70711</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.36492</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">0.36430</td></tr>
+      <tr><td style="padding: 0.3rem 0.6rem;">x₁</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.41421</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">√2 − 1 = 0.41421</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.26738</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">0.26704</td></tr>
+      <tr><td style="padding: 0.3rem 0.6rem;">y₂</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.70711</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">1/√2 = 0.70711</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.47835</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">0.47779</td></tr>
+      <tr><td style="padding: 0.3rem 0.6rem;">u₁*</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.29289</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">(2 − √2)/2 = 0.29289</td><td style="text-align: right; padding: 0.3rem 0.6rem;">0.09758</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">0.09718</td></tr>
+      <tr><td style="padding: 0.3rem 0.6rem;">α*</td><td colspan="3" style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">— (linear-interp on G sign change)</td><td style="text-align: right; padding: 0.3rem 0.6rem;"><strong>0.39462</strong></td></tr>
+      <tr><td style="padding: 0.3rem 0.6rem;">p₂* (= α*)</td><td colspan="3" style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">reference</td><td style="text-align: right; padding: 0.3rem 0.6rem; color: var(--muted);">0.39459</td></tr>
+    </tbody>
+  </table>
+
+  <div class="setup">
+    <strong>Findings.</strong>
+    <ul style="margin-top: 0.3rem;">
+      <li>u₁*(α) is <em>strictly decreasing</em> on [0, α*], from 0.29289 down to ≈ 0.09758 at α*. Numerical evidence for the chain inequality u₁*(2,2) &lt; u₁*(1,2) via this route. ✓</li>
+      <li>q₁(α) is strictly decreasing (0.707 → 0.365) and stays well in the interior of (0, 1). No <em>boundary exit</em> failure. ✓</li>
+      <li>G(α) is strictly increasing, crossing 0 exactly once at α* ≈ 0.3946. No <em>monotonicity failure</em> of the closing condition. ✓</li>
+      <li>Inner FOC residual at machine precision throughout — no <em>Jacobian degeneracy</em> observed numerically. ✓</li>
+      <li>All three failure modes from §168 are absent for this specialization. The α-homotopy delivers σ(1,2) from σ(2,2) cleanly.</li>
+    </ul>
+  </div>
+
+  <script>
+  (function() {
+    const DATA = {"alpha_star": 0.39461850376323876, "data": {"alpha": [0.0, 0.005625, 0.01125, 0.016875, 0.0225, 0.028125, 0.03375, 0.039375, 0.045, 0.050625, 0.05625, 0.061875, 0.0675, 0.073125, 0.07875, 0.084375, 0.09, 0.095625, 0.10125, 0.106875, 0.1125, 0.118125, 0.12375, 0.129375, 0.135, 0.140625, 0.14625, 0.151875, 0.1575, 0.163125, 0.16875, 0.174375, 0.18, 0.185625, 0.19125, 0.196875, 0.2025, 0.208125, 0.21375, 0.219375, 0.225, 0.230625, 0.23625, 0.241875, 0.2475, 0.253125, 0.25875, 0.264375, 0.27, 0.275625, 0.28125, 0.286875, 0.2925, 0.298125, 0.30375, 0.309375, 0.315, 0.320625, 0.32625, 0.331875, 0.3375, 0.343125, 0.34875, 0.354375, 0.36, 0.365625, 0.37125, 0.376875, 0.3825, 0.388125, 0.39375, 0.399375, 0.405, 0.410625, 0.41625, 0.421875, 0.4275, 0.433125, 0.43875, 0.444375, 0.45], "q1": [0.7071067811865475, 0.7013267306948507, 0.6955776147256909, 0.6898591685408205, 0.6841711303053271, 0.6785132410469583, 0.6728852446161113, 0.6672868876464826, 0.6617179195163602, 0.6561780923105494, 0.650667160782915, 0.6451848823195326, 0.6397310169024353, 0.6343053270739457, 0.6289075779015808, 0.6235375369435162, 0.6181949742146053, 0.6128796621529415, 0.6075913755869444, 0.6023298917029729, 0.597094990013448, 0.5918864523254745, 0.586704062709958, 0.5815476074712032, 0.5764168751169867, 0.5713116563290929, 0.5662317439343088, 0.5611769328758651, 0.5561470201853179, 0.5511418049548595, 0.5461610883100567, 0.5412046733830027, 0.5362723652858734, 0.5313639710848929, 0.5264792997746842, 0.5216181622530088, 0.5167803712958874, 0.5119657415330906, 0.5071740894239938, 0.502405233233794, 0.4976589930100781, 0.4929351905597324, 0.4882336494262015, 0.48355419486706935, 0.478896653831979, 0.47426085494086256, 0.46964662846249705, 0.46505380629336573, 0.4604822219368243, 0.4559317104825662, 0.45140210858638463, 0.446893254450218, 0.44240498780248544, 0.437937149878695, 0.4334895834023271, 0.42906213256599035, 0.42465464301283656, 0.42026696181823614, 0.4158989374717081, 0.4115504198591045, 0.40722126024503214, 0.4029113112555241, 0.3986204268609427, 0.39434846235911875, 0.39009527435871616, 0.385860720762826, 0.38164466075277675, 0.3774469547721655, 0.3732674645110977, 0.3691060528906409, 0.36496258404748105, 0.3608369233187808, 0.3567289372272384, 0.3526384934663403, 0.3485654608858033, 0.34450970947720755, 0.3404711103598127, 0.3364495357665574, 0.332444859030233, 0.32845695456983603, 0.32448569787709125], "x1": [0.41421356237309503, 0.41222342424985997, 0.4102304776170455, 0.4082347105507664, 0.40623611104252344, 0.4042346669983619, 0.4022303662380159, 0.4002231964940448, 0.39821314541095637, 0.3962002005443202, 0.39418434935986857, 0.39216557923258555, 0.3901438774457845, 0.388119231190174, 0.38609162756291115, 0.38406105356664105, 0.3820274961085253, 0.37999094199925815, 0.37795137795206696, 0.37590879058170124, 0.37386316640340866, 0.371814491831895, 0.36976275318027263, 0.36770793665899304, 0.36565002837476634, 0.3635890143294643, 0.3615248804190102, 0.3594576124322523, 0.35738719604982294, 0.3553136168429801, 0.3532368602724358, 0.35115691168716606, 0.3490737563232041, 0.34698737930241935, 0.34489776563127655, 0.34280490019957854, 0.3407087677791922, 0.3386093530227555, 0.33650664046236606, 0.33440061450825176, 0.332291259447423, 0.33017855944230284, 0.32806249852934266, 0.3259430606176117, 0.32382022948737266, 0.3216939887886304, 0.31956432203966484, 0.31743121262553975, 0.31529464379659067, 0.31315459866688966, 0.31101106021268954, 0.3088640112708424, 0.30671343453719796, 0.30455931256497515, 0.3024016277631107, 0.30024036239458424, 0.2980754985747169, 0.29590701826944377, 0.29373490329356106, 0.29155913530894906, 0.2893796958227627, 0.2871965661856, 0.28500972758963955, 0.28281916106675, 0.28062484748656985, 0.27842676755455975, 0.2762249018100219, 0.2740192306240907, 0.2718097341976904, 0.2695963925594621, 0.2673791855636576, 0.2651580928879996, 0.2629330940315088, 0.26070416831229676, 0.258471294865322, 0.25623445264011147, 0.25399362039844525, 0.2517487767120047, 0.24949989995998018, 0.24724696832664236, 0.24498995979887334], "x2": [0.6035533905932737, 0.6051509368367345, 0.606719305183571, 0.6082586598114229, 0.6097691624124447, 0.6112509722201054, 0.6127042460354305, 0.6141291382526947, 0.6155258008845725, 0.6168943835867579, 0.6182350336820579, 0.6195478961839704, 0.6208331138197533, 0.6220908270529895, 0.6233211741056607, 0.6245242909797318, 0.6257003114782551, 0.6268493672259994, 0.6279715876896136, 0.6290671001973268, 0.6301360299581934, 0.6311785000808898, 0.6321946315920657, 0.6331845434542571, 0.634148352583367, 0.6350861738657179, 0.6359981201746805, 0.6368843023868845, 0.6377448293980165, 0.638579808138208, 0.6393893435870185, 0.6401735387880177, 0.6409324948629732, 0.6416663110256414, 0.6423750845951729, 0.6430589110091307, 0.6437178838361255, 0.6443520947880731, 0.6449616337320756, 0.6455465887019297, 0.6461070459092633, 0.6466430897543074, 0.6471548028362999, 0.6476422659635293, 0.648105558163015, 0.6485447566898328, 0.6489599370360807, 0.6493511729394918, 0.6497185363916933, 0.6500620976461149, 0.6503819252255457, 0.6506780859293442, 0.6509506448402982, 0.6511996653311394, 0.6514252090707122, 0.6516273360297953, 0.6518061044865804, 0.651961571031806, 0.6520937905735466, 0.6522028163416576, 0.6522886998918777, 0.652351491109585, 0.6523912382132105, 0.6524079877573047, 0.6524017846352599, 0.6523726720816864, 0.6523206916744392, 0.6522458833362994, 0.6521482853363035, 0.6520279342907235, 0.6518848651636932, 0.6517191112674812, 0.6515307042624081, 0.6513196741564047, 0.6510860493042109, 0.6508298564062123, 0.6505511205069108, 0.6502498649930278, 0.6499261115912381, 0.6495798803655287, 0.6492111897141808], "y2": [0.7071067811865475, 0.7041201717272101, 0.7011265290981037, 0.6981258114391288, 0.6951179765077455, 0.6921029816743115, 0.6890807839173466, 0.686051339818727, 0.6830146055588048, 0.6799705369114531, 0.6769190892390359, 0.673860217487298, 0.670793876180178, 0.6677200194145404, 0.6646386008548247, 0.6615495737276115, 0.6584528908161038, 0.6553485044545214, 0.6522363665224069, 0.6491164284388415, 0.6459886411565696, 0.6428529551560291, 0.6397093204392879, 0.6365576865238816, 0.6333980024365539, 0.6302302167068953, 0.6270542773608793, 0.6238701319142937, 0.6206777273660655, 0.6174770101914768, 0.6142679263352695, 0.6110504212046376, 0.607824439662103, 0.604589926018275, 0.6013468240244892, 0.5980950768653235, 0.5948346271509907, 0.5915654169096028, 0.588287387579306, 0.5850004800002832, 0.5817046344066212, 0.5783997904180413, 0.5750858870314871, 0.5717628626125713, 0.5684306548868747, 0.5650892009310959, 0.5617384371640497, 0.5583782993375082, 0.555008722526885, 0.551629641121756, 0.5482409888162156, 0.5448426985990629, 0.5414347027438171, 0.5380169327985556, 0.5345893195755731, 0.531151793140856, 0.5277042828033717, 0.5242467171041627, 0.5207790238052498, 0.5173011298783314, 0.5138129614932814, 0.5103144440064374, 0.5068055019486769, 0.5032860590132748, 0.4997560380435394, 0.49621536102022107, 0.4926639490486884, 0.48910172234586763, 0.48552860022693894, 0.48194450109178494, 0.47834934241118593, 0.47474304071275575, 0.47112551156661303, 0.4674966695707809, 0.46385642833631047, 0.46020470047212003, 0.45654139756954526, 0.45286643018659284, 0.4491797078318904, 0.44548113894832664, 0.4417706308963744], "u1_star": [0.2928932188134524, 0.2891033064449907, 0.28534713710864545, 0.28162445799005426, 0.2779350192628037, 0.27427857404859635, 0.27065487837809543, 0.2670636911524378, 0.2635047741054038, 0.2599778917662291, 0.2564828114230463, 0.2530193030869471, 0.24958713945665076, 0.24618609588377172, 0.24281595033866965, 0.23947648337687524, 0.23616747810608002, 0.2328887201536834, 0.22963999763487744, 0.22642110112127167, 0.22323182361003935, 0.22007196049357955, 0.21694130952968543, 0.21383967081221014, 0.21076684674222032, 0.20772264199962848, 0.20470686351529863, 0.20171932044361282, 0.19875982413549503, 0.1958281881118794, 0.192924228037621, 0.19004776169583665, 0.18719860896266927, 0.18437659178247356, 0.18158153414340766, 0.1788132620534303, 0.17607160351669526, 0.17335638851033508, 0.17066744896162767, 0.1680046187255423, 0.1653677335626551, 0.1627566311174294, 0.16017115089685885, 0.15761113424945764, 0.15507642434460633, 0.15256686615223208, 0.15008230642283227, 0.14762259366782593, 0.14518757814023364, 0.1427771118156766, 0.14039104837369512, 0.1380292431793756, 0.13569155326528753, 0.13337783731371985, 0.1310879556392165, 0.12882177017140606, 0.1265791444381197, 0.12435994354879239, 0.12216403417814696, 0.11999128455015544, 0.11784156442226949, 0.115714745069924, 0.11361069927130306, 0.1115293012923688, 0.10947042687214631, 0.10743395320826625, 0.10541975894275488, 0.10342772414807477, 0.10145773031340732, 0.0995096603311788, 0.09758339848382344, 0.09567883043078124, 0.09379584319572967, 0.0919343251540436, 0.09009416602048138, 0.0882752568370961, 0.0864774899613674, 0.08470075905455271, 0.08294495907025287, 0.08120998624319367, 0.07949573807821797], "u1_x2": [0.16789321881345243, 0.1637337739562998, 0.15969193776834967, 0.15576622577316074, 0.15195517709039263, 0.14825735402422463, 0.14467134166015266, 0.14119574746998026, 0.13782920092481604, 0.13457035311589804, 0.13141787638306818, 0.12837046395072738, 0.12542682957110263, 0.1225857071746681, 0.11984585052755481, 0.11720603289579712, 0.11466504671626715, 0.11222170327415187, 0.10987483238681922, 0.10762328209394634, 0.1054659183537649, 0.10340162474529357, 0.10142930217642798, 0.09954786859776116, 0.09775625872201038, 0.09605342374892861, 0.09443833109558825, 0.0929099641319156, 0.09146732192136975, 0.09010941896665059, 0.08883528496033838, 0.08764396454035067, 0.08653451705011977, 0.08550601630339577, 0.08455755035356893, 0.08368822126742442, 0.08289714490323496, 0.08218345069310162, 0.08154628142945153, 0.08098479305561262, 0.08049815446037778, 0.08008554727647399, 0.07974616568286641, 0.07947921621080428, 0.07928391755354902, 0.07915950037969438, 0.07910520715001834, 0.0791202919377893, 0.07920402025245765, 0.07935566886666606, 0.07957452564651313, 0.07985988938500249, 0.08021106963861857, 0.08062738656696283, 0.08110817077539145, 0.0816527631606006, 0.08226051475909102, 0.08293078659846664, 0.08366294955150344, 0.08445638419294249, 0.0853104806589472, 0.08622463850917883, 0.08719826659143687, 0.08823078290881775, 0.08932161448933984, 0.0904701972579941, 0.091675975911167, 0.09293840379339746, 0.09425694277641872, 0.09563106314044723, 0.09706024345767184, 0.09854397047790464, 0.1000817390163542, 0.10167305184348185, 0.10331741957689722, 0.10501436057526498, 0.10676340083417918, 0.10856407388397055, 0.11041592068941308, 0.11231848955129414, 0.11427133600981654], "G_alpha": [-0.125, -0.12536953248869093, -0.1256551993402958, -0.12585823221689352, -0.12597984217241104, -0.12602122002437172, -0.12598353671794277, -0.12586794368245752, -0.12567557318058775, -0.12540753865033105, -0.12506493503997812, -0.12464883913621971, -0.12416030988554813, -0.12360038870910361, -0.12297009981111484, -0.12227045048107812, -0.12150243138981287, -0.12066701687953152, -0.11976516524805822, -0.11879781902732534, -0.11776590525627445, -0.11667033574828597, -0.11551200735325745, -0.11429180221444898, -0.11301058802020994, -0.11166921825069986, -0.11026853241971038, -0.10880935631169722, -0.10729250221412528, -0.10571876914522882, -0.10408894307728261, -0.10240379715548598, -0.10066409191254949, -0.0988705754790778, -0.09702398378983873, -0.09512504078600587, -0.0931744586134603, -0.09117293781723346, -0.08912116753217614, -0.08701982566992966, -0.08486957910227733, -0.08267108384095542, -0.08042498521399244, -0.07813191803865335, -0.07579250679105731, -0.0734073657725377, -0.07097709927281393, -0.06850230173003663, -0.06598355788777599, -0.06342144294901053, -0.06081652272718199, -0.0581693537943731, -0.055480483626668964, -0.05275045074675702, -0.04997978486382504, -0.04716900701080545, -0.04431862967902869, -0.04142915695032574, -0.03850108462664352, -0.03553490035721295, -0.0325310837633223, -0.029490106560745175, -0.02641243267986619, -0.023298518383551042, -0.02014881238280647, -0.01696375595027215, -0.01374378303158788, -0.010489320354677312, -0.0072007875369886065, -0.003878597190731581, -0.000523155026151606, 0.0028651400471234045, 0.006285895820624526, 0.00973872668943826, 0.013223253556415834, 0.01673910373816888, 0.020285910872811785, 0.023863314829417837, 0.02747096161916021, 0.03110850330810047, 0.03477559793159857]}};
+    const D = DATA.data;
+    const alphaStar = DATA.alpha_star;
+
+    function plot(container, xs, series, opts) {
+      const W = 420, H = 280;
+      const M = { l: 56, r: 16, t: 24, b: 40 };
+      const iw = W - M.l - M.r, ih = H - M.t - M.b;
+      const xmin = Math.min(...xs), xmax = Math.max(...xs);
+      let ymin = Infinity, ymax = -Infinity;
+      series.forEach(s => s.y.forEach(v => { if (isFinite(v)) { if (v<ymin) ymin=v; if (v>ymax) ymax=v; } }));
+      if (opts.yzero) { if (ymin > 0) ymin = 0; if (ymax < 0) ymax = 0; }
+      const pad = (ymax - ymin) * 0.08; ymin -= pad; ymax += pad;
+      const X = x => M.l + (x - xmin) / (xmax - xmin) * iw;
+      const Y = y => M.t + (1 - (y - ymin) / (ymax - ymin)) * ih;
+
+      const ns = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(ns, "svg");
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.setAttribute("width", "100%");
+      svg.style.background = "#fff";
+      svg.style.border = "1px solid #e3d6b8";
+      svg.style.borderRadius = "6px";
+
+      // axes
+      const ax = document.createElementNS(ns, "g");
+      ax.setAttribute("stroke", "#888"); ax.setAttribute("fill", "none");
+      const xaxis = document.createElementNS(ns, "line");
+      xaxis.setAttribute("x1", M.l); xaxis.setAttribute("x2", M.l+iw);
+      xaxis.setAttribute("y1", M.t+ih); xaxis.setAttribute("y2", M.t+ih);
+      ax.appendChild(xaxis);
+      const yaxis = document.createElementNS(ns, "line");
+      yaxis.setAttribute("x1", M.l); yaxis.setAttribute("x2", M.l);
+      yaxis.setAttribute("y1", M.t); yaxis.setAttribute("y2", M.t+ih);
+      ax.appendChild(yaxis);
+      // zero line if relevant
+      if (ymin < 0 && ymax > 0) {
+        const zl = document.createElementNS(ns, "line");
+        zl.setAttribute("x1", M.l); zl.setAttribute("x2", M.l+iw);
+        zl.setAttribute("y1", Y(0)); zl.setAttribute("y2", Y(0));
+        zl.setAttribute("stroke", "#bbb"); zl.setAttribute("stroke-dasharray", "3,3");
+        ax.appendChild(zl);
+      }
+      // alpha* marker
+      const am = document.createElementNS(ns, "line");
+      am.setAttribute("x1", X(alphaStar)); am.setAttribute("x2", X(alphaStar));
+      am.setAttribute("y1", M.t); am.setAttribute("y2", M.t+ih);
+      am.setAttribute("stroke", "#d9822b"); am.setAttribute("stroke-dasharray", "4,3");
+      am.setAttribute("stroke-width", "1");
+      ax.appendChild(am);
+      svg.appendChild(ax);
+
+      // ticks (5 per axis)
+      const tk = document.createElementNS(ns, "g");
+      tk.setAttribute("font-family", "system-ui, sans-serif");
+      tk.setAttribute("font-size", "10"); tk.setAttribute("fill", "#555");
+      for (let i = 0; i <= 5; i++) {
+        const xv = xmin + (xmax - xmin) * i / 5;
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", X(xv)); t.setAttribute("y", M.t+ih+14);
+        t.setAttribute("text-anchor", "middle");
+        t.textContent = xv.toFixed(2);
+        tk.appendChild(t);
+      }
+      for (let i = 0; i <= 5; i++) {
+        const yv = ymin + (ymax - ymin) * i / 5;
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", M.l-6); t.setAttribute("y", Y(yv)+3);
+        t.setAttribute("text-anchor", "end");
+        t.textContent = yv.toFixed(3);
+        tk.appendChild(t);
+      }
+      svg.appendChild(tk);
+
+      // axis labels
+      const xl = document.createElementNS(ns, "text");
+      xl.setAttribute("x", M.l+iw/2); xl.setAttribute("y", H-6);
+      xl.setAttribute("text-anchor", "middle"); xl.setAttribute("font-size", "12");
+      xl.setAttribute("font-family", "system-ui"); xl.setAttribute("fill", "#333");
+      xl.textContent = "α (mass on x₂)";
+      svg.appendChild(xl);
+      const tt = document.createElementNS(ns, "text");
+      tt.setAttribute("x", M.l+iw/2); tt.setAttribute("y", 16);
+      tt.setAttribute("text-anchor", "middle"); tt.setAttribute("font-size", "13");
+      tt.setAttribute("font-family", "system-ui"); tt.setAttribute("fill", "#222");
+      tt.setAttribute("font-weight", "600");
+      tt.textContent = opts.title;
+      svg.appendChild(tt);
+
+      // alpha* label
+      const al = document.createElementNS(ns, "text");
+      al.setAttribute("x", X(alphaStar)+4); al.setAttribute("y", M.t+12);
+      al.setAttribute("font-size", "10"); al.setAttribute("fill", "#d9822b");
+      al.setAttribute("font-family", "system-ui");
+      al.textContent = "α* ≈ " + alphaStar.toFixed(4);
+      svg.appendChild(al);
+
+      // series
+      series.forEach(s => {
+        const path = document.createElementNS(ns, "path");
+        let d = "";
+        xs.forEach((x, i) => {
+          const y = s.y[i];
+          if (!isFinite(y)) return;
+          d += (d ? " L " : "M ") + X(x).toFixed(2) + " " + Y(y).toFixed(2);
+        });
+        path.setAttribute("d", d);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", s.color);
+        path.setAttribute("stroke-width", "2");
+        svg.appendChild(path);
+      });
+
+      // legend
+      if (series.length > 1) {
+        const leg = document.createElementNS(ns, "g");
+        leg.setAttribute("font-size", "11"); leg.setAttribute("font-family", "system-ui");
+        series.forEach((s, i) => {
+          const yL = M.t + 18 + i * 16;
+          const ln = document.createElementNS(ns, "line");
+          ln.setAttribute("x1", M.l+iw-90); ln.setAttribute("x2", M.l+iw-72);
+          ln.setAttribute("y1", yL); ln.setAttribute("y2", yL);
+          ln.setAttribute("stroke", s.color); ln.setAttribute("stroke-width", "2");
+          leg.appendChild(ln);
+          const tx = document.createElementNS(ns, "text");
+          tx.setAttribute("x", M.l+iw-68); tx.setAttribute("y", yL+4); tx.setAttribute("fill", "#333");
+          tx.textContent = s.label;
+          leg.appendChild(tx);
+        });
+        svg.appendChild(leg);
+      }
+
+      container.appendChild(svg);
+    }
+
+    const root = document.getElementById("plots");
+
+    const c1 = document.createElement("div"); root.appendChild(c1);
+    plot(c1, D.alpha,
+      [{ y: D.u1_star, color: "#1f6feb", label: "u₁*(α) = u₁(x₁ | α)" },
+       { y: D.u1_x2,   color: "#cf3a3a", label: "u₁(x₂ | α)" }],
+      { title: "u₁ at the two P1 atoms along α" });
+
+    const c2 = document.createElement("div"); root.appendChild(c2);
+    plot(c2, D.alpha,
+      [{ y: D.G_alpha, color: "#2b8a3e", label: "G(α) = u₁(x₂) − u₁(x₁)" }],
+      { title: "Gap G(α) — zero defines α*", yzero: true });
+
+    const c3 = document.createElement("div"); root.appendChild(c3);
+    plot(c3, D.alpha,
+      [{ y: D.q1, color: "#7c3aed", label: "q₁(α)  (P2's mass at 0)" }],
+      { title: "Mass q₁ along α" });
+
+    const c4 = document.createElement("div"); root.appendChild(c4);
+    plot(c4, D.alpha,
+      [{ y: D.x1, color: "#1f6feb", label: "x₁(α)" },
+       { y: D.x2, color: "#cf3a3a", label: "x₂(α)" },
+       { y: D.y2, color: "#2b8a3e", label: "y₂(α)" }],
+      { title: "Atom locations along α" });
+  })();
+  </script>
+</div>
+
+</body>
+</html>

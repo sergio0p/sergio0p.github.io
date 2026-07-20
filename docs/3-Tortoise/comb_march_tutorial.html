@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The comb march — a from-scratch tutorial (general convex cost, asymmetric values, lead Δ)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$',  right: '$',  display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ],
+            ignoredTags: ['script','noscript','style','textarea','pre','code','option','svg']
+        });"></script>
+<style>
+  :root{
+    --fg:#1a1a1a; --muted:#5a5a5a; --accent:#1f6feb; --bg:#fafafa;
+    --card:#ffffff; --border:#e3e3e3; --tag:#f0f4ff; --tag-border:#c8d6ff;
+    --good:#2f8a3d; --warn:#b5651d; --bad:#c0392b;
+    --p1:#1f6feb; --p2:#d6336c;
+  }
+  body{
+    font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--fg); background:var(--bg);
+    max-width:960px; margin:2rem auto; padding:0 1.25rem 5rem; line-height:1.62;
+  }
+  h1{font-size:1.65rem; margin-bottom:.2rem;}
+  .subtitle{color:var(--muted); margin-bottom:1.4rem;}
+  h2{font-size:1.28rem; border-bottom:1px solid var(--border); padding-bottom:.35rem; margin-top:2.8rem;}
+  h3{font-size:1.06rem; margin-top:1.7rem;}
+  .tldr{background:var(--tag); border:1px solid var(--tag-border); border-radius:8px;
+        padding:1rem 1.25rem; margin:1.2rem 0 1.6rem;}
+  .tldr strong{color:var(--accent);}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:8px;
+        padding:.9rem 1.4rem; margin:1.2rem 0; box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .keybox{border-left:4px solid var(--accent); background:#f7faff;}
+  .warnbox{border-left:4px solid var(--warn); background:#fdf8f1;}
+  .goodbox{border-left:4px solid var(--good); background:#f4fbf5;}
+  .note{font-size:.92rem; color:var(--muted);}
+  code,kbd{font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.88em;
+           background:#eef0f3; padding:.06rem .32rem; border-radius:4px;}
+  pre{background:#f4f5f7; border:1px solid var(--border); border-radius:6px;
+      padding:.8rem 1rem; overflow-x:auto; font-size:.84rem; line-height:1.5;}
+  pre code{background:none; padding:0;}
+  table{border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem;}
+  th,td{border:1px solid var(--border); padding:.42rem .6rem; text-align:right;}
+  th{background:#f0f2f5; text-align:center;}
+  td.lbl,th.lbl{text-align:left;}
+  .ok{color:var(--good); font-weight:600;}
+  .bad{color:var(--bad); font-weight:600;}
+  .p1{color:var(--p1); font-weight:600;}
+  .p2{color:var(--p2); font-weight:600;}
+  .fig{margin:1.4rem 0; text-align:center;}
+  .fig svg{max-width:100%; height:auto;}
+  .figcap{font-size:.86rem; color:var(--muted); margin-top:.5rem; text-align:center;
+          max-width:760px; margin-left:auto; margin-right:auto;}
+  .toc{columns:2; font-size:.92rem; margin:1rem 0 0;}
+  .toc a{color:var(--accent); text-decoration:none;}
+  ol.steps{padding-left:1.3rem;} ol.steps li{margin:.4rem 0;}
+  .footer{margin-top:3.5rem; padding-top:1rem; border-top:1px solid var(--border);
+          font-size:.85rem; color:var(--muted);}
+  .pill{display:inline-block; font-size:.78rem; padding:.05rem .5rem; border-radius:10px;
+        border:1px solid var(--tag-border); background:var(--tag); color:var(--accent);
+        font-weight:600; vertical-align:middle;}
+  .checklist li{margin:.45rem 0;}
+  .deg{font-size:.85rem;}
+</style>
+</head>
+<body>
+
+<h1>The comb march, from scratch</h1>
+<p class="subtitle">A constructive tutorial on the forward shooting algorithm that builds the mixed equilibria $\sigma(m,n)$ — for an <em>arbitrary</em> strictly convex cost $c$ (with $c(0)=0$), asymmetric valuations $v_1\neq v_2$, and a lead $\Delta\neq0$.</p>
+
+<div class="tldr">
+<strong>Summary:</strong> The comb march computes a two-round all-pay contest equilibrium by a single one-dimensional shoot. It treats one number — $q_1$, the trailing player's mass on the zero atom — as a <em>dial</em>. Turning the dial fixes everything else by forward substitution: a strictly triangular cascade of <em>double steps</em>, each of which solves a $2\times2$ system (one first-order condition + one indifference condition) by <em>slaving</em> a probability mass to the FOC and then <em>bisecting</em> a single atom location. The cascade leaves exactly one leftover mass, pinned by "probabilities sum to one"; the <em>other</em> normalization becomes a scalar residual $F(q_1)$, and the equilibrium is the dial value with $F(q_1)=0$. Everything below is the anatomy of that sentence, with arrow diagrams, the exact equations the solver evaluates, and three fully worked numerical traces you can re-derive by hand. A closing <a href="#check">correctness checklist</a> is the part to read if your goal is to audit the algorithm.</div>
+
+<div class="card note">
+<strong>Prerequisites &amp; scope.</strong> This page is self-contained but assumes you know what a mixed-strategy Nash equilibrium is. It is the missing companion to the derivation docs, which assume the march rather than explain it: <code>symmetric_quadratic_recursion.html</code> (the quadratic closed form), <code>power_cost_recursion.html</code> (power costs), <code>monotonicity_general_case.html</code> and <code>Monotone_Status.html</code> (what is proven about the dial). The algorithm itself lives in <code>Julia/converge/convex_march.jl</code> (general convex cost) and its power-cost sibling <code>general_march.jl</code>; the interactive front-end is <code>Julia/solver/web_march/</code>. Nomenclature here matches <code>QUICKSTART.md</code> §0/§2 exactly.</div>
+
+<p class="note"><strong>Contents</strong></p>
+<div class="toc">
+<a href="#game">1. The game: a two-round all-pay contest</a><br>
+<a href="#object">2. What the march outputs: the comb $\sigma(m,n)$</a><br>
+<a href="#coords">3. The coordinate machinery: reach, shift, $\tilde y$, $\tilde c$</a><br>
+<a href="#twoeq">4. The two equations living at every atom</a><br>
+<a href="#triangular">5. Why it is triangular: one source, the march order</a><br>
+<a href="#doublestep">6. The double-step engine (Step&nbsp;B, Step&nbsp;C)</a><br>
+<a href="#close">7. Closing the system: leftover mass &amp; the dial shoot</a><br>
+<a href="#worked1">8. Worked trace I: symmetric quadratic $\sigma(2,2)$</a><br>
+<a href="#worked2">9. Worked traces II–III: asymmetric &amp; mixed cost</a><br>
+<a href="#verdict">10. The verdict: when a comb is (not) an equilibrium</a><br>
+<a href="#check">11. A correctness checklist</a><br>
+<a href="#glossary">12. Glossary &amp; pointers</a>
+</div>
+
+<!-- ============================================================ 1 -->
+<h2 id="game">1. The game: a two-round all-pay contest</h2>
+
+<p>Two players compete in <strong>two rounds</strong>. Each round, a player exerts effort $e\ge0$ and pays its cost $c(e)$ <em>whether or not it wins</em> — that is what "all-pay" means; the cost is sunk. The cost $c$ is the same for both players and any round: it satisfies $c(0)=0$, $c'>0$, and is strictly convex ($c''>0$ on $e>0$). The whole tutorial works for any such $c$; the quadratic $c(e)=e^2$ is just the case with closed forms.</p>
+
+<p>The primitives are written $\Gamma(\Delta,v_1,v_2)$:</p>
+<ul>
+<li><strong>Valuations</strong> $v_1\ge v_2\ge 0$: the prize each player attaches to ultimately winning.</li>
+<li><strong>Lead</strong> $\Delta$: a head-start (score difference) player&nbsp;1 carries <em>into round&nbsp;2</em>. The round-2 lead is $\Delta_2=\Delta+e_1-e_2$, so round-1 effort buys position for round&nbsp;2.</li>
+</ul>
+
+<h3>1.1 Round 2 is a Siegel contest — the Lemma&nbsp;1 continuation</h3>
+<p>The last round, taken on its own with a fixed entering lead $\Delta_2$, is a static all-pay contest with a head start. Its value to each player — what they get by playing round&nbsp;2 optimally — is a <strong>piecewise, kinked</strong> function of $\Delta_2$, the "Lemma&nbsp;1" continuation. Writing the <em>reach</em> $w_i=c^{-1}(v_i)$ (the effort that would exactly burn the whole prize, defined in §3):</p>
+$$
+U^{T}_1(\Delta_2)=\begin{cases}0,& \Delta_2\le w_2-w_1\\[2pt] v_1-c(w_2-\Delta_2),& w_2-w_1<\Delta_2\lt w_2\\[2pt] v_1,& \Delta_2\ge w_2\end{cases}
+\qquad
+U^{T}_2(\Delta_2)=\begin{cases}v_2,& \Delta_2\le -w_1\\[2pt] v_2-c(w_1+\Delta_2),& -w_1<\Delta_2\lt w_2-w_1\\[2pt] 0,& \Delta_2\ge w_2-w_1\end{cases}
+$$
+
+<div class="card warnbox"><strong>The one easy mistake.</strong> In its interior branch, player&nbsp;1's continuation carries the <em>rival's</em> reach $w_2$ (inside $c(w_2-\Delta_2)$), and player&nbsp;2's carries $w_1$. The two interior branches cross zero together at the <em>pivot</em> $\Delta_2=w_2-w_1$. In the symmetric case $w_1=w_2=w$ the pivot collapses to $0$ and a single $w$ hides this — do not mechanically replace $w$ by $w_i$ when you generalize.</div>
+
+<p>Three regions, three economic stories: (i) so far behind that round&nbsp;2 is hopeless → continuation $0$ for P1; (ii) a contested interior where effort matters; (iii) so far ahead the prize is locked → continuation $v_1$. The march only ever lives in region (ii), the <em>interior</em> branch; the outer two are the "free-win / abandonment" branches, and a solve that lands on them is a <em>wrong-regime</em> non-answer (§10).</p>
+
+<h3>1.2 Round 1: the reduced game each player maximizes</h3>
+<p>Fold round&nbsp;2 into its value. In round&nbsp;1 each player picks effort, pays for it now, and collects the continuation through the induced lead $\Delta_2=\Delta+e_1-e_2$. The <strong>reduced round-1 payoffs</strong> are</p>
+$$ u_1(e_1,e_2)=U^{T}_1(\Delta+e_1-e_2)-c(e_1),\qquad u_2(e_1,e_2)=U^{T}_2(\Delta+e_1-e_2)-c(e_2). $$
+<p>Because the rival's effort enters <em>through the continuation</em> (not merely a win indicator), $\Gamma$ is itself not a standard contest, and $\Delta$ does not change-of-variables away. This reduced game is the object the comb march solves.</p>
+
+<h3>1.3 Labelling: player&nbsp;2 is the zero-payoff player</h3>
+<p>By relabelling we always arrange that the player whose equilibrium payoff is <strong>zero</strong> is player&nbsp;2: $u_2^\ast=0$. This is the player whose individual-rationality (participation) constraint binds. One consequence is used everywhere below: <strong>player&nbsp;2's lowest atom sits at zero effort</strong>, $y_1=0$. Because it is a boundary point, P2's optimality <em>there</em> is an inequality, not an equality — so $y_1$ carries no FOC. Player&nbsp;1 is the "favored"/leading player and earns $u_1^\ast=u_1\ge 0$.</p>
+
+<!-- ============================================================ 2 -->
+<h2 id="object">2. What the march outputs: the comb $\sigma(m,n)$</h2>
+
+<p>In equilibrium each player randomizes over a finite set of effort levels. We call those levels <strong>atoms</strong> and their probabilities <strong>masses</strong>:</p>
+
+<table>
+<tr><th class="lbl">symbol</th><th class="lbl">meaning</th></tr>
+<tr><td class="lbl"><span class="p1">$x_1\lt x_2<\dots\lt x_m$</span></td><td class="lbl"><span class="p1">player&nbsp;1's $m$ atoms</span> (effort levels it mixes over)</td></tr>
+<tr><td class="lbl"><span class="p1">$p_1,\dots,p_m$</span></td><td class="lbl"><span class="p1">player&nbsp;1's masses</span>, $\sum_k p_k=1$</td></tr>
+<tr><td class="lbl"><span class="p2">$y_1\lt y_2<\dots\lt y_n$</span></td><td class="lbl"><span class="p2">player&nbsp;2's $n$ atoms</span>, with $y_1=0$</td></tr>
+<tr><td class="lbl"><span class="p2">$q_1,\dots,q_n$</span></td><td class="lbl"><span class="p2">player&nbsp;2's masses</span>, $\sum_\ell q_\ell=1$; $q_1$ is the <strong>dial</strong></td></tr>
+<tr><td class="lbl">$u_1$</td><td class="lbl">P1's common equilibrium payoff (its value across all its atoms)</td></tr>
+</table>
+
+<p>$\sigma(m,n)$ denotes the equilibrium in which P1 uses $m$ atoms and P2 uses $n$. Each player is <strong>indifferent across its own support</strong>: every atom it actually uses yields the same payoff — $u_1$ for P1, and $0$ for P2.</p>
+
+<h3>2.1 The comb: interleaving and why $n\in\{m,m+1\}$</h3>
+<p>The defining geometric fact is that the two players' atoms <strong>interleave</strong> on the effort axis. In the shifted coordinate $\tilde y_\ell=y_\ell+f$ of §3 they alternate strictly:</p>
+$$ \tilde y_1\lt x_1<\tilde y_2\lt x_2<\tilde y_3<\cdots $$
+<p>This alternating chain of teeth is the <strong>comb</strong>. Between two consecutive rival atoms a player's payoff is strictly concave and admits exactly one local maximum, so it can plant exactly one atom there. That forces the two supports to run in lockstep, $n=m$, or with P2 exactly one tooth ahead, $n=m+1$. Hence the entire equilibrium family is the alternating ladder</p>
+$$ \sigma(1,1)\to\sigma(1,2)\to\sigma(2,2)\to\sigma(2,3)\to\sigma(3,3)\to\cdots $$
+<p>The two shapes have a name worth fixing now, because the closing residual differs between them (§7):</p>
+<ul>
+<li><strong>Square rung</strong> $\sigma(m,m)$: the topmost atom of the whole comb is <span class="p1">P1's $x_m$</span>.</li>
+<li><strong>Step-up rung</strong> $\sigma(m,m+1)$: the topmost atom is <span class="p2">P2's $y_{m+1}$</span>.</li>
+</ul>
+
+<div class="fig">
+<!-- COMB DIAGRAM: actual sigma(2,2) symmetric numbers -->
+<svg viewBox="0 0 820 210" font-family="-apple-system,Helvetica,Arial" font-size="13">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- effort axis -->
+  <line x1="40" y1="140" x2="790" y2="140" stroke="#444" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text x="772" y="160" fill="#444">effort  (shifted frame ỹ)</text>
+  <!-- scale: effort 0..0.85 -> x = 60 + (val/0.85)*700 -->
+  <!-- y1=0 ->60 ; x1=.267->280 ; y2=.478->454 ; x2=.652->597 -->
+  <g stroke-width="3">
+    <line x1="60"  y1="116" x2="60"  y2="164" stroke="#d6336c"/>
+    <line x1="280" y1="112" x2="280" y2="168" stroke="#1f6feb"/>
+    <line x1="454" y1="116" x2="454" y2="164" stroke="#d6336c"/>
+    <line x1="597" y1="112" x2="597" y2="168" stroke="#1f6feb"/>
+  </g>
+  <!-- labels above: atom names -->
+  <text x="60"  y="104" fill="#d6336c" text-anchor="middle">ỹ₁=0</text>
+  <text x="280" y="100" fill="#1f6feb" text-anchor="middle">x₁=.267</text>
+  <text x="454" y="104" fill="#d6336c" text-anchor="middle">ỹ₂=.478</text>
+  <text x="597" y="100" fill="#1f6feb" text-anchor="middle">x₂=.652</text>
+  <!-- masses below -->
+  <text x="60"  y="184" fill="#d6336c" text-anchor="middle">q₁=.364</text>
+  <text x="280" y="190" fill="#1f6feb" text-anchor="middle">p₁=.605</text>
+  <text x="454" y="184" fill="#d6336c" text-anchor="middle">q₂=.636</text>
+  <text x="597" y="190" fill="#1f6feb" text-anchor="middle">p₂=.395</text>
+  <!-- interleave brace text -->
+  <text x="40" y="30" fill="#1a1a1a" font-size="14">σ(2,2), symmetric quadratic — the comb is the alternation ỹ₁ &lt; x₁ &lt; ỹ₂ &lt; x₂</text>
+  <text x="40" y="50" fill="#5a5a5a" font-size="12.5">tooth height here is only schematic; the number under each tooth is its mass. P1 teeth blue, P2 teeth red.</text>
+</svg>
+<div class="figcap">Figure 1. A solved comb (the live trace of §8). The top atom is <span class="p1">$x_2$</span>, so this is a <em>square</em> rung and <span class="p1">$p_2$</span> is the leftover mass. Atoms interleave; masses sit under each tooth.</div>
+</div>
+
+<!-- ============================================================ 3 -->
+<h2 id="coords">3. The coordinate machinery: reach, shift, $\tilde y$, $\tilde c$</h2>
+
+<p>Four definitions turn the kinked Lemma-1 payoffs into one clean set of equations. They are exactly the quantities the solver computes first.</p>
+
+<h3>3.1 Reach $w_i=c^{-1}(v_i)$</h3>
+<p>The <strong>reach</strong> of player $i$ is the effort at which the cost equals the prize, $c(w_i)=v_i$. Beyond $w_i$ a player would spend more than the prize is worth, so reaches bound the supports. For $c(e)=e^2$ and $v=1$, $w=1$; for $v_1=1.2$, $w_1=\sqrt{1.2}\approx1.095$. The solver finds $w_i$ in closed form for power costs and by bracket-and-bisect otherwise (<code>reach_numeric</code>).</p>
+
+<h3>3.2 Shift $f$ and the shifted P2 frame $\tilde y$</h3>
+<p>Define the <strong>shift</strong>
+$$ f \;=\; w_2-w_1-\Delta, $$
+and the <strong>shifted P2 atoms</strong> $\tilde y_\ell=y_\ell+f$. Since $y_1=0$, the lowest shifted atom is $\tilde y_1=f$. The shift is the change of variables that lines the two combs up: it cancels $f$ out of the interleaving order and out of every win-margin, so that <em>both</em> players' "beat-the-rival" terms become $c(w_i+\text{rival atom}-\text{own atom})$ with no stray $\Delta$. The asymmetry does not vanish — it survives in two places: the values $v_1\neq v_2$ make the two indifference ladders non-mirror, and $f$ reappears <em>only</em> on P2's own-cost side, because P2's effort is $y=\tilde y-f$. Read it as: <em>P2 plays the symmetric comb, but against the translated cost $c(\,\cdot-f\,)$.</em></p>
+
+<div class="fig">
+<svg viewBox="0 0 820 150" font-family="-apple-system,Helvetica,Arial" font-size="13">
+  <defs><marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#444"/></marker></defs>
+  <!-- raw axis -->
+  <line x1="40" y1="50" x2="790" y2="50" stroke="#bbb" stroke-width="1.3" marker-end="url(#ah2)"/>
+  <text x="700" y="42" fill="#888" font-size="11">raw P2 effort  y</text>
+  <!-- shifted axis -->
+  <line x1="40" y1="115" x2="790" y2="115" stroke="#444" stroke-width="1.4" marker-end="url(#ah2)"/>
+  <text x="690" y="135" fill="#444" font-size="11">shifted frame  ỹ = y + f</text>
+  <!-- mapping with f<0 (asym example f=-0.195): raw y shifted LEFT by |f| -->
+  <!-- raw y1=0 at x=160, y2=.666 at x=560 ; shifted left -->
+  <g stroke="#d6336c" stroke-width="2.5">
+    <line x1="200" y1="38" x2="200" y2="62"/>
+    <line x1="560" y1="38" x2="560" y2="62"/>
+    <line x1="120" y1="103" x2="120" y2="127"/>
+    <line x1="480" y1="103" x2="480" y2="127"/>
+  </g>
+  <text x="200" y="30" fill="#d6336c" text-anchor="middle" font-size="11.5">y₁=0</text>
+  <text x="560" y="30" fill="#d6336c" text-anchor="middle" font-size="11.5">y₂=.666</text>
+  <text x="120" y="143" fill="#d6336c" text-anchor="middle" font-size="11.5">ỹ₁=f=−.195</text>
+  <text x="480" y="143" fill="#d6336c" text-anchor="middle" font-size="11.5">ỹ₂=.471</text>
+  <!-- shift arrows -->
+  <path d="M200,55 C 175,80 145,80 124,100" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ah2)"/>
+  <path d="M560,55 C 535,80 505,80 484,100" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ah2)"/>
+  <text x="300" y="88" fill="#888" font-size="11">translate every P2 atom by f (here f&lt;0 ⇒ left)</text>
+</svg>
+<div class="figcap">Figure 2. The shift $f=w_2-w_1-\Delta$ moves the whole P2 support into the frame where it interleaves with P1. (Numbers from the asymmetric trace of §9: $v_1=1.2,\,v_2=1,\,\Delta=0.1\Rightarrow f=-0.195$.)</div>
+</div>
+
+<h3>3.3 The zero-extension $\tilde c$</h3>
+<p>Define $\tilde c(e)=c(e)$ for $e\ge0$ and $\tilde c(e)=0$ for $e<0$ (and likewise $\tilde c'(e)=0$ for $e<0$). This single convention makes one formula simultaneously correct on Lemma-1's interior branch <em>and</em> its free-win branch: when a win-margin argument goes negative — meaning the player has already locked the win — $\tilde c$ reads $0$ and the payoff collapses to the flat prize. In the code this is the line <code>cp(e)=e&gt;0 ? … : 0.0</code>. (It does <em>not</em> rescue the abandonment branch, where the continuation is $0$ for a different reason; that must be excluded structurally — see <em>wrong regime</em>, §10.)</p>
+
+<h3>3.4 The dial $q_1$</h3>
+<p>The whole march hangs from one free number: $q_1=t$, <strong>player&nbsp;2's mass on the zero atom</strong> $y_1=0$. In the quadratic closed form it appears directly, e.g. $u_1^\ast=q_1^2/(1+q_1)$. Why this number is the unique degree of freedom is §5.</p>
+
+<!-- ============================================================ 4 -->
+<h2 id="twoeq">4. The two equations living at every atom</h2>
+
+<p>At each interior atom of each player there are exactly two equilibrium conditions. They do different jobs, and the march exploits the division of labour.</p>
+
+<div class="card keybox">
+<p><strong>First-order condition (FOC) — uses $c'$, <em>locates</em> the atom.</strong> An atom is a local maximum of that player's reduced payoff, so the derivative vanishes there. The marginal cost of effort equals the mass-weighted marginal gain from out-bidding the rival atoms below.</p>
+<p><strong>Indifference condition — uses $c$, <em>ties the support and pins masses &amp; the value</em>.</strong> Every atom in a player's support yields the same payoff ($u_1$ for P1, $0$ for P2). This is what makes a mixed strategy optimal.</p>
+</div>
+
+<p>In the shifted frame, with P1 summing over rival atoms <em>at or below</em> ($\ell\le k$) and P2 summing strictly below, the conditions read:</p>
+
+<p><strong>Player&nbsp;1, at its atom $x_k$:</strong></p>
+$$ \underbrace{\sum_{\ell\le k} q_\ell\,c'(w_1+\tilde y_\ell-x_k)=c'(x_k)}_{\text{FOC}}
+\qquad
+\underbrace{\sum_{\ell\le k} q_\ell\bigl[v_1-c(w_1+\tilde y_\ell-x_k)\bigr]-c(x_k)=u_1}_{\text{indifference}} $$
+
+<p><strong>Player&nbsp;2, at its atom $\tilde y_\ell$</strong> (none at $\tilde y_1=f$, the boundary atom):</p>
+$$ \underbrace{\sum_{k<\ell} p_k\,c'(w_2+x_k-\tilde y_\ell)=c'(\tilde y_\ell-f)}_{\text{FOC}}
+\qquad
+\underbrace{\sum_{k<\ell} p_k\bigl[v_2-c(w_2+x_k-\tilde y_\ell)\bigr]-c(\tilde y_\ell-f)=0}_{\text{indifference}} $$
+
+<p>Note the asymmetric truncation — P1 ties the rival at equal effort ($\ell\le k$), P2 breaks it strictly ($k<\ell$). That single asymmetry is why $x_1>0$ but $y_1=0$.</p>
+
+<h3>4.1 The value identity</h3>
+<p>P1's value $u_1$ is itself unknown, but it is fixed by the <em>lowest</em> atom and then reused. Evaluating P1's indifference at $x_1$ (where the only rival atom at-or-below is $\tilde y_1=f$):</p>
+$$ u_1 \;=\; q_1\bigl[v_1-c(w_1+f-x_1)\bigr]-c(x_1),\qquad\text{and recall } w_1+f=w_2-\Delta. $$
+<p>This is the <strong>value identity</strong>. In the symmetric quadratic case it simplifies to the universal $u_1^\ast=q_1^2/(1+q_1)$ (strictly increasing in the dial). Once $u_1$ is in hand, every later P1 indifference equation is "$=u_1$", which is what lets the cascade march forward.</p>
+
+<!-- ============================================================ 5 -->
+<h2 id="triangular">5. Why it is triangular: one source, the march order</h2>
+
+<p>Naively, $\sigma(m,n)$ is a big simultaneous nonlinear system: $2m$ P1 conditions, $2(n-1)$ P2 conditions, two normalizations, in the unknowns $\{x_k,p_k,y_\ell,q_\ell,u_1\}$. The key structural observation is that the dependency graph is <strong>acyclic with a single source</strong>, the dial $q_1$. Each unknown is produced by one equation that references <em>only earlier-produced</em> unknowns. So you never solve the system jointly — you forward-substitute.</p>
+
+<p>The trick that makes each link a one-liner: the "moments" that appear (the running sums $\sum q_\ell$, $\sum q_\ell c'(\cdots)$, …) are <em>totals of masses already placed</em>. A newly produced mass folds into the totals only <em>downstream</em> of where it is used, so there is no cycle. The order is:</p>
+
+<div class="fig">
+<!-- MARCH DAG -->
+<svg viewBox="0 0 880 250" font-family="-apple-system,Helvetica,Arial" font-size="12.5">
+  <defs><marker id="ah3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1f6feb"/></marker></defs>
+  <style>
+    .nd{fill:#fff;stroke:#888;stroke-width:1.2;rx:6;}
+    .src{fill:#fff4e6;stroke:#b5651d;stroke-width:2;}
+    .p1n{fill:#eaf1ff;stroke:#1f6feb;}
+    .p2n{fill:#fdebf1;stroke:#d6336c;}
+    .clo{fill:#eefaef;stroke:#2f8a3d;stroke-width:2;}
+    .lab{fill:#1a1a1a;text-anchor:middle;}
+    .ed{stroke:#1f6feb;stroke-width:1.4;fill:none;}
+    .et{fill:#5a5a5a;font-size:10.5px;text-anchor:middle;}
+  </style>
+  <!-- row 1: q1 -> x1 -> u1 -->
+  <rect class="src" x="20"  y="20" width="78" height="34" rx="8"/><text class="lab" x="59"  y="42">q₁ (dial)</text>
+  <rect class="nd p1n" x="150" y="20" width="64" height="34" rx="6"/><text class="lab" x="182" y="42">x₁</text>
+  <rect class="nd"     x="266" y="20" width="64" height="34" rx="6"/><text class="lab" x="298" y="42">u₁</text>
+  <path class="ed" d="M98,37 H150" marker-end="url(#ah3)"/><text class="et" x="124" y="30">x₁-FOC</text>
+  <path class="ed" d="M214,37 H266" marker-end="url(#ah3)"/><text class="et" x="240" y="30">value id.</text>
+  <!-- elbow down to Step B(1) -->
+  <path class="ed" d="M298,54 V78 H120 V96" marker-end="url(#ah3)"/>
+  <!-- row 2: StepB k=1 -> (p1, y2) -->
+  <rect class="nd p2n" x="60"  y="96" width="150" height="40" rx="6"/>
+  <text class="lab" x="135" y="112" font-size="11">Step B, k=1</text><text class="lab" x="135" y="128" font-size="11">→ slave p₁, place ỹ₂</text>
+  <path class="ed" d="M210,116 H300" marker-end="url(#ah3)"/><text class="et" x="255" y="108">P2 FOC + P2 indiff(=0)</text>
+  <!-- row 2b: StepC k=1 -> (q2, x2) -->
+  <rect class="nd p1n" x="300" y="96" width="150" height="40" rx="6"/>
+  <text class="lab" x="375" y="112" font-size="11">Step C, k=1</text><text class="lab" x="375" y="128" font-size="11">→ slave q₂, place x₂</text>
+  <path class="ed" d="M450,116 H540" marker-end="url(#ah3)"/><text class="et" x="495" y="108">P1 FOC + P1 indiff(=u₁)</text>
+  <!-- row 2c: StepB k=2 -> (p2, y3) -->
+  <rect class="nd p2n" x="540" y="96" width="150" height="40" rx="6"/>
+  <text class="lab" x="615" y="112" font-size="11">Step B, k=2</text><text class="lab" x="615" y="128" font-size="11">→ slave p₂, (ỹ₃)</text>
+  <path class="ed" d="M690,116 H760" marker-end="url(#ah3)"/>
+  <!-- close -->
+  <rect class="clo" x="760" y="96" width="100" height="40" rx="6"/>
+  <text class="lab" x="810" y="112" font-size="11">close:</text><text class="lab" x="810" y="128" font-size="11">F=Σq−1</text>
+  <!-- continuation dots -->
+  <text x="615" y="170" fill="#5a5a5a" font-size="11" text-anchor="middle">(for larger rungs: … Step C k=2 → q₃,x₃ → Step B k=3 → … )</text>
+  <!-- legend -->
+  <rect class="src" x="60"  y="200" width="16" height="13" rx="3"/><text x="84"  y="211" font-size="11">single source / dial</text>
+  <rect class="nd p1n" x="240" y="200" width="16" height="13" rx="3"/><text x="264" y="211" font-size="11">produces P1 atom + a P2-fed mass</text>
+  <rect class="nd p2n" x="540" y="200" width="16" height="13" rx="3"/><text x="564" y="211" font-size="11">produces P2 atom + a P1-fed mass</text>
+</svg>
+<div class="figcap">Figure 3. The march as a directed acyclic graph with a single source $q_1$. Each arrow is "solve one equation using only what is already to its left." Steps B and C alternate; Figure shows the $\sigma(2,2)$ instance. The last Step B (k=2) is <em>vestigial for a square rung</em> — see §6.3.</div>
+</div>
+
+<p>Spelled out linearly, the order is</p>
+$$ q_1 \;\to\; x_1 \;\to\; u_1 \;\to\; (p_1,\tilde y_2)\;\to\;(q_2,x_2)\;\to\;(p_2,\tilde y_3)\;\to\;(q_3,x_3)\;\to\cdots $$
+<p>Stationarity (the FOC half of each double step) reads each player's <em>atoms</em> off the rival's masses; indifference (the other half) reads each player's <em>masses</em> off the rival's atoms. They cross-feed, which is why the comb grows one tooth at a time, alternating colours.</p>
+
+<!-- ============================================================ 6 -->
+<h2 id="doublestep">6. The double-step engine</h2>
+
+<p>Every link "$(p_k,\tilde y_{k+1})$" or "$(q_{k+1},x_{k+1})$" is a $2\times2$ system: one new atom and one new mass, pinned by one FOC and one indifference. The engine reduces each to a <strong>single 1-D bisection</strong> by a slaving trick. Read this section with the code open at <code>convex_march.jl</code> lines 229–276; the names below are the code's names.</p>
+
+<div class="fig">
+<!-- DOUBLE STEP reduce 2x2 -> 1D -->
+<svg viewBox="0 0 820 200" font-family="-apple-system,Helvetica,Arial" font-size="12.5">
+  <defs><marker id="ah4" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#444"/></marker></defs>
+  <!-- left: two equations, two unknowns -->
+  <rect x="20" y="40" width="200" height="120" rx="8" fill="#f7faff" stroke="#c8d6ff"/>
+  <text x="120" y="32" text-anchor="middle" fill="#5a5a5a" font-size="11.5">2 equations, 2 unknowns</text>
+  <text x="120" y="70" text-anchor="middle">FOC( atom, mass ) = 0</text>
+  <text x="120" y="98" text-anchor="middle">indiff( atom, mass ) = 0</text>
+  <text x="120" y="135" text-anchor="middle" fill="#888" font-size="11">unknowns: new atom &amp; new mass</text>
+  <!-- arrow 1: slave -->
+  <path d="M225,80 H320" stroke="#444" stroke-width="1.4" fill="none" marker-end="url(#ah4)"/>
+  <text x="272" y="70" text-anchor="middle" fill="#b5651d" font-size="11">FOC ⇒ mass = Pof(atom)</text>
+  <text x="272" y="96" text-anchor="middle" fill="#888" font-size="10.5">(mass is linear in the FOC: solve in closed form)</text>
+  <!-- middle: substitute -->
+  <rect x="325" y="48" width="200" height="104" rx="8" fill="#fff" stroke="#888"/>
+  <text x="425" y="40" text-anchor="middle" fill="#5a5a5a" font-size="11.5">substitute mass into indiff</text>
+  <text x="425" y="86" text-anchor="middle">g( atom ) = 0</text>
+  <text x="425" y="112" text-anchor="middle" fill="#888" font-size="11">one residual, one unknown</text>
+  <!-- arrow 2: bisect -->
+  <path d="M530,100 H630" stroke="#444" stroke-width="1.4" fill="none" marker-end="url(#ah4)"/>
+  <text x="580" y="90" text-anchor="middle" fill="#2f8a3d" font-size="11">bisect</text>
+  <!-- right: outputs -->
+  <rect x="635" y="48" width="160" height="104" rx="8" fill="#eefaef" stroke="#2f8a3d"/>
+  <text x="715" y="92" text-anchor="middle">atom ✓</text>
+  <text x="715" y="118" text-anchor="middle">mass = Pof(atom) ✓</text>
+</svg>
+<div class="figcap">Figure 4. The double step. The FOC is <em>linear in the new mass</em>, so the mass is slaved in closed form; back-substitution leaves a single scalar residual in the new atom, solved by bisection. This avoids the spurious all-zeros root a joint Newton solve would find.</div>
+</div>
+
+<h3>6.1 Step B — place the next P2 atom $\tilde y_{k+1}$, slave P1 mass $p_k$</h3>
+<p>Write the P2 win-margin $s_B(i,\tilde y)=w_2+x_i-\tilde y$. Solve P2's FOC at $\tilde y$ for the new mass (it appears linearly):</p>
+$$ p_k=\mathrm{Pof}(\tilde y)=\frac{c'(\tilde y-f)-\sum_{i\lt k}p_i\,c'(s_B(i,\tilde y))}{c'(s_B(k,\tilde y))}. $$
+<p>Substitute into P2's indifference (which equals $0$) to get the scalar residual, and bisect for $\tilde y_{k+1}$ on the bracket $\bigl(x_k,\;x_k+w_2\bigr)$:</p>
+$$ g_B(\tilde y)=\sum_{i\lt k}p_i\bigl[v_2-c(s_B(i,\tilde y))\bigr]+\mathrm{Pof}(\tilde y)\bigl[v_2-c(s_B(k,\tilde y))\bigr]-c(\tilde y-f)=0. $$
+
+<h3>6.2 Step C — place the next P1 atom $x_{k+1}$, slave P2 mass $q_{k+1}$</h3>
+<p>Symmetric, with P1 win-margin $r_C(\ell,x)=w_1+\tilde y_\ell-x$, the new mass from P1's FOC,</p>
+$$ q_{k+1}=\mathrm{Qof}(x)=\frac{c'(x)-\sum_{\ell\le k}q_\ell\,c'(r_C(\ell,x))}{c'(r_C(k+1,x))}, $$
+<p>and the indifference residual (which equals $u_1$, not $0$ — that is the only difference from Step B), bisected for $x_{k+1}$ on $\bigl(x_k,\;w_1\bigr)$:</p>
+$$ h_C(x)=\sum_{\ell\le k}q_\ell\bigl[v_1-c(r_C(\ell,x))\bigr]+\mathrm{Qof}(x)\bigl[v_1-c(r_C(k+1,x))\bigr]-c(x)-u_1=0. $$
+
+<div class="card note">
+<strong>Why a quadratic gets a formula and a general cost gets a bisection.</strong> When $c(e)=e^2$, every margin term $c(\cdot)$ is a quadratic in the atom, so $g_B,h_C$ are quadratics with one in-window root — solvable in closed form (that is the $G_i=t/(1+it)$ recursion of the quadratic doc). For a general convex $c$, strict convexity still guarantees a <em>unique</em> root inside the interleaving window (the payoff is strictly concave on each cell), but you find it numerically. Nothing else changes — "closed form is a quadratic bonus," the march itself is cost-agnostic.</div>
+
+<h3>6.3 A subtlety worth knowing: the vestigial last Step&nbsp;B on a square rung</h3>
+<p>The loop runs Step&nbsp;B then (unless it is the last) Step&nbsp;C, for $k=1,\dots,m$. On a <em>square</em> rung $\sigma(m,m)$ the final iteration $k=m$ still executes a Step&nbsp;B, which dutifully slaves a mass $p_m$ and places a tooth $\tilde y_{m+1}$ — but $\sigma(m,m)$ has no $(m{+}1)$-th P2 atom. Both outputs are <strong>discarded</strong>: $\tilde y_{m+1}$ never enters the residual, and $p_m$ is overwritten by the leftover $1-\sum_{k\lt m}p_k$ (§7). Its <em>only</em> live role is the convergence flag — if that bisection returns <code>NaN</code> the rung is marked non-converged. You will see this in the trace of §8: the marched $p_2=0.6075$ is <em>not</em> the reported $p_2=0.3946$. This is expected, not a bug; the generic loop simply overruns by one harmless half-step. (For step-up rungs the analogous early stop is deliberate and load-bearing — see the long comment at <code>convex_march.jl:250</code>.)</p>
+
+<!-- ============================================================ 7 -->
+<h2 id="close">7. Closing the system: the leftover mass and the dial shoot</h2>
+
+<p>The forward sweep, seeded by $q_1$, produces every atom, $u_1$, and every mass <em>except one</em>. The exception is the mass on the <strong>topmost atom of the whole comb</strong>: there is no rival atom above it, so no rival indifference condition ever references it. It is a free leftover, pinned by its own player's "sum to one." That leaves the <em>other</em> normalization unused — and <em>that</em> is the scalar equation the dial must satisfy.</p>
+
+<table>
+<tr><th class="lbl">rung</th><th class="lbl">top atom</th><th class="lbl">leftover mass (from $\sum=1$)</th><th class="lbl">closing residual $F(q_1)$ (shot to $0$)</th></tr>
+<tr><td class="lbl">square $\sigma(m,m)$</td><td class="lbl"><span class="p1">$x_m$ (P1)</span></td><td class="lbl"><span class="p1">$p_m=1-\sum_{k\lt m}p_k$</span></td><td class="lbl">$F=\sum_{\ell=1}^{m} q_\ell-1$</td></tr>
+<tr><td class="lbl">step-up $\sigma(m,m{+}1)$</td><td class="lbl"><span class="p2">$y_{m+1}$ (P2)</span></td><td class="lbl"><span class="p2">$q_{m+1}=1-\sum_{\ell\lt m+1}q_\ell$</span></td><td class="lbl">$F=\sum_{k=1}^{m} p_k-1$</td></tr>
+</table>
+
+<p>So an apparently $m^2$-sized elimination collapses to <strong>one unknown, one equation</strong>: find the dial $q_1^\ast$ with $F(q_1^\ast)=0$. The solver sweeps $q_1$ across $(0,1)$, keeps only converged points, locates the first up-crossing of $F$, and bisects it. Empirically $F$ is strictly increasing with a single crossing on every rung tested — the constructive route to existence <em>and</em> uniqueness of $\sigma(m,n)$ — though "$F$ single-crossing for all convex $c$" is exactly the open monotonicity question that <code>Monotone_Status.html</code> tracks.</p>
+
+<div class="fig">
+<!-- DIAL SHOOT plot from real symmetric data -->
+<svg viewBox="0 0 640 280" font-family="-apple-system,Helvetica,Arial" font-size="12">
+  <!-- axes -->
+  <line x1="70" y1="30" x2="70" y2="240" stroke="#444"/>
+  <line x1="70" y1="155" x2="600" y2="155" stroke="#444"/>
+  <text x="610" y="159" fill="#444">q₁</text>
+  <text x="48" y="40" fill="#444">F</text>
+  <text x="40" y="159" fill="#888" font-size="11">0</text>
+  <!-- gridline ticks for q1 -->
+  <g fill="#888" font-size="10" text-anchor="middle">
+    <text x="123" y="255">0.1</text><text x="229" y="255">0.3</text>
+    <text x="335" y="255">0.5</text><text x="441" y="255">0.7</text><text x="547" y="255">0.9</text>
+  </g>
+  <!-- map q1 in [0.05,0.95]->x[80,590]; F in [-0.8,1.1]-> y: 0->155, scale 95px per unit -->
+  <!-- data pts -->
+  <polyline fill="none" stroke="#1f6feb" stroke-width="2"
+    points="123,222 176,196 229,171 282,146 335,122 388,99 441,76 494,53"/>
+  <g fill="#1f6feb">
+    <circle cx="123" cy="222" r="3.2"/><circle cx="176" cy="196" r="3.2"/>
+    <circle cx="229" cy="171" r="3.2"/><circle cx="282" cy="146" r="3.2"/>
+    <circle cx="335" cy="122" r="3.2"/><circle cx="388" cy="99" r="3.2"/>
+    <circle cx="441" cy="76" r="3.2"/><circle cx="494" cy="53" r="3.2"/>
+  </g>
+  <!-- root marker q1*=.364 -> x ~ 264 -->
+  <line x1="264" y1="155" x2="264" y2="178" stroke="#2f8a3d" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <circle cx="264" cy="155" r="4" fill="#2f8a3d"/>
+  <text x="264" y="195" text-anchor="middle" fill="#2f8a3d">q₁*≈0.364</text>
+  <text x="300" y="55" fill="#5a5a5a" font-size="11">F crosses 0 once, upward ⇒ unique dial root</text>
+</svg>
+<div class="figcap">Figure 5. The dial shoot for symmetric $\sigma(2,2)$: the eight converged $F(q_1)$ values from §8's trace, and the bisected root $q_1^\ast\approx0.3643$. (The point near $q_1=0.9$ failed to converge and is dropped, not plotted.)</div>
+</div>
+
+<!-- ============================================================ 8 -->
+<h2 id="worked1">8. Worked trace I: symmetric quadratic $\sigma(2,2)$</h2>
+
+<p>Here is the algorithm run end to end, $c(e)=e^2$, $v_1=v_2=1$, $\Delta=0$. Every number is the live output of <code>convex_march.jl</code> (reproduce with the trace script in the pointers). Setup: $w_1=w_2=1$, $f=0$.</p>
+
+<p><strong>(a) The dial scan.</strong> Evaluate $F(q_1)=q_1+q_2-1$ across the dial; it crosses zero once.</p>
+<table>
+<tr><th class="lbl">$q_1$</th><td>0.10</td><td>0.20</td><td>0.30</td><td>0.40</td><td>0.50</td><td>0.60</td><td>0.70</td><td>0.80</td></tr>
+<tr><th class="lbl">$F$</th><td>−.709</td><td>−.433</td><td>−.167</td><td class="ok">+.091</td><td>+.344</td><td>+.592</td><td>+.836</td><td>+1.078</td></tr>
+</table>
+<p>The up-crossing between $0.30$ and $0.40$ bisects to $\boxed{q_1^\ast=0.3643218}$.</p>
+
+<p><strong>(b) The forward march</strong> at $q_1^\ast$:</p>
+<pre><code>x₁ : solve c'(x₁)=q₁·c'(w₁+f−x₁)        → x₁ = 0.267035
+u₁ : u₁ = q₁·[v₁−c(w₁+f−x₁)] − c(x₁)    → u₁ = 0.097287   (P1's common value)
+Step B,k=1 : P2 FOC + P2 indiff(=0)      → ỹ₂ = 0.477791 , slave p₁ = 0.605378
+Step C,k=1 : P1 FOC + P1 indiff(=u₁)     → x₂ = 0.651861 , slave q₂ = 0.635678
+Step B,k=2 : (vestigial, square rung)    → ỹ₃ = 0.800122 , p₂ = 0.607539  ← discarded
+close      : F = Σq − 1 = (0.364322+0.635678) − 1 = 4.4e−16 ✓</code></pre>
+
+<p><strong>(c) The reported equilibrium</strong> (leftover $p_2=1-p_1=0.394622$ replaces the discarded marched value):</p>
+<table>
+<tr><th class="lbl"></th><th>atom 1</th><th>atom 2</th><th class="lbl">check</th></tr>
+<tr><td class="lbl"><span class="p1">P1 effort $x$</span></td><td>0.267035</td><td>0.651861</td><td class="lbl">—</td></tr>
+<tr><td class="lbl"><span class="p1">P1 mass $p$</span></td><td>0.605378</td><td>0.394622</td><td class="lbl ok">$\sum=1$</td></tr>
+<tr><td class="lbl"><span class="p2">P2 effort $y\ (=\tilde y)$</span></td><td>0.0</td><td>0.477791</td><td class="lbl">—</td></tr>
+<tr><td class="lbl"><span class="p2">P2 mass $q$</span></td><td>0.364322</td><td>0.635678</td><td class="lbl ok">$\sum=1$</td></tr>
+</table>
+<p>$u_1^\ast=0.097287$, $\min$ mass $=0.3643>0$ (admissible), best-response gains $g_1=0,\ g_2=-0.042<0$ ⇒ <span class="ok">genuine Nash</span>. The interleaving $0<0.267<0.478<0.652$ is Figure&nbsp;1.</p>
+
+<div class="card goodbox note">
+<strong>Hand-check you can do right now.</strong> With $c=e^2$, $w=1$, the $x_1$ FOC is $2x_1=q_1\cdot2(1-x_1)$, i.e. $x_1=q_1/(1+q_1)=0.3643/1.3643=0.2670$ ✓. The value identity gives $u_1=q_1\bigl[1-(1-x_1)^2\bigr]-x_1^2=0.3643(1-0.5374)-0.0713=0.0973$ ✓. Two lines reproduce the solver's first two numbers.</div>
+
+<!-- ============================================================ 9 -->
+<h2 id="worked2">9. Worked traces II–III: asymmetry and a non-quadratic cost</h2>
+
+<h3>9.1 Asymmetric quadratic: $v_1=1.2,\ v_2=1,\ \Delta=0.1$</h3>
+<p>Now the machinery of §3 earns its keep: $w_1=\sqrt{1.2}=1.0954$, $w_2=1$, shift $f=w_2-w_1-\Delta=-0.1954$. The shift is negative, so P2's raw atoms sit to the <em>right</em> of their shifted positions (Figure&nbsp;2). The dial root is $q_1^\ast=0.2704$ and the march gives:</p>
+<table>
+<tr><th class="lbl"></th><th>atom 1</th><th>atom 2</th><th class="lbl">note</th></tr>
+<tr><td class="lbl"><span class="p1">$x$</span></td><td>0.191563</td><td>0.692968</td><td class="lbl">P1 atoms</td></tr>
+<tr><td class="lbl"><span class="p1">$p$</span></td><td>0.923792</td><td>0.076208</td><td class="lbl">favored P1 piles mass low</td></tr>
+<tr><td class="lbl"><span class="p2">$\tilde y$</span></td><td>−0.195445</td><td>0.470587</td><td class="lbl">shifted frame ($\tilde y_1=f$)</td></tr>
+<tr><td class="lbl"><span class="p2">$y$ (raw)</span></td><td>0.0</td><td>0.666032</td><td class="lbl">$y=\tilde y-f$</td></tr>
+<tr><td class="lbl"><span class="p2">$q$</span></td><td>0.270403</td><td>0.729597</td><td class="lbl">—</td></tr>
+</table>
+<p>$u_1^\ast=0.152076$ (up from the symmetric $0.097$ — the lead and value edge pay off), $\min$ mass $=0.0762$, $g_2=-0.095<0$ ⇒ <span class="ok">Nash</span>. Note the tell-tale asymmetric signature: the favored player puts $92\%$ of its mass on the <em>low</em> atom. The binding margin (<code>diagnose</code>) is the support-merge slack, here a thin $0.027$ — this rung is not far from the existence boundary in $\Delta$.</p>
+
+<h3>9.2 A genuinely non-quadratic cost: $c(e)=e^2+e^4$, symmetric</h3>
+<p>No closed form exists here; the per-step bisections of §6 do all the work. $c^{-1}(1)=0.7862$, so $w_1=w_2=0.7862$, $f=0$. Dial root $q_1^\ast=0.4410$:</p>
+<table>
+<tr><th class="lbl"></th><th>atom 1</th><th>atom 2</th></tr>
+<tr><td class="lbl"><span class="p1">$x$</span></td><td>0.285276</td><td>0.540355</td></tr>
+<tr><td class="lbl"><span class="p1">$p$</span></td><td>0.522229</td><td>0.477771</td></tr>
+<tr><td class="lbl"><span class="p2">$y=\tilde y$</span></td><td>0.0</td><td>0.435502</td></tr>
+<tr><td class="lbl"><span class="p2">$q$</span></td><td>0.440990</td><td>0.559010</td></tr>
+</table>
+<p>$u_1^\ast=0.214595$, admissible, $g_2=-0.017<0$ ⇒ <span class="ok">Nash</span>. The point of this trace: <em>the same code path</em> produced all three equilibria. Symmetry, asymmetry, and curved cost are not three algorithms — they are three settings of $(v_1,v_2,\Delta,c)$ fed to one march.</p>
+
+<!-- ============================================================ 10 -->
+<h2 id="verdict">10. The verdict: when a comb is (not) an equilibrium</h2>
+
+<p>The march will <em>run</em> on inputs that have no equilibrium of the requested shape; it returns a comb anyway (the "failed comb"). Validity is decided by two <strong>post-hoc output checks</strong>, never by blocking the march. Both are worth understanding, because a passing march is necessary but not sufficient.</p>
+
+<h3>10.1 Admissibility — are all masses positive? (the death mechanisms)</h3>
+<p>A comb is admissible iff every mass is strictly positive and the interleaving is strict. <code>diagnose</code> reports which constraint binds first as a knob ($\Delta$, $v_1$, or cost curvature) is pushed. Because masses are gap quantities (e.g. $q_{k+1}\propto$ the off-diagonal gap $\tilde y_{k+1}-x_k$), <em>mass positivity is interleaving</em>, and a death is a tooth-collision:</p>
+<ul>
+<li><strong>SUPPORT-merge</strong> $x_k\ge y_k^{\text{raw}}$: P1's atom fails to cover P2's <em>physical</em> atom — opens a profitable upward deviation for P1. (The binding margin in both §8 and §9.1.)</li>
+<li><strong>APEX-mass collapse</strong> $p_m\to0$: the favored player's leftover top mass vanishes.</li>
+<li><strong>$\tilde y$-diagonal</strong> $x_k-\tilde y_k\to0$ (this is $p_k$) and <strong>$\tilde y$-off-diagonal</strong> $\tilde y_{k+1}-x_k\to0$ (this is $q_{k+1}$): interior teeth merging in the shifted frame.</li>
+<li><strong>no $q_1$ root</strong>: the dial shoot found no $F=0$ — there is no candidate comb at all.</li>
+</ul>
+
+<h3>10.2 Global best response — the only deviation the march does not pin</h3>
+<p>A fully assembled comb pins indifference + FOC at <em>every</em> support atom, including each player's top atom, so all between-atom and below-top deviations are clamped by construction. Exactly one deviation is left unconstrained: a jump <strong>strictly above the combined top of support $T$</strong>. And it can pay off for only one player — the <em>non-owner</em> of the apex:</p>
+
+<div class="fig">
+<svg viewBox="0 0 760 150" font-family="-apple-system,Helvetica,Arial" font-size="12.5">
+  <line x1="40" y1="95" x2="720" y2="95" stroke="#444" stroke-width="1.3"/>
+  <text x="690" y="113" fill="#444" font-size="11">effort</text>
+  <!-- comb teeth -->
+  <g stroke-width="2.6">
+    <line x1="90"  y1="80" x2="90"  y2="110" stroke="#d6336c"/>
+    <line x1="210" y1="76" x2="210" y2="114" stroke="#1f6feb"/>
+    <line x1="340" y1="80" x2="340" y2="110" stroke="#d6336c"/>
+    <line x1="470" y1="70" x2="470" y2="118" stroke="#1f6feb"/>
+  </g>
+  <text x="470" y="60" fill="#1f6feb" text-anchor="middle" font-size="11">apex T = xₘ (P1 owns it)</text>
+  <!-- owner safe above T -->
+  <path d="M470,40 H620" stroke="#2f8a3d" stroke-width="1.4" fill="none" stroke-dasharray="4 3"/>
+  <text x="545" y="34" text-anchor="middle" fill="#2f8a3d" font-size="11">owner P1: payoff strictly ↓ above T ⇒ safe (g₁≡0)</text>
+  <!-- non owner P2 hump -->
+  <path d="M470,128 C 520,128 560,108 600,128" stroke="#d6336c" stroke-width="1.6" fill="none"/>
+  <text x="560" y="146" text-anchor="middle" fill="#d6336c" font-size="11">non-owner P2: a fresh hump above T — CHECK its peak g₂</text>
+</svg>
+<div class="figcap">Figure 6. Above the combined top $T$, the apex owner's payoff only falls (no rival atoms above to win), so the owner is automatically safe. The non-owner can open one fresh concave hump by overtaking the apex; its peak gain is the genuine equilibrium test.</div>
+</div>
+
+<p>So the check (<code>check_best_response</code>) computes a single number: the non-owner's best payoff strictly above $T$, minus its support value. On a square rung the apex is P1's, so it tests P2 (value $0$): gain $g_2$. On a step-up rung the apex is P2's, so it tests P1 (value $u_1$): gain $g_1$. The rung is a genuine Nash equilibrium iff that gain is $\le 0$. In §8, $g_2=-0.042$ — P2 strictly prefers to stay; equilibrium confirmed. A comb that solves the system but has a positive gain is the <em>deviable</em> verdict — it is the failure that kills $\sigma(1,1)$ past a cost-curvature threshold $\theta^\star$.</p>
+
+<h3>10.3 The five front-end verdicts</h3>
+<p>The GUI (<code>web_march</code>) collapses all of the above into five labels:</p>
+<table>
+<tr><th class="lbl">verdict</th><th class="lbl">meaning</th><th class="lbl">comb drawn?</th></tr>
+<tr><td class="lbl"><span class="ok">solution</span></td><td class="lbl">march closed, all masses $>0$, interior branch, no profitable deviation — a genuine $\sigma(m,n)$.</td><td class="lbl">yes</td></tr>
+<tr><td class="lbl"><span class="bad">negative mass</span></td><td class="lbl">comb closed but a mass came out $\le0$ (a death of §10.1) — support over-built.</td><td class="lbl">yes (failed comb)</td></tr>
+<tr><td class="lbl"><span class="bad">deviable</span></td><td class="lbl">masses fine, but a profitable upward deviation exists (§10.2), or the slack player's participation payoff goes negative (the blue $U_A$ curve "sinks" below $0$).</td><td class="lbl">yes (failed comb)</td></tr>
+<tr><td class="lbl"><span class="bad">wrong regime</span></td><td class="lbl">the solve landed on a free-win / abandonment branch, not the all-interior comb.</td><td class="lbl">no</td></tr>
+<tr><td class="lbl"><span class="bad">no convergence</span></td><td class="lbl">no dial root $q_1^\ast$ — no candidate comb to draw.</td><td class="lbl">no</td></tr>
+</table>
+<p>The front-end's "butterfly" figure draws P1's payoff $U_A$ upward (blue), P2's $U_B$ downward (red); atoms are interleaved teeth on the axis; the shift $f$ is a frame note, not a drawn glyph. A <em>failed</em> comb is still drawn so you can <em>see</em> the death — teeth merging (negative mass) or the blue curve diving under the zero floor (a sunk participation curve = deviable).</p>
+
+<!-- ============================================================ 11 -->
+<h2 id="check">11. A correctness checklist</h2>
+<p>If your aim is to audit the algorithm, these are the invariants to verify — each is cheap and each catches a distinct class of bug.</p>
+<ol class="checklist">
+<li><strong>Setup constants.</strong> $w_i=c^{-1}(v_i)$ should satisfy $c(w_i)=v_i$ to machine precision; $f=w_2-w_1-\Delta$; and $w_1+f=w_2-\Delta$ (the identity the $x_1$ step relies on).</li>
+<li><strong>Value identity.</strong> Recompute $u_1=q_1[v_1-c(w_1+f-x_1)]-c(x_1)$ independently and confirm it equals P1's payoff evaluated at <em>every</em> $x_k$ (indifference). For $c=e^2$ it must equal $q_1^2/(1+q_1)$.</li>
+<li><strong>FOC residuals.</strong> At each atom, plug the final profile back into the FOC of §4 and confirm it is $0$: $\sum_{\ell\le k}q_\ell c'(w_1+\tilde y_\ell-x_k)-c'(x_k)=0$, and the P2 analogue. (These are <em>not</em> the equations the march re-uses to close, so they are an independent check.)</li>
+<li><strong>Indifference residuals.</strong> P1's payoff equal across $\{x_k\}$ (to $u_1$); P2's equal across $\{y_\ell\}$ (to $0$), including the boundary $y_1=0$.</li>
+<li><strong>Interleaving &amp; masses.</strong> $\tilde y_1\lt x_1<\tilde y_2<\cdots$ strictly; all $p_k,q_\ell>0$; $\sum p=\sum q=1$. A negative mass is a non-existence, not a numerical hiccup.</li>
+<li><strong>Closing residual.</strong> $F(q_1^\ast)\approx0$ to bisection tolerance; and $F$ should be monotone through the root on the scanned grid (if it is not, the single-crossing assumption is violated for that input — a research signal, logged as <code>nFcross</code>).</li>
+<li><strong>Leftover consistency.</strong> On a square rung, confirm you understand that the marched $p_m$ is discarded and $p_m=1-\sum_{k\lt m}p_k$ is reported (§6.3). Do not "fix" the discrepancy.</li>
+<li><strong>Global best response.</strong> The non-owner's above-$T$ gain $\le0$; the owner's is identically $0$. A positive gain ⇒ <em>deviable</em>, not a solution, however clean the comb looks.</li>
+<li><strong>Cross-checks.</strong> <code>PowerCost(2.0)</code> must equal <code>PolyCost([0,0,1])</code> (two routes to $e^2$) to $\sim10^{-9}$; and the whole march must match the independent Newton engine to $\sim10^{-11}$ (<code>convex_march_xval.jl</code>). A power cost must reproduce <code>general_march.jl</code> bit-for-bit.</li>
+<li><strong>Regime.</strong> Confirm every win-margin argument is positive (interior branch), i.e. you are not silently on a free-win/abandonment branch (<em>wrong regime</em>).</li>
+</ol>
+
+<!-- ============================================================ 12 -->
+<h2 id="glossary">12. Glossary &amp; pointers</h2>
+<table>
+<tr><th class="lbl">term</th><th class="lbl">meaning</th></tr>
+<tr><td class="lbl">atom / mass</td><td class="lbl">a discrete effort level a player mixes over / its probability. $x_k,p_k$ (P1); $y_\ell,q_\ell$ (P2).</td></tr>
+<tr><td class="lbl">comb</td><td class="lbl">the interleaved chain $\tilde y_1\lt x_1<\tilde y_2\lt x_2<\cdots$ of both players' atoms.</td></tr>
+<tr><td class="lbl">$\sigma(m,n)$</td><td class="lbl">equilibrium with $m$ P1 atoms, $n$ P2 atoms; $n\in\{m,m+1\}$.</td></tr>
+<tr><td class="lbl">reach $w_i$</td><td class="lbl">$c^{-1}(v_i)$, the effort that burns the whole prize.</td></tr>
+<tr><td class="lbl">shift $f$ / $\tilde y$</td><td class="lbl">$f=w_2-w_1-\Delta$; $\tilde y=y+f$ is the frame where the combs interleave.</td></tr>
+<tr><td class="lbl">$\tilde c$</td><td class="lbl">cost zero-extended to negatives; unifies interior &amp; free-win branches.</td></tr>
+<tr><td class="lbl">dial $q_1$</td><td class="lbl">P2's mass on $y_1=0$; the single shooting parameter ($=t$).</td></tr>
+<tr><td class="lbl">double step (B/C)</td><td class="lbl">a $2\times2$ (FOC+indiff) reduced to one bisection by slaving the mass.</td></tr>
+<tr><td class="lbl">residual $F$</td><td class="lbl">$\sum q-1$ (square) or $\sum p-1$ (step-up); the dial is shot to $F=0$.</td></tr>
+<tr><td class="lbl">$u_1$</td><td class="lbl">P1's common equilibrium payoff; $u_2\equiv0$ by labelling.</td></tr>
+<tr><td class="lbl">apex / owner</td><td class="lbl">the combined top atom $T$ and the player who holds it (P1 if square, P2 if step-up).</td></tr>
+</table>
+
+<p class="note"><strong>Code &amp; companion docs.</strong></p>
+<ul class="note">
+<li><code>Julia/converge/convex_march.jl</code> — the general-cost march (<code>march_general</code>, <code>solve_rung</code>, <code>diagnose</code>, <code>check_best_response</code>). Lines 219–278 are the march loop; this tutorial's §6 mirrors them.</li>
+<li><code>Julia/converge/general_march.jl</code> — the power-cost sibling (<code>marchG</code>); the reference the general code must reproduce.</li>
+<li><code>Julia/solver/web_march/</code> — the interactive front-end and the five verdicts of §10.3.</li>
+<li><code>Docs/symmetric_quadratic_recursion.html</code>, <code>power_cost_recursion.html</code> — the closed-form / power-cost specializations of the per-step solve.</li>
+<li><code>Docs/Monotone_Status.html</code>, <code>monotonicity_general_case.html</code> — what is proven about the dial $q_1^\ast$ and the single-crossing of $F$. <em>This page is their missing prerequisite.</em></li>
+<li>Reproduce the three traces: a short driver that <code>include</code>s <code>convex_march.jl</code> and replays the march with prints — see §8's pre block for the exact step order.</li>
+</ul>
+
+<div class="footer">
+The comb march, from scratch · 3-Tortoise · general convex cost, asymmetric $v_1\neq v_2$, lead $\Delta\neq0$.
+Nomenclature per QUICKSTART §0/§2. Numerical traces are live output of <code>convex_march.jl</code>.
+</div>
+
+</body>
+</html>

@@ -26,99 +26,42 @@
   }
   a{color:var(--link); text-decoration:none}
   .wrap{max-width:960px; margin:0 auto; padding:clamp(28px,6vw,72px) clamp(18px,5vw,40px) 96px}
-
-  /* ---- hero ---- */
   header{border-bottom:1px solid var(--line); padding-bottom:34px; margin-bottom:8px}
-  .eyebrow{
-    font-size:12px; letter-spacing:.34em; text-transform:uppercase;
-    color:var(--brass); margin:0 0 22px;
-  }
-  h1{
-    font-family:"Fraunces",Georgia,serif; font-weight:400;
-    font-size:clamp(44px,9vw,88px); line-height:.96; letter-spacing:-.015em;
-    margin:0; color:var(--ink);
-  }
+  .eyebrow{font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:var(--brass); margin:0 0 22px}
+  h1{font-family:"Fraunces",Georgia,serif; font-weight:400; font-size:clamp(44px,9vw,88px); line-height:.96; letter-spacing:-.015em; margin:0; color:var(--ink)}
   h1 em{font-style:italic; color:var(--brass-hi)}
   .lede{color:var(--muted); margin:22px 0 0; max-width:52ch}
   .lede b{color:var(--ink); font-weight:500}
-
-  /* ---- search ---- */
-  .search{position:sticky; top:0; z-index:5; padding:20px 0 12px;
-    background:linear-gradient(var(--paper) 72%, transparent);
-    margin-top:26px;}
-  .search input{
-    width:100%; background:var(--panel); color:var(--ink);
-    border:1px solid var(--line-2); border-radius:2px;
-    font-family:inherit; font-size:15px; padding:13px 15px;
-    outline:none; transition:border-color .15s;
-  }
+  .search{position:sticky; top:0; z-index:5; padding:20px 0 12px; background:linear-gradient(var(--paper) 72%, transparent); margin-top:26px}
+  .search input{width:100%; background:var(--panel); color:var(--ink); border:1px solid var(--line-2); border-radius:2px; font-family:inherit; font-size:15px; padding:13px 15px; outline:none; transition:border-color .15s}
   .search input::placeholder{color:var(--faint)}
   .search input:focus{border-color:var(--brass)}
   .search .hint{color:var(--faint); font-size:12px; margin:8px 2px 0; letter-spacing:.04em}
-
-  /* ---- plates ---- */
-  .plate{
-    position:relative; overflow:hidden;
-    border:1px solid var(--line); border-radius:3px;
-    background:var(--panel); margin-top:16px;
-    transition:border-color .18s, background .18s;
-  }
+  .plate{position:relative; overflow:hidden; border:1px solid var(--line); border-radius:3px; background:var(--panel); margin-top:16px; transition:border-color .18s, background .18s}
   .plate:hover{border-color:var(--line-2)}
   .plate[open]{background:var(--panel-2)}
   .plate.hidden{display:none}
-  summary{
-    list-style:none; cursor:pointer; user-select:none;
-    display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:baseline;
-    padding:22px clamp(18px,3vw,26px);
-  }
+  summary{list-style:none; cursor:pointer; user-select:none; display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:baseline; padding:22px clamp(18px,3vw,26px)}
   summary::-webkit-details-marker{display:none}
   summary:focus-visible{outline:2px solid var(--brass); outline-offset:3px}
-  .plate-num{
-    font-family:"Fraunces",Georgia,serif; font-weight:500; font-style:italic;
-    font-size:34px; line-height:1; color:var(--brass); min-width:1.6em;
-  }
+  .plate-num{font-family:"Fraunces",Georgia,serif; font-weight:500; font-style:italic; font-size:34px; line-height:1; color:var(--brass); min-width:1.6em}
   .plate-head{display:flex; flex-direction:column; gap:7px; min-width:0}
-  .plate-code{
-    font-family:"Fraunces",Georgia,serif; font-weight:600;
-    font-size:clamp(22px,3.4vw,29px); line-height:1.02; color:var(--ink);
-    letter-spacing:-.01em;
-  }
+  .plate-code{font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:clamp(22px,3.4vw,29px); line-height:1.02; color:var(--ink); letter-spacing:-.01em}
   .plate-tag{color:var(--muted); font-size:13.5px; line-height:1.45; max-width:56ch}
-  .plate-count{
-    color:var(--faint); font-size:12px; letter-spacing:.08em;
-    white-space:nowrap; text-align:right;
-  }
-  .plate-glyph{
-    position:absolute; right:-8px; top:50%; transform:translateY(-50%);
-    font-family:"Fraunces",Georgia,serif; font-style:italic; font-weight:400;
-    font-size:190px; line-height:1; color:rgba(200,162,76,.06);
-    pointer-events:none; z-index:0; letter-spacing:-.03em;
-  }
+  .plate-count{color:var(--faint); font-size:12px; letter-spacing:.08em; white-space:nowrap; text-align:right}
+  .plate-glyph{position:absolute; right:-8px; top:50%; transform:translateY(-50%); font-family:"Fraunces",Georgia,serif; font-style:italic; font-weight:400; font-size:190px; line-height:1; color:rgba(200,162,76,.06); pointer-events:none; z-index:0; letter-spacing:-.03em}
   summary>*{position:relative; z-index:1}
-
-  .arts{list-style:none; margin:0; padding:0 clamp(14px,3vw,22px) 14px;
-    border-top:1px solid var(--line);}
-  .art a{
-    display:flex; justify-content:space-between; align-items:baseline; gap:18px;
-    padding:11px 12px 11px calc(1.6em + 20px); border-radius:2px;
-    color:var(--ink); transition:background .12s;
-  }
+  .arts{list-style:none; margin:0; padding:0 clamp(14px,3vw,22px) 14px; border-top:1px solid var(--line)}
+  .art a{display:flex; justify-content:space-between; align-items:baseline; gap:18px; padding:11px 12px 11px calc(1.6em + 20px); border-radius:2px; color:var(--ink); transition:background .12s}
   .art a:hover{background:rgba(127,178,176,.09)}
   .art a:focus-visible{outline:2px solid var(--brass); outline-offset:-2px}
   .art-title{flex:1; min-width:0; line-height:1.4}
   .art a:hover .art-title{color:var(--link-hi)}
-  .art-date{color:var(--faint); font-size:12px; white-space:nowrap;
-    font-variant-numeric:tabular-nums; letter-spacing:.02em; cursor:help}
+  .art-date{color:var(--faint); font-size:12px; white-space:nowrap; font-variant-numeric:tabular-nums; letter-spacing:.02em; cursor:help}
   .art.hidden{display:none}
-  .empty{color:var(--faint); font-style:italic; padding:2px clamp(14px,3vw,22px) 20px;
-    border-top:1px solid var(--line); margin:0}
-  .nomatch{color:var(--faint); padding:14px 12px; font-size:13px}
-
-  footer{margin-top:56px; padding-top:22px; border-top:1px solid var(--line);
-    color:var(--faint); font-size:12px; display:flex; justify-content:space-between;
-    flex-wrap:wrap; gap:10px; letter-spacing:.03em}
+  .empty{color:var(--faint); font-style:italic; padding:2px clamp(14px,3vw,22px) 20px; border-top:1px solid var(--line); margin:0}
+  footer{margin-top:56px; padding-top:22px; border-top:1px solid var(--line); color:var(--faint); font-size:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; letter-spacing:.03em}
   footer a{color:var(--muted)}
-
   @media (max-width:560px){
     summary{grid-template-columns:auto 1fr; gap:6px 16px}
     .plate-count{grid-column:2; text-align:left; margin-top:2px}
@@ -135,12 +78,10 @@
     <h1>Working<br><em>papers</em> index</h1>
     <p class="lede"><b>63 live proof artifacts</b> across 4 active programs in contest theory. Each plate opens to its catalogue; every entry links to the rendered document.</p>
   </header>
-
   <div class="search" role="search">
     <input id="q" type="search" placeholder="Filter artifacts — title, keyword, or filename…" autocomplete="off" aria-label="Filter artifacts">
     <p class="hint" id="hint"></p>
   </div>
-
   <main id="plates">
   <details class="plate" data-code="cartan">
     <summary>
@@ -166,43 +107,43 @@
     </summary>
       <ul class="arts">
         <li class="art" data-hay="round-1 support structure — ipv, monotone posterior, and the signaling obstruction round1_support_structure.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/round1_support_structure.html">
+          <a href="2-ElimContest/round1_support_structure.html">
             <span class="art-title">Round-1 Support Structure — IPV, Monotone Posterior, and the Signaling Obstruction</span>
             <span class="art-date" title="round1_support_structure.html">2026-07-20</span>
           </a>
         </li>
         <li class="art" data-hay="tropical cell structure of the round-2 payoff π₂(v;(p,q)) tropical_cell_structure.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/tropical_cell_structure.html">
+          <a href="2-ElimContest/tropical_cell_structure.html">
             <span class="art-title">Tropical cell structure of the Round-2 payoff Π₂(v;(p,q))</span>
             <span class="art-date" title="tropical_cell_structure.html">2026-06-22</span>
           </a>
         </li>
         <li class="art" data-hay="analytic equilibrium construction — offline roadmap analytic_solution_roadmap.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/analytic_solution_roadmap.html">
+          <a href="2-ElimContest/analytic_solution_roadmap.html">
             <span class="art-title">Analytic equilibrium construction — offline roadmap</span>
             <span class="art-date" title="analytic_solution_roadmap.html">2026-06-22</span>
           </a>
         </li>
         <li class="art" data-hay="literature — bid-dependent value of winning in all-pay auctions bid_dependent_prize_literature.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/bid_dependent_prize_literature.html">
+          <a href="2-ElimContest/bid_dependent_prize_literature.html">
             <span class="art-title">Literature — bid-dependent value of winning in all-pay auctions</span>
             <span class="art-date" title="bid_dependent_prize_literature.html">2026-06-22</span>
           </a>
         </li>
         <li class="art" data-hay="what (if anything) turocy&#x27;s algorithm gives us for the elimination contest turocy_support_analysis.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/turocy_support_analysis.html">
+          <a href="2-ElimContest/turocy_support_analysis.html">
             <span class="art-title">What (if anything) Turocy&#x27;s algorithm gives us for the elimination contest</span>
             <span class="art-date" title="turocy_support_analysis.html">2026-06-22</span>
           </a>
         </li>
         <li class="art" data-hay="closed-form overlap and the two-region equilibrium closed_form_overlap.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/closed_form_overlap.html">
+          <a href="2-ElimContest/closed_form_overlap.html">
             <span class="art-title">Closed-form overlap and the two-region equilibrium</span>
             <span class="art-date" title="closed_form_overlap.html">2026-06-22</span>
           </a>
         </li>
         <li class="art" data-hay="does the belief non-linearity break piecewise-uniformity? — concrete predictions binary_support_predictions.html">
-          <a href="https://sergio0p.github.io/2-ElimContest/binary_support_predictions.html">
+          <a href="2-ElimContest/binary_support_predictions.html">
             <span class="art-title">Does the belief non-linearity break piecewise-uniformity? — concrete predictions</span>
             <span class="art-date" title="binary_support_predictions.html">2026-06-17</span>
           </a>
@@ -221,175 +162,175 @@
     </summary>
       <ul class="arts">
         <li class="art" data-hay="the homotopy route to general-cost chain monotonicity — a pedagogical walkthrough homotopy_route.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/homotopy_route.html">
+          <a href="3-Tortoise/homotopy_route.html">
             <span class="art-title">The homotopy route to general-cost chain monotonicity — a pedagogical walkthrough</span>
             <span class="art-date" title="homotopy_route.html">2026-07-13</span>
           </a>
         </li>
         <li class="art" data-hay="monotonicity status: what is proven (2026-07-09) monotone_status.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/Monotone_Status.html">
+          <a href="3-Tortoise/Monotone_Status.html">
             <span class="art-title">Monotonicity status: what is proven (2026-07-09)</span>
             <span class="art-date" title="Monotone_Status.html">2026-07-09</span>
           </a>
         </li>
         <li class="art" data-hay="chain monotonicity via the q_1-dial: a one-lemma reduction chain_monotonicity_reduction.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/chain_monotonicity_reduction.html">
+          <a href="3-Tortoise/chain_monotonicity_reduction.html">
             <span class="art-title">Chain monotonicity via the q_1-dial: a one-lemma reduction</span>
             <span class="art-date" title="chain_monotonicity_reduction.html">2026-07-09</span>
           </a>
         </li>
         <li class="art" data-hay="chain monotonicity in the general case monotonicity_general_case.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/monotonicity_general_case.html">
+          <a href="3-Tortoise/monotonicity_general_case.html">
             <span class="art-title">Chain monotonicity in the general case</span>
             <span class="art-date" title="monotonicity_general_case.html">2026-07-07</span>
           </a>
         </li>
         <li class="art" data-hay="continuation-payoff uniqueness — status &amp; to-do continuation_uniqueness_todo.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/continuation_uniqueness_todo.html">
+          <a href="3-Tortoise/continuation_uniqueness_todo.html">
             <span class="art-title">Continuation-Payoff Uniqueness — Status &amp; To-Do</span>
             <span class="art-date" title="continuation_uniqueness_todo.html">2026-07-06</span>
           </a>
         </li>
         <li class="art" data-hay="were we scooped? — dynamic-contest scoop matrix scoop_matrix.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/scoop_matrix.html">
+          <a href="3-Tortoise/scoop_matrix.html">
             <span class="art-title">Were we scooped? — Dynamic-contest scoop matrix</span>
             <span class="art-date" title="scoop_matrix.html">2026-07-06</span>
           </a>
         </li>
         <li class="art" data-hay="repeated play with a terminal aggregate — literature map terminal-aggregate-literature.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/terminal-aggregate-literature.html">
+          <a href="3-Tortoise/terminal-aggregate-literature.html">
             <span class="art-title">Repeated Play with a Terminal Aggregate — Literature Map</span>
             <span class="art-date" title="terminal-aggregate-literature.html">2026-07-03</span>
           </a>
         </li>
         <li class="art" data-hay="the comb march — a from-scratch tutorial (general convex cost, asymmetric values, lead δ) comb_march_tutorial.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/comb_march_tutorial.html">
+          <a href="3-Tortoise/comb_march_tutorial.html">
             <span class="art-title">The comb march — a from-scratch tutorial (general convex cost, asymmetric values, lead Δ)</span>
             <span class="art-date" title="comb_march_tutorial.html">2026-06-28</span>
           </a>
         </li>
         <li class="art" data-hay="the mc(0) dial — marginal cost at the origin as an existence floor mc0_dial.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/mc0_dial.html">
+          <a href="3-Tortoise/mc0_dial.html">
             <span class="art-title">The MC(0) dial — marginal cost at the origin as an existence floor</span>
             <span class="art-date" title="mc0_dial.html">2026-06-24</span>
           </a>
         </li>
         <li class="art" data-hay="tortoise — where the paper stands (briefing for justin) joffrion_briefing.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/joffrion_briefing.html">
+          <a href="3-Tortoise/joffrion_briefing.html">
             <span class="art-title">Tortoise — Where the Paper Stands (briefing for Justin)</span>
             <span class="art-date" title="joffrion_briefing.html">2026-06-24</span>
           </a>
         </li>
         <li class="art" data-hay="asymmetric-quadratic σ(2,2): closed form ⇒ chain monotonicity (2026-06-21) asym_quadratic_sigma22_monotonicity.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/asym_quadratic_sigma22_monotonicity.html">
+          <a href="3-Tortoise/asym_quadratic_sigma22_monotonicity.html">
             <span class="art-title">Asymmetric-quadratic σ(2,2): closed form ⇒ chain monotonicity (2026-06-21)</span>
             <span class="art-date" title="asym_quadratic_sigma22_monotonicity.html">2026-06-21</span>
           </a>
         </li>
         <li class="art" data-hay="power-cost σ(m,n): the degree-(θ−1) solve power_cost_recursion.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/power_cost_recursion.html">
+          <a href="3-Tortoise/power_cost_recursion.html">
             <span class="art-title">Power-cost σ(m,n): the degree-(θ−1) solve</span>
             <span class="art-date" title="power_cost_recursion.html">2026-06-21</span>
           </a>
         </li>
         <li class="art" data-hay="symmetric-quadratic σ(m,n): universal closed form of the comb (2026-06-21) symmetric_quadratic_closed_form.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/symmetric_quadratic_closed_form.html">
+          <a href="3-Tortoise/symmetric_quadratic_closed_form.html">
             <span class="art-title">Symmetric-quadratic σ(m,n): universal closed form of the comb (2026-06-21)</span>
             <span class="art-date" title="symmetric_quadratic_closed_form.html">2026-06-21</span>
           </a>
         </li>
         <li class="art" data-hay="symmetric quadratic σ(m,n): an explicit forward recursion (no gröbner) symmetric_quadratic_recursion.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/symmetric_quadratic_recursion.html">
+          <a href="3-Tortoise/symmetric_quadratic_recursion.html">
             <span class="art-title">Symmetric quadratic σ(m,n): an explicit forward recursion (no Gröbner)</span>
             <span class="art-date" title="symmetric_quadratic_recursion.html">2026-06-18</span>
           </a>
         </li>
         <li class="art" data-hay="symmetric-quadratic σ(m,n) → competitive equilibrium competitive_convergence.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/competitive_convergence.html">
+          <a href="3-Tortoise/competitive_convergence.html">
             <span class="art-title">Symmetric-quadratic σ(m,n) → competitive equilibrium</span>
             <span class="art-date" title="competitive_convergence.html">2026-06-18</span>
           </a>
         </li>
         <li class="art" data-hay="hwang–rey-bellet classification of the round-1 game γ(δ,v₁,v₂) hrb-classification.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/hrb-classification.html">
+          <a href="3-Tortoise/hrb-classification.html">
             <span class="art-title">Hwang–Rey-Bellet classification of the round-1 game Γ(Δ,v₁,v₂)</span>
             <span class="art-date" title="hrb-classification.html">2026-06-14</span>
           </a>
         </li>
         <li class="art" data-hay="maximizing u₂ over correlated equilibria — general (v₁,v₂,δ) ce_max_u2_kkt.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/ce_max_u2_kkt.html">
+          <a href="3-Tortoise/ce_max_u2_kkt.html">
             <span class="art-title">Maximizing u₂ over correlated equilibria — general (v₁,v₂,Δ)</span>
             <span class="art-date" title="ce_max_u2_kkt.html">2026-06-14</span>
           </a>
         </li>
         <li class="art" data-hay="σ(2,2) in (w₁,w₂,δ) coordinates — system &amp; newton polytope sigma22_newton_polytope.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/sigma22_newton_polytope.html">
+          <a href="3-Tortoise/sigma22_newton_polytope.html">
             <span class="art-title">σ(2,2) in (w₁,w₂,Δ) coordinates — system &amp; Newton polytope</span>
             <span class="art-date" title="sigma22_newton_polytope.html">2026-06-01</span>
           </a>
         </li>
         <li class="art" data-hay="det j at σ(2,2) — the critical set {det j = 0} (ỹ-coordinates) det_j_visualization.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/det_J_visualization.html">
+          <a href="3-Tortoise/det_J_visualization.html">
             <span class="art-title">det J at σ(2,2) — the critical set {det J = 0} (ỹ-coordinates)</span>
             <span class="art-date" title="det_J_visualization.html">2026-06-01</span>
           </a>
         </li>
         <li class="art" data-hay="σ(2,2): the seven boundary faces of 𝒟 boundary_analysis.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/boundary_analysis.html">
+          <a href="3-Tortoise/boundary_analysis.html">
             <span class="art-title">σ(2,2): the seven boundary faces of 𝒟</span>
             <span class="art-date" title="boundary_analysis.html">2026-05-30</span>
           </a>
         </li>
         <li class="art" data-hay="σ(m,n) foc solver — block structure &amp; schur reduction sigma_mn_solver.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/sigma_mn_solver.html">
+          <a href="3-Tortoise/sigma_mn_solver.html">
             <span class="art-title">σ(m,n) FOC Solver — Block Structure &amp; Schur Reduction</span>
             <span class="art-date" title="sigma_mn_solver.html">2026-05-30</span>
           </a>
         </li>
         <li class="art" data-hay="chain equations: σ(1,1), σ(1,2), σ(2,2) — u₁* &gt; 0 regime chain_equations_1_1_to_2_2.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/chain_equations_1_1_to_2_2.html">
+          <a href="3-Tortoise/chain_equations_1_1_to_2_2.html">
             <span class="art-title">Chain equations: σ(1,1), σ(1,2), σ(2,2) — u₁* &gt; 0 regime</span>
             <span class="art-date" title="chain_equations_1_1_to_2_2.html">2026-05-30</span>
           </a>
         </li>
         <li class="art" data-hay="sigma(m,n) equilibrium sweep — algorithm comparison sigma_equilibria_sweep.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/sigma_equilibria_sweep.html">
+          <a href="3-Tortoise/sigma_equilibria_sweep.html">
             <span class="art-title">sigma(m,n) equilibrium sweep — algorithm comparison</span>
             <span class="art-date" title="sigma_equilibria_sweep.html">2026-05-30</span>
           </a>
         </li>
         <li class="art" data-hay="sigma(m,n) by case — u_1 table sigma_by_case.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/sigma_by_case.html">
+          <a href="3-Tortoise/sigma_by_case.html">
             <span class="art-title">sigma(m,n) by case — u_1 table</span>
             <span class="art-date" title="sigma_by_case.html">2026-05-29</span>
           </a>
         </li>
         <li class="art" data-hay="sosd analysis — tortoise chain sosd_analysis.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/sosd_analysis.html">
+          <a href="3-Tortoise/sosd_analysis.html">
             <span class="art-title">SOSD Analysis — Tortoise Chain</span>
             <span class="art-date" title="sosd_analysis.html">2026-05-19</span>
           </a>
         </li>
         <li class="art" data-hay="dead-zone obstruction — equilibrium structure when δ &gt; 0 competitive_nonexistence.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/competitive_nonexistence.html">
+          <a href="3-Tortoise/competitive_nonexistence.html">
             <span class="art-title">Dead-zone obstruction — equilibrium structure when Δ &gt; 0</span>
             <span class="art-date" title="competitive_nonexistence.html">2026-05-17</span>
           </a>
         </li>
         <li class="art" data-hay="competitive equilibrium — quadratic cost, symmetric valuations competitive_density.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/competitive_density.html">
+          <a href="3-Tortoise/competitive_density.html">
             <span class="art-title">Competitive Equilibrium — Quadratic Cost, Symmetric Valuations</span>
             <span class="art-date" title="competitive_density.html">2026-05-16</span>
           </a>
         </li>
         <li class="art" data-hay="discrete equilibrium: the system of equations discrete.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/discrete.html">
+          <a href="3-Tortoise/discrete.html">
             <span class="art-title">Discrete Equilibrium: The System of Equations</span>
             <span class="art-date" title="discrete.html">2026-05-14</span>
           </a>
         </li>
         <li class="art" data-hay="joffrion — maple worksheet view joffrion.html">
-          <a href="https://sergio0p.github.io/3-Tortoise/joffrion.html">
+          <a href="3-Tortoise/joffrion.html">
             <span class="art-title">Joffrion — Maple worksheet view</span>
             <span class="art-date" title="joffrion.html">2026-05-14</span>
           </a>
@@ -408,73 +349,73 @@
     </summary>
       <ul class="arts">
         <li class="art" data-hay="the properness problem: from local to global injectivity of the win-probability map properness.html">
-          <a href="https://sergio0p.github.io/4-WinProb/properness.html">
+          <a href="4-WinProb/properness.html">
             <span class="art-title">The properness problem: from local to global injectivity of the win-probability map</span>
             <span class="art-date" title="properness.html">2026-07-18</span>
           </a>
         </li>
         <li class="art" data-hay="the jacobian is the recovery map, and its coupling vector obeys the w·g law jacobian-coupling-recursion.html">
-          <a href="https://sergio0p.github.io/4-WinProb/jacobian-coupling-recursion.html">
+          <a href="4-WinProb/jacobian-coupling-recursion.html">
             <span class="art-title">The Jacobian is the recovery map, and its coupling vector obeys the W·G law</span>
             <span class="art-date" title="jacobian-coupling-recursion.html">2026-07-12</span>
           </a>
         </li>
         <li class="art" data-hay="signature reduction: closing k=2 and k=3 signature-reduction-results.html">
-          <a href="https://sergio0p.github.io/4-WinProb/signature-reduction-results.html">
+          <a href="4-WinProb/signature-reduction-results.html">
             <span class="art-title">Signature reduction: closing k=2 and k=3</span>
             <span class="art-date" title="signature-reduction-results.html">2026-07-12</span>
           </a>
         </li>
         <li class="art" data-hay="where the coupling identity sits inside the (1, n−1) signature picture coupling-in-signature-picture.html">
-          <a href="https://sergio0p.github.io/4-WinProb/coupling-in-signature-picture.html">
+          <a href="4-WinProb/coupling-in-signature-picture.html">
             <span class="art-title">Where the coupling identity sits inside the (1, n−1) signature picture</span>
             <span class="art-date" title="coupling-in-signature-picture.html">2026-07-12</span>
           </a>
         </li>
         <li class="art" data-hay="a complete proof of the lorentzian signature, via covariance and log-concavity signature-via-log-concavity.html">
-          <a href="https://sergio0p.github.io/4-WinProb/signature-via-log-concavity.html">
+          <a href="4-WinProb/signature-via-log-concavity.html">
             <span class="art-title">A complete proof of the Lorentzian signature, via covariance and log-concavity</span>
             <span class="art-date" title="signature-via-log-concavity.html">2026-07-12</span>
           </a>
         </li>
         <li class="art" data-hay="related literature — placement references for the w↦g inversion related-literature.html">
-          <a href="https://sergio0p.github.io/4-WinProb/related-literature.html">
+          <a href="4-WinProb/related-literature.html">
             <span class="art-title">Related literature — placement references for the W↦G inversion</span>
             <span class="art-date" title="related-literature.html">2026-06-28</span>
           </a>
         </li>
         <li class="art" data-hay="the w·g difference recursion for heterogeneous players wg-difference-recursion.html">
-          <a href="https://sergio0p.github.io/4-WinProb/wg-difference-recursion.html">
+          <a href="4-WinProb/wg-difference-recursion.html">
             <span class="art-title">The W·G difference recursion for heterogeneous players</span>
             <span class="art-date" title="wg-difference-recursion.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="inverting w for k=2, n=4 — why it isn&#x27;t circular recovery_k2_n4.html">
-          <a href="https://sergio0p.github.io/4-WinProb/recovery_k2_n4.html">
+          <a href="4-WinProb/recovery_k2_n4.html">
             <span class="art-title">Inverting W for k=2, n=4 — why it isn&#x27;t circular</span>
             <span class="art-date" title="recovery_k2_n4.html">2026-06-06</span>
           </a>
         </li>
         <li class="art" data-hay="odds-ratio form via one global polynomial odds_ratio_global_polynomial.html">
-          <a href="https://sergio0p.github.io/4-WinProb/odds_ratio_global_polynomial.html">
+          <a href="4-WinProb/odds_ratio_global_polynomial.html">
             <span class="art-title">Odds-ratio form via one global polynomial</span>
             <span class="art-date" title="odds_ratio_global_polynomial.html">2026-06-06</span>
           </a>
         </li>
         <li class="art" data-hay="generating-function identity for elementary symmetric polynomials elementary_symmetric.html">
-          <a href="https://sergio0p.github.io/4-WinProb/elementary_symmetric.html">
+          <a href="4-WinProb/elementary_symmetric.html">
             <span class="art-title">Generating-function identity for elementary symmetric polynomials</span>
             <span class="art-date" title="elementary_symmetric.html">2026-06-06</span>
           </a>
         </li>
         <li class="art" data-hay="the cancellation game: an involution puzzle for det m at (k,n) = (2,4) cancellation_game.html">
-          <a href="https://sergio0p.github.io/4-WinProb/cancellation_game.html">
+          <a href="4-WinProb/cancellation_game.html">
             <span class="art-title">The Cancellation Game: an involution puzzle for det M at (k,n) = (2,4)</span>
             <span class="art-date" title="cancellation_game.html">2026-05-09</span>
           </a>
         </li>
         <li class="art" data-hay="dy triangle dy_triangle.html">
-          <a href="https://sergio0p.github.io/4-WinProb/dy_triangle.html">
+          <a href="4-WinProb/dy_triangle.html">
             <span class="art-title">Dy triangle</span>
             <span class="art-date" title="dy_triangle.html">2026-04-18</span>
           </a>
@@ -493,91 +434,91 @@
     </summary>
       <ul class="arts">
         <li class="art" data-hay="signing n and d near the top is uniform — no case split signing-n-d-uniform.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/signing-N-D-uniform.html">
+          <a href="5-Meritocracy/signing-N-D-uniform.html">
             <span class="art-title">Signing N and D near the top is uniform — no case split</span>
             <span class="art-date" title="signing-N-D-uniform.html">2026-07-10</span>
           </a>
         </li>
         <li class="art" data-hay="common top via sign-discarding — k=2, h=3, ℓ=2 foc-densities-k2h3l2.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/FOC-densities-k2h3l2.html">
+          <a href="5-Meritocracy/FOC-densities-k2h3l2.html">
             <span class="art-title">Common top via sign-discarding — k=2, h=3, ℓ=2</span>
             <span class="art-date" title="FOC-densities-k2h3l2.html">2026-07-09</span>
           </a>
         </li>
         <li class="art" data-hay="handicap &amp; quota reading list — doi cards handicap-quota-doi-cards.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/handicap-quota-doi-cards.html">
+          <a href="5-Meritocracy/handicap-quota-doi-cards.html">
             <span class="art-title">Handicap &amp; Quota Reading List — DOI cards</span>
             <span class="art-date" title="handicap-quota-doi-cards.html">2026-07-01</span>
           </a>
         </li>
         <li class="art" data-hay="stieltjes integration by parts — reference and tricks stieltjes-reference.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/stieltjes-reference.html">
+          <a href="5-Meritocracy/stieltjes-reference.html">
             <span class="art-title">Stieltjes integration by parts — reference and tricks</span>
             <span class="art-date" title="stieltjes-reference.html">2026-06-26</span>
           </a>
         </li>
         <li class="art" data-hay="cdfs with non-increasing f(x)/x — a survey cdf-ratio-class.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/cdf-ratio-class.html">
+          <a href="5-Meritocracy/cdf-ratio-class.html">
             <span class="art-title">CDFs with non-increasing F(x)/x — a survey</span>
             <span class="art-date" title="cdf-ratio-class.html">2026-06-20</span>
           </a>
         </li>
         <li class="art" data-hay="proof of remark 1 — drop-out implies intimidation remark1-converse-proof.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/remark1-converse-proof.html">
+          <a href="5-Meritocracy/remark1-converse-proof.html">
             <span class="art-title">Proof of Remark 1 — drop-out implies intimidation</span>
             <span class="art-date" title="remark1-converse-proof.html">2026-06-20</span>
           </a>
         </li>
         <li class="art" data-hay="stieltjes integration by parts in the drop-out proof stieltjes-by-parts.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/stieltjes-by-parts.html">
+          <a href="5-Meritocracy/stieltjes-by-parts.html">
             <span class="art-title">Stieltjes integration by parts in the drop-out proof</span>
             <span class="art-date" title="stieltjes-by-parts.html">2026-06-20</span>
           </a>
         </li>
         <li class="art" data-hay="general off-diagonal: common term and proportionality constant foc-offdiagonal-general.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/foc-offdiagonal-general.html">
+          <a href="5-Meritocracy/foc-offdiagonal-general.html">
             <span class="art-title">General off-diagonal: common term and proportionality constant</span>
             <span class="art-date" title="foc-offdiagonal-general.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="solving for g/f via the off-diagonal common term z foc-ratio-gf.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/foc-ratio-gf.html">
+          <a href="5-Meritocracy/foc-ratio-gf.html">
             <span class="art-title">Solving for g/f via the off-diagonal common term z</span>
             <span class="art-date" title="foc-ratio-gf.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="the foc linear system — correct form foc-system-setup.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/foc-system-setup.html">
+          <a href="5-Meritocracy/foc-system-setup.html">
             <span class="art-title">The FOC linear system — correct form</span>
             <span class="art-date" title="foc-system-setup.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="factoring the foc matrix a — random (k,h,ℓ) draws foc-matrix-a-random-draws.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/foc-matrix-a-random-draws.html">
+          <a href="5-Meritocracy/foc-matrix-a-random-draws.html">
             <span class="art-title">Factoring the FOC matrix A — random (k,h,ℓ) draws</span>
             <span class="art-date" title="foc-matrix-a-random-draws.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="foc matrix a — k=2, h=3, ℓ=2 foc-matrix-a-k2h3l2.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/foc-matrix-a-k2h3l2.html">
+          <a href="5-Meritocracy/foc-matrix-a-k2h3l2.html">
             <span class="art-title">FOC matrix A — k=2, h=3, ℓ=2</span>
             <span class="art-date" title="foc-matrix-a-k2h3l2.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="the w·g recursion — generalizing w_h g_h = w_l g_l to k&gt;1 wg-identity.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/WG-identity.html">
+          <a href="5-Meritocracy/WG-identity.html">
             <span class="art-title">The W·G recursion — generalizing W_H G_H = W_L G_L to k&gt;1</span>
             <span class="art-date" title="WG-identity.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="equilibrium density focs — k=2, h=3, ℓ=1 (parreiras–rubinchik approach) foc-densities-k2h3l1.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/FOC-densities-k2h3l1.html">
+          <a href="5-Meritocracy/FOC-densities-k2h3l1.html">
             <span class="art-title">Equilibrium density FOCs — k=2, h=3, ℓ=1 (Parreiras–Rubinchik approach)</span>
             <span class="art-date" title="FOC-densities-k2h3l1.html">2026-06-13</span>
           </a>
         </li>
         <li class="art" data-hay="track b — brief &amp; report (5-meritocracy) track-b-brief.html">
-          <a href="https://sergio0p.github.io/5-Meritocracy/TRACK-B-BRIEF.html">
+          <a href="5-Meritocracy/TRACK-B-BRIEF.html">
             <span class="art-title">TRACK B — Brief &amp; Report (5-Meritocracy)</span>
             <span class="art-date" title="TRACK-B-BRIEF.html">2026-06-12</span>
           </a>
@@ -585,20 +526,17 @@
       </ul>
   </details>
   </main>
-
   <footer>
-    <span>Generated from <code>build.py</code> · 63 artifacts</span>
+    <span>Generated by update_docs.py · 63 artifacts</span>
     <span><a href="https://github.com/sergio0p">github.com/sergio0p</a></span>
   </footer>
 </div>
-
 <script>
 (function(){
   var q = document.getElementById('q');
   var hint = document.getElementById('hint');
   var plates = Array.prototype.slice.call(document.querySelectorAll('.plate'));
   var openState = new Map();
-
   function apply(){
     var term = q.value.trim().toLowerCase();
     var shownArts = 0, shownPlates = 0;
@@ -615,7 +553,6 @@
       p.classList.toggle('hidden', !visible);
       if (visible) shownPlates++;
       shownArts += localMatch;
-
       if (term){
         if (!openState.has(p)) openState.set(p, p.open);
         p.open = localMatch > 0;

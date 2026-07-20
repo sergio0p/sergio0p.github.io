@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where the coupling identity sits inside the (1, n−1) signature picture</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Where the coupling identity sits inside the $(1,n{-}1)$ signature picture</p>
+
+<p class="note">4-WinProb · a pedagogical walk-through, built from the ground up · numerics in Julia/LinearAlgebra, residual ∼10⁻¹⁶ · 2026-06-13</p>
+
+<p>This note is written for someone comfortable with the win-probability algebra but not yet with Hessians, eigenvalue signatures, Schur complements, or the Minkowski/Lorentzian language. We build each of those from scratch, then show precisely where the new coupling identity $G_ib_i-G_jb_j=(G_i-G_j)\widehat b^{(k-2)}_{ij}$ lands inside the bigger geometric picture — and, just as importantly, where it does not yet reach. Nothing here is assumed; every load-bearing claim is checked numerically at the end.</p>
+
+<p class="section">0. What we are actually trying to do</p>
+
+<p>We observe the winning probabilities $W_1,\dots,W_n$ and want to reconstruct the hidden CDF values $G_1,\dots,G_n$. The forward direction is easy: given the $G_\ell$, the $W_i$ are a known formula. The goal is the reverse map, $W\mapsto G$.</p>
+
+<p>There is a standard two-step strategy for proving a map can be reversed. First, the local question: near any single point, is the map one-to-one? Second, the global question: do the local pieces fit together into a single global inverse? The local question has a clean answer in calculus. A smooth map $\Phi:G\mapsto W$ is locally invertible around a point exactly when its matrix of first derivatives — the Jacobian — is nonsingular there (has nonzero determinant). So the first thing to understand is the Jacobian of the win-probability map,</p>
+
+$$M \;=\; \left[\,\frac{\partial W_i}{\partial G_j}\,\right]_{i,j=1}^{n}.\tag{1}$$
+
+<p>Everything below is about the structure of this one matrix $M$. The punchline of the project's earlier work is that $M$ is not an arbitrary matrix: it is highly constrained, and those constraints are exactly what make recovery possible.</p>
+
+<p class="section">1. The Jacobian is a Hessian (a matrix of second derivatives)</p>
+
+<p>A first surprising fact: $M$ is symmetric, $\partial W_i/\partial G_j=\partial W_j/\partial G_i$. A symmetric matrix of first derivatives is the fingerprint of a gradient. Concretely, there is a single scalar function $F(G_1,\dots,G_n)$ — a "potential" — whose first derivatives are the win probabilities:</p>
+
+$$W_i \;=\; \frac{\partial F}{\partial G_i}\qquad\text{for every }i,\qquad\text{i.e.}\qquad W=\nabla F.\tag{2}$$
+
+<p>If $W$ is the gradient (first-derivative vector) of $F$, then $M=\nabla W$ is the matrix of second derivatives of $F$. That matrix has a name: the Hessian of $F$. So</p>
+
+<div class="box key">
+$$M \;=\; \nabla W \;=\; \nabla^2 F \quad\text{— the Jacobian of recovery is the Hessian of a potential.}\tag{3}$$
+</div>
+
+<p>Why does this help? Because Hessians of natural potentials have rigid eigenvalue structure, and that structure is the whole game. We first need to know which potential $F$ this is.</p>
+
+<p class="section">2. The potential $F$, and why it is "flat" on the diagonal</p>
+
+<p>Picture the $n$ players as independent coin flips: player $\ell$ lands "below" the threshold with probability $G_\ell$ and "above" with probability $1-G_\ell$. Let $S=\#\{\ell:\ell\text{ below}\}$ be the random number of below-players. With $k$ prizes, the relevant potential turns out to be</p>
+
+$$F(G)\;=\;\mathbb{E}\big[(S-(n-k))_+\big],\qquad (x)_+:=\max(x,0).\tag{4}$$
+
+<p>Two elementary rewrites make this concrete. Summing the unit jumps of $(\cdot)_+$ over the integers turns the expectation into an upper-tail sum; expanding over the $2^n$ coin outcomes, grouped by the below-set $A=\{\ell:\ell\text{ below}\}$, turns it into a polynomial:</p>
+
+$$F(G)\;=\;\sum_{j=n-k+1}^{n}\Pr[S\ge j]\;=\!\!\sum_{\substack{A\subseteq[n]\\ |A|\,>\,n-k}}\!\!\big(|A|-(n-k)\big)\prod_{\ell\in A}G_\ell\prod_{\ell\notin A}(1-G_\ell).\tag{5}$$
+
+<p>The tail form shows the $k$ prizes as the $k$ top layers $S\ge n-k+1,\dots,n$; the polynomial form is manifestly multilinear — each $G_\ell$ enters every monomial to the first power, through exactly one of $G_\ell$ or $1-G_\ell$ — the structural feature the rest of this section turns on. (All three forms agree, and $\nabla F=W$, on numeric checks across $(n,k)$ including both boundaries $k=1,n-1$.)</p>
+
+<p>Let us verify $\partial F/\partial G_i = W_i$ in elementary terms, because the calculation also reveals the key structural feature. Player $i$ is below with probability $G_i$; write $S=S'+\mathbb{1}[i\text{ below}]$ where $S'$ counts the below-players among the others. Splitting on player $i$'s coin,</p>
+
+$$F = G_i\,\mathbb{E}\big[(S'+1-(n-k))_+\big] + (1-G_i)\,\mathbb{E}\big[(S'-(n-k))_+\big].\tag{6}$$
+
+<p>Only the prefactors depend on $G_i$, so differentiating in $G_i$ gives the difference of the two expectations:</p>
+
+$$\frac{\partial F}{\partial G_i} = \mathbb{E}\big[(S'+1-(n-k))_+-(S'-(n-k))_+\big].\tag{7}$$
+
+<p>For an integer $a$, the jump $(a+1)_+-(a)_+$ equals $1$ when $a\ge 0$ and $0$ otherwise — it is the indicator $\mathbb{1}[a\ge 0]$. With $a=S'-(n-k)$,</p>
+
+$$\frac{\partial F}{\partial G_i}=\Pr\big[S'\ge n-k\big]=\Pr\big[\text{at most }k-1\text{ of the others are above}\big]=W_i.\;\checkmark\tag{8}$$
+
+<p>Now the structural feature. Because the coins are independent, each $G_\ell$ appears in $F$ only to the first power — $F$ is multilinear (linear in each variable separately). A function linear in $G_i$ has zero second derivative in $G_i$:</p>
+
+$$\frac{\partial^2 F}{\partial G_i^2}=0\quad\Longrightarrow\quad M_{ii}=0.\tag{9}$$
+
+<p>So the Hessian $M$ has a zero diagonal. The same calculation that confirmed the diagonal is zero also shows the off-diagonal entries are genuine probabilities,</p>
+
+$$M_{ij}=\frac{\partial W_i}{\partial G_j}=\Pr\big[\text{exactly }k-1\text{ of the players}\neq i,j\text{ are above}\big]>0\quad(i\neq j),\tag{10}$$
+
+<p>strictly positive everywhere on the open cube $(0,1)^n$. Hold onto two facts: zero diagonal, positive off-diagonal.</p>
+
+<p class="section">3. Eigenvalues, signature, and what "$(1,n{-}1)$" means</p>
+
+<p>Any symmetric matrix can be understood through its eigenvalues — the $n$ real numbers $\lambda_1\ge\cdots\ge\lambda_n$ that describe how the quadratic form $v\mapsto v^\top M v$ stretches space along $n$ perpendicular axes. The list of their signs is called the inertia or signature of $M$: the triple $(n_+,n_-,n_0)$ counting how many eigenvalues are positive, negative, and zero. Sylvester's law of inertia says this triple is intrinsic — it does not change under a change of coordinates — so it is a robust descriptor of the matrix.</p>
+
+<p>Two consequences of the zero diagonal pin the signature down almost completely.</p>
+
+<p>First, the sum of the eigenvalues equals the trace (the sum of diagonal entries). Our diagonal is all zeros, so</p>
+
+$$\lambda_1+\cdots+\lambda_n=\operatorname{trace}(M)=0.\tag{11}$$
+
+<p>A list of numbers summing to zero cannot be all positive or all negative (unless all zero). So $M$ can never be positive definite or negative definite — it is necessarily indefinite, a "saddle." The convex-potential intuition (gradient of a bowl-shaped $F$) is simply wrong here; $F$ is a saddle-shaped potential.</p>
+
+<p>Second, the positive off-diagonal entries trigger the Perron–Frobenius theorem. That theorem says a symmetric matrix whose off-diagonal entries are all positive has a largest eigenvalue $\lambda_1$ that is strictly positive, strictly bigger than all the others (simple), and whose eigenvector can be taken with all-positive entries. So there is always exactly one guaranteed positive eigenvalue, and its eigendirection points into the positive orthant.</p>
+
+<p>Put the two together. We always have at least one positive eigenvalue (Perron), and the eigenvalues sum to zero, forcing negatives to balance it. The cleanest possible outcome — and the one conjectured, and confirmed numerically across every tested case — is the extreme: exactly one positive eigenvalue and the rest all negative,</p>
+
+<div class="box key">
+$$\text{signature}(M)=(\,1,\;n-1,\;0\,)\qquad\text{— one }+,\ \ (n-1)\text{ many }-,\ \ \text{none zero.}\tag{12}$$
+</div>
+
+<p>A worked instance ($n=5$, $k=3$, at $G=(0.17,0.41,0.58,0.73,0.29)$): the eigenvalues of $M$ are</p>
+
+$$\{\,-0.583,\;-0.459,\;-0.404,\;-0.312,\;+1.757\,\}\tag{13}$$
+
+<p>— exactly one large positive Perron eigenvalue and four negatives, signature $(1,4,0)$.</p>
+
+<p>This pattern, one plus and the rest minus, is called Lorentzian or Minkowski signature. The name is borrowed from relativity, where spacetime has one time dimension (the "+") and $n-1$ space dimensions (the "$-$"). We will use that geometry literally in §8; for now it is just a label for "exactly one positive eigenvalue."</p>
+
+<p class="section">4. Why the signature is the recovery statement (and the determinant is only its shadow)</p>
+
+<p>Recall the local-recovery condition: $M$ nonsingular, i.e. $\det M\neq 0$. The determinant equals the product of the eigenvalues. If the signature is $(1,n-1,0)$, then no eigenvalue is zero, so $\det M\neq 0$ automatically — and its sign is forced:</p>
+
+$$\det M=\underbrace{(+)}_{1\text{ factor}}\cdot\underbrace{(-)^{\,n-1}}_{n-1\text{ factors}}=(-1)^{n-1}\cdot(\text{positive number}).\tag{14}$$
+
+<p>That is exactly the sign-uniformity conjecture from <code>dy_plan_3.html</code>: $\det M=(-1)^{n-1}P$ with $P>0$. So the determinant conjecture is the shadow cast by the eigenvalue statement. The signature $(1,n-1)$ is strictly more informative — it does not merely say "the product of eigenvalues avoids zero," it says "exactly one eigenvalue is positive." That extra information is what makes an inductive proof tractable, because (as the next sections show) signatures behave predictably when you enlarge the matrix, whereas a bare determinant does not.</p>
+
+<p>And nonsingularity everywhere on the cube, with the constant sign $(-1)^{n-1}$, is precisely the local half of recovery, holding uniformly. <em>[Correction 2026-07-12: the upgrade to global injectivity is not automatic and needs two further lemmas — properness of $W$ onto its image <strong>and</strong> a singleton fiber (a proper local diffeomorphism is only a covering of its image); neither is proven yet. See <code>globalization-gap.md</code>. Pinchuk (1994) shows nonvanishing Jacobian alone, even for a polynomial map of a convex domain, does not give injectivity.]</em> So: prove signature $(1,n-1)$ for all $G$ and all $n$, and <em>local</em> recovery follows uniformly; global recovery additionally needs (P)+(F).</p>
+
+<p class="section">5. Adding one player borders the matrix</p>
+
+<p>How do we prove a statement "for all $n$"? By induction: assume it at size $n$, climb to $n+1$. Adding a player is the conditioning recursion,</p>
+
+$$W_i(k,n{+}1)=G_{n+1}\,W_i(k,n)+(1-G_{n+1})\,W_i(k{-}1,n),\tag{15}$$
+
+<p>which says the new contest's win probabilities are a blend of two old contests (the $k$-prize and $(k{-}1)$-prize fields on the original $n$ players), weighted by whether the newcomer lands below. Differentiating this blend produces the Hessian one size up, in bordered block form:</p>
+
+<div class="box">
+$$M^{(k,n+1)}=\begin{pmatrix} A & b\\[3pt] b^\top & 0\end{pmatrix},\qquad
+A=G_{n+1}\,M^{(k,n)}+(1-G_{n+1})\,M^{(k-1,n)},\qquad
+b_i=W_i^{(k,n)}-W_i^{(k-1,n)}.\tag{16}$$
+</div>
+
+<p>Read the three pieces. The big $n\times n$ block $A$ is the same convex blend of two old Hessians; it is the leading principal submatrix of the new Hessian (what you get by deleting the last row and column). The corner is $0$ — the new player's own diagonal entry, zero like all diagonal entries. The border $b$ is the new column (and, by symmetry, the new row): it records how sensitive each incumbent's win probability is to the newcomer. That sensitivity has a clean meaning — telescoping the cumulative win probability gives</p>
+
+$$b_i=W_i^{(k,n)}-W_i^{(k-1,n)}=\Pr\big[\text{exactly }k-1\text{ of the other }n-1\text{ players are above}\big],\tag{17}$$
+
+<p>the "bubble" probability: the chance player $i$ sits exactly on the in-the-money margin. The bubble vector $b$ is the bridge object — it is where the coupling identity will speak.</p>
+
+<p class="section">6. The Schur complement, explained slowly</p>
+
+<p>To understand the signature of the bordered matrix we need one classical tool, the Schur complement. It is nothing more than block Gaussian elimination, written once.</p>
+
+<p>Take any symmetric block matrix $\begin{pmatrix}A&b\\ b^\top&d\end{pmatrix}$ with $A$ invertible. Use the $A$-block to clear the border, exactly as you would use a pivot to clear a column in row reduction. The algebra leaves the corner replaced by</p>
+
+$$s\;=\;d-b^\top A^{-1}b,\tag{18}$$
+
+<p>called the Schur complement of $A$. Two readings make it intuitive. Algebraically, it is "the corner $d$, minus what the border $b$ can already explain through $A$." Statistically, if the matrix were a covariance, $s$ would be the leftover variance of the last coordinate after conditioning on the rest — variance always drops, which is the same as saying $b^\top A^{-1}b$ is subtracted off. In our case the corner is $d=0$, so</p>
+
+$$s=-\,b^\top A^{-1}b.\tag{19}$$
+
+<p>The Schur complement also computes the determinant by the block formula $\det\begin{pmatrix}A&b\\ b^\top&0\end{pmatrix}=\det(A)\cdot s$. Substituting $s$ and using $\operatorname{adj}(A)=\det(A)\,A^{-1}$ (the adjugate, the matrix of cofactors) gives the determinant identity recorded in <code>dy_plan_3.html</code>,</p>
+
+$$\det M^{(k,n+1)}=\det(A)\,\big({-}b^\top A^{-1}b\big)=-\,b^\top\!\operatorname{adj}(A)\,b.\tag{20}$$
+
+<p>So the sign of the new determinant is $\operatorname{sign}(\det A)\cdot\operatorname{sign}(s)$. But we want more than the determinant's sign — we want the full signature — and for that there is a sharper tool.</p>
+
+<p class="section">7. Haynsworth: signatures simply add</p>
+
+<p>The Haynsworth inertia additivity theorem says that the Schur complement splits the inertia cleanly. For a symmetric block matrix with $A$ invertible,</p>
+
+<div class="box key">
+$$\operatorname{In}\!\begin{pmatrix}A&b\\ b^\top&d\end{pmatrix}=\operatorname{In}(A)+\operatorname{In}(s),\qquad s=d-b^\top A^{-1}b,\tag{21}$$
+</div>
+
+<p>where $\operatorname{In}$ is the inertia triple $(n_+,n_-,n_0)$ and, since $s$ is a single number, $\operatorname{In}(s)$ is $(1,0,0)$ if $s>0$, $(0,1,0)$ if $s<0$, $(0,0,1)$ if $s=0$. In words: the eigenvalue-sign tally of the whole matrix is the tally of the $A$-block plus the one sign contributed by the Schur scalar.</p>
+
+<p>Now run the induction. Suppose at size $n$ we have the Lorentzian signature, so $\operatorname{In}(A)=(1,n-1,0)$. We want the bordered $(n{+}1)\times(n{+}1)$ matrix to be Lorentzian too, i.e. $\operatorname{In}(M^{(k,n+1)})=(1,n,0)$. Haynsworth says</p>
+
+$$(1,n-1,0)+\operatorname{In}(s)\;\overset{!}{=}\;(1,n,0)\quad\Longleftrightarrow\quad \operatorname{In}(s)=(0,1,0)\quad\Longleftrightarrow\quad s<0.\tag{22}$$
+
+<p>And $s<0$ means $-b^\top A^{-1}b<0$, that is $b^\top A^{-1}b>0$. The entire inductive step has collapsed to a single scalar inequality:</p>
+
+<div class="box key">
+$$\text{signature climbs }(1,n{-}1)\to(1,n)\quad\Longleftrightarrow\quad b^\top A^{-1}b>0.\tag{23}$$
+</div>
+
+<p>The worked instance ($n=5\to6$, $k=3$): the $5\times5$ block $A$ has signature $(1,4,0)$; the bordered $6\times6$ matrix has signature $(1,5,0)$; the Schur scalar is $s=-0.4385<0$, i.e. $b^\top A^{-1}b=+0.4385>0$; and indeed $(1,4,0)+(0,1,0)=(1,5,0)$, with $\det$ sign $(-1)^5=-1$ as required. Everything fits.</p>
+
+<p class="section">8. The Minkowski geometry of the inequality $b^\top A^{-1}b>0$</p>
+
+<p>The condition $b^\top A^{-1}b>0$ is geometric, and the geometry is exactly that of special relativity. Here is the dictionary.</p>
+
+<p>The inverse $A^{-1}$ has the same signature as $A$ (inverting flips the size of each eigenvalue but not its sign), so $A^{-1}$ is again Lorentzian: one positive direction, $n-1$ negative. Think of $A^{-1}$ as a Minkowski "metric" — a way of measuring the length-squared of a vector $v$ via $\langle v,v\rangle:=v^\top A^{-1}v$. Just as in spacetime, this length-squared can be positive, negative, or zero, and the sign classifies the vector:</p>
+
+<div class="box">
+$$\begin{aligned}
+b^\top A^{-1}b>0\;&:\quad b\ \text{is}\ \textit{timelike}\ \text{— inside the light cone}\\
+b^\top A^{-1}b<0\;&:\quad b\ \text{is}\ \textit{spacelike}\ \text{— outside the light cone}\\
+b^\top A^{-1}b=0\;&:\quad b\ \text{is}\ \textit{lightlike}\ \text{— exactly on the cone}
+\end{aligned}\tag{24}$$
+</div>
+
+<p>The light cone opens around the single positive eigendirection of $A^{-1}$, which (Perron again) is a positive, roughly balanced vector — the analog of the time axis. So our inductive step has the following crisp restatement:</p>
+
+<div class="box key">
+$$\text{the induction propagates Lorentzian signature}\quad\Longleftrightarrow\quad\text{the bubble vector }b\ \text{is timelike.}\tag{25}$$
+</div>
+
+<p>The three outcomes are not academic. If $b$ is timelike ($s<0$), the signature climbs correctly and recovery's Jacobian stays invertible. If $b$ were spacelike ($s>0$), the new matrix would have two positive eigenvalues — signature $(2,n-1)$ — and the determinant would flip to the wrong sign. If $b$ landed exactly on the cone ($s=0$), the determinant would be zero, the Jacobian singular, and recovery would fail locally at that point. So timelike-ness of the bubble vector is the precise make-or-break condition for the whole program.</p>
+
+<p class="section">9. The honest crux: $b>0$ is not the same as $b$ timelike</p>
+
+<p>Here is the temptation, and the trap. The bubble vector is a vector of probabilities, so $b>0$ entrywise; and the cone opens around a positive direction. One is tempted to conclude "positive vector, positive direction, therefore inside the cone." That inference is false, and seeing why is the heart of this note.</p>
+
+<p>The light cone of a Lorentzian form is narrow — it hugs its axis. The positive orthant is wide. Most of the positive orthant lies outside the cone. We can exhibit this directly. In the worked instance, the diagonal entries of $A^{-1}$ are all negative,</p>
+
+$$\operatorname{diag}(A^{-1})=(-2.27,\,-1.69,\,-1.56,\,-1.68,\,-1.95).\tag{26}$$
+
+<p>But the diagonal entry $(A^{-1})_{ii}$ is exactly $e_i^\top A^{-1}e_i$, the Minkowski length-squared of the $i$-th standard basis vector — and $e_i$ is a perfectly good positive vector. Every one is negative, so every $e_i$ is spacelike. A lopsided positive vector is spacelike too:</p>
+
+<div class="box">
+$$\begin{aligned}
+e_1,\dots,e_5\ (\text{positive})\ &:\quad e_i^\top A^{-1}e_i<0\quad\Rightarrow\quad\textbf{spacelike}\\
+(1,0.2,0.2,0.2,0.2)\ (\text{positive})\ &:\quad -1.22\quad\Rightarrow\quad\textbf{spacelike}\\
+(1,1,1,1,1)\ (\text{balanced})\ &:\quad +2.93\quad\Rightarrow\quad\textbf{timelike}\\
+b\ (\text{the bubble vector})\ &:\quad +0.44\quad\Rightarrow\quad\textbf{timelike}
+\end{aligned}\tag{27}$$
+</div>
+
+<p>So positivity buys nothing by itself: a positive vector is timelike only if it is balanced enough to stay near the axis. The bubble vector $b$ does land inside the cone — that is what made the induction work in §7 — but this is a real, structural fact about $b$, not a free consequence of $b>0$. It must be earned.</p>
+
+<p class="section">10. Where the coupling identity enters</p>
+
+<p>This is the slot the coupling identity fills. To decide whether $b$ is timelike we need to control its direction — how balanced it is, not just that it is positive. The coupling identity (proved in <code>jacobian-coupling-recursion.html</code>) is exactly a statement about the direction of $b$. Writing $\beta_i:=G_ib_i$,</p>
+
+<div class="box key">
+$$G_ib_i-G_jb_j=(G_i-G_j)\,\widehat b^{(k-2)}_{ij},\qquad \widehat b^{(k-2)}_{ij}>0\ \text{on the interior.}\tag{28}$$
+</div>
+
+<p>Because the right-hand factor is a positive probability, this says the rescaled bubble entries $\beta_i=G_ib_i$ are ordered in lockstep with the CDF values: $\operatorname{sign}(\beta_i-\beta_j)=\operatorname{sign}(G_i-G_j)$. The rescaling $b_i\mapsto G_ib_i$ combs the bubble vector into a comonotone, rank-one-increment shape — a strong regularity that pulls $b$ toward the balanced, axis-aligned region where timelike vectors live. In the language of odds (the ratio $r_\ell=(1-G_\ell)/G_\ell$ of above-chance to below-chance, the reparametrization that makes these products telescope), the identity reads $\beta_i=\omega\,e_{k-1}(r_{-i})$ with a universal weight $\omega=\prod_\ell G_\ell$, exposing $b$ as a single elementary-symmetric layer — the same algebraic species as the win probabilities themselves.</p>
+
+<p>So the coupling identity is the structural control on the very vector the signature induction turns on. It is necessary input: without directional information on $b$, the timelike question is hopeless, since §9 shows the answer is not dictated by positivity. What the identity gives is comonotone, rank-one structure on $b$ — the kind of regularity a timelike proof would need.</p>
+
+<p class="section">11. Honest status — what is proved, what is not</p>
+
+<div class="box">
+What is established. (i) The recovery Jacobian $M$ is the Hessian of the multilinear potential $F$, hence zero-diagonal, positive-off-diagonal, trace zero. (ii) Perron–Frobenius forces one positive eigenvalue; the conjecture/numerics give signature exactly $(1,n-1)$, whose determinant shadow is the <code>dy_plan</code> sign rule and whose nonvanishing is local recoverability. (iii) Bordering by one player, Haynsworth additivity reduces the inductive step to the single inequality $b^\top A^{-1}b>0$ — the bubble vector being timelike. (iv) The coupling identity controls the direction of $b$ (positive, comonotone, rank-one).
+<br><br>
+What is not. The implication "coupling structure on $b$ $\Rightarrow$ $b$ timelike" is not proved. Section 9 is the warning: timelike-ness is strictly stronger than positivity, and the cone is narrow, so the comonotone control from the identity is suggestive but not yet sufficient. Closing the gap means showing the specific bubble vector lies inside the light cone of $A^{-1}$ for all $G$ and all $n$ — a statement that couples the algebra of $b$ to the spectral geometry of $A$, which the current identity does not by itself deliver.
+<br><br>
+This reconciles today's coupling identity with the earlier signature framing: it is not fresh ground, it is the directional ingredient that the signature induction was missing — necessary, located, but not yet load-bearing on its own. The next real test is to take the smallest open step, $n\to n{+}1$ at $k=2$, and ask whether the comonotone structure of $b$ together with the convex-blend structure of $A$ forces $b^\top A^{-1}b>0$, or whether a further fact about how $b$ aligns with the Perron axis of $A$ is still required.
+</div>
+
+<p class="section">12. Numerical verification</p>
+
+<p>All checks in Julia (LinearAlgebra), at the fixed point $G=(0.17,0.41,0.58,0.73,0.29,0.86,0.52)$ truncated to the needed length; win probabilities built from the exact "$\le k-1$ above" expansion.</p>
+
+<ul>
+  <li>Signature of $M$ is $(1,n-1,0)$ and $\operatorname{sign}\det M=(-1)^{n-1}$ for $(n,k)\in\{(4,2),(5,2),(5,3),(6,3),(6,4)\}$ — one positive Perron eigenvalue, the rest negative, in every case.</li>
+  <li>The bordered block identity $M^{(k,n+1)}=\big[\begin{smallmatrix}A&b\\ b^\top&0\end{smallmatrix}\big]$ holds to $\sim10^{-16}$, with $A$ the convex blend and $b$ the bubble vector, for $(n,k)\in\{(4,2),(5,3),(6,4)\}$.</li>
+  <li>Haynsworth additivity $\operatorname{In}(M^{(k,n+1)})=\operatorname{In}(A)+\operatorname{In}(s)$ verified, with $\operatorname{In}(A)=(1,n-1,0)$, $s<0$, and $\operatorname{In}(M^{(k,n+1)})=(1,n,0)$ in every case.</li>
+  <li>The bubble vector is timelike, $b^\top A^{-1}b>0$, while $\operatorname{diag}(A^{-1})<0$ entrywise — exhibiting explicit positive vectors ($e_i$, and a lopsided positive vector) that are spacelike. Positivity does not imply timelike.</li>
+</ul>
+
+<p class="note">Companion to jacobian-coupling-recursion.html (the coupling identity and its derivation), wg-difference-recursion.html (the cumulative-layer identity), odds_ratio_global_polynomial.html (odds ratio and the deletion lemma), dy_plan_3.html (the matrix $M$, the conditioning recursion, the Schur/adjugate determinant).</p>
+
+</body>
+</html>

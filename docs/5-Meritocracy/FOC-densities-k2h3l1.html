@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equilibrium density FOCs — k=2, h=3, ℓ=1 (Parreiras–Rubinchik approach)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  body{max-width:820px;margin:2rem auto;padding:0 1.2rem;font:16px/1.6 Georgia,serif;color:#1a1a1a}
+  h1{font-size:1.5rem;border-bottom:2px solid #333;padding-bottom:.3rem}
+  h2{font-size:1.15rem;margin-top:2rem;color:#222}
+  .box{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:.6rem 1rem;margin:1rem 0}
+  .key{background:#fff8e6;border:1px solid #e6c200}
+  .note{font-size:.92rem;color:#444}
+  code{background:#eee;padding:.05rem .3rem;border-radius:3px;font-size:.92em}
+  .tag{font:12px/1 monospace;color:#666}
+</style>
+</head>
+<body>
+
+<h1>Density FOC system for $k=2,\ h=3,\ \ell=1$</h1>
+<p class="tag">Parreiras–Rubinchik (2010) linear-in-densities approach · all coefficients Symbolics-verified · residual&nbsp;=&nbsp;0</p>
+
+<p>One H-bidder faces $2$ other H's and the single L; the L-bidder faces all $3$ H's.
+With $k=2$ prizes a bidder wins iff <em>at most one</em> rival outbids him. Write
+$x=1-G_H,\ y=1-G_L$ for the tail probabilities and $g_i=G_i'(b)$ for the bid densities.</p>
+
+<h2>1. Interim win probabilities</h2>
+<div class="box">
+$$W_H(b)=G_H^2+2\,G_H(1-G_H)\,G_L,\qquad W_L(b)=3G_H^2-2G_H^3 .$$
+</div>
+<p class="note">$W_H=\Pr(0\text{ of }3\text{ rivals above})+\Pr(\text{exactly }1)$, the rivals being $2$H$+1$L.
+$W_L$ depends on $G_H$ only — the lone L has no L-rival.</p>
+
+<h2>2. Differentiate in $b$</h2>
+<p>Chain rule, collecting the two densities:</p>
+<div class="box">
+$$W_H'(b)=2\big[G_H(1-G_L)+G_L(1-G_H)\big]\,g_H\;+\;2\,G_H(1-G_H)\,g_L,$$
+$$W_L'(b)=6\,G_H(1-G_H)\,g_H .$$
+</div>
+<p class="note">Each coefficient is a marginal-pivotal probability: in $W_L'$, three H-rivals
+$\times\,g_H\times\Pr(\text{exactly one of the other two H above})=3g_H\cdot 2x(1-x)$.
+In $W_H'$ the $g_H$-coefficient is $2g_H\cdot[x(1-y)+(1-x)y]$ (one of $\{$other H, the L$\}$
+above) and the $g_L$-coefficient is $g_L\cdot 2x(1-x)$ (one of two H above).</p>
+
+<h2>3. Stationarity ⇒ an affine system in $(g_H,g_L)$</h2>
+<p>A type $v$ in group $i$ maximizes $v\,W_i(b)-b$, so $W_i'(b)\,\varphi_i(b)=1$ with
+$\varphi_i(b)=F_i^{-1}(G_i(b))$ the type bidding $b$. The two FOCs are <em>linear (affine)</em>
+in $(g_H,g_L)$:</p>
+<div class="box">
+$$\begin{pmatrix}
+2\big[G_H(1-G_L)+G_L(1-G_H)\big] & 2G_H(1-G_H)\\[4pt]
+6G_H(1-G_H) & 0
+\end{pmatrix}
+\begin{pmatrix}g_H\\[2pt] g_L\end{pmatrix}
+=\begin{pmatrix}1/\varphi_H\\[2pt] 1/\varphi_L\end{pmatrix}=:A\,\mathbf g=\mathbf c .$$
+</div>
+<p>The matrix is lower-anti-triangular — the L-row has a zero in the $g_L$ slot (the L-FOC
+contains no $g_L$). Its determinant is the Jacobian double-zero already met in the
+boundary-layer analysis:</p>
+<div class="box">
+$$\det A \;=\; -\,2G_H(1-G_H)\cdot 6G_H(1-G_H)\;=\;-12\,G_H^2(1-G_H)^2 .$$
+</div>
+
+<h2>4. Solve (Cramer)</h2>
+<div class="box key">
+$$\boxed{\,g_H \;=\; \frac{1}{6\,G_H(1-G_H)\,\varphi_L}\,}$$
+$$\boxed{\,g_L \;=\; \frac{1}{2\,G_H(1-G_H)\,\varphi_H}\;-\;\frac{G_H(1-G_L)+G_L(1-G_H)}{6\,G_H^{2}(1-G_H)^{2}\,\varphi_L}\,}$$
+</div>
+<p class="note">Equivalently, the triangular reading: the L-FOC alone pins
+$g_H=1/[6G_H(1-G_H)\varphi_L]$; substitute into the H-FOC and solve the remaining scalar
+equation for $g_L$. Substituting both back into $A\mathbf g$ returns $\mathbf c$ exactly
+(Symbolics residual $=[0,0]$).</p>
+
+<h2>5. What the solution shows</h2>
+<ul>
+<li><b>Density blow-up at the top.</b> As $G_H\to1$ the common factor $G_H(1-G_H)\to0$, so
+$g_H\sim 1/[6\,\bar v_L\,(1-G_H)]\to\infty$ — the $k=2$ explosion that drives the
+boundary-layer common-top argument.</li>
+<li><b>$g_L$ is a difference of two blow-ups.</b> Both terms diverge like $(1-G_H)^{-1}$
+and $(1-G_H)^{-2}$; finiteness of $g_L$ near the top is a <em>cancellation</em> condition,
+which is exactly the $0/0$ that forced introducing the rate $\rho=\lim(1-G_L)/(1-G_H)$.</li>
+<li><b>Sign / admissibility.</b> $g_H>0$ automatically (all factors positive on $0<G_H<1$).
+$g_L\ge0$ is a genuine constraint: it fails — printed line-265/267 "always positive" is false —
+precisely in the regimes the intimidation hypothesis is meant to exclude.</li>
+</ul>
+
+<h2>6. The ratio $g_L/g_H$</h2>
+<p>Dividing the two boxed solutions and simplifying (Symbolics), the $\varphi_L$ and the
+$(1-G_H)$ powers cancel. The subtracted term then splits across its denominator into a tail
+ratio and a level ratio:</p>
+<div class="box">
+$$\frac{G_H(1-G_L)+G_L(1-G_H)}{G_H(1-G_H)}=\frac{1-G_L}{1-G_H}+\frac{G_L}{G_H}.$$
+</div>
+<p>so the density ratio is just three terms:</p>
+<div class="box key">
+$$\boxed{\;\frac{g_L}{g_H}\;=\;3\,\frac{\varphi_L}{\varphi_H}\;-\;\frac{1-G_L}{1-G_H}\;-\;\frac{G_L}{G_H}\;}$$
+</div>
+<p class="note tag">Symbolics: <code>simplify(ratio − three-term form) = 0</code>.</p>
+
+<h2>7. Ruling out the common top — drop the positive term</h2>
+<p>The middle term is a ratio of <em>tails</em>; nothing local pins its value, and at a common
+top it is the $0/0$ we cannot evaluate. But we never need to: below the top both tails are
+strictly positive, so $\dfrac{1-G_L}{1-G_H}>0$, and dropping a positive term only weakens an
+upper bound —</p>
+<div class="box">
+$$\frac{g_L}{g_H}\;<\;3\,\frac{\varphi_L}{\varphi_H}-\frac{G_L}{G_H}\qquad\text{for every }b<\bar b.$$
+</div>
+<p>Let $b\to\bar b$. At a common top $G_H,G_L\to1$, so $\dfrac{G_L}{G_H}\to1$, while
+$\varphi_L\to\bar v_L,\ \varphi_H\to\bar v_H$. Hence</p>
+<div class="box key">
+$$\limsup_{b\to\bar b}\frac{g_L}{g_H}\;\le\;3\,\frac{\bar v_L}{\bar v_H}-1.$$
+</div>
+<p>Under intimidation $\bar v_H>3\bar v_L$ the right-hand side is <strong>strictly negative</strong>,
+so $g_L/g_H<0$ near the top; since $g_H>0$ this forces $g_L<0$ — impossible for a density.
+Therefore $\bar b_H=\bar b_L$ cannot occur.</p>
+
+<p class="note">Inputs used: (i) the exact three-term identity of §6; (ii) $G_L/G_H\to1$, which
+is just the <em>definition</em> of a common top; (iii) $\varphi_i\to\bar v_i$ at the top.
+Nothing else. In particular:</p>
+<ul class="note">
+<li>No assumption that $\dfrac{1-G_L}{1-G_H}$ converges, and no rate $\rho$ — the
+boundary-layer substitution $G_L=1-\rho\varepsilon$ silently assumed that tail ratio had a fixed
+limit; here the term's positivity is all that matters, so its rate is irrelevant.</li>
+<li>No use of $G_L>G_H$ — only $G_L/G_H\to1$.</li>
+<li>The pointwise "$<$" relaxes to "$\le$" under $\limsup$, but intimidation makes the bound
+<em>strictly</em> negative, so the contradiction survives.</li>
+</ul>
+<p class="note tag">This supersedes the earlier boundary-layer ($\rho$) write-up of the
+common-top exclusion: same conclusion, fewer assumptions.</p>
+
+<p class="tag">Generated for Track B, k=2/h=3/ℓ=1. Coefficients and Cramer solve verified in
+Julia/Symbolics. See <code>Docs/TRACK-B-REPORT.md</code> (2026-06-12 sections) for the
+boundary-layer common-top argument that uses these formulas.</p>
+
+</body>
+</html>

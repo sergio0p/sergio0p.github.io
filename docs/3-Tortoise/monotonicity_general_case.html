@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chain monotonicity in the general case</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Chain monotonicity in the general case: (a) closed, (b) reduced to the rival-drift crux</p>
+
+<p class="note">Tortoise (Joffrion &amp; Parreiras). General convex cost $c$, values $v_1\ge v_2$, lead $\Delta$. Question: does the chain-monotonicity program of <code>chain_monotonicity_reduction.md</code> — proved only in the symmetric quadratic case ($v_1=v_2$, $\Delta=0$, $c=e^2$) via explicit closed forms — survive to polynomial costs and to asymmetry? This is the fuller companion to <code>Docs/monotonicity_general_case.md</code>; the math is identical, the prose is expanded. Everything here is analytic, derived this session via the envelope theorem; the surviving crux (§4) is open. NOT yet human-verified — do not edit the paper on its strength.</p>
+
+<div class="box key">
+<p>Summary. The $q_1$-dial reduction rests on two scalar facts: (a) $u_1^\ast$ increasing in $q_1$, and (b) the shooting residual $F(q_1)$ single-crossing ($F'&gt;0$). Both were established only for symmetric quadratic. The envelope theorem discharges (a) in full generality (any convex $c$, any $v_1\ge v_2$, $\Delta\ge 0$) as a one-liner. The same move applied to (b) cancels the new atom's own-atom drift, reducing the sign of its mass derivative to a contest between a negative level effect and the rival atom's drift — exactly the two-sided coupling / gap-widening crux of the symmetric case, now without the closed form that previously closed it. So: (a) is no longer a gap; (b) reduces, generally, to "rival atoms drift right fast enough."</p>
+</div>
+
+<p class="section">0. The reduction skeleton is cost- and asymmetry-general</p>
+
+<p>The §2–§4 machinery of <code>chain_monotonicity_reduction.md</code> uses only three structural facts, none quadratic or symmetric: (1) the march is triangular with a single dial $q_1$ — step $k$ uses only quantities indexed $\le k$; (2) adjacent rungs share the recursion-determined block bit-for-bit at the same $q_1$, because a top atom cannot touch lower-index equations; (3) the closing normalization $\sum=1$ leaves exactly one leftover mass.</p>
+
+<p>The QUICKSTART §2 system is written for general convex $c$ and general shift $f=w_2-w_1-\Delta$, and remains triangular in the same march order, where $w_i=c^{-1}(v_i)$ is player $i$'s reach. Hence the new-mass identity $(\text{new atom's mass})(q_1)=-F_{\text{prev}}(q_1)$ and the equivalence</p>
+
+<div class="box">
+<p>chain monotone $\iff$ $\big[\,F'(q_1)&gt;0$ per rung $\big]\ \wedge\ \big[\,u_1^\ast$ increasing in $q_1\,\big]$</p>
+</div>
+
+<p>carry over verbatim. What does not carry over are the proofs of the two bracketed facts. The earlier proofs (the closed form $G_i=t/(1+it)$, the phantom-zero barycenter lemma, the positive-coefficient factorization of the $F'$-numerator) were all artifacts of $c'(e)=2e$ and $f=0$. Below we re-derive both facts from the conditions themselves, by an argument that does not need a closed form.</p>
+
+<p class="section">1. (a) is closed in general — the envelope one-liner</p>
+
+<p>At player 1's lowest atom $x_1$ the truncation rule leaves a single term ($\ell\le 1$, with $\tilde y_1=f$ and $w_1+f=w_2-\Delta$), so the first-order condition is</p>
+
+$$q_1\,c'(w_2-\Delta-x_1) = c'(x_1),\qquad w_2=c^{-1}(v_2).$$
+
+<p>This is a single equation with $\partial/\partial x_1$ of the left side minus right side equal to $-q_1c''(w_2-\Delta-x_1)-c''(x_1)&lt;0$, so $x_1(q_1)$ is well-defined and strictly increasing for any convex $c$ and any $(v_1,v_2,\Delta)$. The equilibrium payoff, read off the same atom, is</p>
+
+$$u_1^\ast(q_1) = q_1\big[v_1-c(w_2-\Delta-x_1)\big]-c(x_1).$$
+
+<p>Differentiate in $q_1$. The terms proportional to $x_1'$ collect the factor $q_1c'(w_2-\Delta-x_1)-c'(x_1)$, which vanishes by the FOC. What survives is the explicit-$q_1$ term:</p>
+
+<div class="box key">
+$$\frac{du_1^\ast}{dq_1} = v_1 - c(w_2-\Delta-x_1)\;&gt;\;0.$$
+</div>
+
+<p>The inequality holds because $c(w_2-\Delta-x_1)&lt;c(w_2)=v_2\le v_1$ — strict monotonicity of $c$, using $w_2-\Delta-x_1&lt;w_2$ whenever $\Delta+x_1&gt;0$ (automatic for $\Delta\ge 0$). So $u_1^\ast$ is strictly increasing in $q_1$ for every convex cost, all $v_1\ge v_2$, all $\Delta\ge 0$ — no closed form required. This corrects the QUICKSTART §4/§5 remark, which read "no closed form for $u_1^\ast$" as "monotonicity unknown"; the two are unrelated, and the envelope settles the second in one line.</p>
+
+<p class="note">Aside on why this is exactly the (a)-style win. The clean cancellation is the envelope theorem: $u_1^\ast$ is a value held flat by P1's optimization, so its total derivative in any parameter equals the partial derivative holding the choice fixed. Here the only surviving partial is through the explicit mass $q_1$ multiplying the win-payoff bracket. The same idea drives §2.</p>
+
+<p class="section">2. The same move on (b): the envelope kills own-atom drift</p>
+
+<p>Shoot in the dial $q_1$. For $\sigma(2,2)$ the only recursion-determined mass beyond $q_1$ is $q_2$, and the residual is $F=q_1+q_2(q_1)-1$, hence</p>
+
+$$F'(q_1) = 1 + q_2'.$$
+
+<p>So (b) for this rung is exactly the sign of $dq_2/dq_1$. The pair $(q_2,x_2)$ is born from player 1's two conditions at the second atom. Writing the two interior arguments $\alpha_1=w_2-\Delta-x_2$ (the boundary rival $\tilde y_1=f$) and $\alpha_2=w_1+\tilde y_2-x_2$ (the second rival atom):</p>
+
+$$G_1 \equiv q_1 c'(\alpha_1) + q_2 c'(\alpha_2) - c'(x_2) = 0 \qquad (\text{FOC at }x_2)$$
+$$G_2 \equiv q_1[v_1-c(\alpha_1)] + q_2[v_1-c(\alpha_2)] - c(x_2) - u_1^\ast = 0 \qquad (\text{indifference})$$
+
+<p>The envelope mechanism of §1 reappears, now structurally. Differentiate the indifference equation in its own atom $x_2$, holding $(q_1,q_2,\tilde y_2)$ fixed:</p>
+
+$$\frac{\partial G_2}{\partial x_2} = q_1 c'(\alpha_1) + q_2 c'(\alpha_2) - c'(x_2) = G_1 = 0.$$
+
+<p>The indifference condition is stationary in its own atom precisely because the FOC holds. Therefore, when we totally differentiate $G_2$ with respect to the dial $q_1$, the own-atom drift $x_2'$ enters only through $\partial G_2/\partial x_2=0$ and drops out completely. Using $\partial\alpha_1/\partial x_2=-1$, $\partial\alpha_2/\partial x_2=-1$, $\partial\alpha_2/\partial\tilde y_2=+1$, and substituting the (a) result $u_1^{\ast\prime}=v_1-c(A_1)$ with $A_1=w_2-\Delta-x_1$, the total derivative $dG_2/dq_1=0$ collapses to a single scalar equation for $q_2'$:</p>
+
+<div class="box key">
+$$q_2'\,\big[\,v_1-c(\alpha_2)\,\big] \;=\; \underbrace{c(\alpha_1)-c(A_1)}_{&lt;\,0} \;+\; \underbrace{q_2\,c'(\alpha_2)\,\tilde y_2'}_{\text{rival drift}}.$$
+</div>
+
+<p>The level term simplifies from $u_1^{\ast\prime}-[v_1-c(\alpha_1)] = [v_1-c(A_1)]-[v_1-c(\alpha_1)] = c(\alpha_1)-c(A_1)$. This identity holds for any convex $c$ and any asymmetry $(v_1,v_2,\Delta)$: the boxed equation is the general-case content of (b) on this rung.</p>
+
+<p class="section">3. Reading the identity</p>
+
+<p>Three sign facts in the box:</p>
+
+<p>— The coefficient $v_1-c(\alpha_2)&gt;0$. On the interior branch $\alpha_2=w_1+\tilde y_2-x_2&lt;w_1$ (because $x_2&gt;\tilde y_2$ by interleaving), so $c(\alpha_2)&lt;c(w_1)=v_1$.</p>
+
+<p>— The level term $c(\alpha_1)-c(A_1)&lt;0$. Since $x_2&gt;x_1$ we have $\alpha_1=w_2-\Delta-x_2&lt;w_2-\Delta-x_1=A_1$, and $c$ is increasing. Mechanically: raising the dial $q_1$ raises $x_1$, which raises the level $u_1^\ast$ (the (a) effect), and a higher level alone forces $q_2$ down.</p>
+
+<p>— The rival-drift term $q_2 c'(\alpha_2)\,\tilde y_2'$ has the sign of $\tilde y_2'$ — the drift of player 2's own second atom as the dial moves. It pushes $q_2$ up iff $y_2$ moves right with $q_1$.</p>
+
+<p>So the envelope does genuine and fully general work: it removes own-atom drift from the mass derivative. But it does not sign $q_2'$. The sign is a contest between the level effect and the rival-drift effect:</p>
+
+<div class="box">
+<p>$q_2'&gt;0 \iff$ the rival atom drifts right fast enough that $\;q_2 c'(\alpha_2)\,\tilde y_2' &gt; c(A_1)-c(\alpha_1)$.</p>
+</div>
+
+<p class="section">4. What remains is the old crux, without the crutch</p>
+
+<p>This residual contest is exactly the two-sided barycenter coupling isolated in <code>chain_monotonicity_reduction.md</code> §6: the own atom $x_2$ cancels, but the rival atom $\tilde y_2$ does not, and $\tilde y_2$ itself is fixed by player 2's conditions, which in turn depend on the $x$'s. Closing $\tilde y_2'&gt;0$ (and, up the comb, every $d_j',\delta_j'&gt;0$) is a joint invariant on the coupled $(x,y)$ sweep — a genuine induction, not a one-liner. In the symmetric quadratic case that step was finally discharged by the explicit gaps $G_i=t/(1+it)\Rightarrow G_i'=(1+it)^{-2}&gt;0$. Off quadratic that closed form is gone, so (b) reduces, in general, to the same irreducible coupling.</p>
+
+<p>The take-away is sharp. The envelope theorem — the trick that closed (a) — also acts on (b) and does real work, collapsing the mass-derivative question to rival-atom drift alone. It just stops one step short of a sign, at exactly the place the symmetric proof also stalled before the closed form rescued it.</p>
+
+<p class="section">5. A weaker, possibly more tractable target</p>
+
+<p>$F'&gt;0$ does not require full mass-monotonicity. For $\sigma(m,m)$, $F=q_1+\sum_{\ell\ge 2}q_\ell-1$, so</p>
+
+$$F'&gt;0 \iff \sum_{\ell\ge 2} q_\ell' &gt; -1,$$
+
+<p>not "every $q_\ell'&gt;0$." The negative level term in the box is therefore not automatically fatal: there is slack of size $1$ from the explicit dial. The right open problem may be this weaker single-crossing balance on the aggregate rival drift, rather than proving every comb gap widens. The mirror statement holds for $\sigma(m,m+1)$ with $\sum_{k\ge 2}p_k' &gt; -1$.</p>
+
+<p class="section">6. Status, scope, and the existence caveat</p>
+
+<p>(a): closed in general by the §1 envelope identity — removed from the list of gaps. (b): reduced in general (§2–§4) to "rival atoms drift right fast enough"; open, the same crux as symmetric quadratic minus the closed-form resolution.</p>
+
+<p>The existence caveat is real and interacts with monotonicity. Off quadratic, some $\sigma(m,n)$ solve the algebraic system but carry a negative mass (inadmissible) or have no root in $q_1\in(0,1)$ (nonexistent). The monotonicity statement is about the admissible chain only; an apparent reversal among raw algebraic solutions is not a counterexample if the offending rung fails admissibility or existence.</p>
+
+<p class="note">Everything above is analytic and derived this session; not yet human-verified. Do not edit the paper or other docs on its strength. Resume state: §1 (a-closed) and §2 (b envelope reduction) are exact one-line identities. The open step is §4 — sign the rival drift $\tilde y_\ell'$ (gap-widening) along the coupled sweep, or prove the weaker §5 balance. Companions: <code>chain_monotonicity_reduction.md</code> (dial, residual, the crux in symmetric quadratic), <code>symmetric_quadratic_closed_form.md</code> (the closed form that closed it there), QUICKSTART §0/§2.</p>
+
+</body>
+</html>

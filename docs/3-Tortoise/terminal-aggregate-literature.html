@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repeated Play with a Terminal Aggregate — Literature Map</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Repeated Play with a Terminal Aggregate — Literature Map</p>
+
+<p class="note">Session 2026-07-03, strategy/editorial mode. Citations are from model memory and NOT yet verified against the library — click a reference to run the UNC Articles+ search before citing. Companion to Docs/examples_first_interleaving_plan.md and Docs/paper_decisions.md.</p>
+
+<p class="section">Summary</p>
+
+<div class="box key">
+<p>The class — players play a finite sequence of identical stage games; total payoff = sum of stage payoffs plus a terminal payoff $g(x_T)$ evaluated at a summary statistic $x_T$ of past play (for us: the accumulated lead $\Delta$) — has no canonical named theory of its own. It sits at the intersection of four literatures: (i) discrete-time difference games in Bolza form supply the formal skeleton; (ii) Benoit–Krishna supplies the multiplicity logic (endgame correspondence as carrot and stick); (iii) Blackwell approachability is the zero-sum ancestor; (iv) dynamic contribution games and cumulative-effort tournaments are the economic cousins. In every smooth-terminal member of the class the equilibrium is (essentially) unique; the all-pay terminal function is kinked, and the kink turns the continuation function into a continuation correspondence. That contrast is the paper's abstract address.</p>
+</div>
+
+<p class="section">1. The class, formally</p>
+
+<p>Rounds $t = 1, \dots, T$. Each round the two contestants play the same stage action set with stage payoff $-c(e_{it})$, independent of the state. The state aggregates linearly, $\Delta_{t+1} = \Delta_t + e_{1t} - e_{2t}$, and enters payoffs only at the deadline, through the terminal continuation $g_i(\Delta_T)$. In control language this is a finite-horizon problem in Bolza form — running (Lagrange) cost plus terminal (Mayer) payoff — with a one-dimensional state that is a summary statistic of the action history. The pre-period $t \le T-2$ is a repeated game in the precise sense that stage payoffs and transitions are identical and translation-invariant; it is not a repeated game in the strict sense, because actions move the state that the terminal function prices.</p>
+
+<p>Two structural facts frame everything below. First, the stage game alone (pure effort costs, no prize) has a unique and trivial Nash equilibrium — zero effort — so a strict repeated-game reading would force strategic death by backward induction; all pre-period richness is financed by the terminal term. Second, whether that financing produces uniqueness or multiplicity is decided entirely by the shape of $g$: smooth $g$ yields a continuation function and essentially unique feedback equilibria; the all-pay auction's kinked $g$ yields a continuation correspondence.</p>
+
+<p class="section">2. The formal skeleton — difference games in Bolza form</p>
+
+<p>The dynamic-games/control tradition treats exactly this payoff shape: additive stage costs plus a terminal salvage value $g(x_T)$. The discrete-time ("multi-stage") half of Başar–Olsder is the relevant one — finite-horizon Markov games with a state variable, in engineering notation. The tradition's questions, however, are computational (saddle points, feedback laws, linear-quadratic Riccati solutions), not economic: with smooth concave terminal payoffs, backward induction delivers feedback equilibria essentially uniquely, and multiplicity is degenerate. The economist-friendly entry point is Dockner–Jørgensen–Long–Sorger. Cite this family for the taxonomy, one sentence's worth; the value of the citation is contrast, not machinery. The economics-native alternative phrasing: a finite-horizon stochastic game with deterministic transitions and a one-dimensional state (Maskin–Tirole for Markov-perfect language), with the paper's carrot-and-stick constructions deliberately non-Markov.</p>
+
+<p class="section">3. The multiplicity logic — Benoit–Krishna</p>
+
+<p>Benoit–Krishna show that finitely repeated games escape backward-induction uniqueness precisely when the endgame offers multiple continuation payoffs to use as carrots and sticks. The dynamic contest transplants that mechanism: the $T$-shortened endgame (our two-round characterization) supplies a continuum of continuation equilibria indexed by the inherited lead $\Delta$ and by selection, and $\Delta$-dependent selection is the enforcement instrument. This is the honest sentence for the introduction: the penultimate-round equilibrium set is the building block, and its multiplicity proliferates backward in the manner of Benoit–Krishna — without promising a $T$-round characterization. It also accommodates the $T=3$ deterrence fact (a deterring effort above $w_2/3$) — the endgame correspondence disciplines, but does not mechanically replicate, pre-period play. Dutta's folk theorem for stochastic games is the state-variable analogue.</p>
+
+<p class="section">4. The zero-sum ancestor — Blackwell approachability</p>
+
+<p>Blackwell's approachability problem is literally: repeated play with vector outcomes, where what matters is a function of the average (a summary statistic) of past play. Zero-sum and asymptotic, so an intellectual ancestor rather than a tool — but it is the one place where terminal evaluation of an aggregate of repeated play is the definition of the problem.</p>
+
+<p class="section">5. Economic cousins — two families</p>
+
+<p>Dynamic contribution games. Per-period costly contributions; payoff from the cumulative stock; terminal/threshold payoff kinked at completion — which is exactly what generates their multiplicity and gradualism. Structurally the contest with a cooperative rather than adversarial terminal function: <a href="https://library.unc.edu/find/?q=Joint+Projects+without+Commitment+Admati+Perry">Admati–Perry</a>, <a href="https://library.unc.edu/find/?q=Dynamic+Voluntary+Contribution+to+a+Public+Project+Marx+Matthews">Marx–Matthews</a>, <a href="https://library.unc.edu/find/?q=Gradualism+in+Bargaining+and+Contribution+Games+Compte+Jehiel">Compte–Jehiel</a>, <a href="https://library.unc.edu/find/?q=Dynamic+Free+Riding+with+Irreversible+Investments+Battaglini+Nunnari+Palfrey">Battaglini–Nunnari–Palfrey</a>, <a href="https://library.unc.edu/find/?q=Projects+and+Team+Dynamics+Georgiadis">Georgiadis</a>.</p>
+
+<p>Cumulative-effort tournaments. Identical rounds, convex per-round costs, prize awarded at the deadline on cumulative performance: <a href="https://library.unc.edu/find/?q=Contests+with+Multiple+Rounds+Yildirim">Yildirim</a> (complete information, Tullock success function), <a href="https://library.unc.edu/find/?q=Information+Feedback+in+a+Dynamic+Tournament+Aoyagi">Aoyagi</a>, <a href="https://library.unc.edu/find/?q=Feedback+and+Motivation+in+Dynamic+Tournaments+Ederer">Ederer</a>, <a href="https://library.unc.edu/find/?q=Tournaments+with+Midterm+Reviews+Gershkov+Perry">Gershkov–Perry</a>, <a href="https://library.unc.edu/find/?q=Learning+from+Coarse+Information+Biased+Contests+and+Career+Profiles+Meyer">Meyer</a>. The noise or contest-success function smooths the terminal payoff — and they get uniqueness. <a href="https://library.unc.edu/find/?q=A+Model+of+a+Two-Stage+All-Pay+Auction+Hirata">Hirata</a> is the two-stage all-pay boundary case: cost of the total bid makes the intertemporal split payoff-irrelevant, so multiplicity is payoff-equivalent and the unique-payoff prediction survives.</p>
+
+<div class="box">
+<p>Framing sentence for the paper: the model is a finitely repeated effort game with a terminal payoff evaluated at an aggregate of past play (Bolza form); the smooth-terminal members of this class — noisy tournaments, concave salvage values — deliver uniqueness; the contribution is the characterization of the terminal correspondence (the two-round equilibrium set) that any Benoit–Krishna-style analysis of the longer game must take as input.</p>
+</div>
+
+<p class="note">Caveat: the exact pairing "repeated + terminal aggregate" may have an abstract treatment not recalled here; the Petrosyan (St. Petersburg) school studies multistage games with terminal payoffs, mostly in cooperative/zero-sum settings unlikely to help at ET/TE. A verification sweep of the citations below was planned but not run.</p>
+
+<p class="section">6. Rosetta stone — reading the control and CS dialects</p>
+
+<p>The barrier with the differential/difference-games literature is terminology, not substance: the concepts are mostly familiar ones under lab-coat names. Restricted to what touches this paper:</p>
+
+<p>feedback (closed-loop, memoryless) equilibrium $\;\longleftrightarrow\;$ Markov perfect equilibrium</p>
+<p>open-loop equilibrium $\;\longleftrightarrow\;$ Nash in precommitted time paths — no subgame perfection off the path</p>
+<p>closed-loop with memory $\;\longleftrightarrow\;$ history-dependent SPE (the non-Markov carrot-and-stick constructions live here)</p>
+<p>value function, HJB / Isaacs equation $\;\longleftrightarrow\;$ continuation value, Bellman equation (Isaacs = the zero-sum case)</p>
+<p>salvage / scrap / terminal value $\;\longleftrightarrow\;$ terminal continuation payoff — our $g(\Delta_T)$</p>
+<p>Bolza / Lagrange / Mayer form $\;\longleftrightarrow\;$ flow payoff + terminal payoff / flow only / terminal only</p>
+<p>costate (adjoint) variable, maximum principle $\;\longleftrightarrow\;$ shadow price, Euler / first-order conditions</p>
+<p>controls, state trajectory $\;\longleftrightarrow\;$ actions, path of the state variable</p>
+<p>game of kind vs. game of degree $\;\longleftrightarrow\;$ who-wins (qualitative) vs. payoff-valued; the all-pay auction is a game of degree with a kink inherited from the game of kind underneath</p>
+
+<div class="box">
+<p>The distinction that does real work: much of that literature reports open-loop equilibria because they are computable, and economists rightly discount those as non-credible. Its multiplicity discussions are usually open-loop vs. feedback giving different answers — not a feedback correspondence being fat, which is this paper's phenomenon. The vocabulary hides how little applies as much as what does.</p>
+</div>
+
+<p>Same story in the CS / algorithmic-game-theory dialect:</p>
+
+<p>truthful / strategyproof $\;\longleftrightarrow\;$ dominant-strategy incentive compatible</p>
+<p>coarse correlated equilibrium $\;\longleftrightarrow\;$ the Hannan set — what no-regret learning converges to; Blackwell approachability is equivalent to no-regret, reconnecting to §4</p>
+<p>price of anarchy $\;\longleftrightarrow\;$ worst-equilibrium welfare ratio</p>
+<p>smoothness (Roughgarden) $\;\longleftrightarrow\;$ a sufficient condition bounding the price of anarchy</p>
+<p>online learning / bandits $\;\longleftrightarrow\;$ adaptive play / experimentation and learning</p>
+
+<p class="note">The CS contest thread (Colonel Blotto variants, sequential auctions with price-of-anarchy bounds) occasionally brushes near dynamic all-pay games, but asks welfare-bound questions rather than characterization.</p>
+
+<p class="section">References</p>
+
+<p>Each link opens the UNC Articles+ search with the query pre-filled — search runs on click, nothing has been verified yet.</p>
+
+<p>Başar &amp; Olsder — <a href="https://library.unc.edu/find/?q=Dynamic+Noncooperative+Game+Theory+Basar+Olsder">Dynamic Noncooperative Game Theory</a> (book; discrete-time multi-stage games + differential games).</p>
+
+<p>Dockner, Jørgensen, Long &amp; Sorger — <a href="https://library.unc.edu/find/?q=Differential+Games+in+Economics+and+Management+Science">Differential Games in Economics and Management Science</a> (book; the economist-friendly entry to the control tradition).</p>
+
+<p>Benoit &amp; Krishna (1985) — <a href="https://library.unc.edu/find/?q=Finitely+Repeated+Games+Benoit+Krishna">Finitely Repeated Games</a>, Econometrica (endgame multiplicity as carrot and stick; subgame-perfect).</p>
+
+<p>Benoit &amp; Krishna (1987) — <a href="https://library.unc.edu/find/?q=Nash+Equilibria+of+Finitely+Repeated+Games+Benoit+Krishna">Nash Equilibria of Finitely Repeated Games</a>, Int. J. Game Theory (Nash version).</p>
+
+<p>Dutta (1995) — <a href="https://library.unc.edu/find/?q=A+Folk+Theorem+for+Stochastic+Games+Dutta">A Folk Theorem for Stochastic Games</a>, J. Economic Theory (folk theorem with a state variable).</p>
+
+<p>Blackwell (1956) — <a href="https://library.unc.edu/find/?q=An+Analog+of+the+Minimax+Theorem+for+Vector+Payoffs+Blackwell">An Analog of the Minimax Theorem for Vector Payoffs</a>, Pacific J. Mathematics (approachability; terminal evaluation of the average of past play).</p>
+
+<p>Maskin &amp; Tirole (2001) — <a href="https://library.unc.edu/find/?q=Markov+Perfect+Equilibrium+Observable+Actions+Maskin+Tirole">Markov Perfect Equilibrium I: Observable Actions</a>, J. Economic Theory (Markov language; our selections are deliberately non-Markov).</p>
+
+<p>Admati &amp; Perry (1991) — <a href="https://library.unc.edu/find/?q=Joint+Projects+without+Commitment+Admati+Perry">Joint Projects without Commitment</a>, Review of Economic Studies.</p>
+
+<p>Marx &amp; Matthews (2000) — <a href="https://library.unc.edu/find/?q=Dynamic+Voluntary+Contribution+to+a+Public+Project+Marx+Matthews">Dynamic Voluntary Contribution to a Public Project</a>, Review of Economic Studies (kinked completion payoff; multiplicity and gradualism).</p>
+
+<p>Compte &amp; Jehiel (2004) — <a href="https://library.unc.edu/find/?q=Gradualism+in+Bargaining+and+Contribution+Games+Compte+Jehiel">Gradualism in Bargaining and Contribution Games</a>, Review of Economic Studies.</p>
+
+<p>Battaglini, Nunnari &amp; Palfrey (2014) — <a href="https://library.unc.edu/find/?q=Dynamic+Free+Riding+with+Irreversible+Investments+Battaglini+Nunnari+Palfrey">Dynamic Free Riding with Irreversible Investments</a>, American Economic Review.</p>
+
+<p>Georgiadis (2015) — <a href="https://library.unc.edu/find/?q=Projects+and+Team+Dynamics+Georgiadis">Projects and Team Dynamics</a>, Review of Economic Studies (continuous-time project completion).</p>
+
+<p>Yildirim (2005) — <a href="https://library.unc.edu/find/?q=Contests+with+Multiple+Rounds+Yildirim">Contests with Multiple Rounds</a>, Games and Economic Behavior (cumulative effort, complete information, Tullock success function).</p>
+
+<p>Aoyagi (2010) — <a href="https://library.unc.edu/find/?q=Information+Feedback+in+a+Dynamic+Tournament+Aoyagi">Information Feedback in a Dynamic Tournament</a>, Games and Economic Behavior.</p>
+
+<p>Ederer (2010) — <a href="https://library.unc.edu/find/?q=Feedback+and+Motivation+in+Dynamic+Tournaments+Ederer">Feedback and Motivation in Dynamic Tournaments</a>, J. Economics &amp; Management Strategy.</p>
+
+<p>Gershkov &amp; Perry (2009) — <a href="https://library.unc.edu/find/?q=Tournaments+with+Midterm+Reviews+Gershkov+Perry">Tournaments with Midterm Reviews</a>, Games and Economic Behavior.</p>
+
+<p>Meyer (1991) — <a href="https://library.unc.edu/find/?q=Learning+from+Coarse+Information+Biased+Contests+and+Career+Profiles+Meyer">Learning from Coarse Information: Biased Contests and Career Profiles</a>, Review of Economic Studies.</p>
+
+<p>Hirata (2014) — <a href="https://library.unc.edu/find/?q=A+Model+of+a+Two-Stage+All-Pay+Auction+Hirata">A Model of a Two-Stage All-Pay Auction</a>, Mathematical Social Sciences (already cited in the paper).</p>
+
+<p class="note">Not linked: the Petrosyan school ("multistage games with terminal payoffs", cooperative/zero-sum tradition) — search manually if curious; unlikely to be citable at ET/TE.</p>
+
+</body>
+</html>

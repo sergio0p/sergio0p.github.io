@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Symmetric-quadratic σ(m,n): universal closed form of the comb (2026-06-21)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">Symmetric-quadratic σ(m,n): universal closed form of the comb</p>
+<p class="note">2026-06-21. Companion to Docs/symmetric_quadratic_closed_form.md. Prerequisite: QUICKSTART §0 (notation, truncation rule) and §2 (the σ(m,n) FOC + indifference system) — nothing else.</p>
+
+<div class="box key">
+<p>Summary: In the symmetric quadratic case ($v_1=v_2=1$, $\Delta=0$, $c(e)=e^2$) every object of the off-equilibrium forward march — driven by the single dial $t:=q_1$ — has an explicit closed form. Each comb gap is $G_i = t/(1+i\,t)$, with $i$ the gap's ordinal position from the left edge. Hence gap-widening $G_i' = (1+it)^{-2} > 0$ is a one-liner, masses are manifestly increasing in $t$, so $F'(q_1)>0$ and chain monotonicity ($q_1^\ast$ decreasing $\Rightarrow u_1^\ast$ decreasing) follows. This resolves the open "two-sided barycenter coupling" nub of chain_monotonicity_reduction.md §6 — in closed form, not by a coupled induction. STATUS: exact over $\mathbb{Q}(t)$ through comb position 13; general-$i$ induction pending; NOT yet human-verified.</p>
+</div>
+
+<p>Notation is QUICKSTART's: P1 atoms $x_1<\dots<x_m$ with mass $p_k$; P2 atoms $y_1=0<\dots<y_n$ with mass $q_\ell$; and $u_1^\ast = q_1^2/(1+q_1)$.</p>
+
+<p class="section">1. The universal march (off-equilibrium, dial $t=q_1$)</p>
+
+<p>For $v_1=v_2=1$, $\Delta=0$, $c=e^2$, reach $w=1$, shift $f=0$, the QUICKSTART §2 system is triangular with the single source $t=q_1$; everything else is explicit and no normalization is imposed (that is what "off-equilibrium" means). In moment form, with $g_\ell=1+y_\ell$, $h_k=1+x_k$, and cumulatives $Q_k=\sum_{\ell\le k}q_\ell$, $S_k=\sum_{\ell\le k}q_\ell g_\ell$, $P_k=\sum_{i\le k}p_i$, $T_k=\sum_{i\le k}p_i h_i$:</p>
+
+$$x_k = \frac{S_k}{1+Q_k},\qquad y_\ell = \frac{T_{\ell-1}}{1+P_{\ell-1}},$$
+$$q_{k+1} = (1+Q_k)\,d_k(d_k+2),\ \ d_k=y_{k+1}-x_k,\qquad p_k = (1+P_{k-1})\,\delta_k(\delta_k+2),\ \ \delta_k=x_k-y_k.$$
+
+<p>March order: $t \to x_1 \to p_1 \to y_2 \to q_2 \to x_2 \to p_2 \to y_3 \to \cdots$, each entry an explicit rational function of $t$. The rung $(m,n)$ only fixes where you stop and which leftover mass closes $\sum=1$; the atom / gap / mass functions of $t$ below are rung-independent.</p>
+
+<p class="section">2. Main result — closed-form comb gaps</p>
+
+<p>Index the gaps consecutively by comb position $i$ along $y_1=0 < x_1 < y_2 < x_2 < \cdots$. Positions $1,2,3,4,5,6,\dots$ are $\delta_1, d_1, \delta_2, d_2, \delta_3, d_3, \dots$; in general position $2j-1$ is $\delta_j$ and position $2j$ is $d_j$. Then</p>
+
+$$\boxed{\,G_i \;=\; \frac{t}{1+i\,t}\,}\qquad\Longrightarrow\qquad G_i' \;=\; \frac{1}{(1+i\,t)^2} \;>\; 0\quad (t>0),$$
+
+<p>equivalently $\delta_j = t/(1+(2j-1)t)$ and $d_j = t/(1+2j\,t)$. The atoms are partial sums of the gaps (comb point $i$ sits at $\sum_{l\le i}G_l$):</p>
+
+$$x_k = \sum_{l=1}^{2k-1}\frac{t}{1+l\,t},\qquad y_k = \sum_{l=1}^{2k-2}\frac{t}{1+l\,t}.$$
+
+<p>Only $x_1 = t/(1+t)$ was previously known; the rest is new.</p>
+
+<p class="section">3. Closed-form masses and cumulatives</p>
+
+<p>Cumulative masses (verified exact):</p>
+
+$$1+Q_n = (1+t)\prod_{l=1}^{n-1}\!\left(\frac{1+(2l+1)t}{1+2l\,t}\right)^{2},\qquad 1+P_n = \prod_{l=1}^{n}\!\left(\frac{1+2l\,t}{1+(2l-1)t}\right)^{2}.$$
+
+<p>These are the §6 telescoping identity $(1+d_j)^2=(1+Q_{j+1})/(1+Q_j)$ (and its $P$-mirror), now solved rather than merely stated. The atom masses follow from the mass-update with the closed-form gaps:</p>
+
+$$q_k = (1+Q_{k-1})\,\frac{t\,(2+(4k-3)t)}{(1+(2k-2)t)^2},\qquad p_k = (1+P_{k-1})\,\frac{t\,(2+(4k-1)t)}{(1+(2k-1)t)^2},\qquad q_1=t.$$
+
+<p>Fully expanded:</p>
+
+$$q_k = t(1+t)(2+(4k-3)t)\frac{\prod_{l=1}^{k-2}(1+(2l+1)t)^2}{\prod_{l=1}^{k-1}(1+2l\,t)^2}\ (k\ge2),\qquad p_k = t(2+(4k-1)t)\frac{\prod_{l=1}^{k-1}(1+2l\,t)^2}{\prod_{l=1}^{k}(1+(2l-1)t)^2}.$$
+
+<p>Every factor is positive and increasing in $t$ on $t>0$.</p>
+
+<p class="section">4. Consequences — the implication ladder, now all discharged</p>
+
+<p>1. Gap-widening (the §6 "single remaining nub"): $G_i'=(1+it)^{-2}>0$. No coupling argument. The two-sided barycenter coupling was an artifact of signing $y_{j+1}'-x_j'$ as a difference of separate atom-derivatives; the difference $d_j'$ itself has numerator $1$.</p>
+<p>2. Mass-monotonicity: $q_k, p_k$ are products of positive increasing factors, so $q_k'>0$, $p_k'>0$.</p>
+<p>3. $F'(q_1)>0$: each rung's residual is $\sum(\text{recursion-determined masses})-1$, a sum of increasing terms, so $F'>0$ — single-crossing a fortiori. ($F$ is defined in chain_monotonicity_reduction.md §1.)</p>
+<p>4. Chain monotonicity: via §3(iii) of the reduction doc, $F'>0 \Rightarrow q_1^\ast(R')<q_1^\ast(R) \Rightarrow q_1^\ast$ strictly decreasing along the chain, and $u_1^\ast=q_1^2/(1+q_1)$ increasing gives $u_1^\ast(m,n)$ strictly decreasing — the main symmetric-quadratic theorem.</p>
+<p>5. Schur complement / regularity: $F'(q_1)$ is the Schur complement of the equilibrium Jacobian (reduction doc §4), so $F'>0$ globally also yields Theorem-1 regularity and Theorem-3 uniqueness in this regime.</p>
+
+<p>So in the symmetric quadratic case the entire monotonicity program collapses to the single closed form $G_i=t/(1+it)$.</p>
+
+<p class="section">5. Status — what is and isn't established</p>
+
+<p>Established (exact over $\mathbb{Q}(t)$): all closed forms above hold for every comb position checked — $d_1\dots d_5$ and $\delta_1\dots\delta_6$ (positions 1–13), masses and cumulatives to index 6. The pattern is transparent arithmetic.</p>
+
+<p>Not yet a theorem: $G_i=t/(1+it)$ is a conjecture for general $i$. What is needed is an induction — assume the closed forms through position $i$, push one FOC and one indifference step, confirm position $i+1$ yields gap $t/(1+(i+1)t)$. Equivalently, plug the §2/§3 ansatz into the full QUICKSTART §2 system and verify each equation type as an identity in $(t,k)$ with $k$ symbolic. Expected routine given the structure, but unproven.</p>
+
+<p>Not yet human-verified. Sergio must check step-by-step before any of this enters the paper. Do not edit the paper or other docs on the strength of this.</p>
+
+<p>Scope: quadratic-specific (each march step is a square root, hence a rational closed form). For $c=e^\theta$ the gaps become degree-$(\theta-1)$ solves (see power_cost_recursion).</p>
+
+<p class="section">6. Reproduction (self-contained Wolfram march)</p>
+
+<p>This regenerates §2–§3 from scratch; no other file is needed. Run <code>wolframscript -f &lt;this&gt;</code>.</p>
+
+<div class="box">
+<p><code>q[1]=t; y[1]=0; Qc=q[1]; Sc=q[1](1+y[1]); Pc=0; Tc=0;</code></p>
+<p><code>Do[ x[k]=Together[Sc/(1+Qc)];</code></p>
+<p><code>&nbsp;&nbsp;dl=x[k]-y[k]; p[k]=Together[(1+Pc) dl (dl+2)];</code></p>
+<p><code>&nbsp;&nbsp;Pc=Together[Pc+p[k]]; Tc=Together[Tc+p[k](1+x[k])];</code></p>
+<p><code>&nbsp;&nbsp;y[k+1]=Together[Tc/(1+Pc)];</code></p>
+<p><code>&nbsp;&nbsp;dk=y[k+1]-x[k]; q[k+1]=Together[(1+Qc) dk (dk+2)];</code></p>
+<p><code>&nbsp;&nbsp;Qc=Together[Qc+q[k+1]]; Sc=Together[Sc+q[k+1](1+y[k+1])];</code></p>
+<p><code>,{k,1,6}];</code></p>
+<p><code>Do[Print["d_",j," = ",Factor[Together[y[j+1]-x[j]]]],{j,1,5}];&nbsp;&nbsp;(* t/(1+2j t) *)</code></p>
+<p><code>Do[Print["del_",j," = ",Factor[Together[x[j]-y[j]]]],{j,2,6}];&nbsp;&nbsp;(* t/(1+(2j-1)t) *)</code></p>
+</div>
+
+<p>Julia/Nemo over $\mathbb{Q}(t)$ gives the same result (warm workspace; <code>nmarch</code> in Julia/converge/).</p>
+
+<p class="section">7. Methodological note — why this was missed</p>
+
+<p>The §6 attack on gap-widening signed the difference of two coupled barycenter-derivatives $y_{j+1}'$ and $x_j'$ — the "two-sided coupling," declared the open crux. Computing the gap $d_j = y_{j+1}-x_j$ directly as a function of $t$ (rather than differencing the atoms) removes the coupling entirely: $d_j=t/(1+2jt)$. The trigger was a ratio probe ($y_{j+1}'/x_j'$ versus $1$); the ratio is clean ($(\text{ratio}-1)$ numerator $=\prod(1+kt)^2$), but the difference is cleaner still (numerator $1$). Lesson: sign the gap, not the two atoms.</p>
+
+</body>
+</html>

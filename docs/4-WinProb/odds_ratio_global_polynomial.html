@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odds-ratio form via one global polynomial</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+        integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$',  right: '$',  display: false}
+            ]
+        });"></script>
+
+<style>
+  :root { --fg:#1a1a1a; --muted:#555; --accent:#0b5; --rule:#e3e3e3; --box:#f6f9f6; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--fg);
+    max-width: 780px;
+    margin: 3rem auto;
+    padding: 0 1.25rem 4rem;
+    line-height: 1.65;
+    font-size: 18px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: .5rem;
+    margin-bottom: 1.4rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+    margin-top: 2.2rem;
+    margin-bottom: .6rem;
+    color: #123;
+  }
+  .lead { color: var(--muted); }
+  .why { font-weight: bold; }
+  ul { padding-left: 1.3rem; }
+  li { margin: .55rem 0; }
+  .note {
+    margin-top: 1.2rem;
+    padding: .9rem 1.1rem;
+    background: var(--box);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    font-size: .97em;
+    color: #234;
+  }
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+  hr { border: none; border-top: 1px solid var(--rule); margin: 2.2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>The odds-ratio form: <em>n</em> equations are slices of one polynomial</h1>
+
+<p class="lead">The obstruction: each $W_i$ uses elementary symmetric polynomials $e_m(r_{-i})$ in a <em>different</em> set of variables $r_{-i}=\{r_\ell:\ell\neq i\}$. The fix: stop treating these as separate objects and read them all off a single global polynomial.</p>
+
+<h2>Everything is a deletion of one polynomial</h2>
+
+<p>Let</p>
+
+$$g(t)=\prod_{\ell=1}^{n}(1+r_\ell t)=\sum_{m=0}^{n}E_m\,t^m,\qquad E_m=e_m(r_1,\dots,r_n).$$
+
+<p>Dropping the variable $r_i$ just removes one factor:</p>
+
+$$h_i(t):=\prod_{\ell\neq i}(1+r_\ell t)=\frac{g(t)}{1+r_i t}=\sum_{m=0}^{n-1}e_m(r_{-i})\,t^m.$$
+
+<p>So &ldquo;$e_m$ in the different set $r_{-i}$&rdquo; $=$ the coefficients of $g(t)/(1+r_i t)$. The deletion formula</p>
+
+$$e_m(r_{-i})=\sum_{s=0}^{m}(-r_i)^s\,E_{m-s}$$
+
+<p>writes every one of your $n$ different-variable quantities in terms of the <strong>same</strong> global $E_1,\dots,E_n$ and the single scalar $r_i$. The variable-sets aren&rsquo;t really different objects &mdash; they are $g$ seen through $n$ different single-factor quotients.</p>
+
+<h2>What $W_i$ becomes</h2>
+
+<p>Two linear functionals act on $h_i$: the value $\mathrm{ev}_1(h_i)=h_i(1)$, and the partial coefficient sum $L_k(h_i)=e_0+\cdots+e_{k-1}$ (note $L_k(p)=[t^{k-1}]\,p(t)/(1-t)$). Define the <strong>numerator</strong> and <strong>denominator</strong></p>
+
+$$N_i:=L_k(h_i)=\sum_{m=0}^{k-1}e_m(r_{-i}),\qquad
+  D_i:=h_i(1)=\prod_{\ell\neq i}(1+r_\ell)=\frac{g(1)}{1+r_i},$$
+
+<p>so that</p>
+
+$$W_i=\frac{N_i}{D_i}=\frac{L_k(h_i)}{h_i(1)}.$$
+
+<p>Now the structure is transparent.</p>
+
+<ul>
+  <li><span class="why">Denominators alone determine everything.</span> Since $D_i=g(1)/(1+r_i)$,
+    $$\prod_i D_i=\frac{g(1)^n}{\prod_i(1+r_i)}=g(1)^{\,n-1}
+      \;\Rightarrow\;
+      g(1)=\Big(\textstyle\prod_i D_i\Big)^{1/(n-1)},\quad 1+r_i=\frac{g(1)}{D_i}.$$
+    So if you can recover the $D_i$, you recover all $r_i$. <strong>Injectivity $\iff$ the ratios $\{N_i/D_i\}$ pin down the $\{D_i\}$.</strong></li>
+
+  <li><span class="why">Why $k=1$ and $k=n-1$ are free.</span> At $k=1$ the numerator is $L_1(h_i)=e_0=1$, so $W_i=1/D_i$ &mdash; denominators handed to you directly. At $k=n-1$,
+    $$1-W_i=\frac{e_{n-1}(r_{-i})}{D_i}=\prod_{\ell\neq i}\frac{r_\ell}{1+r_\ell},$$
+    the dual statement. The hard middle $k$ is exactly where $N_i=L_k(h_i)$ is a <em>nontrivial</em> partial sum that entangles with $D_i$.</li>
+</ul>
+
+<h2>A lever for the general / aggregate attack</h2>
+
+<p>The deletions sum to something clean:</p>
+
+$$\sum_{i=1}^{n}h_i(t)=g(t)\sum_i\frac{1}{1+r_i t}=n\,g(t)-t\,g'(t)=\sum_{m=0}^{n}(n-m)\,E_m\,t^m.$$
+
+<p>So the <em>unnormalized</em> numerators and denominators aggregate linearly into $g$:</p>
+
+$$\sum_i N_i=\sum_{m=0}^{k-1}(n-m)\,E_m,\qquad \sum_i D_i=n\,g(1)-g'(1).$$
+
+<p>The only nonlinearity in the whole problem is the per-$i$ division $W_i=N_i/D_i$. Clearing it, $W_i\,h_i(1)=L_k(h_i)$ with $g=(1+r_i t)\,h_i$, gives $n$ polynomial equations in $r_1,\dots,r_n$ whose coefficients are the observed $W_i$.</p>
+
+<p>The <strong>sandwich / induction in $k$</strong> is now visible as a <em>filtration</em>: $W^{(k)}$ and $W^{(k+1)}$ differ only by appending the layer $e_k(r_{-i})$ to each numerator &mdash; i.e. by extending the truncation $L_k\to L_{k+1}$ on the <em>same</em> $g$.</p>
+
+<div class="note">
+The odds ratio earns its keep not by making each $W_i$ simpler, but by revealing that all $n$ equations are coefficient functionals of <strong>one</strong> degree-$n$ polynomial and its single-factor deletions. The question &ldquo;can we invert $W$?&rdquo; becomes
+$$\text{does}\quad \Big\{\,\tfrac{L_k\!\big(g/(1+r_i t)\big)}{\mathrm{ev}_1\!\big(g/(1+r_i t)\big)}\,\Big\}_{i=1}^{n}\quad\text{determine } g \text{ and its labeling?}$$
+&mdash; a single-polynomial recovery problem.
+</div>
+
+</body>
+</html>

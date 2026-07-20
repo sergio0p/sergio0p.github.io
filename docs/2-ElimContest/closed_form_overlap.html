@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Closed-form overlap and the two-region equilibrium</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<link rel="stylesheet" href="/Users/sergiop/dotfiles-claude/skills/research/math-output.css">
+</head>
+<body>
+
+<p class="title">The overlap solves in closed form — and the equilibrium closes in two regions</p>
+<p class="note">Elimination contest, binary $v=3/1$, equal prior. Session 2026-06-22 (revised).
+Supersedes the "integrate the 2-D ODE with NDSolve" framing of the roadmap §7.
+Companion: <code>analytic_closed_form_handoff.md</code>.</p>
+
+<p class="note">Revision note. An earlier draft of this page claimed a gluing obstruction —
+a High type deviating just above a pure-Low atom across an off-path gap $(0,b_{lo})$. That
+assumed $b_{lo}>0$. There is no gap: $b_{lo}=0$, so there is nothing to deviate into, and
+the "obstruction" was an artifact of the gap premise. The real correction is to the top
+(no high-only tail), and the construction is now solved.</p>
+
+<p class="section">1. A first integral collapses the overlap ODE</p>
+
+<p>The roadmap §7 overlap is a self-contained 2-D system in the Round-1 CDF $G$ and the
+continuation integral $Y(\mu)=\int_0^\mu G^2$:</p>
+$$\frac{dG}{d\mu}=\frac{G(2G^2-3)}{3(\mu-1)-2Y},\qquad \frac{dY}{d\mu}=G^2.$$
+
+<p>Define $\Pi(\mu)=G\,(3(\mu-1)-2Y)$ — the denominator times $G$. Along any trajectory</p>
+$$\Pi'=G'\,(3(\mu-1)-2Y)+G\,(3-2Y')=G(2G^2-3)+G(3-2G^2)=0,$$
+<p>so $\Pi$ is conserved. This is the roadmap's own §3 relation $G\,\Delta\tilde W=U_H-U_L$
+re-read: since $\tilde W_L-\tilde W_H=\tfrac23\big(3(\mu-1)-2Y\big)$, the constant is
+$C=-\tfrac32(U_H-U_L)$. It lived in the document as a monotonicity argument and was never
+used to integrate the ODE.</p>
+
+<div class="box key">
+$$\Pi(\mu)=G\big(3(\mu-1)-2Y\big)=C\quad\Longrightarrow\quad
+\frac{dG}{d\mu}=\frac{G^2(2G^2-3)}{C}\ \text{(separable).}$$
+</div>
+
+<p>The $Y$-equation is gone. Partial fractions integrate it in elementary form:</p>
+$$\mu(G)=\mu_0+C\big[\Phi(G)-\Phi(G_0)\big],\qquad
+\Phi(G)=\frac{1}{3G}-\frac{2}{3\sqrt6}\,\operatorname{arctanh}\!\Big(G\sqrt{\tfrac23}\Big),$$
+<p>and everything else is explicit in $G$, with no integral left to carry:</p>
+$$Y=\frac{3(\mu-1)}{2}-\frac{C}{2G},\qquad
+\tilde W_H=(\mu-1)-\frac{C}{G},\qquad \tilde W_L=\tfrac23 Y,$$
+$$g=\frac{2G^2-3}{(\mu-1)(2G^2-3)+C/G},\qquad
+\frac{db}{dG}=(\mu(G)-1)+\frac{C}{G(2G^2-3)}.$$
+
+<p class="note">Verified against direct 2-D integration (scipy, rtol $10^{-11}$): $\Pi$
+conserved to $7\times10^{-16}$; the $Y$-free reduced ODE matches the full system to
+$4\times10^{-16}$; closed-form $\mu(G)$ matches to $8\times10^{-16}$. There is no shooting
+problem — only a monotone inversion $\mu(G)\to G(\mu)$ and one quadrature for $b$.</p>
+
+<p class="section">2. The bottom boundary: $b_{lo}=0$, hence $\mu_0=0$</p>
+
+<p>All-pay no-gap: if the overlap began at $b_{lo}>0$, leaving $(0,b_{lo})$ empty above the
+atom, a bidder at $b_{lo}$ could lower its bid into that empty interval at the same win
+probability $G_0$ and the same continuation, but lower cost — a strict gain. So no
+$b_{lo}>0$ survives, and the overlap is flush against the atom, $b_{lo}=0$.</p>
+
+<p>Low's break-even at the overlap bottom is $G_0\,\tilde W_L(\mu_0)-b_{lo}=U_L=0$. With
+$b_{lo}=0$ and $G_0>0$ this forces $\tilde W_L(\mu_0)=0$, and since
+$\tilde W_L(\mu)=\tfrac23\int_0^\mu G^2$ vanishes only at $0$,</p>
+<div class="box key">
+$$b_{lo}=0\quad\Longrightarrow\quad \mu_0=0\quad\Longrightarrow\quad C=-3G_0,\quad U_H=2G_0.$$
+</div>
+<p>The belief starts at $0$ continuously — no off-path gap and no belief jump. The pure-Low
+atom fixes $U_L=\tfrac12 G_0\tilde W_L(0)=0$.</p>
+
+<p class="section">3. The top: no high-only tail</p>
+
+<p>A high-only tail would carry belief $\equiv1$, so the overlap would have to reach $\mu=1$.
+It cannot: from the closed form, $\mu=1$ needs $\Phi(G)=\Phi(G_0)-\tfrac{1}{3G_0}<0$, which
+occurs only at $G>1$ (where $G\sqrt{2/3}\to1$ and $\operatorname{arctanh}\to\infty$),
+outside the CDF range. So no bid is ever revealed-High.</p>
+
+<p>And none needs to be. $\tilde W_H'(\mu)=-2(1-G^2)<0$: being perceived High hurts in
+Round 2, so High has no reason to bid up and separate. Both types co-mix to $b_{top}$,
+where $G=1$ at belief $\mu_{\max}<1$. A bid above $b_{top}$ already wins with probability
+$1$ and only adds cost, and any off-path belief gives $\tilde W_H\le\tilde W_H(\mu_{\max})$
+— the deviation dies without a tail.</p>
+
+<div class="box">
+The support is two regions: a pure-Low atom at $0$, then a co-mixing overlap $[0,b_{top}]$
+with belief rising $0\to\mu_{\max}$. No gap, no jump, no tail.
+</div>
+
+<p class="section">4. Closure — one unknown, one equation (solved)</p>
+
+<p>High carries no atom, so its entire unit of mass sits on the overlap:</p>
+$$\int_0^{b_{top}}\! f_H\,db=2\!\int_{G_0}^{1}\!\mu(G)\,dG=1
+\quad\Longrightarrow\quad \int_{G_0}^{1}\!\mu(G)\,dG=\tfrac12,$$
+<p>which pins $G_0$. Low's normalization is then automatic:
+$2\int_{G_0}^1(1-\mu)\,dG=1-2G_0$ and $a_L=2G_0$ give $1$. Two normalizations collapse to
+one.</p>
+
+<div class="box key">
+$$G_0=0.2221,\quad a_L=0.4443,\quad \mu_{\max}=0.9525,\quad
+b_{top}=0.1746,\quad U_H=2G_0=0.4443,\quad U_L=0.$$
+</div>
+
+<p>Both indifference levels check at both ends, by independent evaluations agreeing to four
+decimals. For $U_H$: at the atom edge $(\mu=0,b=0)$, $G_0\tilde W_H(0)=2G_0=0.4443$;
+integrating to the top, $\tilde W_H(\mu_{\max})-b_{top}=0.4443$. For $U_L$: $0$ at the atom,
+and $\tilde W_L(\mu_{\max})-b_{top}=0.0000$ at the top. Indifference holds end-to-end; the
+construction is closed.</p>
+
+<p class="note">Against the M200 grid sim: the grid solver is expected to differ from the
+exact solution and is also under-converged / over-spread (~40%). It widens the overlap to
+$[0.015,0.392]$, shrinking its atom to $0.122$ and reading $U_H\approx0.369$; its apparent
+"high-only tail" carries belief only $\approx0.87$ — the smear of one co-mixing region, not
+a real tail.</p>
+
+<p class="note">Reproduce: <code>Python/verify_first_integral.py</code> (first integral, $10^{-16}$),
+<code>Python/reach_one.py</code> ($G$ reaches $1$ before $\mu$ does — why there is no tail),
+<code>Python/no_tail.py</code> (the two-region closure and the table above).</p>
+
+</body>
+</html>

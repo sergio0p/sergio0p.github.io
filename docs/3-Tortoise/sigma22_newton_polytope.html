@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>σ(2,2) in (w₁,w₂,Δ) coordinates — system &amp; Newton polytope</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --bg:#fbfbfa; --fg:#1c1c1c; --muted:#666; --rule:#e2e2dd;
+    --accent:#7a3b2e; --accent2:#2e5a7a; --box:#f3f1ec; --box2:#eef3f0;
+    --warn:#8a5a00; --warnbg:#fdf6e3;
+  }
+  html{font-size:17px}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:Georgia,"Times New Roman",serif;
+    line-height:1.55; margin:0; padding:0 0 6rem;
+  }
+  .wrap{max-width:50rem; margin:0 auto; padding:2.5rem 1.4rem}
+  h1{font-size:1.5rem; line-height:1.25; margin:0 0 .2rem; font-weight:600}
+  .sub{color:var(--muted); font-size:.95rem; margin:0 0 2rem}
+  h2{font-size:1.16rem; margin:2.4rem 0 .6rem; padding-bottom:.25rem;
+     border-bottom:1px solid var(--rule); color:var(--accent)}
+  h3{font-size:1.02rem; margin:1.5rem 0 .4rem; color:var(--accent2)}
+  p{margin:.65rem 0}
+  code,.mono{font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.86em}
+  .eqbox{background:var(--box); border:1px solid var(--rule); border-radius:8px;
+         padding:.9rem 1.1rem; margin:1rem 0; overflow-x:auto}
+  .eqbox.p2{background:var(--box2)}
+  .note{background:var(--warnbg); border-left:3px solid var(--warn);
+        padding:.7rem 1rem; margin:1.2rem 0; border-radius:0 6px 6px 0; font-size:.95rem}
+  .key{background:#eef0f5; border-left:3px solid var(--accent2);
+       padding:.7rem 1rem; margin:1.2rem 0; border-radius:0 6px 6px 0}
+  table{border-collapse:collapse; width:100%; margin:1rem 0; font-size:.9rem}
+  th,td{border:1px solid var(--rule); padding:.45rem .6rem; text-align:left; vertical-align:top}
+  th{background:var(--box); font-family:Georgia,serif; font-weight:600}
+  td.mono,th.mono{font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.82rem}
+  .tag{display:inline-block; font-size:.72rem; padding:.05rem .4rem; border-radius:4px;
+       background:#e7e2d8; color:#5a4a2a; margin-left:.3rem; font-family:sans-serif}
+  .small{font-size:.86rem; color:var(--muted)}
+  ul{margin:.5rem 0 .5rem 0; padding-left:1.3rem}
+  li{margin:.3rem 0}
+  hr{border:none; border-top:1px solid var(--rule); margin:2rem 0}
+  .label{font-family:"SF Mono",Menlo,monospace; font-size:.78rem; color:var(--accent);
+         font-weight:bold; margin-right:.4rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>σ(2,2) in (w₁, w₂, Δ) coordinates</h1>
+<p class="sub">The full equilibrium system, its polynomialization via vᵢ = c(wᵢ), and the Newton-polytope reading — symmetric fiber vs. generic member. &nbsp;Draft exploration, 2026-06-01.</p>
+
+<h2>0. Setup and conventions</h2>
+<p>Atoms (raw coordinates): P1 at \(x_1 &lt; x_2\) with masses \(p,\,1-p\); P2 at \(y_1=0 &lt; y_2\) with masses \(q,\,1-q\). WLOG labeling \(u_2^\*=0\), so \(y_1=0\) is P2's boundary atom (no FOC there). The six unknowns are</p>
+<div class="eqbox">$$ x_1,\; x_2,\; y_2,\; p,\; q,\; u_1 . $$</div>
+<p><b>Parametrize by the reaches.</b> Take \((w_1,w_2,\Delta)\) as the free parameters and <i>define</i> \(v_1=c(w_1),\; v_2=c(w_2)\). No inverse \(c^{-1}\) appears anywhere, so for polynomial \(c\) the whole system is polynomial over \(\mathbb{Q}(w_1,w_2,\Delta)\) — and over \(\mathbb{Q}\) once \(w_1,w_2,\Delta\) are fixed rationals. The asymmetry parameter is \(f = w_2-w_1-\Delta\); the symmetric fiber is \(\{f=0\}\), i.e. the hyperplane \(w_2=w_1+\Delta\) (the canonical symmetric point being \(w_1=w_2,\ \Delta=0\)).</p>
+
+<p>The four effort gaps that enter Lemma 1's interior branch (raw coordinates):</p>
+<table>
+<tr><th>gap</th><th>meaning</th><th class="mono">value</th></tr>
+<tr><td>P1's value vs \(y_1{=}0\)</td><td>at \(x_1\) and \(x_2\)</td><td class="mono">w₂ − Δ − x_k</td></tr>
+<tr><td>P1's value vs \(y_2\)</td><td>at \(x_2\) only (rule: \(\ell\le k\))</td><td class="mono">w₂ − Δ + y₂ − x₂</td></tr>
+<tr><td>P2's value vs \(x_1\)</td><td>at \(y_2\) only (rule: \(k&lt;\ell\))</td><td class="mono">w₁ + Δ + x₁ − y₂</td></tr>
+<tr><td>P2's own effort</td><td>cost term</td><td class="mono">y₂</td></tr>
+</table>
+<p class="small">All four are affine in the unknowns; \(f=w_2-w_1-\Delta\) lives entirely inside the constants (e.g. \(w_1+\Delta = w_2-f\)). For brevity below write \(a_1=w_2{-}\Delta{-}x_1\), \(a_2=w_2{-}\Delta{-}x_2\), \(b_2=w_2{-}\Delta{+}y_2{-}x_2\), \(d=w_1{+}\Delta{+}x_1{-}y_2\).</p>
+
+<h2>1. The system (general convex c)</h2>
+<p>Stationarity (FOC, marginal — uses \(c'\)) and indifference (level — uses \(c\)), with the asymmetric win-sets (P1 sums \(\ell\le k\), P2 sums \(k&lt;\ell\)):</p>
+
+<div class="eqbox">
+<div><span class="label">F1</span> P1 FOC @ \(x_1\):&nbsp; $$ q\,c'(a_1) = c'(x_1) $$</div>
+<div><span class="label">F2</span> P1 FOC @ \(x_2\):&nbsp; $$ q\,c'(a_2) + (1-q)\,c'(b_2) = c'(x_2) $$</div>
+<div><span class="label">I1</span> P1 indiff @ \(x_1\):&nbsp; $$ q\big[c(w_1)-c(a_1)\big] - c(x_1) = u_1 $$</div>
+<div><span class="label">I2</span> P1 indiff @ \(x_2\):&nbsp; $$ q\big[c(w_1)-c(a_2)\big] + (1-q)\big[c(w_1)-c(b_2)\big] - c(x_2) = u_1 $$</div>
+</div>
+<div class="eqbox p2">
+<div><span class="label">F3</span> P2 FOC @ \(y_2\):&nbsp; $$ p\,c'(d) = c'(y_2) $$</div>
+<div><span class="label">I3</span> P2 indiff @ \(y_2\):&nbsp; $$ p\big[c(w_2)-c(d)\big] - c(y_2) = 0 $$</div>
+</div>
+<p>Six equations, six unknowns. \(v_1=c(w_1)\) and \(v_2=c(w_2)\) are already substituted. Note the value brackets have the form \(c(w_i)-c(w_i+\text{gap})\), so the leading power of \(w_i\) cancels — the win-value decomposition. (At \(y_1=0\): all pairs give \(U^T_2=0\), so \(u_2(0)=-c(0)=0\) automatically — no equation.)</p>
+
+<h2>2. The system (quadratic c(e)=e²)</h2>
+<p>With \(c(e)=e^2,\ c'(e)=2e\) (common factors of 2 dropped from the FOCs):</p>
+
+<div class="eqbox">
+<div><span class="label">E1</span> $$ q\,a_1 = x_1 $$</div>
+<div><span class="label">E2</span> $$ q\,a_2 + (1-q)\,b_2 = x_2 \quad\Longleftrightarrow\quad (w_2-\Delta) - 2x_2 + (1-q)\,y_2 = 0 $$</div>
+<div><span class="label">E4</span> $$ q\big(w_1^2 - a_1^2\big) - x_1^2 = u_1 $$</div>
+<div><span class="label">E5</span> $$ q\big(w_1^2 - a_2^2\big) + (1-q)\big(w_1^2 - b_2^2\big) - x_2^2 = u_1 $$</div>
+</div>
+<div class="eqbox p2">
+<div><span class="label">E3</span> $$ p\,d = y_2 $$</div>
+<div><span class="label">E6</span> $$ p\big(w_2^2 - d^2\big) - y_2^2 = 0 $$</div>
+</div>
+<p class="small">Cross-check: at \(w_1=w_2=w,\ \Delta=0\) these are exactly the validated symmetric σ(2,2) system, whose elimination polynomial in \(u_1\) has degree \(m^2=4\) and factors \(f_1\cdot f_2\) with \(\deg f_1=1,\ \deg f_2=3\), \(u_1^\*=\tfrac{q_1^2}{q_1+1}\).</p>
+
+<h2>3. Newton polytopes (supports in the six unknowns)</h2>
+<p>Treat \(w_1,w_2,\Delta\) as <b>coefficients</b>. The monomial support of each quadratic equation in the unknowns \((x_1,x_2,y_2,p,q,u_1)\):</p>
+
+<table>
+<tr><th>eq</th><th>role</th><th class="mono">support (monomials)</th><th>tot°</th><th>°eff</th><th>°(p,q,u₁)</th></tr>
+<tr><td class="mono">E1</td><td>P1 FOC x₁</td><td class="mono">q, q·x₁, x₁</td><td>2</td><td>1</td><td>1</td></tr>
+<tr><td class="mono">E2</td><td>P1 FOC x₂</td><td class="mono">1, x₂, y₂, q·y₂</td><td>2</td><td>1</td><td>1</td></tr>
+<tr><td class="mono">E3</td><td>P2 FOC y₂</td><td class="mono">p, p·x₁, p·y₂, y₂</td><td>2</td><td>1</td><td>1</td></tr>
+<tr><td class="mono">E4</td><td>P1 ind x₁</td><td class="mono">q, q·x₁, q·x₁², x₁², u₁</td><td>3</td><td>2</td><td>1</td></tr>
+<tr><td class="mono">E5</td><td>P1 ind x₂</td><td class="mono">1, x₂, x₂², y₂, y₂², x₂y₂, q, q·x₂, q·x₂², q·y₂, q·y₂², q·x₂y₂, u₁</td><td>3</td><td>2</td><td>1</td></tr>
+<tr><td class="mono">E6</td><td>P2 ind y₂</td><td class="mono">p, p·x₁, p·y₂, p·x₁², p·y₂², p·x₁y₂, y₂²</td><td>3</td><td>2</td><td>1</td></tr>
+</table>
+
+<h3>Structural reading</h3>
+<ul>
+<li><b>Multilinear in the masses &amp; payoff.</b> Every equation is degree \(\le 1\) in \(p\), in \(q\), and in \(u_1\). So the Newton polytopes are <i>thin</i> (segments) in those three directions. This is the same mass-linearity that killed supermodularity / Rosen DSC (the zero on the pseudo-Jacobian's mass-diagonal) — here it is a polytope-thinning <i>asset</i> that holds the mixed volume down.</li>
+<li><b>FOC ↔ indifference = marginal ↔ level.</b> Quadratic terms in efforts appear only in the indifference rows, and always paired with a mass (\(q x_1^2,\ q x_2^2,\ p x_1^2,\dots\)) — the level equations are one degree higher in efforts than the marginal ones.</li>
+<li><b>\(u_1\) is free.</b> It appears only in E4, E5, linearly. Subtract E4−E5 to eliminate it, dropping to 5 equations in \((x_1,x_2,y_2,p,q)\).</li>
+</ul>
+
+<div class="key">
+<b>The decisive point.</b> The parameters \(w_1,w_2,\Delta\) appear <b>only as coefficients</b> — they never change <i>which</i> monomials are present. So the symmetric fiber \(\{f=0\}\) and a generic asymmetric point share the <b>identical</b> Newton polytopes. Turning on asymmetry does <b>not</b> inflate the support; it only moves the coefficients to a generic location.
+</div>
+
+<div class="note">
+<b>Correction to an earlier hand-wave.</b> In the \(\tilde y\)-shifted coordinates I described the shift \(c(\tilde y_2 - f)=(\tilde y_2-f)^\theta\) as "filling in" P2's own-cost monomial, suggesting asymmetry <i>enlarges</i> the polytope. That fill-in is a <b>coordinate artifact</b> of the \(f\)-dependent change \(\tilde y = y+f\) (singular at \(f=0\)). In the native raw coordinates the support is manifestly \(f\)-independent: P2's own cost is just \(c(y_2)=y_2^2\), and \(f\) sits in the constants. The honest statement is sharper: <b>symmetric is a non-generic point in coefficient space</b>, not a smaller polytope.
+</div>
+
+<h2>4. Does the count jump off the symmetric fiber?</h2>
+<p>Because the support is fixed, Bernstein/BKK gives one mixed-volume number \(\mathrm{MV}\) = the generic count of torus solutions, an <b>upper bound</b> for every choice of \((w_1,w_2,\Delta)\). The genuine \((2,2)\) equilibrium has \(p,q\in(0,1)\) nonzero, so it lives in the torus and is counted. The symmetric count is the elimination degree \(\deg w(2,2)=4\). So:</p>
+<div class="key" style="border-left-color:var(--accent)">
+\(\mathrm{MV} = 4\) &nbsp;⟹&nbsp; <b>flat family</b>: the generic asymmetric system has the same number of (complex) solutions as the symmetric one; the symmetric \(f_1\cdot f_2\) factorization is then a non-generic <i>reducibility</i> event at \(f=0\) without a drop in count.<br><br>
+\(\mathrm{MV} &gt; 4\) &nbsp;⟹&nbsp; <b>genuine degeneration</b>: at \(f=0\) extra roots collide or escape to the toric boundary (some mass \(\to 0/1\)), so the symmetric point both factors <i>and</i> loses degree. Asymmetry then has strictly more equilibrium candidates.
+</div>
+<p>This is the precise, computable form of "does the count jump off \(f=0\)." Either answer is informative: flatness would say the symmetric algebra is the generic algebra in disguise (good for transporting results to \(v_1\ne v_2,\ \Delta\ne0\)); a jump would localize exactly which structure is special to symmetry.</p>
+
+<h3>How to settle it</h3>
+<ul>
+<li><b>Mixed volume directly:</b> <code>HomotopyContinuation.jl</code> → <code>mixed_volume</code> on the 6 supports above (or <code>polymake</code>), giving \(\mathrm{MV}\) with no root-finding.</li>
+<li><b>Generic specialization:</b> fix a random rational \((w_1,w_2,\Delta)\) off \(\{f=0\}\), run the existing <span class="mono">msolve</span> elimination to \(u_1\), and read the degree; compare to 4. (Watch the toric/boundary roots and the spurious-root domain filter \(\mathcal D\).)</li>
+<li><b>θ-scan:</b> repeat for \(c=e^3,e^4\) to see how \(\mathrm{MV}\) grows with cost degree — the "monomial minimizes the count" conjecture.</li>
+</ul>
+
+<hr>
+<p class="small"><b>General polynomial cost.</b> For \(c=e^\theta\) the same six equations hold with \(c'(e)=\theta e^{\theta-1}\); efforts rise to degree \(\theta\) (indiff) / \(\theta-1\) (FOC), masses stay linear, and the value brackets \(c(w_i)-c(w_i+\text{gap})\) still cancel the leading \(w_i^\theta\). A general degree-\(d\) polynomial cost (normalized \(c(1)=1\) to keep \(w=1\) rational) is equally polynomial; it fills the effort-direction supports toward the full degree-\(d\) simplex, which is where the BKK count — and the loss of the clean factorization — comes from.</p>
+<p class="small" style="margin-top:1.5rem; color:#999">Tortoise project · σ(2,2) Newton-polytope note · companion to QUICKSTART §0, §2, §4 and the det-J / Sard uniqueness program.</p>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "\\(", right: "\\)", display: false},
+      {left: "\\[", right: "\\]", display: true}
+    ],
+    throwOnError: false
+  });
+});
+</script>
+</body>
+</html>
