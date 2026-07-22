@@ -31,6 +31,11 @@
   .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
        text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px}
   .tag.focus{background:var(--accent)} .tag.mirror{background:var(--accent2)} .tag.key{background:var(--good)}
+  .tag{background:var(--muted)}
+  .warn{border-left:5px solid var(--warn); background:#faf4e6}
+  .tag.warn{background:var(--warn)}
+  h4{font-size:17px; margin:22px 0 4px; color:var(--ink); font-style:italic; font-weight:normal;
+     border-bottom:1px solid var(--line); padding-bottom:3px}
   table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
   th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
   th{background:var(--panel)}
@@ -108,7 +113,96 @@ $$G'(b)\,\big[W(v,p)-W(v',p)\big]\;+\;G(b)\,\big[\nabla_p W(v,p)-\nabla_p W(v',p
 </div>
 
 <h3>3a. The signaling channel has a fixed sign</h3>
-<p>Because $p(b)$ traces a <em>monotone</em> curve through the type simplex, $p'(b)$ never reverses direction — the belief path does not fold back on itself. This alone does <em>not</em> fix the sign of the signaling channel $\nabla_p W(v,p)\cdot p'(b)$. What monotonicity fixes is the <em>direction of travel</em> $\hat d=p'/|p'|$ (a single fixed unit direction, with $|p'|>0$), so the channel factors as $|p'|\cdot\partial_{\hat d}W(v,\cdot)$ — magnitude $|p'|$ times a directional derivative. The <strong>sign</strong> is then supplied separately by that directional derivative $\partial_{\hat d}W(v,\cdot)$ — negative for High, positive for Low — which is the economics of §3c (and is well-defined only because $W$ is $C^1$, §3b). So: <em>monotonicity</em> is the precondition that makes the projection $\partial_{\hat d}W$ well-defined and steady across the support; <em>§3c</em> makes it signed. Together they yield a fixed-sign signaling channel — and that is what forces each support to be a connected interval rather than fragmented.</p>
+
+<p>Fix a bid $b$ and look at the second term of $(\star_v)$, the <strong>signaling channel</strong>
+$$\nabla_p W\big(v,p(b)\big)\cdot p'(b).$$
+We want conditions under which this has a sign that does not change as $b$ sweeps the support. Two ingredients enter: the <em>velocity</em> $p'(b)$ of the belief path, and the <em>gradient</em> $\nabla_pW(v,\cdot)$ of the prize. Monotonicity of the posterior constrains the first; the Round-2 economics constrains the second. The argument below is stated for a general number of types $K$, then specialized to $K=2$ (where it degenerates to something already familiar) and to $K=3$ (where it has real content).</p>
+
+<p class="footnote">Notation warning: below, $\partial_H W(v,\cdot)$ and $\partial_LW(v,\cdot)$ denote <em>partial derivatives of the prize with respect to the reputation coordinates</em> $p_H,p_L$ — the subscript names a <strong>coordinate</strong>. Elsewhere in this note (§2, §3c, §5) the subscript on $\tilde W_H,\tilde W_L$ names a <strong>type</strong>. Both appear in this subsection, so each expression below carries its type as the explicit argument $v$.</p>
+
+<h4>The state space, and why its dimension is the whole story</h4>
+
+<p>With $K$ types the reputation $p=(p_1,\dots,p_K)$ lives in the simplex $\Delta^{K-1}$, so $\sum_v p_v=1$ and the velocity satisfies $\sum_v p_v'=0$. The tangent space is therefore of dimension $K-1$:</p>
+
+<table>
+<tr><th>types</th><th>reputation</th><th>tangent space</th><th>unit directions available</th></tr>
+<tr><td>$K=2$</td><td>the scalar $\mu=p_H$</td><td>$\dim=1$ — a line</td><td>exactly two: $\pm1$</td></tr>
+<tr><td>$K=3$</td><td>$(p_H,p_L)$, with $p_M=1-p_H-p_L$ eliminated</td><td>$\dim=2$ — a plane</td><td>a whole circle</td></tr>
+</table>
+
+<p>This single difference is what separates the two cases, and — as the correction below records — it is where an earlier version of this section went wrong.</p>
+
+<div class="panel">
+<span class="tag">what monotonicity actually gives</span>
+<p style="margin-top:4px">The monotone posterior of §3 says the High share rises and the Low share falls with the bid:
+$$p_H'(b)>0,\qquad p_L'(b)<0\qquad\text{throughout the co-mixing region.}\tag{M}$$
+This is a statement about the <strong>signs of the components</strong>, i.e. about which orthant the velocity occupies. Equivalently: there is a fixed convex cone $\mathcal{C}$ in the tangent space with
+$$p'(b)\in\mathcal{C}\quad\text{for every }b.$$
+For $K=3$, $\mathcal{C}=\{(x,y):x>0,\,y<0\}$, an open quadrant. For $K=2$ only the first inequality survives and $\mathcal{C}=\{x>0\}$, an open half-line. Note what (M) does <em>not</em> say: nothing about the <em>ratio</em> of the components, hence nothing about where inside $\mathcal{C}$ the velocity points.</p>
+</div>
+
+<h4>The principle: two cones in duality</h4>
+
+<p>Write the channel as an inner product in the tangent space and recall the definition of the <strong>polar</strong> (dual) cone,
+$$\mathcal{C}^{\circ}\;=\;\{z:\ \langle z,x\rangle\le 0\ \ \text{for all }x\in\mathcal{C}\}.$$</p>
+
+<div class="panel key">
+<span class="tag key">the correct principle — any $K$</span>
+$$\left.\begin{aligned}p'(b)&\in\mathcal{C}\\ \nabla_pW(v,p(b))&\in\operatorname{int}\mathcal{C}^{\circ}\end{aligned}\right\}\ \text{for all }b \qquad\Longrightarrow\qquad \nabla_pW(v,p(b))\cdot p'(b)<0\ \text{ for all }b,$$
+<p style="margin:6px 0 0">and symmetrically $\nabla_pW\in\operatorname{int}(-\mathcal{C}^{\circ})$ gives a strictly positive channel. This is immediate from the definition of the polar cone — that is the entire proof. What deserves emphasis is what it does <em>not</em> require: <strong>no constancy of the direction $p'/|p'|$, and no control of any magnitude.</strong> Only the two orthants matter. Smoothness of $W$ (§3b) is what makes $\nabla_pW$ exist so that it can be placed in a cone at all.</p>
+</div>
+
+<div class="panel warn">
+<span class="tag warn">correction — and where the error came from</span>
+<p style="margin-top:4px">A previous version of this section claimed that monotonicity fixes "the direction of travel $\hat d=p'/|p'|$, a single fixed unit direction", and then factored the channel as $|p'|\cdot\partial_{\hat d}W$ — one scalar directional derivative, to be signed by §3c. <strong>For $K\ge3$ this is false.</strong> Membership in a cone pins the components' signs but not their ratio, and the ratio is exactly what $\hat d$ records; the normalized velocity may rotate freely inside $\mathcal{C}$. A constant $\hat d$ would say the belief path is a <em>straight line segment</em> in the simplex. In this model it demonstrably is not: by §6c the High share $h(t)$ is an $\operatorname{arctanh}$ curve while $m(t)$ comes from a separate quadrature, so $t\mapsto(m(t),h(t))$ is not affine and $\hat d$ genuinely rotates along the support.</p>
+<p style="margin:8px 0 0"><strong>Why the claim nevertheless looked reasonable:</strong> it is inherited from the binary case, where it is <em>true but vacuous</em>. At $K=2$ the tangent space is one-dimensional, so under (M) there is only one available direction and $\hat d\equiv+1$ trivially — "monotonicity fixes the direction of travel" is then a correct sentence carrying no information. The step survives the trip to three types in appearance only: the moment $\dim=2$, the direction acquires a genuine rotational degree of freedom that monotonicity does not touch. This is the standard hazard in reading the solved binary case as a template — and the fixed-direction claim was never needed anyway, since the cone argument above is both correct and shorter.</p>
+</div>
+
+<h4>Specialization I: $K=2$ — the degenerate case</h4>
+
+<p>Reputation is the scalar $\mu=p_H$; there is no $p_L$ coordinate, having been eliminated. The channel is a product of two numbers,
+$$\nabla_pW\cdot p'\;=\;\tilde W_v'(\mu)\,\mu',\qquad \mu'>0,$$
+so its sign is simply the sign of $\tilde W_v'(\mu)$, and the cone condition $\nabla_pW\in\operatorname{int}\mathcal{C}^\circ=\{z<0\}$ <em>is</em> the statement $\tilde W_v'<0$. The solved binary case supplies both signs explicitly (roadmap §7, with $\Psi=G^2$ and $\Delta=v_H-v_L$):</p>
+
+<div class="panel">
+$$\tilde W_H'(\mu)=-\Delta\big(1-\Psi(\mu)\big)\;\le\;0,\qquad\qquad
+\tilde W_L'(\mu)=\frac{v_L\Delta}{v_H}\,\Psi(\mu)\;\ge\;0 .$$
+<p style="margin:6px 0 0">(The first is the identity $\tilde W_H'=-2(1-\Psi)$ quoted in §3b, at $(v_H,v_L)=(3,1)$.) High negative, Low positive — the fixed-sign channel, obtained with no cone machinery because in one dimension there is nothing for the machinery to do. <strong>Both types are extreme when $K=2$</strong>, so the argument covers the whole type space and the binary story is complete.</p>
+</div>
+
+<h4>Specialization II: $K=3$ — where the content is</h4>
+
+<p>Now the tangent space is a plane, $\mathcal{C}$ is the quadrant $\{x>0,y<0\}$, and its polar is
+$$\mathcal{C}^{\circ}=\{(z_1,z_2):z_1\le0,\ z_2\ge0\}\quad\Longleftrightarrow\quad \partial_HW\le0,\ \ \partial_LW\ge0 .$$
+The gradient is available in closed form, because $\Pi_2$ is <strong>affine in the own reputation</strong> on each Round-2 cell (§6b) and the equilibrium visits only two cells (§4). Splitting the continuation $(W)$ at the own position $t$ — opponent behind ($s<t$, own <em>ahead</em>, cell&nbsp;1) versus opponent ahead ($s>t$, own <em>behind</em>, cell&nbsp;2) — and integrating against $d\Psi=2s\,ds$ with $\int_0^t 2s\,ds=t^2$:</p>
+
+<div class="panel">
+$$\nabla_p W(v,p)\;=\;t^2\,\nabla_p U_v^{\text{ahead}}\;+\;(1-t^2)\,\nabla_p U_v^{\text{behind}}.\tag{$\nabla$}$$
+<p style="margin:6px 0 0">The cell coefficients are constants, so the gradient is a <strong>convex combination of two fixed vectors</strong> with weight $t^2$ — no unknown integrals survive. (The moments $A_2,A_3,H_3$ of §6c involve the <em>opponent's</em> curve and are invisible to $\nabla_p$, which differentiates in the own reputation only.)</p>
+</div>
+
+<p>Reading the coefficients off the §6b table in the shares $(m,h)=(p_M,p_H)$ and converting to $(p_H,p_L)$ via $\partial_h|_\ell=\partial_h-\partial_m$ and $\partial_\ell|_h=-\partial_m$ (writing $\ell=p_L$):</p>
+
+<table>
+<tr><th>type $v$</th><th>$\partial_HW(v,\cdot)$</th><th>$\partial_LW(v,\cdot)$</th><th>cone membership on $t\in(0,1)$</th></tr>
+<tr><td><strong>High</strong></td><td>$\dfrac{t^2-2}{3}\;<0$</td><td>$1-t^2\;\ge0$</td><td>in $\mathcal{C}^\circ$ &nbsp;<strong>✓ channel $<0$</strong></td></tr>
+<tr><td><strong>Mid</strong></td><td>$\dfrac13\;>0$</td><td>$1-t^2\;\ge0$</td><td>in neither cone &nbsp;<strong>✗ no verdict</strong></td></tr>
+<tr><td><strong>Low</strong></td><td>$\dfrac{t^2}{6}\;>0$</td><td>$-\dfrac{t^2}{2}\;<0$</td><td>in $-\mathcal{C}^\circ$ &nbsp;<strong>✓ channel $>0$</strong></td></tr>
+</table>
+
+<p class="footnote">Worked example, High type. From §6b, $U_H^{\text{ahead}}=2-\tfrac h3-mp-\tfrac{5hp}{3}$ has own-gradient $(\partial_m,\partial_h)=(0,-\tfrac13)$, and $U_H^{\text{behind}}=2-m-\tfrac{5h}{3}-\tfrac{hp}{3}$ has own-gradient $(-1,-\tfrac53)$. By $(\nabla)$, $\partial_mW=-(1-t^2)$ and $\partial_hW=-\tfrac{t^2}{3}-\tfrac53(1-t^2)=-\tfrac{5-4t^2}{3}$. Converting, $\partial_HW=\partial_h-\partial_m=-\tfrac{5-4t^2}{3}+(1-t^2)=\tfrac{t^2-2}{3}$ and $\partial_LW=-\partial_m=1-t^2$. <em>Consistency check:</em> subtracting the Low row reproduces the §6c coefficients of $D_{HL}$ exactly — $\partial_mD_{HL}=-1+\tfrac{t^2}{2}$ and $\partial_hD_{HL}=-\tfrac53+\tfrac{2t^2}{3}$, matching the terms $-m+\tfrac m2t^2$ and $-\tfrac{5h}{3}+\tfrac{2h}{3}t^2$. The same check passes for $D_{ML}$.</p>
+
+<ul>
+<li><strong>High — strictly negative, uniformly.</strong> $\partial_HW=\tfrac{t^2-2}{3}\in[-\tfrac23,-\tfrac13]$ never vanishes, and $\partial_LW=1-t^2\ge0$. Both terms of the inner product are $\le0$ with the first strict. The effects <strong>reinforce</strong>: bidding higher makes you look more High (which hurts) <em>and</em> less Low (which also hurts, since looking Low is what a High type wants). Compare the binary $\tilde W_H'=-\Delta(1-\Psi)$: same sign, and the $K=2$ case sees only this first column.</li>
+<li><strong>Low — strictly positive.</strong> $\partial_HW=\tfrac{t^2}{6}>0$ and $\partial_LW=-\tfrac{t^2}{2}<0$, the exact mirror pattern; both terms positive, again reinforcing. Compare the binary $\tilde W_L'=\tfrac{v_L\Delta}{v_H}\Psi\ge0$.</li>
+<li><strong>Mid — genuinely ambiguous, with no binary analogue.</strong> $\partial_HW=\tfrac13>0$ but $\partial_LW=1-t^2\ge0$ as well, so the gradient lies in <em>neither</em> $\mathcal{C}^\circ$ nor $-\mathcal{C}^\circ$. The channel is $\tfrac13p_H'+(1-t^2)p_L'$ — a positive term plus a negative one, whose sign turns on the <em>ratio</em> $|p_L'|/p_H'$ and on $t$. No sign-chasing rescues this; one needs the magnitudes, i.e. the solved curve of §6. This is the first structural feature with no counterpart at $K=2$, where every type is extreme.</li>
+</ul>
+
+<div class="panel key">
+<span class="tag key">summary of the logic</span>
+<p style="margin-top:4px">Monotonicity (M) confines the <em>velocity</em> to a fixed cone $\mathcal{C}$. The Round-2 economics of §3c confines the <em>gradient</em> to the polar cone $\mathcal{C}^\circ$ (High) or to $-\mathcal{C}^\circ$ (Low). Duality of the two cones fixes the sign of their pairing at every bid, with no reference to a direction and no magnitudes. At $K=2$ the cones are half-lines and the whole thing collapses to $\tilde W_H'<0$, $\tilde W_L'>0$; at $K=3$ it delivers the two extreme types and stops.</p>
+<p style="margin:8px 0 0"><strong>What this does and does not deliver.</strong> A constant-sign channel for the extreme types is the single-crossing input an interval-support argument wants, and it is consistent with the finding (§6e) that each support is one connected interval $[0,\beta_v]$. It is <em>not</em> by itself a proof that the supports are intervals: for $K=3$ that would additionally require a verdict for Mid, which the cone argument does not supply. For $K=2$, where both types are extreme, the corresponding gap does not arise — another reason the binary case reads as easier than it is. Treat "supports are single intervals" as <strong>strongly indicated</strong> by the fixed-sign channel at the extremes together with the solved curve, not as established by §3a alone.</p>
+</div>
 
 <h3>3b. The prize is smooth, even though <span style="font-style:normal">$\Pi_2$</span> is kinked</h3>
 <p>The Round-2 payoff $\Pi_2$ is full of kinks (the $\min(\mu,\nu)$, the $(\mu-\nu)^+$). One might fear those kinks make the indifference ODE ill-posed. They do not — because the prize is an <em>average</em>:</p>
