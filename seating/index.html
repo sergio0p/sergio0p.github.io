@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Claim your seat for ECON 416.">
+<title>ECON 416 — Seating</title>
+<!-- The sprite is already 16x16 with an alpha channel: it IS a favicon. -->
+<link rel="icon" href="assets/tiles/link-down-1.png">
+<!-- ?v= is the cache buster.  GitHub Pages serves these with a ten-minute TTL,
+     so without it a fix pushed mid-class reaches a phone whenever the phone
+     feels like it.  Bump the number in both places on every deploy. -->
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<main id="screen">
+  <img id="legend" src="assets/legend.png" width="288" height="112"
+       alt="Legend. Link is you. The Moblin is Prof. Parreiras. Teal seats are
+            left-handed, blue seats are right-handed, and bevelled seats are
+            not available.">
+  <canvas id="hint" width="288" height="16" aria-hidden="true"></canvas>
+  <div id="stage">
+    <canvas id="room" width="288" height="272" tabindex="0"
+            aria-label="ECON 416 seating map. Click an open seat to walk there and
+                        claim it."></canvas>
+  </div>
+  <noscript>This page needs JavaScript. Email the instructor for a seat.</noscript>
+</main>
+<script src="js/seating.js?v=1"></script>
+</body>
+</html>

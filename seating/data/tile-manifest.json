@@ -1,0 +1,278 @@
+{
+  "version": 1,
+  "note": "every shipping asset -> source sheet + measured coords",
+  "sheets": {
+    "tileset": "tilesets/NES - The Legend of Zelda - Tilesets - Dungeon Tileset.png",
+    "floor_map": "dungeon-maps-second-quest/NES - The Legend of Zelda - Dungeon Maps (Second Quest) - Level 3 (L).png",
+    "link": "playable-characters/NES - The Legend of Zelda - Playable Characters - Link.png",
+    "moblin": "enemies-bosses/NES - The Legend of Zelda - Enemies & Bosses - Overworld Enemies.png",
+    "font": "miscellaneous/NES - The Legend of Zelda - Miscellaneous - Fonts.png"
+  },
+  "sheets_root": "Teaching/ZeldaAssets",
+  "geometry": {
+    "tile": 16,
+    "wall": 32,
+    "pad_top": 2,
+    "pad_left": 1,
+    "seat_origin": [
+      0,
+      1
+    ]
+  },
+  "mirrored_at_runtime": {
+    "link-left-1/2": "link-right-1/2 flipped",
+    "moblin-left-1/2": "moblin-right-1/2 flipped",
+    "note": "the NES drew them the same way; no files for these"
+  },
+  "files": {
+    "assets/room.png": {
+      "kind": "composed",
+      "size": [
+        288,
+        272
+      ],
+      "palette": "blue",
+      "emitted_by": "tools/room_kit.py --emit",
+      "built_from": {
+        "frame": {
+          "sheet": "tileset",
+          "box": [
+            521,
+            11,
+            777,
+            187
+          ]
+        },
+        "doors": {
+          "sheet": "tileset",
+          "strip_x": [
+            815,
+            1052
+          ],
+          "row_y": {
+            "top": 11,
+            "left": 44,
+            "right": 77,
+            "bottom": 110
+          },
+          "variant": "open",
+          "placed": [
+            [
+              "left",
+              0
+            ],
+            [
+              "left",
+              11
+            ]
+          ]
+        },
+        "seat_floor": {
+          "sheet": "floor_map",
+          "box": [
+            290,
+            33,
+            16,
+            16
+          ]
+        },
+        "space_floor": {
+          "sheet": "floor_map",
+          "box": [
+            547,
+            918,
+            16,
+            16
+          ]
+        },
+        "seats": "data/room-layout.json"
+      }
+    },
+    "assets/tiles/stipple.png": {
+      "sheet": "floor_map",
+      "box": [
+        547,
+        918,
+        16,
+        16
+      ],
+      "recolor": {
+        "from": "blue",
+        "to": "blue"
+      },
+      "emitted_by": "tools/room_kit.py --emit"
+    },
+    "assets/legend.png": {
+      "kind": "composed",
+      "emitted_by": "tools/legend.py",
+      "note": "built from these same tiles + the font, so it cannot drift"
+    },
+    "assets/font-white.png": {
+      "sheet": "font",
+      "kind": "atlas",
+      "cell": 8,
+      "cols": 16,
+      "rows": 3,
+      "charset": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!'&.\"?-",
+      "color": "white",
+      "emitted_by": "tools/nes_text.py --atlas",
+      "note": "glyph index = CHARSET.indexOf(ch); regular grid, no JSON"
+    },
+    "assets/tiles/seat-open-right.png": {
+      "sheet": "floor_map",
+      "box": [
+        290,
+        33,
+        16,
+        16
+      ],
+      "recolor": {
+        "from": "blue",
+        "to": "blue"
+      },
+      "emitted_by": "tools/room_kit.py --emit"
+    },
+    "assets/tiles/seat-closed-right.png": {
+      "sheet": "tileset",
+      "box": [
+        1001,
+        11,
+        16,
+        16
+      ],
+      "recolor": {
+        "from": "teal",
+        "to": "blue"
+      },
+      "emitted_by": "tools/room_kit.py --emit"
+    },
+    "assets/tiles/seat-open-left.png": {
+      "sheet": "floor_map",
+      "box": [
+        290,
+        33,
+        16,
+        16
+      ],
+      "recolor": {
+        "from": "blue",
+        "to": "teal"
+      },
+      "emitted_by": "tools/room_kit.py --emit"
+    },
+    "assets/tiles/seat-closed-left.png": {
+      "sheet": "tileset",
+      "box": [
+        1001,
+        11,
+        16,
+        16
+      ],
+      "recolor": {
+        "from": "teal",
+        "to": "teal"
+      },
+      "emitted_by": "tools/room_kit.py --emit"
+    },
+    "assets/tiles/link-down-1.png": {
+      "sheet": "link",
+      "box": [
+        1,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_link.py"
+    },
+    "assets/tiles/link-down-2.png": {
+      "sheet": "link",
+      "box": [
+        18,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_link.py"
+    },
+    "assets/tiles/link-right-1.png": {
+      "sheet": "link",
+      "box": [
+        35,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_link.py"
+    },
+    "assets/tiles/link-right-2.png": {
+      "sheet": "link",
+      "box": [
+        52,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_link.py"
+    },
+    "assets/tiles/link-up-1.png": {
+      "sheet": "link",
+      "box": [
+        69,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_link.py"
+    },
+    "assets/tiles/link-up-2.png": {
+      "sheet": "link",
+      "box": [
+        86,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_link.py"
+    },
+    "assets/tiles/moblin-down.png": {
+      "sheet": "moblin",
+      "box": [
+        82,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_moblin.py"
+    },
+    "assets/tiles/moblin-up.png": {
+      "sheet": "moblin",
+      "box": [
+        99,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_moblin.py"
+    },
+    "assets/tiles/moblin-right-1.png": {
+      "sheet": "moblin",
+      "box": [
+        116,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_moblin.py"
+    },
+    "assets/tiles/moblin-right-2.png": {
+      "sheet": "moblin",
+      "box": [
+        133,
+        11,
+        16,
+        16
+      ],
+      "emitted_by": "tools/cut_moblin.py"
+    }
+  }
+}

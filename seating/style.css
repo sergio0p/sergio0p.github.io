@@ -1,0 +1,76 @@
+/* One NES screen, centred and fit to whatever it is opened on.
+ *
+ * The legend, the hint line and the room are all 288 art-pixels wide, so a
+ * single column width scales the three of them by the same factor -- which is
+ * what keeps the 8px glyphs on whole pixels.  Total art height is 400
+ * (112 + 16 + 272), hence the 288/400 = 0.72 in the height clamp: the screen
+ * shrinks to fit a short viewport instead of pushing the room below the fold.
+ */
+
+:root {
+  --art-w: 288;
+  --screen: min(100vw - 1rem, (100vh - 1rem) * 0.72, 720px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Nothing here scrolls, and a swipe is an input, not a gesture. */
+  overscroll-behavior: none;
+}
+
+#screen {
+  width: var(--screen);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#legend, #hint, #stage, #room {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;   /* Firefox */
+}
+
+/* The room is a window, not a picture.  #stage is the frame: it keeps its place
+ * in the column whatever the zoom is doing, and clips whatever no longer fits.
+ * #room is the map inside it, widened by the zoom and slid around by the pan --
+ * so zooming in makes the sides fall off the edges instead of pushing the
+ * legend and the margins around.  Height comes from the aspect ratio, since an
+ * absolutely positioned canvas gives the frame nothing to be tall from. */
+#stage {
+  position: relative;
+  aspect-ratio: 288 / 272;        /* seating.js resets this from the real canvas */
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  /* Every gesture in here is the game's: one finger taps or swipes, two pinch.
+   * The browser's own pinch was the wrong tool -- it magnifies the whole page,
+   * and iOS refuses it often enough that it could not be relied on. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#room {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;          /* zoom grows the width, pan translates */
+  outline: none;
+}
+
+noscript {
+  color: #fff;
+  font: 14px/1.4 system-ui, sans-serif;
+  padding: 1rem;
+  text-align: center;
+}

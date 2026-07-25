@@ -1,0 +1,21 @@
+# This directory ships as-is to sergio0p.github.io/seating/ — everything
+# committed here is public and downloadable.  Keep out what is neither part of
+# the page nor worth publishing.
+.DS_Store
+__pycache__/
+*.pyc
+
+# The access-code table: 52 working credentials.  The one genuinely secret file
+# in this project — committing it would publish every student's link.  See
+# PHASE2-PLAN.md.
+data/codes-local.json
+data/codes-*.json
+
+# Photos of the real lecture hall: 24 MB of source material the page never
+# loads, and publishing pictures of the room is not the point of the app.
+# They stay local (Dropbox has them); their README is committed so the record
+# of what they settled survives.
+data/room-photos/*.heic
+data/room-photos/*.jpg
+data/room-photos/*.jpeg
+data/room-photos/*.mov
