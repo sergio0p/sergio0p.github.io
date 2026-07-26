@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elimination Contests: The Binary Case</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+<style>
+  :root{
+    --paper:#eef1f0; --fig:#f6f9f8; --surface:#ffffff;
+    --ink:#161a1c; --soft:#4f5a5c; --faint:#79868a;
+    --rule:#d3dad8; --rule-strong:#bcc6c3;
+    --accent:#0f6d64; --accent-ink:#0b544d; --accent-soft:#0f6d6412;
+    --high:#a8412a; --low:#3a5c86;
+    --chip:#e3eae8; --shadow:0 1px 2px rgba(20,40,38,.05),0 8px 30px rgba(20,40,38,.06);
+    --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Charter,Georgia,"Times New Roman",serif;
+    --sans:"Optima","Avenir Next","Segoe UI","Helvetica Neue",system-ui,sans-serif;
+    --mono:"Cascadia Code","SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0f1315; --fig:#141b1d; --surface:#171e20;
+      --ink:#e7ecec; --soft:#9aa4a5; --faint:#6d7879;
+      --rule:#28312f; --rule-strong:#3a453f;
+      --accent:#43cabb; --accent-ink:#5fd8ca; --accent-soft:#43cabb1c;
+      --high:#e28a6f; --low:#8fb2dd;
+      --chip:#1e2628; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 34px rgba(0,0,0,.34);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#eef1f0; --fig:#f6f9f8; --surface:#ffffff;
+    --ink:#161a1c; --soft:#4f5a5c; --faint:#79868a;
+    --rule:#d3dad8; --rule-strong:#bcc6c3;
+    --accent:#0f6d64; --accent-ink:#0b544d; --accent-soft:#0f6d6412;
+    --high:#a8412a; --low:#3a5c86; --chip:#e3eae8;
+    --shadow:0 1px 2px rgba(20,40,38,.05),0 8px 30px rgba(20,40,38,.06);
+  }
+  :root[data-theme="dark"]{
+    --paper:#0f1315; --fig:#141b1d; --surface:#171e20;
+    --ink:#e7ecec; --soft:#9aa4a5; --faint:#6d7879;
+    --rule:#28312f; --rule-strong:#3a453f;
+    --accent:#43cabb; --accent-ink:#5fd8ca; --accent-soft:#43cabb1c;
+    --high:#e28a6f; --low:#8fb2dd; --chip:#1e2628;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 34px rgba(0,0,0,.34);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--serif); font-size:17px; line-height:1.72;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  ::selection{background:var(--accent-soft);}
+
+  /* ---- top bar ---- */
+  .topbar{
+    position:sticky; top:0; z-index:20; backdrop-filter:saturate(1.4) blur(8px);
+    background:color-mix(in srgb,var(--paper) 82%,transparent);
+    border-bottom:1px solid var(--rule);
+  }
+  .topbar-in{max-width:960px; margin:0 auto; padding:.55rem clamp(1rem,4vw,2rem);
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;}
+  .brand{font-family:var(--sans); font-size:.82rem; letter-spacing:.02em; color:var(--soft);
+    display:flex; align-items:center; gap:.55rem; min-width:0;}
+  .brand b{color:var(--ink); font-weight:600;}
+  .brand .dot{width:.5rem; height:.5rem; border-radius:50%; background:var(--accent); flex:none;}
+  .brand .txt{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .toggle{font-family:var(--sans); font-size:.76rem; color:var(--soft); background:var(--chip);
+    border:1px solid var(--rule); border-radius:999px; padding:.32rem .7rem; cursor:pointer;
+    display:inline-flex; align-items:center; gap:.4rem; flex:none;}
+  .toggle:hover{border-color:var(--rule-strong); color:var(--ink);}
+  .toggle:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  /* ---- layout ---- */
+  main{max-width:720px; margin:0 auto; padding:0 clamp(1rem,4vw,1.5rem) 5rem;}
+  .wide{max-width:960px;}
+  header.hero{padding:clamp(2.4rem,7vw,4.2rem) 0 1.4rem;}
+  .eyebrow{font-family:var(--sans); font-size:.76rem; font-weight:600; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--accent-ink); margin:0 0 1rem;}
+  h1{font-family:var(--sans); font-weight:600; letter-spacing:-.01em; line-height:1.06;
+    font-size:clamp(2.15rem,5.6vw,3.15rem); margin:0; text-wrap:balance;}
+  .dek{font-size:clamp(1.12rem,2.4vw,1.32rem); line-height:1.5; color:var(--soft);
+    margin:1.1rem 0 0; max-width:34em; text-wrap:pretty;}
+  .meta{font-family:var(--sans); font-size:.8rem; color:var(--faint); margin-top:1.5rem;
+    display:flex; flex-wrap:wrap; gap:.5rem 1.1rem; align-items:center;
+    border-top:1px solid var(--rule); padding-top:1.1rem;}
+  .meta span{display:inline-flex; align-items:center; gap:.45rem;}
+  .meta .k{color:var(--accent-ink);}
+
+  section{margin-top:3rem;}
+  h2{font-family:var(--sans); font-weight:600; font-size:1.42rem; letter-spacing:-.005em;
+    line-height:1.2; margin:0 0 1rem; text-wrap:balance; display:flex; gap:.7rem; align-items:baseline;}
+  h2 .num{font-size:.86rem; font-weight:600; color:var(--accent); font-variant-numeric:tabular-nums;
+    border:1px solid var(--accent); border-radius:6px; padding:.05rem .42rem; flex:none;
+    transform:translateY(-.12em);}
+  h3{font-family:var(--sans); font-weight:600; font-size:1.06rem; margin:2rem 0 .6rem; color:var(--ink);}
+  p{margin:0 0 1.05rem;}
+  a{color:var(--accent-ink); text-underline-offset:2px; text-decoration-thickness:1px;}
+  strong{font-weight:600;}
+  .lead{font-size:1.1rem; color:var(--ink);}
+
+  /* ---- type badges ---- */
+  .tH,.tL{font-weight:600; font-family:var(--sans); font-size:.94em; white-space:nowrap;}
+  .tH{color:var(--high);} .tL{color:var(--low);}
+
+  /* ---- definition card ---- */
+  .def{background:var(--surface); border:1px solid var(--rule); border-left:3px solid var(--accent);
+    border-radius:10px; padding:1rem 1.15rem 1.05rem; margin:1.4rem 0; box-shadow:var(--shadow);}
+  .def .tag{font-family:var(--sans); font-size:.68rem; font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent-ink); display:block; margin-bottom:.35rem;}
+  .def p{margin:0;} .def .term{font-weight:600; color:var(--ink);}
+  .def + .def{margin-top:-.4rem;}
+
+  /* ---- result / theorem card ---- */
+  .result{background:linear-gradient(180deg,var(--accent-soft),transparent 70%),var(--surface);
+    border:1px solid var(--rule); border-radius:12px; padding:1.15rem 1.25rem; margin:1.6rem 0;
+    box-shadow:var(--shadow);}
+  .result .tag{font-family:var(--sans); font-size:.68rem; font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent-ink); margin:0 0 .5rem; display:flex; align-items:center; gap:.5rem;}
+  .result .tag::before{content:""; width:1.1rem; height:2px; background:var(--accent); display:inline-block;}
+  .result p:last-child{margin-bottom:0;}
+
+  .callout{border:1px dashed var(--rule-strong); border-radius:10px; padding:.9rem 1.1rem;
+    margin:1.4rem 0; background:var(--fig); font-size:.98rem; color:var(--soft);}
+  .callout b{color:var(--ink);}
+
+  /* ---- math ---- */
+  .math{font-family:var(--serif);}
+  i.v{font-style:italic;}
+  sub,sup{font-size:.72em; line-height:0;}
+  .frac{display:inline-flex; flex-direction:column; vertical-align:-.5em; text-align:center; margin:0 .2em;}
+  .frac>span{padding:0 .4em; line-height:1.25;}
+  .frac>.den{border-top:1px solid currentColor; padding-top:.05em;}
+  .root{border-top:1px solid currentColor; padding:0 .18em; margin-left:.02em;}
+  .intg{font-size:1.5em; line-height:0; vertical-align:-.25em; margin-right:.05em; font-style:italic;}
+  .intg sub{font-size:.5em;} .intg sup{font-size:.5em;}
+
+  .eqwrap{overflow-x:auto; margin:1.5rem 0; padding:.2rem 0;}
+  .eqwrap .katex-display{margin:.15rem 0;}
+  .katex{color:var(--ink);}
+  .eq{display:grid; grid-template-columns:1fr auto; align-items:center; gap:1.2rem;
+    min-width:min-content;}
+  .eq .body{font-family:var(--serif); font-size:1.16rem; line-height:1.7; white-space:nowrap;
+    padding:.2rem .2rem;}
+  .eq .why{font-family:var(--sans); font-size:.78rem; color:var(--faint); white-space:nowrap;
+    text-align:right; justify-self:end;}
+  .eq.center{grid-template-columns:1fr; text-align:center;}
+  .eq.center .body{white-space:normal; text-align:center; justify-self:center;}
+  .eqno{color:var(--accent); font-family:var(--mono); font-size:.82rem;}
+
+  /* ---- derivation steps ---- */
+  ol.steps{list-style:none; counter-reset:s; margin:1.3rem 0; padding:0; display:flex;
+    flex-direction:column; gap:1rem;}
+  ol.steps>li{counter-increment:s; position:relative; padding-left:2.6rem;}
+  ol.steps>li::before{content:counter(s); position:absolute; left:0; top:.02em;
+    font-family:var(--mono); font-size:.82rem; font-weight:600; color:var(--accent);
+    width:1.75rem; height:1.75rem; border:1px solid var(--accent); border-radius:50%;
+    display:grid; place-items:center;}
+  ol.steps>li p{margin:0 0 .4rem;}
+
+  /* ---- inline code / mono ---- */
+  code{font-family:var(--mono); font-size:.86em; background:var(--chip); border:1px solid var(--rule);
+    border-radius:5px; padding:.06em .38em;}
+
+  /* ---- figures ---- */
+  figure{margin:2rem 0; background:var(--fig); border:1px solid var(--rule); border-radius:12px;
+    padding:1.1rem 1.1rem .4rem; box-shadow:var(--shadow);}
+  figure.plot{padding:1.1rem;}
+  .figcanvas{width:100%; display:block;}
+  figcaption{font-family:var(--sans); font-size:.82rem; line-height:1.5; color:var(--soft);
+    margin-top:.85rem; padding-top:.75rem; border-top:1px solid var(--rule);}
+  figcaption b{color:var(--ink); font-weight:600;}
+  .legend{display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; font-family:var(--sans); font-size:.78rem;
+    color:var(--soft); margin-top:.3rem;}
+  .legend span{display:inline-flex; align-items:center; gap:.4rem;}
+  .swatch{width:1.4rem; height:0; border-top:3px solid; border-radius:2px; display:inline-block;}
+
+  /* ---- support strip svg colors via currentColor won't do; use classes ---- */
+  .strip{width:100%; height:auto; display:block;}
+
+  /* ---- data table ---- */
+  .tablewrap{overflow-x:auto; margin:1.6rem 0; border:1px solid var(--rule); border-radius:10px;}
+  table{border-collapse:collapse; width:100%; font-size:.92rem; font-family:var(--sans);}
+  caption{caption-side:top; text-align:left; font-family:var(--sans); font-size:.8rem;
+    color:var(--faint); padding:.7rem .9rem .1rem; letter-spacing:.02em;}
+  th,td{padding:.6rem .85rem; text-align:right; font-variant-numeric:tabular-nums;
+    border-bottom:1px solid var(--rule);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{color:var(--accent-ink); font-weight:600; border-bottom:1px solid var(--rule-strong);
+    position:sticky; top:0; background:var(--surface);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.mark td{background:var(--accent-soft);}
+  td .yes{color:var(--high); font-weight:600;} td .no{color:var(--low);}
+
+  hr.sep{border:none; border-top:1px solid var(--rule); margin:3.2rem 0 0;}
+
+  footer{max-width:720px; margin:2.5rem auto 0; padding:2rem clamp(1rem,4vw,1.5rem) 0;
+    border-top:1px solid var(--rule); font-family:var(--sans); font-size:.82rem; color:var(--faint);
+    line-height:1.6;}
+  footer a{color:var(--accent-ink);}
+  footer .refs{margin-top:.8rem;}
+
+  @media (max-width:560px){
+    body{font-size:16px;}
+    .eq{grid-template-columns:1fr; gap:.3rem;}
+    .eq .why{text-align:left; justify-self:start;}
+  }
+  @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <span class="brand"><span class="dot" aria-hidden="true"></span>
+      <span class="txt"><b>Elimination Contests</b> &#183; the binary case</span></span>
+    <button class="toggle" id="themeBtn" type="button" aria-label="Toggle colour theme">
+      <span id="themeIcon" aria-hidden="true">&#9680;</span><span id="themeLbl">Theme</span>
+    </button>
+  </div>
+</div>
+
+<main>
+  <header class="hero">
+    <p class="eyebrow">Working notes &#183; game theory of contests</p>
+    <h1>Elimination Contests: The Binary Case</h1>
+    <p class="dek">Four players, two rounds, private information &#8212; and one sharp tension:
+      winning early reveals your strength, which hurts you later. We derive the equilibrium
+      that resolves it, from scratch, term by term.</p>
+    <div class="meta">
+      <span><span class="k">Setting</span>&nbsp;two-round all-pay tournament</span>
+      <span><span class="k">Types</span>&nbsp;two (High / Low)</span>
+      <span><span class="k">Read</span>&nbsp;~15 min</span>
+    </div>
+  </header>
+
+  <!-- ===================== 0 INTUITION ===================== -->
+  <section>
+    <h2><span class="num">0</span> The tension, in words</h2>
+    <p class="lead">Imagine a small tournament. Four contestants are split into two pairs.
+      Each pair fights; the winner of each advances; the two winners meet in a final. Every
+      fight is decided by <em>effort</em> &#8212; whoever tries harder wins &#8212; but effort is costly
+      and <em>spent whether you win or lose</em>.</p>
+    <p>Here is the twist that makes the problem interesting. After the first round, everyone
+      sees how hard each contestant fought. A contestant who blew the field away in round one
+      has just announced, <em>&#8220;I value winning a lot&#8221;</em> &#8212; and that reputation follows them
+      into the final, where a frightened-looking opponent will fight them harder. So a strong
+      contestant faces a dilemma: <strong>fight hard enough to advance, but not so hard that
+      you reveal how strong you are.</strong></p>
+    <p>The rest of this document turns that sentence into equations and solves them. We will
+      find that both strong and weak types deliberately <em>blur together</em> &#8212; they choose
+      overlapping levels of effort so that a given effort level does not pin down who you are.
+      That blurring is the equilibrium, and it has a surprisingly clean closed form.</p>
+
+    <figure aria-label="Bracket schematic of the two-round elimination contest">
+      <svg class="strip" viewBox="0 0 720 210" role="img" aria-label="Two groups of two players feed into a final between the two winners.">
+        <style>
+          .lbl{font-family:var(--sans); font-size:15px; fill:var(--ink);}
+          .sub{font-family:var(--sans); font-size:12px; fill:var(--soft);}
+          .wire{stroke:var(--rule-strong); stroke-width:2; fill:none;}
+          .node{fill:var(--surface); stroke:var(--rule-strong); stroke-width:1.5;}
+          .win{fill:var(--surface); stroke:var(--accent); stroke-width:2;}
+          .cap{font-family:var(--sans); font-size:12px; letter-spacing:.12em; fill:var(--accent-ink);}
+        </style>
+        <text x="12" y="24" class="cap">ROUND 1 &#183; two pairwise all-pay contests</text>
+        <!-- group A -->
+        <rect x="14" y="42" width="150" height="34" rx="8" class="node"/>
+        <text x="30" y="64" class="lbl">Player A&#8321;</text>
+        <rect x="14" y="92" width="150" height="34" rx="8" class="node"/>
+        <text x="30" y="114" class="lbl">Player A&#8322;</text>
+        <!-- group B -->
+        <rect x="14" y="150" width="150" height="34" rx="8" class="node"/>
+        <text x="30" y="172" class="lbl">Player B&#8321;</text>
+        <rect x="14" y="200" width="150" height="0" class="node"/>
+        <!-- wires to winners -->
+        <path class="wire" d="M164 59 H236 V93 H300"/>
+        <path class="wire" d="M164 109 H236 V93"/>
+        <path class="wire" d="M164 167 H236 V150 H300"/>
+        <!-- winners -->
+        <rect x="300" y="76" width="150" height="34" rx="8" class="win"/>
+        <text x="316" y="98" class="lbl">Winner A</text>
+        <rect x="300" y="133" width="150" height="34" rx="8" class="win"/>
+        <text x="316" y="155" class="lbl">Winner B</text>
+        <text x="300" y="200" class="sub">bids from round 1 are public &#8594; each carries a reputation</text>
+        <!-- final -->
+        <path class="wire" d="M450 93 H520 V121 H584"/>
+        <path class="wire" d="M450 150 H520 V121"/>
+        <rect x="584" y="104" width="122" height="34" rx="8" class="win"/>
+        <text x="600" y="126" class="lbl">Final</text>
+        <text x="470" y="24" class="cap">ROUND 2 &#183; all-pay final</text>
+      </svg>
+      <figcaption><b>The structure.</b> Two groups of two play a pairwise all-pay contest;
+        the two winners meet in a final. Because round-one efforts are revealed, each finalist
+        arrives carrying a <em>reputation</em> &#8212; the crowd&#8217;s updated guess about their type.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================== 1 MODEL ===================== -->
+  <section>
+    <h2><span class="num">1</span> The model, precisely</h2>
+    <p>Everything below is built from a handful of primitives. We define each one before it is used.</p>
+
+    <div class="def"><span class="tag">Definition &#8212; All-pay auction</span>
+      <p>A contest in which <span class="term">every participant pays their own bid,
+      win or lose</span>, and the highest bid wins the prize. The &#8220;bid&#8221; is effort; the
+      payment is that effort&#8217;s cost. This is the standard model of a contest where effort
+      is sunk.</p></div>
+
+    <div class="def"><span class="tag">Definition &#8212; Type and value</span>
+      <p>Each player has a private <span class="term">type</span>, their value for winning.
+      In the <em>binary</em> case there are two types: <span class="tH">High</span> with
+      value $v_H$ and
+      <span class="tL">Low</span> with value $v_L$,
+      where $v_H > v_L > 0$.
+      Each player is High or Low with probability $\tfrac12$ each,
+      drawn <span class="term">independently</span> (my type tells you nothing about yours &#8212;
+      <em>independent private values</em>, IPV).</p></div>
+
+    <p>The game has two rounds:</p>
+    <ul>
+      <li><strong>Round 1.</strong> Within each pair, the two players play an all-pay auction.
+        The winner advances. <em>All four round-1 bids are then made public.</em></li>
+      <li><strong>Round 2.</strong> The two group-winners play an all-pay final. Now each knows
+        only the distribution of the other&#8217;s type, updated by the public round-1 bids.</li>
+    </ul>
+    <p>A player&#8217;s type stays private throughout &#8212; the only channel through which information
+      leaks is the <em>bid</em>. That is what makes round-one effort a signal.</p>
+
+    <div class="def"><span class="tag">Definition &#8212; Strategy and the bid CDF $G$</span>
+      <p>A (symmetric) strategy tells each type how to randomize its round-one bid. Collect the
+      resulting spread of bids across the whole population into one cumulative distribution
+      function <span class="term">$G(b)$ =
+      probability that a random player bids at most $b$</span>.
+      Because winning a pair means beating one rival drawn from $G$,
+      $G(b)$ is also your probability of
+      <em>winning round one</em> with bid $b$.</p></div>
+
+    <div class="def"><span class="tag">Definition &#8212; Belief (reputation) $\mu$</span>
+      <p>After seeing a round-one bid $b$, an observer
+      forms the posterior
+      <span class="term">$\mu(b) = \Pr(\text{type is High}\mid \text{bid}=b)$</span>.
+      This number &#8212; between 0 and 1 &#8212; is the finalist&#8217;s <em>reputation</em>. A bid that only
+      High types would make gives $\mu = 1$; a bid only Low types make
+      gives $\mu = 0$.</p></div>
+
+    <div class="def"><span class="tag">Definition &#8212; Co-mixing (pooling)</span>
+      <p>Both types randomize over a <span class="term">shared, overlapping range of bids</span>.
+      Because their supports overlap, a single observed bid could have come from either type,
+      so it does <em>not</em> fully reveal the type &#8212; $\mu(b)$
+      lands strictly between 0 and 1. This is the opposite of a <em>separating</em> equilibrium,
+      where each type picks a distinct range and every bid gives its owner away.</p></div>
+
+    <p>The classical result (Zhang &amp; Wang, 2009) is that <em>no</em> symmetric separating
+      equilibrium survives here: full revelation is self-defeating, exactly because of the
+      tension in &#167;0. That leaves the co-mixing equilibrium &#8212; which is what we characterize.</p>
+  </section>
+
+  <!-- ===================== 2 WHAT SOLVING MEANS ===================== -->
+  <section>
+    <h2><span class="num">2</span> What &#8220;solving&#8221; means</h2>
+    <p>We look for a <strong>Bayes&#8211;Nash equilibrium</strong>: a pair (strategy, beliefs) that is
+      internally consistent in two directions.</p>
+    <ol class="steps">
+      <li><p><strong>Beliefs come from the strategy.</strong> Given how each type bids,
+        $\mu(b)$ is fixed by Bayes&#8217; rule.</p></li>
+      <li><p><strong>The strategy best-responds to the beliefs.</strong> Given the reputation each
+        bid will earn, no type wants to deviate &#8212; every bid a type uses must yield the same
+        expected payoff (else it would shift mass to the better bid).</p></li>
+    </ol>
+    <p>The unknowns are therefore the bid distribution $G$
+      and the belief map $\mu$. The engine that ties them together is the
+      round-two payoff &#8212; how much a finalist expects to earn as a function of the two reputations
+      at the table. So we compute that first.</p>
+  </section>
+
+  <!-- ===================== 3 THE FINAL ===================== -->
+  <section>
+    <h2><span class="num">3</span> The final round, in closed form</h2>
+    <p>Two facts make the final tractable.</p>
+
+    <h3>3.1 &#8212; Who you actually face</h3>
+    <p>Your final opponent is not a random player: it is the <em>winner</em> of the other pair,
+      i.e. the higher of two independent draws from $G$.
+      The CDF of the maximum of two independent draws is the square of the CDF.</p>
+    <div class="result"><span class="tag">Fact &#8212; the opponent&#8217;s bid law is $G^2$</span>
+      <p>Let $F$ be the CDF of the round-one bid of the
+      finalist you meet. Then
+      $F = G^2$.</p>
+    </div>
+    <p>This is the quiet workhorse of the whole analysis: it makes a finalist&#8217;s reputation-weighted
+      payoff an <em>explicit function of $G$</em>, dissolving
+      what would otherwise be a circular round-1 &#8596; round-2 fixed point.</p>
+
+    <h3>3.2 &#8212; Payoffs at the table</h3>
+    <p>Consider a finalist with reputation $\mu$ (their own) facing an
+      opponent with reputation $\nu$. Solving the two-type all-pay final and
+      reading off the equilibrium utilities gives, with
+      $\Delta := v_H - v_L$:</p>
+    <div class="eqwrap">
+      $$\pi_2(\mathrm{H};\mu,\nu) = \Delta\cdot\bigl(1 - \min(\mu,\nu)\bigr), \qquad
+      \pi_2(\mathrm{L};\mu,\nu) = \frac{v_L\,\Delta}{v_H}\cdot(\mu - \nu)^{+}$$
+    </div>
+    <p style="margin-top:-.4rem; color:var(--soft); font-size:.95rem;">
+      where $(x)^+ = \max(x, 0)$.
+      Intuition: a <span class="tH">High</span> finalist loses value only when the opponent is at
+      least as fearsome (the $\min$); a <span class="tL">Low</span> finalist
+      earns a sliver only when it out-reputes the opponent (the $(\cdot)^+$).</p>
+
+    <h3>3.3 &#8212; Expected value of reaching the final</h3>
+    <p>Average those payoffs over the opponent&#8217;s reputation &#8212; whose law is fixed by
+      $F = G^2$ &#8212; to get the
+      <span class="term">continuation value</span>: what a finalist of each type expects to earn,
+      as a function of their <em>own</em> reputation $\mu$.</p>
+
+    <div class="def"><span class="tag">Definition &#8212; auxiliary $Y$, and constant $K$</span>
+      <p>Write
+      $Y(\mu) = \int_0^{\mu} G^2$
+      &#8212; the reputation-average that the opponent&#8217;s $G^2$
+      law produces (so $dY/d\mu = G^2$) &#8212;
+      and the constant
+      $K = v_L\Delta / v_H$.</p></div>
+
+    <div class="result"><span class="tag">Continuation values</span>
+      <div class="eqwrap">
+        $$\tilde W_H(\mu) = \Delta\cdot(1 - \mu + Y) \qquad\qquad \tilde W_L(\mu) = K\cdot Y$$
+      </div>
+      <p>Read $\tilde W$ as &#8220;the prize you expect from
+        <em>reaching</em> the final, given the reputation you show up with.&#8221; Note the sign of the
+        signal: a <em>higher</em> own-reputation $\mu$
+        <em>lowers</em> $\tilde W_H$
+        (the $-\mu$ term) &#8212; being seen as strong hurts you. That is &#167;0 made
+        algebraic.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 4 BOTTOM ===================== -->
+  <section>
+    <h2><span class="num">4</span> The bottom of the bidding</h2>
+    <p>Before solving the interior, we pin down where the support starts. Two short all-pay
+      arguments settle it.</p>
+    <ol class="steps">
+      <li><p><strong>The support starts at zero.</strong> If the lowest active bid were some
+        $b_{lo} > 0$, a bidder there could
+        shave it toward 0 without losing any probability of winning round one (nobody bids in
+        the gap below), so they strictly save cost. Hence
+        $b_{lo} = 0$.</p></li>
+      <li><p><strong>The reputation at the bottom is zero.</strong> At the very bottom
+        $Y = 0$, so
+        $\tilde W_L = K\cdot Y = 0$.
+        A <span class="tL">Low</span> type is willing to sit at the bottom only if it earns
+        nothing there &#8212; which is consistent only with belief
+        $\mu_0 = 0$. So the belief starts at 0 and rises
+        <em>continuously</em>: no jump, no gap.</p></li>
+    </ol>
+    <div class="callout"><b>Consequence.</b> There is a mass point (an &#8220;atom&#8221;) of bidders exactly
+      at $b = 0$, and it is carried by
+      <span class="tL">Low</span> types alone. Since belief rises with the bid, no
+      <span class="tH">High</span> type wants to hide down there.</div>
+  </section>
+
+  <!-- ===================== 5 THE ODE SYSTEM ===================== -->
+  <section>
+    <h2><span class="num">5</span> Indifference becomes a differential equation</h2>
+    <p>On the range where a type mixes, <em>every</em> bid it uses must give the same expected
+      payoff. Differentiating that flat-payoff condition is what produces the governing equations.</p>
+
+    <div class="def"><span class="tag">Definition &#8212; interim payoff</span>
+      <p>A type-$v$ player bidding
+      $b$ wins round one with probability
+      $G(b)$ and then collects the
+      continuation value $\tilde W$ at the reputation that bid
+      earns, paying $b$ regardless. So the interim payoff is
+      $G(b)\cdot\tilde W(v, \mu(b)) - b$.</p></div>
+
+    <p>Setting the derivative of the interim payoff to zero (it is constant across the support)
+      gives the <strong>indifference condition</strong>, one per active type:</p>
+    <div class="eqwrap">
+      $$G'\cdot\tilde W(v, \mu) + G\cdot\tilde W_{\mu}(v, \mu)\cdot\mu' = 1$$
+    </div>
+    <p>When <em>both</em> types mix, we have two such equations &#8212; linear in the two unknown slopes
+      $g = G'$ and
+      $G\mu'$. Solving the 2&#215;2 system by Cramer&#8217;s rule gives
+      the pair that drives everything. Write primes on $\tilde W$
+      for $\partial/\partial\mu$, and set
+      $D = \tilde W_L\,\tilde W_H' - \tilde W_H\,\tilde W_L'$.</p>
+
+    <div class="result"><span class="tag">The governing system  (&#8224;)</span>
+      <div class="eqwrap">
+        $$g = \frac{\tilde W_H' - \tilde W_L'}{D} \qquad\qquad
+          G\cdot\mu' = \frac{\tilde W_L - \tilde W_H}{D}$$
+      </div>
+      <p>Substituting the continuation values from &#167;3.3 makes the right-hand sides explicit in
+        $G$ and $\mu$:
+        $\tilde W_H' = \Delta(-1 + G^2)$ and
+        $\tilde W_L' = K\cdot G^2$.</p>
+    </div>
+
+    <p>To integrate it, use $\mu$ as the clock (it runs cleanly from 0 to its
+      top) with state $(G, Y, b)$,
+      starting at $(G_0, 0, 0)$:</p>
+    <div class="eqwrap">
+      $$\frac{dG}{d\mu} = G\cdot\frac{\tilde W_H' - \tilde W_L'}{\tilde W_L - \tilde W_H}, \qquad
+        \frac{dY}{d\mu} = G^2, \qquad
+        \frac{db}{d\mu} = \frac{G\cdot D}{\tilde W_L - \tilde W_H}$$
+    </div>
+    <p>You could stop here and just integrate numerically. But this system hides a conserved
+      quantity &#8212; and finding it collapses the whole thing to a formula.</p>
+  </section>
+
+  <!-- ===================== 6 FIRST INTEGRAL ===================== -->
+  <section>
+    <h2><span class="num">6</span> The conserved quantity, and a closed form</h2>
+    <p>Here is the load-bearing step of the entire project.</p>
+    <div class="result"><span class="tag">First integral</span>
+      <div class="eqwrap">
+        $$\Pi = G\cdot\Bigl[(1 - \mu) + \frac{\Delta}{v_H}\,Y\Bigr] = G_0
+          \quad\text{(constant along the whole co-mixing range)}$$
+      </div>
+    </div>
+    <p>Differentiating $\Pi$ along the (&#8224;) flow, the
+      $\Delta/v_H$ coefficient is <em>exactly</em> the
+      one that makes every term cancel, so $\Pi' = 0$. Evaluating at the
+      bottom (where $\mu = 0$, $Y = 0$,
+      $G = G_0$) fixes the
+      constant at $G_0$. Here
+      $G_0$ is the size of the atom at zero &#8212; the
+      one number left to determine.</p>
+
+    <p>Now solve $\Pi = G_0$ for the belief. Two
+      gifts fall out:</p>
+    <ol class="steps">
+      <li><p><strong>$Y$ becomes algebra</strong> &#8212; no
+        integral needed:</p>
+        <div class="eqwrap">
+          $$Y(G) = \frac{v_H}{\Delta}\cdot\Bigl(\frac{G_0}{G} - (1 - \mu)\Bigr)$$
+        </div></li>
+      <li><p><strong>The belief becomes an explicit formula.</strong> Substituting back reduces
+        (&#8224;) to a single separable ODE in $G$; the
+        quadrature $\int dG / (1 - s^2 G^2)$
+        produces an inverse hyperbolic tangent. With
+        $s = \sqrt{\Delta / v_H}$:</p>
+        <div class="eqwrap">
+          $$\mu(G) = 1 - \frac{G_0}{G}
+            + G_0\cdot s\cdot\bigl[\operatorname{arctanh}(sG) - \operatorname{arctanh}(sG_0)\bigr]$$
+        </div></li>
+    </ol>
+    <div class="callout"><b>What is arctanh?</b> The inverse of the hyperbolic tangent,
+      $\operatorname{arctanh}(x) = \tfrac12 \ln \frac{1 + x}{1 - x}$.
+      It appears here purely as the antiderivative of
+      $1/(1 - s^2 G^2)$ &#8212; no
+      hyperbolic geometry is being invoked, just that integral.</div>
+
+    <p>So the belief along the mixing range is <em>known in closed form</em> once we know the single
+      number $G_0$. The bid follows too: since a
+      <span class="tH">High</span> type is indifferent, its interim payoff equals a constant
+      $U_H$, so
+      $b = G\cdot\tilde W_H - U_H$.
+      Evaluating at the bottom gives
+      $U_H = \Delta\cdot G_0$, and a
+      few lines of algebra using the first integral collapse it to a strikingly simple form:</p>
+    <div class="eqwrap">
+      $$b(G) = v_L\cdot\bigl[G_0 - G\cdot(1 - \mu(G))\bigr]$$
+    </div>
+  </section>
+
+  <!-- ===================== 7 CLOSURE ===================== -->
+  <section>
+    <h2><span class="num">7</span> Closing the model: one number, one equation</h2>
+    <p>Only $G_0$ remains. It is pinned by
+      consistency with the prior: averaging the belief over all bids must return the population
+      share of <span class="tH">High</span> types, which is
+      $\tfrac12$.
+      In the coordinate $G$ this reads:</p>
+    <div class="eqwrap">
+      $$\int_{G_0}^{1} \mu(G)\,dG = \frac12$$
+    </div>
+    <p>One equation, one unknown. For the canonical values
+      $v_H = 3,\ v_L = 1$
+      it solves to:</p>
+
+    <div class="result"><span class="tag">The (3, 1) solution &#8212; two regions</span>
+      <p style="margin-bottom:.6rem">$G_0 = 0.2221$
+        &nbsp;&#183;&nbsp; atom mass $2G_0 = 0.4443$
+        &nbsp;&#183;&nbsp; top belief $\mu_{\max} = 0.9525$
+        &nbsp;&#183;&nbsp; top bid $b_{\mathrm{top}} = 0.1746$
+        &nbsp;&#183;&nbsp; $U_H = 0.4443$,
+        $U_L = 0$.</p>
+      <p style="margin:0">The support has exactly two pieces: a <span class="tL">Low</span>-only
+        <strong>atom</strong> at 0, then a <strong>co-mixing interval</strong> along which the
+        reputation climbs from 0 up to $\mu_{\max} < 1$ &#8212; high, but
+        never certain. Nobody is ever revealed for sure.</p>
+    </div>
+
+    <figure class="plot" aria-label="Belief versus bid, showing the two-region and three-region structures">
+      <canvas id="figBelief" class="figcanvas" height="430"></canvas>
+      <div class="legend" id="figBeliefLegend"></div>
+      <figcaption><b>Reputation as a function of effort.</b> Each curve is the exact belief
+        $\mu(b)$ for one value ratio, computed live from the
+        closed form. Effort rises left to right; reputation climbs with it. The dashed red line
+        marks $b = v_L$. For the
+        moderate gap ($3:1$) the curve tops out below certainty. For wider
+        gaps a <em>flat</em> $\mu = 1$ segment appears &#8212; the cap of &#167;9,
+        drawn thick &#8212; and it stays to the left of $v_L$.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================== 8 WALL ===================== -->
+  <section>
+    <h2><span class="num">8</span> A wall: where certainty first becomes reachable</h2>
+    <p>Can the reputation ever reach $\mu = 1$ &#8212; a bid that only
+      <span class="tH">High</span> types make? Setting $\mu = 1$ in the first
+      integral forces
+      $G = G_0 v_H / (\Delta\cdot Y(1))$.
+      For a moderate gap the right side exceeds 1 &#8212; impossible, since
+      $G \le 1$. So $\mu = 1$ is simply
+      unreachable, and the co-mixing interval is all there is.</p>
+    <p>As the gap $v_H/v_L$
+      widens, that inequality slackens, and at a precise threshold it reverses:</p>
+    <div class="result"><span class="tag">The no-tail wall</span>
+      <p style="margin:0">Certainty first becomes reachable at
+        $v_H/v_L = 4.2286$.
+        Below it: two regions, top reputation strictly below 1. Above it: a genuine
+        $\mu = 1$ region opens up &#8212; and the closure of &#167;7 no longer suffices,
+        because the top of the support detaches from $G = 1$.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 9 THE CAP ===================== -->
+  <section>
+    <h2><span class="num">9</span> Wide gaps: the cap, and what it is <em>not</em></h2>
+    <p>Past the wall, the belief hits 1 at some interior point
+      $G^* < 1$. Above it, the reputation is pinned at
+      certainty &#8212; so it is no longer a mixing region. Only <span class="tH">High</span> types bid
+      there. This is a <em>new, third region</em>.</p>
+
+    <figure aria-label="The three-region support on the bid axis">
+      <svg class="strip" viewBox="0 0 720 118" role="img" aria-label="Bid axis split into an atom at zero, a co-mixing overlap, and a High-only cap.">
+        <style>
+          .axl{stroke:var(--rule-strong); stroke-width:1.5;}
+          .tk{font-family:var(--sans); font-size:12px; fill:var(--soft);}
+          .rlbl{font-family:var(--sans); font-size:13px; font-weight:600;}
+        </style>
+        <line x1="40" y1="70" x2="700" y2="70" class="axl"/>
+        <!-- atom -->
+        <circle cx="40" cy="70" r="8" fill="var(--low)"/>
+        <text x="40" y="102" text-anchor="middle" class="tk">b = 0</text>
+        <text x="40" y="40" text-anchor="middle" class="rlbl" fill="var(--low)">atom</text>
+        <!-- co-mix -->
+        <rect x="48" y="62" width="360" height="16" rx="4" fill="url(#grad)"/>
+        <text x="228" y="40" text-anchor="middle" class="rlbl" fill="var(--accent-ink)">co-mixing overlap</text>
+        <text x="228" y="102" text-anchor="middle" class="tk">&#956; : 0 &#8594; 1</text>
+        <!-- cap -->
+        <rect x="408" y="60" width="150" height="20" rx="4" fill="var(--high)" opacity="0.85"/>
+        <text x="483" y="40" text-anchor="middle" class="rlbl" fill="var(--high)">High-only cap</text>
+        <text x="483" y="102" text-anchor="middle" class="tk">&#956; = 1</text>
+        <line x1="408" y1="52" x2="408" y2="88" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <text x="408" y="16" text-anchor="middle" class="tk" fill="var(--accent-ink)">G*</text>
+        <line x1="620" y1="52" x2="620" y2="88" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="620" y="16" text-anchor="middle" class="tk" fill="#c0392b">v_L</text>
+        <text x="640" y="74" class="tk" fill="#c0392b">(far to the right)</text>
+        <defs>
+          <linearGradient id="grad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="var(--low)"/>
+            <stop offset="1" stop-color="var(--high)"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <figcaption><b>Three regions past the wall.</b> A <span class="tL">Low</span>-only atom at 0;
+        a co-mixing overlap where reputation climbs 0 &#8594; 1; and a <span class="tH">High</span>-only
+        <em>cap</em> at $\mu = 1$. Crucially, the whole thing sits far to the
+        left of $v_L$ &#8212; the cap is low effort, not
+        a sprint toward the top prize.</figcaption>
+    </figure>
+
+    <h3>9.1 &#8212; The cap&#8217;s bid, from a one-line argument</h3>
+    <p>On the cap only <span class="tH">High</span> bids, so there is nothing to average over: the
+      reputation term freezes, $Y$ is stuck at its
+      entry value $Y_1 = (v_H/\Delta)(G_0/G^*)$,
+      and $\tilde W_H = \Delta\cdot Y_1$ is
+      constant. Single-type indifference
+      ($G\cdot\tilde W_H - b = U_H$)
+      integrates immediately to an affine bid:</p>
+    <div class="eqwrap">
+      $$b(G) = G\cdot\Delta\cdot Y_1 - \Delta\cdot G_0, \qquad
+        \text{from } b(G^*) = v_L G_0 \text{ up to }
+        b_{\mathrm{hi}} = G_0\cdot\Bigl(\frac{v_H}{G^*} - \Delta\Bigr)$$
+    </div>
+    <p>The bottom of the cap meets the top of the co-mix exactly at
+      $v_L G_0$ &#8212; the pieces
+      join continuously. The kink there is nothing mysterious: it is the switch from the 2&#215;2 Cramer
+      system to the single-type relation. The two unknowns
+      $(G_0, G^*)$ are pinned by
+      $\mu(G^*) = 1$ together with the tail-inclusive closure
+      $\int_{G_0}^{G^*} \mu\,dG + (1 - G^*) = \tfrac12$.</p>
+
+    <h3>9.2 &#8212; The decisive question: is this a &#8220;reveal tail&#8221;?</h3>
+    <p>One might fear the cap is the leading edge of full revelation &#8212; <span class="tH">High</span>
+      types sprinting toward bids near $v_H$ and
+      giving themselves away. It is not, and the numbers say so at every gap.</p>
+
+    <figure class="plot" aria-label="How the top of the cap scales with the value gap">
+      <canvas id="figTrend" class="figcanvas" height="400"></canvas>
+      <div class="legend" id="figTrendLegend"></div>
+      <figcaption><b>The cap stays low.</b> The top cap bid
+        $b_{\mathrm{hi}}$, measured against each value.
+        Against $v_H$ (sienna) it <em>falls</em>
+        toward $0.0334$ &#8212; the cap is a vanishing fraction of the top prize,
+        never a sprint toward it. Against $v_L$
+        (teal) it only crosses 1 at a very wide gap. Both computed live from the closed form.</figcaption>
+    </figure>
+
+    <div class="tablewrap">
+      <table>
+        <caption>The cap across value ratios &nbsp;($v_L = 1$)</caption>
+        <thead><tr>
+          <th>ratio v<sub>H</sub>/v<sub>L</sub></th><th>G&#8320;</th><th>G*</th>
+          <th>cap bids</th><th>b<sub>hi</sub>/v<sub>L</sub></th><th>b<sub>hi</sub>/v<sub>H</sub></th><th>cap &gt; v<sub>L</sub>?</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>4.5</td><td>0.2322</td><td>0.9915</td><td>0.232 &#8211; 0.241</td><td>0.241</td><td>0.0536</td><td class="no">no</td></tr>
+          <tr><td>6</td><td>0.2376</td><td>0.9603</td><td>0.238 &#8211; 0.297</td><td>0.297</td><td>0.0494</td><td class="no">no</td></tr>
+          <tr><td>10</td><td>0.2440</td><td>0.9269</td><td>0.244 &#8211; 0.436</td><td>0.436</td><td>0.0436</td><td class="no">no</td></tr>
+          <tr><td>20</td><td>0.2487</td><td>0.9043</td><td>0.249 &#8211; 0.775</td><td>0.775</td><td>0.0388</td><td class="no">no</td></tr>
+          <tr class="mark"><td>26.69</td><td>0.2502</td><td>0.8971</td><td>0.250 &#8211; 1.000</td><td>1.000</td><td>0.0375</td><td>crossing</td></tr>
+          <tr><td>50</td><td>0.2515</td><td>0.8915</td><td>0.251 &#8211; 1.781</td><td>1.781</td><td>0.0356</td><td class="yes">yes</td></tr>
+          <tr><td>&#8734;</td><td>0.2533</td><td>0.8834</td><td>&#8212; </td><td>&#8212;</td><td>0.0334</td><td class="yes">yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="result"><span class="tag">What the wide-gap equilibrium is</span>
+      <p>The equilibrium <strong>persists</strong> past the wall, gaining a
+        <span class="tH">High</span>-only $\mu = 1$ cap. Two things are true of
+        it at <em>every</em> ratio:</p>
+      <p><strong>It is never a reveal tail.</strong>
+        $b_{\mathrm{hi}}/v_H$
+        <em>decreases</em> from 0.054 toward 0.0334 &#8212; the cap is always a small fraction of the top
+        prize and never approaches it.</p>
+      <p style="margin-bottom:0"><strong>It is a low-effort cap.</strong> The whole cap sits below
+        $v_L$ for
+        $4.2286 < v_H/v_L < 26.689$;
+        beyond that it edges modestly above $v_L$,
+        but this is the same equilibrium &#8212; same equations, all incentives intact &#8212; not a new regime.
+        And the reputation rises <em>monotonically</em> to exactly 1: there is no hump, no
+        non-monotonicity.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 10 VERIFICATION ===================== -->
+  <section>
+    <h2><span class="num">10</span> How we know it is right</h2>
+    <p>The closed form and the raw system are two representations of the <em>same</em> dynamics, so
+      they must agree &#8212; and checking that they do is the proof that the formula is correct where we
+      had no independent anchor.</p>
+    <ol class="steps">
+      <li><p><strong>Two independent solvers agree.</strong> Integrating the raw (&#8224;) equations
+        directly (never touching the arctanh formula) reproduces
+        $G_0$,
+        $G^*$ and
+        $b_{\mathrm{hi}}$ from the closed form to one part in
+        $10^8$, at every ratio out to 200.</p></li>
+      <li><p><strong>It recovers the known case.</strong> At
+        $(3, 1)$ it returns the &#167;7 numbers to all printed digits.</p></li>
+      <li><p><strong>The incentives hold.</strong> Bids and beliefs are monotone; the belief reaches
+        exactly 1; the <span class="tH">High</span> type is indifferent across the whole support to
+        one part in $10^{14}$; and a <span class="tL">Low</span> type
+        strictly prefers not to enter the cap.</p></li>
+    </ol>
+    <p class="lead">The upshot: a contest where revealing strength is costly does not collapse into
+      full revelation, nor into a shapeless mess. It settles into a crisp, computable shape &#8212; an
+      atom of the timid, a band where the two types deliberately blur together, and, when the stakes
+      are lopsided enough, a quiet cap of the strong bidding just a little more than the weak &#8212; but
+      never enough to give themselves away.</p>
+  </section>
+
+  <hr class="sep"/>
+</main>
+
+<footer>
+  <div><strong>About these notes.</strong> An expository walk through the binary (two-type) case of a
+    two-round elimination contest with all-pay competition and publicly revealed first-round bids.
+    The starting point &#8212; that no symmetric separating equilibrium survives &#8212; is Zhang &amp; Wang (2009);
+    the co-mixing equilibrium characterized here is what that non-existence leaves open.</div>
+  <div class="refs">Both figures are computed in your browser directly from the closed-form belief
+    $\mu(G)$ and its closure &#8212; nothing is hard-coded, so the
+    curves <em>are</em> the equations.</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- theme toggle ----------
+  var root=document.documentElement, btn=document.getElementById("themeBtn"),
+      icon=document.getElementById("themeIcon"), lbl=document.getElementById("themeLbl");
+  function currentDark(){
+    var t=root.getAttribute("data-theme");
+    if(t) return t==="dark";
+    return window.matchMedia("(prefers-color-scheme:dark)").matches;
+  }
+  function syncBtn(){ var d=currentDark(); icon.textContent=d?"\u2600":"\u263e"; lbl.textContent=d?"Light":"Dark"; }
+  btn.addEventListener("click",function(){
+    root.setAttribute("data-theme", currentDark()?"light":"dark"); syncBtn(); drawAll();
+  });
+  syncBtn();
+
+  // ---------- math ----------
+  function atanh(x){ return 0.5*Math.log((1+x)/(1-x)); }
+  function params(r){ var vL=1,vH=r,D=vH-vL,s=Math.sqrt(D/vH),K=vL*D/vH; return {vL:vL,vH:vH,D:D,s:s,K:K}; }
+  function mu(G,G0,s){ return 1 - G0/G + G0*s*(atanh(s*G)-atanh(s*G0)); }
+  function tailEntry(G0,s){
+    var f=function(G){ return 1 - s*G*(atanh(s*G)-atanh(s*G0)); };
+    if(f(1-1e-10)>0) return null;               // below wall: mu(1)<1
+    var lo=G0*(1+1e-9), hi=1-1e-12, flo=f(lo);
+    for(var i=0;i<200;i++){ var m=(lo+hi)/2, fm=f(m); if(flo*fm<=0){hi=m;} else {lo=m; flo=fm;} }
+    return (lo+hi)/2;
+  }
+  function integMu(a,b,G0,s,n){
+    if(b<=a) return 0; n=n||600; var h=(b-a)/n, sum=mu(a,G0,s)+mu(b,G0,s);
+    for(var i=1;i<n;i++){ var x=a+i*h; sum+=(i%2?4:2)*mu(x,G0,s); }
+    return sum*h/3;
+  }
+  function closure(G0,s){
+    var Gs=tailEntry(G0,s);
+    if(Gs===null) return integMu(G0,1,G0,s)-0.5;
+    return integMu(G0,Gs,G0,s)+(1-Gs)-0.5;
+  }
+  function solveG0(r){
+    var p=params(r), s=p.s, lo=1e-4, hi=0.499, flo=closure(lo,s);
+    for(var i=0;i<200;i++){ var m=(lo+hi)/2, fm=closure(m,s); if(flo*fm<=0){hi=m;} else {lo=m; flo=fm;} }
+    var G0=(lo+hi)/2, Gs=tailEntry(G0,s);
+    return {G0:G0, Gs:Gs, p:p};
+  }
+  // co-mix bid: b = vL*(G0 - G*(1-mu))
+  function bCom(G,G0,s,vL){ return vL*(G0 - G*(1-mu(G,G0,s))); }
+
+  // ---------- css var reader ----------
+  function cv(name){ return getComputedStyle(root).getPropertyValue(name).trim(); }
+
+  // ---------- hi-dpi canvas setup ----------
+  function setup(cv_id){
+    var c=document.getElementById(cv_id), rect=c.getBoundingClientRect();
+    var w=rect.width||c.parentNode.clientWidth, h=parseInt(c.getAttribute("height"),10);
+    var dpr=Math.max(1, window.devicePixelRatio||1);
+    c.width=Math.round(w*dpr); c.height=Math.round(h*dpr);
+    c.style.height=h+"px";
+    var ctx=c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx:ctx,w:w,h:h};
+  }
+
+  function axes(ctx,P,x0,y0,x1,y1,xlab,ylab,xticks,yticks,fmtx,fmty){
+    var ink=cv("--faint"), grid=cv("--rule"), lab=cv("--soft");
+    ctx.strokeStyle=grid; ctx.lineWidth=1; ctx.fillStyle=lab;
+    ctx.font='12px '+ '"Optima","Avenir Next","Segoe UI",sans-serif';
+    // gridlines + ticks
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    xticks.forEach(function(t){ var X=P.X(t);
+      ctx.strokeStyle=grid; ctx.beginPath(); ctx.moveTo(X,P.top); ctx.lineTo(X,P.bot); ctx.stroke();
+      ctx.fillText(fmtx(t), X, P.bot+6); });
+    ctx.textAlign="right"; ctx.textBaseline="middle";
+    yticks.forEach(function(t){ var Y=P.Y(t);
+      ctx.strokeStyle=grid; ctx.beginPath(); ctx.moveTo(P.left,Y); ctx.lineTo(P.right,Y); ctx.stroke();
+      ctx.fillText(fmty(t), P.left-8, Y); });
+    // frame
+    ctx.strokeStyle=cv("--rule-strong"); ctx.beginPath();
+    ctx.moveTo(P.left,P.top); ctx.lineTo(P.left,P.bot); ctx.lineTo(P.right,P.bot); ctx.stroke();
+    // axis labels
+    ctx.fillStyle=lab; ctx.textAlign="center"; ctx.textBaseline="bottom";
+    ctx.font='600 12.5px "Optima","Avenir Next","Segoe UI",sans-serif';
+    ctx.fillText(xlab, (P.left+P.right)/2, P.h-2);
+    ctx.save(); ctx.translate(13,(P.top+P.bot)/2); ctx.rotate(-Math.PI/2);
+    ctx.textBaseline="top"; ctx.fillText(ylab,0,0); ctx.restore();
+  }
+
+  // ===== FIGURE 1: belief vs bid =====
+  function drawBelief(){
+    var S=setup("figBelief"), ctx=S.ctx;
+    var P={left:52, right:S.w-14, top:16, bot:S.h-34, w:S.w, h:S.h};
+    var xmax=1.32, ymax=1.06;
+    P.X=function(b){ return P.left+(b/xmax)*(P.right-P.left); };
+    P.Y=function(m){ return P.bot-(m/ymax)*(P.bot-P.top); };
+    axes(ctx,P,0,0,xmax,ymax,"bid  b  (effort)","belief  \u03bc(b)  (reputation)",
+      [0,0.25,0.5,0.75,1.0,1.25],[0,0.25,0.5,0.75,1.0],
+      function(t){return t.toFixed(2);}, function(t){return t.toFixed(2);});
+
+    // v_L line
+    ctx.strokeStyle="#c0392b"; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(P.X(1),P.top); ctx.lineTo(P.X(1),P.bot); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle="#c0392b"; ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.font='600 12px "Optima","Avenir Next",sans-serif'; ctx.fillText("v_L", P.X(1)+5, P.top+2);
+
+    var specs=[
+      {r:3,  col:cv("--low"),    label:"3 : 1  (no cap)"},
+      {r:6,  col:cv("--accent"), label:"6 : 1"},
+      {r:10, col:cv("--high"),   label:"10 : 1"}
+    ];
+    var legend=document.getElementById("figBeliefLegend"); legend.innerHTML="";
+    specs.forEach(function(sp){
+      var sol=solveG0(sp.r), G0=sol.G0, Gs=sol.Gs, s=sol.p.s, vL=sol.p.vL, D=sol.p.D, vH=sol.p.vH;
+      ctx.strokeStyle=sp.col; ctx.lineWidth=2.4; ctx.lineJoin="round";
+      // co-mix part
+      var Gtop = Gs===null?1:Gs, N=240;
+      ctx.beginPath();
+      for(var i=0;i<=N;i++){ var G=G0+(Gtop-G0)*i/N, b=bCom(G,G0,s,vL), m=mu(G,G0,s);
+        var X=P.X(b), Y=P.Y(Math.min(m,1));
+        if(i===0)ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      ctx.stroke();
+      // cap part (thick, flat mu=1)
+      if(Gs!==null){
+        var Y1=(vH/D)*(G0/Gs);
+        var bLo=vL*G0, bHi=D*Y1 - D*G0;
+        ctx.lineWidth=4.4; ctx.beginPath();
+        ctx.moveTo(P.X(bLo),P.Y(1)); ctx.lineTo(P.X(bHi),P.Y(1)); ctx.stroke();
+        ctx.fillStyle=sp.col; ctx.beginPath(); ctx.arc(P.X(bHi),P.Y(1),3.6,0,7); ctx.fill();
+      }
+      var sw=document.createElement("span");
+      sw.innerHTML='<span class="swatch" style="border-color:'+sp.col+'"></span>'+sp.label;
+      legend.appendChild(sw);
+    });
+    var capNote=document.createElement("span");
+    capNote.innerHTML='<span class="swatch" style="border-top-width:5px;border-color:'+cv("--high")+'"></span>thick = \u03bc=1 cap';
+    legend.appendChild(capNote);
+  }
+
+  // ===== FIGURE 2: b_hi trends vs ratio =====
+  function drawTrend(){
+    var S=setup("figTrend"), ctx=S.ctx;
+    var P={left:52, right:S.w-14, top:16, bot:S.h-34, w:S.w, h:S.h};
+    var xmin=4.2286, xmax=60, ymax=2.0;
+    P.X=function(r){ return P.left+((r-xmin)/(xmax-xmin))*(P.right-P.left); };
+    P.Y=function(v){ return P.bot-(v/ymax)*(P.bot-P.top); };
+    axes(ctx,P,xmin,0,xmax,ymax,"value ratio  v_H / v_L","cap top  b_hi  (normalised)",
+      [10,20,30,40,50,60],[0,0.5,1.0,1.5,2.0],
+      function(t){return t.toFixed(0);}, function(t){return t.toFixed(1);});
+
+    // reference lines
+    ctx.setLineDash([4,4]); ctx.lineWidth=1;
+    ctx.strokeStyle=cv("--low"); ctx.beginPath(); ctx.moveTo(P.left,P.Y(1)); ctx.lineTo(P.right,P.Y(1)); ctx.stroke();
+    ctx.strokeStyle=cv("--high"); ctx.beginPath(); ctx.moveTo(P.left,P.Y(0.0334)); ctx.lineTo(P.right,P.Y(0.0334)); ctx.stroke();
+    // wall + crossing verticals
+    ctx.strokeStyle=cv("--faint"); ctx.beginPath(); ctx.moveTo(P.X(4.2286),P.top); ctx.lineTo(P.X(4.2286),P.bot); ctx.stroke();
+    ctx.strokeStyle=cv("--low"); ctx.beginPath(); ctx.moveTo(P.X(26.689),P.top); ctx.lineTo(P.X(26.689),P.bot); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // sample curves
+    var Ns=200, ratios=[];
+    for(var i=0;i<=Ns;i++) ratios.push(xmin+ (xmax-xmin)*i/Ns);
+    function series(sel){
+      ctx.beginPath(); var started=false;
+      ratios.forEach(function(r){
+        var sol=solveG0(r); if(sol.Gs===null) return;
+        var G0=sol.G0,Gs=sol.Gs,D=sol.p.D,vH=sol.p.vH,vL=sol.p.vL;
+        var Y1=(vH/D)*(G0/Gs), bHi=D*Y1-D*G0;
+        var val=sel==="vL"?bHi/vL:bHi/vH;
+        var X=P.X(r), Y=P.Y(Math.min(val,ymax));
+        if(!started){ctx.moveTo(X,Y); started=true;} else ctx.lineTo(X,Y);
+      });
+      ctx.stroke();
+    }
+    ctx.lineWidth=2.6; ctx.strokeStyle=cv("--low"); series("vL");
+    ctx.lineWidth=2.6; ctx.strokeStyle=cv("--high"); series("vH");
+
+    // annotations
+    ctx.font='12px "Optima","Avenir Next",sans-serif'; ctx.textBaseline="bottom";
+    ctx.fillStyle=cv("--faint"); ctx.textAlign="center"; ctx.fillText("wall 4.23", P.X(4.2286)+2, P.top+30);
+    ctx.fillStyle=cv("--low"); ctx.fillText("b_hi = v_L  (26.69)", P.X(26.689), P.top+14);
+    ctx.fillStyle=cv("--high"); ctx.textAlign="right"; ctx.textBaseline="bottom";
+    ctx.fillText("\u2192 0.0334   (never \u2192 v_H)", P.right-6, P.Y(0.0334)-4);
+
+    var legend=document.getElementById("figTrendLegend"); legend.innerHTML=
+      '<span><span class="swatch" style="border-color:'+cv("--low")+'"></span>b_hi / v_L</span>'+
+      '<span><span class="swatch" style="border-color:'+cv("--high")+'"></span>b_hi / v_H</span>';
+  }
+
+  function drawAll(){ try{ drawBelief(); drawTrend(); }catch(e){ /* keep captions/tables as fallback */ } }
+
+  window.addEventListener("resize", (function(){ var t; return function(){ clearTimeout(t); t=setTimeout(drawAll,150); }; })());
+  window.matchMedia("(prefers-color-scheme:dark)").addEventListener("change",function(){ syncBtn(); drawAll(); });
+  if(document.readyState!=="loading") drawAll();
+  else document.addEventListener("DOMContentLoaded", drawAll);
+})();
+</script>
+</body>
+</html>
