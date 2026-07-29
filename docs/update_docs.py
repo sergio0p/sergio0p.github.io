@@ -204,8 +204,15 @@ def main():
            "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>")
     sh(["git", "commit", "-q", "-m", msg], cwd=repo)
     sh(["git", "push", "-q", "origin", "HEAD"], cwd=repo)
+    # Cache-buster: GitHub Pages serves max-age=600 and gives no control over
+    # headers, so a plain reload within 10 min of a previous visit is served
+    # from browser cache and looks like the push did nothing. The commit sha is
+    # a cache key that changes exactly when the content does.
+    ver = sh(["git", "rev-parse", "--short", "HEAD"], cwd=repo).strip()
     shutil.rmtree(work)
-    print(f"[update_docs] pushed. Live at https://{GH_USER}.github.io/docs/ (Pages rebuilds in ~1 min).")
+    base = f"https://{GH_USER}.github.io/docs/"
+    print(f"[update_docs] pushed. Pages rebuilds in ~1 min.")
+    print(f"[update_docs] fresh link (bypasses the 10-min browser cache):\n  {base}?v={ver}")
 
 
 # ---------------------------------------------------------------------------
