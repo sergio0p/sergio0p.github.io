@@ -251,11 +251,11 @@ $$g(b)\,\big[W(u,p)-W(v,p)\big]\;+\;G(b)\,\big[\nabla_p W(u,p)-\nabla_p W(v,p)\b
 <p data-ln="251"><span class="badge">K=2</span> there is a single pair, and the single-crossing fact is $\nabla_p\big[W(h,p)-W(\ell,p)\big]<0$ (roadmap §7); the entire §6′ solve is the single instance $t\,D_{h\ell}=k_{h\ell}$ of (FI), equated to its Round-2 expression (D). <span class="badge">K=3</span> the active pairs are $(h,\ell)$ and $(m,\ell)$; the entire §6 solve is the two instances $t\,D_{h\ell}=k_{h\ell}$, $t\,D_{m\ell}=k_{m\ell}$ of (FI), equated to their Round-2 expressions (D). Everything below is about understanding the two ingredients in $(\star_v)$: the <strong>signaling channel</strong> (governed by the monotone posterior) and the fact that $W$ is the <strong>same unknown</strong> as the strategy (the obstruction).</p>
 
 <h2 data-ln="253">3. The monotone posterior — what IPV buys</h2>
-<p data-ln="254" class="sub">In the pipeline: the guess (G2) and the reductions it buys, including the regime census (G3).</p>
+<p data-ln="254" class="sub">In the pipeline: the monotone posterior (G2) and the reductions it buys, including the regime census (G3).</p>
 
 <div data-ln="256" data-gutter="outer" class="panel focus">
-<span class="tag focus">the guess (G2) — its status</span> <span class="badge">K=2 and K=3 — DL evidence, verified ex post</span>
-<p data-ln="258" style="margin-top:4px">The monotone posterior is a <strong>maintained hypothesis</strong>, not a theorem: we assume the posterior is FOSD-increasing in the bid, solve under that assumption, and check it on the solved curve afterwards. The evidence going in is the deep-learning Round-1 run — as the bid rises, $p_h(b)$ climbs $0.05\to0.65$ and $p_\ell(b)$ falls $0.59\to0.10$ (the middle share $p_m(b)$ pinned by $p_\ell{+}p_m{+}p_h{=}1$) — and the solved curve of §6 confirms it ex post ($P_h$ rises $0\to0.769$, the Low share falls $0.588\to0$). High bids signal high types. At $K{=}2$ the hypothesis has the same status — binary DL evidence going in, confirmed ex post by the solved curve of §6′: $P_h'(t)=3t_0/\big(t^2(3-2t^2)\big)>0$ on all of $[t_0,1]$. This single fact drives three reductions.</p>
+<span class="tag focus">the monotone posterior (G2) — its status</span> <span class="badge">K=2 and K=3 — derived; general $K$ — maintained hypothesis</span>
+<p data-ln="258" style="margin-top:4px">The posterior is FOSD-increasing in the bid. At $K{=}2$ and $K{=}3$ this is a <strong>consequence</strong> of the indifference conditions rather than an input to them: the strongest active type's share strictly rises and the weakest active type's share strictly falls, and at $K{=}3$ the tail sums are exactly $p_h$ and $1-p_\ell$, so those two facts <em>are</em> FOSD. Both come from the adjacent-pair system, which unravels from the top (companion note <code>triangular_cascade.html</code>); at $K{=}2$ the whole content is the single share, $P_h'(t)=3t_0/\big(t^2(3-2t^2)\big)>0$ on all of $[t_0,1]$. High bids signal high types. The solved curves say the same thing quantitatively — at $K{=}3$, $P_h$ rises $0\to0.769$ and the Low share falls $0.588\to0$; the deep-learning Round-1 run has $p_h(b)$ climbing $0.05\to0.65$ and $p_\ell(b)$ falling $0.59\to0.10$ as the bid rises (the middle share $p_m(b)$ pinned by $p_\ell{+}p_m{+}p_h{=}1$). Beyond $K{=}3$ it is a maintained hypothesis: assume it, solve under it, and check it on the solved curve afterwards. What it buys outright is the regime census (G3) — which regimes the posterior pair visits, and over which segments of the opponent-quantile axis; the fixed-sign reductions below stand on their own footing.</p>
 </div>
 
 <h3 data-ln="261">3a. The signaling channel has a fixed sign</h3>
@@ -263,7 +263,7 @@ $$g(b)\,\big[W(u,p)-W(v,p)\big]\;+\;G(b)\,\big[\nabla_p W(u,p)-\nabla_p W(v,p)\b
 
 <p data-ln="264">Fix a bid $b$ and look at the second term of $(\star_v)$, the <strong>signaling channel</strong>
 $$\nabla_p W\big(v,p(b)\big)\cdot p'(b).$$
-We want conditions under which this has a sign that does not change as $b$ sweeps the support. Two ingredients enter: the <em>velocity</em> $p'(b)$ of the belief path, and the <em>gradient</em> $\nabla_pW(v,\cdot)$ of the prize. Monotonicity of the posterior constrains the first; the Round-2 economics constrains the second. The argument below is stated for a general number of types $K$, then specialized to $K=2$ (where it degenerates to something already familiar) and to $K=3$ (where it has real content).</p>
+This is one type's <em>own</em> channel, and it is what governs whether that type's bid rises with the rung it occupies — hence whether its support is a single interval. The pairwise indifference conditions do not deliver it: those fix the <em>differences</em> $\nabla_p\big(W(u,\cdot)-W(v,\cdot)\big)\cdot p'(b)$, which carry no information about any single type's channel. So it has to be signed on its own. We want conditions under which it has a sign that does not change as $b$ sweeps the support. Two ingredients enter: the <em>velocity</em> $p'(b)$ of the belief path, and the <em>gradient</em> $\nabla_pW(v,\cdot)$ of the prize. Monotonicity of the posterior constrains the first; the Round-2 economics constrains the second. The argument below is stated for a general number of types $K$, then specialized to $K=2$ (where it degenerates to something already familiar) and to $K=3$ (where it has real content).</p>
 
 <h4 data-ln="268">The state space, and why its dimension is the whole story</h4>
 
@@ -279,7 +279,7 @@ We want conditions under which this has a sign that does not change as $b$ sweep
 
 <div data-ln="280" data-gutter="outer" class="panel">
 <span class="tag">what monotonicity actually gives</span> <span class="badge">general K</span>
-<p data-ln="282" style="margin-top:4px">The monotone posterior of §3 says the High share rises and the Low share falls with the bid:
+<p data-ln="282" style="margin-top:4px">In component form, the monotone posterior above is the statement that the High share rises and the Low share falls with the bid:
 $$p_h'(b)>0,\qquad p_\ell'(b)<0\qquad\text{throughout the mixing region.}\tag{M}$$
 This is a statement about the <strong>signs of the components</strong>, i.e. about which orthant the velocity occupies. Equivalently: there is a fixed convex cone $\mathcal{C}$ in the tangent space with
 $$p'(b)\in\mathcal{C}\quad\text{for every }b.$$

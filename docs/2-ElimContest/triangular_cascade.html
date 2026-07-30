@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Triangular Cascade — Reputation Is Built From the Top Down</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#5c5c5c; --line:#e2e2e2; --bg:#fbfbf9;
+    --accent:#7a1f2b; --accent2:#1f4e7a; --good:#1f6b3a; --warn:#8a5a00;
+    --panel:#f4f3ef; --code:#f0efe9;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--bg);
+    max-width:860px; margin:0 auto; padding:48px 28px 120px; line-height:1.62; font-size:18px;
+  }
+  h1{font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em}
+  h2{font-size:23px; margin:46px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); color:var(--accent)}
+  h3{font-size:19px; margin:28px 0 6px; color:var(--accent2)}
+  .sub{color:var(--muted); font-style:italic; margin:0 0 8px}
+  p{margin:10px 0}
+  code{background:var(--code); padding:1px 5px; border-radius:4px; font-size:15px; font-family:"SF Mono",Menlo,Consolas,monospace}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin:18px 0}
+  .focus{border-left:5px solid var(--accent); background:#f9f1f1}
+  .mirror{border-left:5px solid var(--accent2); background:#eef3f8}
+  .key{border-left:5px solid var(--good); background:#eef6f0}
+  .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
+       text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px}
+  .tag.focus{background:var(--accent)} .tag.mirror{background:var(--accent2)} .tag.key{background:var(--good)}
+  .tag{background:var(--muted)}
+  .warn{border-left:5px solid var(--warn); background:#faf4e6}
+  .tag.warn{background:var(--warn)}
+  .tag code{background:rgba(255,255,255,.2); color:inherit; font-size:inherit; padding:0 3px}
+  h4{font-size:17px; margin:22px 0 4px; color:var(--ink); font-style:italic; font-weight:normal;
+     border-bottom:1px solid var(--line); padding-bottom:3px}
+  table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
+  th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
+  th{background:var(--panel)}
+  .lead{font-size:19px; color:#333}
+  .footnote{color:var(--muted); font-size:15px}
+  ol li,ul li{margin:6px 0}
+  .badge{font-size:13px; color:var(--muted); font-family:monospace}
+  hr{border:none; border-top:1px solid var(--line); margin:32px 0}
+  .katex-display{overflow-x:auto; overflow-y:hidden; padding:2px 0}
+  .katex-display>.katex>.katex-html>.tag{right:-88px}
+  @media (max-width:1120px){ .katex-display>.katex>.katex-html>.tag{right:0} }
+  .zero{color:#b9b4a6}
+</style>
+</head>
+<body>
+
+<h1>The Triangular Cascade</h1>
+<p class="sub">Reputation is built from the top down — why the indifference conditions unravel one type at a time, at any number of types</p>
+<p class="footnote">Companion to <code>docs/round1_support_structure.html</code>. Statements and status: <code>docs/proofs.tex</code> §<em>Triangularity</em> (<code>lem:tricell3</code>, <code>conj:triK</code>, <code>lem:psifree</code>, <code>thm:tricascade</code>, <code>cor:topmono</code>, <code>rem:tripivot</code>) and <code>docs/STATE.md</code>.</p>
+
+<p class="lead">Round&nbsp;1 of the elimination contest is an all-pay auction in which the bid does double duty: it buys a chance to advance, and it buys a <em>reputation</em>, because every bid is made public before the final. The equilibrium is therefore not a single indifference condition but a system of them — one for each pair of types that is still bidding. Written naively, that system is dense: every type's belief-share appears in every equation, and there is no obvious place to start. This note shows that in the right ordering the system is <strong>triangular</strong>, and that the ordering is the economically natural one — compare each type only with its immediate neighbour. The consequence is that a problem with $K-1$ simultaneous unknowns becomes $K-1$ problems with one unknown each, solved from the strongest type downward.</p>
+
+<div class="panel key">
+<span class="tag key">the result in one sentence</span> <span class="badge">general K</span>
+<p style="margin-top:4px">Being believed to carry more weight on some type $u_j$ — at the expense of the very weakest type still in play — is worth <strong>exactly the same</strong> to every type at or above $u_j$. It is a pure <em>level</em> effect on the whole upper block, and a <em>relative</em> effect only for those below. So the indifference condition comparing two adjacent types is blind to how the mass beneath them is arranged: the top pair's condition involves only the top share, the next pair's only the top two, and so on. Reputation solves from the top down.</p>
+</div>
+
+<h2>1. The economic problem</h2>
+
+<p><strong>The contest.</strong> Four players, two rounds. Each player draws a private value from $K$ ordered types $v_1&lt;\cdots&lt;v_K$. Round&nbsp;1 is two pairwise all-pay auctions; the higher bidder in each advances. All four Round-1 bids are then published, and the two survivors meet in an all-pay final worth their own value to whoever wins it.</p>
+
+<p><strong>Why bids carry information.</strong> Because the bids are published, a finalist arrives at the final carrying a <em>reputation</em>: the belief the rival holds about their type, inferred from the bid. Higher bids are read as evidence of higher value. Zhang &amp; Wang (2009) show there is no symmetric equilibrium in which the bid reveals the type exactly, so in equilibrium several types must be bidding in the same range — the reputation attached to a bid is a genuine <em>distribution</em>, not a point.</p>
+
+<p><strong>Coordinates.</strong> Index bids by their rank rather than their level: let $t\in[0,1]$ be the quantile of the bid, so $t$ is the probability of beating one Round-1 opponent. Think of $t$ as a rung on a ladder. Attached to each rung is</p>
+<ul>
+<li>the <strong>market belief</strong> $P(t)=\big(P_v(t)\big)_v$ — the posterior over types held about someone who bid at rung $t$;</li>
+<li>the <strong>active set</strong> $\mathcal A(t)$ — the types actually bidding there, i.e. those with $P_v(t)&gt;0$.</li>
+</ul>
+<p>The two objects are the same object: a type's share of the belief at rung $t$ <em>is</em> the density of that type's bids at $t$, rescaled by its prior. A type with zero share is a type that does not bid there.</p>
+
+<p><strong>The prize is endogenous.</strong> Write $W\big(v,P(t)\big)$ for what the final is worth, before its cost, to a type-$v$ player who arrives carrying reputation $P(t)$. This is the object that makes the problem unusual: in an ordinary all-pay auction the prize for winning is a constant, here it depends on the very bid used to win. Raising your bid buys you a better chance of advancing <em>and</em> changes what advancing is worth.</p>
+
+<div class="panel mirror">
+<span class="tag mirror">the two comparisons that pin down equilibrium</span> <span class="badge">general K</span>
+<p style="margin-top:4px">A type that mixes over a range of rungs must be indifferent across all of them. Writing $U_v$ for type $v$'s equilibrium rent and $b(t)$ for the bid at rung $t$, indifference for every active type reads $t\,W\big(v,P(t)\big)-b(t)=U_v$. Subtracting the same identity for a second active type $u$ eliminates the bid entirely and leaves</p>
+$$t\,D_{uv}(t)\;=\;k_{uv},\qquad D_{uv}(t):=W\big(u,P(t)\big)-W\big(v,P(t)\big),\quad k_{uv}:=U_u-U_v.\tag{FI}$$
+<p style="margin:6px 0 0">Read economically: $D_{uv}(t)$ is the <strong>reputational premium</strong> of really being type $u$ rather than type $v$, when both would carry the same reputation $P(t)$; and (FI) says that premium, multiplied by the chance of ever cashing it in, is a constant equal to the two types' rent gap. Since $k_{uv}&gt;0$ — the stronger type can always copy the weaker one's bid at the same cost and win the final more often — the premium $D_{uv}=k_{uv}/t$ must <strong>fall</strong> as one climbs the ladder. That single monotonicity drives everything below.</p>
+</div>
+
+<p>Differentiating (FI) along the ladder converts each comparison into a statement about how fast the belief must move:</p>
+$$\nabla_p D_{uv}\big(P(t)\big)\cdot P'(t)\;=\;-\,\frac{k_{uv}}{t^{2}}\,.\tag{ODE}$$
+<p>Here $\nabla_pD_{uv}$ is the <strong>marginal reputational premium</strong>: how the advantage of $u$ over $v$ responds to a small change in what the market believes. It is the economic content of the whole system, and it is known in closed form — a belief-weighted average of finitely many constant vectors, one per configuration the final can take (the gradient formula $(\nabla)$ of the support-structure note).</p>
+
+<h2>2. The system, and why it looks hopeless</h2>
+
+<p>Fix a stretch of the ladder on which the same types are active, and label them $u_1&lt;u_2&lt;\cdots&lt;u_n$. Because the shares sum to one, the belief has $n-1$ free coordinates; and the active types supply exactly $n-1$ independent comparisons. The system is square. But which comparisons?</p>
+
+<p>Any $n-1$ independent pairs carry the same information — one set of comparisons is an invertible recombination of any other, so <em>choosing the pairs cannot create structure that is not already there.</em> What a good choice can do is <em>reveal</em> it. The economically natural choice is the <strong>marginal</strong> one: compare each type only with its immediate neighbour, $(u_2,u_1),(u_3,u_2),\dots,(u_n,u_{n-1})$. These are the comparisons a type actually makes when deciding whether to bid like the type just above or just below it.</p>
+
+<p>For the coordinates, take the weakest active type as the numéraire and let the free directions be</p>
+$$e_j\;:=\;\mathbf 1_{u_j}-\mathbf 1_{u_1},\qquad j=2,\dots,n,$$
+<p>read as: <em>“the market shifts a unit of believed mass off the weakest active type and onto $u_j$.”</em> A reputational upgrade, and the smallest one that keeps the belief a probability distribution.</p>
+
+<p>What the final hands us is one gradient per neighbour pair, $\nabla_pD_{u_iu_{i-1}}$ — how that pair's premium responds to every possible upgrade at once. Set these side by side as the columns of the <strong>premium-response matrix</strong></p>
+
+$$\Gamma(t)\;:=\;\Big[\ \nabla_pD_{u_nu_{n-1}}\ \Big|\ \nabla_pD_{u_{n-1}u_{n-2}}\ \Big|\ \cdots\ \Big|\ \nabla_pD_{u_2u_1}\ \Big],$$
+
+<p>columns ordered from the strongest pair down, rows indexed by the upgrades $e_j$ in the same order. Each column is one gradient we already have; the entry $\Gamma_{ji}$ is that gradient's $e_j$-component, which is why no contraction ever has to be written. A priori every entry is nonzero, and the system is dense:</p>
+
+$$
+\begin{bmatrix}
+\ast&\ast&\cdots&\ast\\
+\ast&\ast&\cdots&\ast\\
+\vdots&\vdots&\ddots&\vdots\\
+\ast&\ast&\cdots&\ast
+\end{bmatrix}^{\!\top}
+\begin{bmatrix}P'_{u_n}\\P'_{u_{n-1}}\\\vdots\\P'_{u_2}\end{bmatrix}
+=-\frac1{t^{2}}
+\begin{bmatrix}k_{u_nu_{n-1}}\\k_{u_{n-1}u_{n-2}}\\\vdots\\k_{u_2u_1}\end{bmatrix}
+\tag{dense}
+$$
+
+<p>The transpose is there because a gradient is a column while an equation is a row: column $i$ of $\Gamma$ holds the $i$-th pair's gradient, and dotting it with $P'(t)$ produces the $i$-th indifference condition.</p>
+
+<div class="panel warn">
+<span class="tag warn">$\Gamma(t)$ is never inverted, and the notation is deliberate</span>
+<p style="margin-top:4px">It is tempting to write the solution as $\Gamma^{-1}$ times the right-hand side and declare the problem linear algebra. It is not. The entries of $\Gamma(t)$ depend on where the <em>marginal opponent</em> sits at rung $t$, and that location is itself one of the unknowns, tied to the curve at a <em>different</em> rung by the boundary conditions — so this is a functional-differential system, not a matrix to invert pointwise. Nor is the dimension given in advance: which types are active, and how many configurations of the final are in play, are part of what one is solving for, and both change from stretch to stretch of the ladder. And the right-hand side is not data either — the premium gaps $k$ are pinned only <em>after</em> the integration, by the weakest type's zero-profit condition together with Bayes consistency. An inverse would hide all three. What follows solves the system by <em>marching</em> it, one scalar equation at a time.</p>
+</div>
+
+<p>A dense system has no natural starting point: to learn how fast belief in the strongest type must rise, one would have to know simultaneously how belief in every weaker type is moving. That is the obstruction to going beyond three types — and it is the obstruction that dissolves.</p>
+
+<h2>3. The level principle</h2>
+
+<div class="panel focus">
+<span class="tag focus">(TRI) — the level principle</span> <span class="badge">general K</span>
+<p style="margin-top:4px">For every configuration of the final and every $j$,</p>
+$$\frac{\partial\,\Pi_2(u)}{\partial e_j}\;=\;\frac{\partial\,\Pi_2(u')}{\partial e_j}\qquad\text{for all types }u,u'\ \ge\ u_j,$$
+<p style="margin:6px 0 0">where $\Pi_2(v)$ is the value of the final to a type-$v$ finalist. Equivalently, in the language of the pairs:</p>
+$$\nabla_pD_{u_iu_{i-1}}\ \text{ has no } e_j\text{-component for any } j&lt;i.\tag{TRI}$$
+</div>
+
+<p><strong>What it says.</strong> An upgrade in reputation is news of two different kinds depending on who is hearing it. To a type at or above the upgrade point $u_j$, it is <em>level</em> news: it changes what the final is worth to them, but by the same amount it changes it for every one of their peers above $u_j$. To a type strictly below $u_j$ it is <em>relative</em> news — the upgrade has moved mass past them, and they are affected differently. Since a neighbour comparison $D_{u_iu_{i-1}}$ subtracts two members of the upper block whenever $j&lt;i$, all the level news cancels and the comparison simply does not see the upgrade.</p>
+
+<p><strong>Why it is true.</strong> A finalist's payoff is $\Pi_2(v)=\max_b\big[v\,H(b)-b\big]$, where $H$ is the chance the rival bids below $b$. By the envelope logic, the only thing that matters for a marginal change in beliefs is how it moves $H$ at that type's own bid — $\partial\Pi_2(v)=v\cdot\partial H(b_v)$. Now, in an all-pay final the rival's bidding is built from the top of the bid range downward: how hard the rival fights in the upper reaches is a response to the mass they believe sits <em>above</em> that reach, and to the total mass sitting below it — but not to how that lower mass is split among the weak types they expect to beat anyway. Every type at or above $u_j$ bids in that upper range. Shifting believed mass from the weakest type onto $u_j$ leaves the total below $u_j$ unchanged, so all of them see the rival's behaviour move in the same way, and their payoffs move together. Types below $u_j$ bid in the lower reaches, where the composition of the mass around them is exactly what matters, and they see something different.</p>
+
+<div class="panel">
+<span class="tag">it is visible in the three-type table</span> <span class="badge">K=3</span>
+<p style="margin-top:4px">At $K=3$ the marginal reputational values $\gamma_v^{[c]}=\nabla_p\Pi_2(v)$ are constants, one vector per configuration $c$ of the final, in the chart $(e_m,e_h)$ = (upgrade Low$\to$Mid, upgrade Low$\to$High). The level principle for $j=m$ says the <strong>first entry must agree between High and Mid</strong> in every row — and it does:</p>
+<table>
+<tr><th>configuration $c$</th><th>$\gamma_h^{[c]}$</th><th>$\gamma_m^{[c]}$</th><th>$\gamma_\ell^{[c]}$</th><th>upgrade Low$\to$Mid</th></tr>
+<tr><td><code>BABAA</code> — own ahead</td><td>$\big(\mathbf 0,-\tfrac13\big)$</td><td>$\big(\mathbf 0,\tfrac13\big)$</td><td>$\big(\tfrac12,\tfrac23\big)$</td><td>High $=$ Mid $=0$, Low differs</td></tr>
+<tr><td><code>ABABB</code> — own behind</td><td>$\big(\mathbf{-1},-\tfrac53\big)$</td><td>$\big(\mathbf{-1},-\tfrac23\big)$</td><td>$(0,0)$</td><td>High $=$ Mid $=-1$, Low differs</td></tr>
+<tr><td><code>BBAAA</code> — own far ahead</td><td>$(\mathbf 0,0)$</td><td>$\big(\mathbf 0,\tfrac13\big)$</td><td>$\big(\tfrac12,\tfrac23\big)$</td><td>High $=$ Mid $=0$, Low differs</td></tr>
+<tr><td><code>AABBB</code> — own far behind</td><td>$\big(\mathbf{-\tfrac32},-2\big)$</td><td>$\big(\mathbf{-\tfrac32},-1\big)$</td><td>$(0,0)$</td><td>High $=$ Mid $=-\tfrac32$, Low differs</td></tr>
+</table>
+<p style="margin:6px 0 0">The identity was there in the published table all along; nobody had a reason to look down that column. Note that it is <em>not</em> a statement that reputation is worthless to the upper types — the entries are large and they differ across configurations. It is a statement that whatever reputation is worth, it is worth the <em>same</em> to everyone above the upgrade point.</p>
+</div>
+
+<h3>The principle as a step function</h3>
+
+<p>Read across one row of the table above, keeping only the $e_j$-component of each $\gamma_v$ in turn. This asks: what is the upgrade $e_j$ worth to type $v$, as $v$ climbs the ladder? The level principle says the answer is <strong>flat</strong> across the whole block at or above the upgrade point, at some height $\lambda_j$, and unrestricted below it. It is a step function, and its single step sits at $u_j$:</p>
+
+$$v\;\longmapsto\;\gamma^{[c]}_v\!\cdot e_j\;=\;
+\begin{cases}\ \lambda^{[c]}_j,&v\ \ge\ u_j,\\[3pt]\ \text{unrestricted},&v\ &lt;\ u_j.\end{cases}$$
+
+<p>Every entry of $\Gamma$ is a <em>difference</em> of two neighbouring values of that function — and differencing a step function gives a single spike, sitting exactly at the step. So the $e_j$-row of $\Gamma$ is silent on every pair drawn from the block strictly above $u_j$, because both members of such a pair see the same level and the difference is zero; it carries the step itself at the pair straddling $u_j$; and it is unconstrained at the pairs below. That is the triangular shape, and it arrives with the diagonal entry already named:</p>
+
+$$\Gamma^{[c]}_{jj}\;=\;\underbrace{\lambda^{[c]}_j}_{\text{worth to the block at or above }u_j}\;-\;\underbrace{\gamma^{[c]}_{u_{j-1}}\!\cdot e_j}_{\text{worth to the type just below}}.$$
+
+<p>The pivot the cascade will divide by is therefore an economic object rather than an artefact of the algebra: it is the <strong>gap</strong> between what a reputational upgrade is worth to the block it promotes into and what the same upgrade is worth to the type left behind. Read it off the three-type table for $j=m$, the upgrade Low$\to$Mid. When the finalist is ahead it is worth $0$ to High and Mid alike and $\tfrac12$ to Low, so $\Gamma_{mm}=0-\tfrac12$; when the finalist is behind it is worth $-1$ to High and Mid and $0$ to Low, so $\Gamma_{mm}=-1-0$. Both are negative, because the upgrade matters more to the type being left behind than to the block above it — and that is the pattern across the whole census. Weight the two by the chance $t^{2}$ of being the one ahead and they give $\tfrac12(t^{2}-2)$, which is exactly the pivot $\Gamma_{22}$ of the middle stretch displayed in §4; the same two lines applied to $j=h$ return $\tfrac13(t^{2}-3)$, the other diagonal entry there.</p>
+
+<div class="panel key">
+<span class="tag key">why this is robust</span> <span class="badge">general K</span>
+<p style="margin-top:4px">(TRI) is a property of the <strong>final</strong> alone, holding configuration by configuration. What enters (ODE) is an average over the one thing left open — where the opponent finalist sits. Write $s$ for that opponent's rung. A player reaches the final by outbidding someone, which is likelier the higher they bid, so a finalist's rung is not uniform: it has distribution $s^{2}$ and density $2s$. Hence</p>
+$$\Gamma(t)\;=\;\int_0^1\Gamma^{\,[\,c(P(t),\,P(s))\,]}\;2s\,ds,$$
+<p style="margin:6px 0 0">and the discrete census weights $\psi_c\ge0$ are nothing but this integral broken at the rungs where the configuration changes. (Configurations are indexed by $c$; $j$ is reserved for the upgrade direction $e_j$, and the two have nothing to do with each other.)</p>
+<p style="margin:6px 0 0">Two features make the average harmless. First, <strong>differencing and averaging commute</strong>. Taking neighbour differences is a fixed operation — the same at every rung and in every configuration — so it may be performed before or after the integral. The census therefore reaches only the <em>table</em> of marginal reputational values, never the differencing that creates the zeros. Second, $2s\,ds$ is a probability measure, so $\Gamma(t)$ is an honest <strong>average</strong> of the per-configuration matrices, lying in their convex hull. Every property that averaging preserves thus passes from the configurations to the equilibrium: a zero entry stays zero, a negative entry stays negative, and any linear inequality among entries survives — and triangularity and the sign of a pivot are exactly of that kind. So both hold <em>whatever</em> the census: however many configurations the final visits along the ladder, in whatever proportions, at whatever $K$. Nothing about Round&nbsp;1's support architecture enters: no atom, no ceilings, no closure conditions, no constants. In particular the composite atom at the bottom of the bid range, refuted on incentive grounds, was never load-bearing here.</p>
+</div>
+
+<div class="panel warn">
+<span class="tag warn">why the target is a pattern of zeros, and not solvability</span> <span class="badge">general K</span>
+<p style="margin-top:4px">Averaging is kind only to properties that are <em>linear</em> in the matrix, and invertibility is not one of them: two configurations can each present a perfectly well-conditioned system and average to a singular one. Both $\operatorname{diag}(1,-1)$ and $\operatorname{diag}(-1,1)$ are invertible, and their average is the zero matrix. The sign of the determinant and the eigenvalues fail for the same reason. So a result of the form “each configuration gives a solvable system” would have bought nothing at all, however many configurations it covered. The guarantee has to be assembled from properties that survive an average, one entry at a time — which is why the theorem is stated as a pattern of zeros. A zero is a linear condition, and linear conditions are precisely what an average respects.</p>
+</div>
+
+<h2>4. The matrices</h2>
+
+<p>With (TRI) in hand, keep the columns ordered from the strongest pair leftward and the rows in the matching order. Each column is one pair's gradient, and (TRI) says it reaches no further down the rows than its own position. The dense matrix of §2 becomes</p>
+
+$$
+\Gamma(t)\;=\;
+\begin{bmatrix}
+\Gamma_{nn}&\Gamma_{n,n-1}&\cdots&\Gamma_{n2}\\
+0& \Gamma_{n-1,n-1}&\cdots&\Gamma_{n-1,2}\\
+\vdots&\vdots&\ddots&\vdots\\
+0& 0&\cdots& \Gamma_{22}
+\end{bmatrix},
+\qquad
+\Gamma(t)^{\!\top}
+\begin{bmatrix}P'_{u_n}\\P'_{u_{n-1}}\\\vdots\\P'_{u_2}\end{bmatrix}
+=-\frac1{t^{2}}
+\begin{bmatrix}k_{u_nu_{n-1}}\\k_{u_{n-1}u_{n-2}}\\\vdots\\k_{u_2u_1}\end{bmatrix}
+\tag{TRI-system}
+$$
+
+<p>Column by column, left to right: the strongest pair's gradient has one entry, so its condition contains the top share and nothing else; the next pair's has two, so its condition adds exactly one new unknown; the weakest pair's contains everything. Each column is <em>economically</em> what one would want it to be — the comparison between two neighbouring types is insensitive to how the market sorts the also-rans beneath them.</p>
+
+<p>Spelled out for four active types, so the shape is unmistakable:</p>
+
+$$
+\Gamma\;=\;
+\begin{bmatrix}
+\Gamma_{44}&\Gamma_{43}&\Gamma_{42}\\
+\color{#b9b4a6}0& \Gamma_{33}&\Gamma_{32}\\
+\color{#b9b4a6}0&\color{#b9b4a6}0& \Gamma_{22}
+\end{bmatrix},
+\qquad
+\begin{aligned}
+\text{col. 1}&=\nabla_pD_{u_4u_3},\\
+\text{col. 2}&=\nabla_pD_{u_3u_2},\\
+\text{col. 3}&=\nabla_pD_{u_2u_1},
+\end{aligned}
+\qquad
+\Gamma^{\!\top}\begin{bmatrix}P'_{u_4}\\P'_{u_3}\\P'_{u_2}\end{bmatrix}
+=-\frac1{t^{2}}
+\begin{bmatrix}k_{u_4u_3}\\k_{u_3u_2}\\k_{u_2u_1}\end{bmatrix}
+$$
+
+<p>The two greyed zeros in the first column are the whole content of the level principle at $K=4$: the strongest pair's gradient points nowhere in the directions that reshuffle belief among the two weakest types, so its indifference is unmoved by how the market splits belief between them.</p>
+
+<h3>The three-type instance, written out</h3>
+
+<p>At $K=3$ there are two neighbour pairs, High–Mid and Mid–Low, so $\Gamma$ has two columns — one gradient each — and two rows, the upgrades $e_h$ and $e_m$. The ladder splits into three stretches, distinguished by which configurations of the final are in play. On each, $\Gamma$ is exactly:</p>
+
+$$
+\underbrace{\begin{bmatrix}\ \dfrac{t^{2}-3}{3}&\dfrac{t^{2}-2}{3}\ \\[6pt] \ \color{#b9b4a6}0&\dfrac{t^{2}-2}{2}\ \end{bmatrix}}_{\text{middle stretch}}
+\qquad
+\underbrace{\begin{bmatrix}\ \dfrac{t^{2}+\omega^{2}-3}{3}&\dfrac{t^{2}-2}{3}\ \\[6pt] \ \color{#b9b4a6}0&\dfrac{t^{2}-2}{2}\ \end{bmatrix}}_{\text{top stretch}}
+\qquad
+\underbrace{\begin{bmatrix}\ \dfrac{t^{2}-3}{3}&\dfrac{t^{2}+\varpi^{2}-3}{3}\ \\[6pt] \ \color{#b9b4a6}0&\dfrac{t^{2}+\varpi^{2}-3}{2}\ \end{bmatrix}}_{\text{bottom stretch}}
+$$
+
+<p>with $\Gamma^{\!\top}$ acting on $\big(P_h'(t),\,P_m'(t)\big)^{\!\top}$ to give $-\tfrac1{t^2}\big(k_{hm},\,k_{m\ell}\big)^{\!\top}$. The left column is the High–Mid gradient, the right column the Mid–Low gradient. Here $\omega(t)$ and $\varpi(t)=\omega^{-1}(t)$ locate the <em>marginal opponent</em>: the rival strength at which the final is on the verge of changing character.</p>
+
+<p>Three things fall out of these three matrices at once, none of them put in by hand.</p>
+
+<ul>
+<li><strong>The zero is everywhere.</strong> The High–Mid gradient has no $e_m$-component, on any stretch, so its condition never contains $P_m'$. This is (TRI) at $K=3$.</li>
+<li><strong>The marginal opponents separate.</strong> The one <em>ahead</em> ($\omega$, top stretch) perturbs only the High–Mid column; the one <em>behind</em> ($\varpi$, bottom stretch) perturbs only the Mid–Low column. This is the wall-separation result, previously established by a separate computation, here simply read off the matrix.</li>
+<li><strong>The Mid–Low gradient has a fixed direction.</strong> On every stretch its two components are in the ratio $\tfrac13:\tfrac12$, so the second condition always reduces to $\ \tfrac13P_h'+\tfrac12P_m'=\text{const}(t)$ — a fixed exchange rate between belief in High and belief in Mid, independent of which configurations are in play.</li>
+</ul>
+
+<div class="panel key">
+<span class="tag key">the cascade at $K=3$, solved</span> <span class="badge">K=3</span>
+<p style="margin-top:4px">The first column has a single entry, so its condition is scalar — one division by $\Gamma_{nn}$, no matrix anywhere — and it gives the belief in the strongest type directly:</p>
+$$P_h'(t)\;=\;\frac{3\,k_{hm}}{t^{2}\big(3-t^{2}\big)}\quad\text{(middle and bottom stretches)},\qquad
+P_h'(t)\;=\;\frac{3\,k_{hm}}{t^{2}\big(3-t^{2}-\omega(t)^{2}\big)}\quad\text{(top stretch)}.$$
+<p style="margin:6px 0 0">These are precisely the two branches of the three-type equilibrium curve found earlier by direct computation — the $\operatorname{arctanh}$ branch below the kink and the delayed branch above it — with the kink appearing exactly where the marginal opponent ahead enters. They are reproduced here from the table of marginal reputational values and nothing else, which is an independent check on the whole apparatus. Substituting into the second column's condition returns belief in Mid, elementary on the middle stretch:</p>
+$$P_m'(t)\;=\;\frac{2\,k_{m\ell}}{t^{2}\big(2-t^{2}\big)}\;-\;\frac{2}{3}\,P_h'(t).$$
+</div>
+
+<h2>5. What the cascade means economically</h2>
+
+<p>Marching a triangular system is usually a computational remark. Here it is an economic statement about how the market's belief is assembled.</p>
+
+<ol>
+<li><strong>The strongest type sets the pace.</strong> Its indifference against the second-strongest is a self-contained condition: given the rent gap between them, it dictates how fast belief in the top type must rise as one climbs the bid ladder. Nothing about the weak types enters.</li>
+<li><strong>Each type down the line inherits and adds one thing.</strong> With the top share known, the second pair's condition determines the second share; and so on. Each rung of the cascade is one scalar equation in one unknown.</li>
+<li><strong>The weakest type is the residual.</strong> Its share is whatever is left over once the others are fixed — it is the numéraire of the belief, never solved for, only implied.</li>
+</ol>
+
+<p>So a $K$-type contest is not a $K-1$-dimensional simultaneous problem. It is $K-1$ one-dimensional problems in a fixed order, and the order is the ranking of the types. That is what makes going beyond three types tractable rather than merely large.</p>
+
+<div class="panel focus">
+<span class="tag focus">consequence — the strongest type never leaves</span> <span class="badge">general K</span>
+<p style="margin-top:4px">The first column alone forces the sign of $P_h'$. Two facts do it.</p>
+<ul>
+<li><em>The right-hand side is negative.</em> $-k_{u_nu_{n-1}}/t^{2}&lt;0$, because the top type's rent strictly exceeds its neighbour's — it can imitate that neighbour exactly and win the final strictly more often.</li>
+<li><em>The pivot is negative.</em> $\Gamma_{nn}&lt;0$: a reputational upgrade toward the top type <em>shrinks</em> the premium of really being that type. Reputation and true strength are substitutes — once the market already credits you with the top type, the extra value of genuinely being it is smaller.</li>
+</ul>
+<p style="margin:6px 0 0">Hence $P'_{u_n}(t)&gt;0$: <strong>belief in the strongest active type rises strictly along the whole ladder.</strong> It is the same monotonicity noticed at the start — the premium $k/t$ must fall as advancement gets more likely, and the only way the market can deliver a falling premium is by believing you more. A share that is strictly increasing can never be driven to zero from above, so the strongest active type never exits: it is present at every rung it has entered, all the way to the top of the support. That settles one of the four routes toward the interval-activity conjecture, at general $K$.</p>
+</div>
+
+<h2>6. Ruling types out: the sign device, transposed</h2>
+
+<p>In an ordinary asymmetric all-pay auction there is a standard way to prove a bidder is <em>not</em> active on some range: write down the bid density implied by the first-order conditions, show it is negative there, and conclude by contradiction. This model does not obviously admit that argument, because the prize for winning is not a constant — it moves with the bid through the signalling channel — so the first-order conditions do not reduce to a density in the usual way. The cascade restores the argument in two forms.</p>
+
+<h3>The direct transposition</h3>
+<p>Because a type's belief-share <em>is</em> its bid density up to the prior, the sign test applies to the very object the cascade produces. Integrate the cascade forward from wherever the active set is known. If some share goes negative, that type cannot have been bidding there, and the contradiction identifies where it left. This is the same device as in the symmetric-information case, but reading it off the belief rather than off a separate density — and it locates the active set $\mathcal A(t)$ as the face of the simplex the belief curve actually occupies.</p>
+
+<h3>The device with no symmetric-information analogue</h3>
+<p>There is a second positivity test, and it exists only because bids signal. Recover the bid level itself from any active type's indifference condition,</p>
+$$b(t)\;=\;t\,W\big(v,P(t)\big)-U_v ,$$
+<p>and require the bid to rise with the rung it occupies — otherwise the ladder folds back on itself and the quantile coordinate is not a coordinate at all. Differentiating,</p>
+$$b'(t)\;=\;\underbrace{W\big(v,P(t)\big)}_{\text{value of advancing}}\;+\;\underbrace{t\,\nabla_pW\big(v,P(t)\big)\cdot P'(t)}_{\text{value of the reputation the extra bid buys}}\;&gt;\;0 .$$
+<p>The first term is the ordinary all-pay force; the second is pure signalling, and it can have either sign. When the reputational term is sufficiently negative — when bidding higher makes the rival fight harder by more than the improved odds are worth — the requirement fails, and the candidate active set is refuted. This is the literal counterpart of “the density is negative, contradiction”, and the cascade supplies exactly the $P'(t)$ that it needs. It has not yet been run against the solved curves; doing so is the natural next probe.</p>
+
+<h2>7. Status and what remains</h2>
+
+<table>
+<tr><th>statement</th><th>standing</th></tr>
+<tr><td>The level principle at three types</td><td>Verified exactly, by rational arithmetic, on <strong>every</strong> configuration the final can take — all ten of them. Complete for $K=3$.</td></tr>
+<tr><td>The level principle at general $K$</td><td>Conjecture. Verified exactly on 160 distinct configurations across $K=2,3,4,5$, with no exception, including configurations in which some types carry no belief at all. The enumeration is not exhaustive beyond $K=3$.</td></tr>
+<tr><td>Triangularity and the cascade</td><td>Follows from the level principle, by an argument that uses no property of the census beyond its being an average: differencing commutes with the average, and a zero entry survives it. Conditional on the level principle beyond $K=3$.</td></tr>
+<tr><td>The strongest type never exits</td><td>Follows, given the sign of the top pivot — negative on every configuration examined.</td></tr>
+<tr><td>The last pivot</td><td>The <em>weakest</em> pair's pivot $\Gamma_{22}$ can vanish — it is the gap between what the upgrade is worth to the block above the upgrade point and to the type just below, so it closes exactly where those two agree — which would stall the final step of the cascade. It does so only in <em>lopsided</em> configurations — those in which one finalist's ladder of types is exhausted before the other's, so the final settles early. At three types there is exactly one such configuration with a vanishing pivot, and it is off the equilibrium path.</td></tr>
+</table>
+
+<p><strong>The open question is a proof of the level principle at general $K$</strong>, replacing the enumeration with the envelope argument sketched in §3: show that the rival's bidding above a given type's own bid depends on the believed mass beneath that type only through its <em>total</em>, never through its composition. Everything else in this note is a consequence.</p>
+
+<hr>
+<p class="footnote">Verification: exact rational arithmetic, no floating point; the difference quotients are certified to lie inside a single configuration of the final by requiring both the configuration and the quotient to be unchanged under two step sizes. Reproducible from <code>Python/tri_check.py</code> and <code>Python/tri_check2.py</code>; logs in <code>docs/data/</code>. References: Siegel, <em>All-Pay Contests</em> (2009); Zhang &amp; Wang (2009); Hörner &amp; Sahuguet, <em>Costly Signalling in Auctions</em> (2007).</p>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  renderMathInElement(document.body,{
+    delimiters:[
+      {left:"$$",right:"$$",display:true},
+      {left:"$",right:"$",display:false}
+    ],
+    throwOnError:false
+  });
+});
+</script>
+</body>
+</html>
