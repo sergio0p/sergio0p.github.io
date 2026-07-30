@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Continuum Limit — Local First Integral, Entry Curve, and the Volterra Cascade</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#5c5c5c; --line:#e2e2e2; --bg:#fbfbf9;
+    --accent:#7a1f2b; --accent2:#1f4e7a; --good:#1f6b3a; --warn:#8a5a00;
+    --panel:#f4f3ef; --code:#f0efe9;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--bg);
+    max-width:860px; margin:0 auto; padding:48px 28px 120px; line-height:1.62; font-size:18px;
+  }
+  h1{font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em}
+  h2{font-size:23px; margin:46px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); color:var(--accent)}
+  h3{font-size:19px; margin:28px 0 6px; color:var(--accent2)}
+  .sub{color:var(--muted); font-style:italic; margin:0 0 8px}
+  p{margin:10px 0}
+  code{background:var(--code); padding:1px 5px; border-radius:4px; font-size:15px; font-family:"SF Mono",Menlo,Consolas,monospace}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin:18px 0}
+  .focus{border-left:5px solid var(--accent); background:#f9f1f1}
+  .mirror{border-left:5px solid var(--accent2); background:#eef3f8}
+  .key{border-left:5px solid var(--good); background:#eef6f0}
+  .warn{border-left:5px solid var(--warn); background:#faf4e6}
+  .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
+       text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px; background:var(--muted)}
+  .tag.focus{background:var(--accent)} .tag.mirror{background:var(--accent2)} .tag.key{background:var(--good)}
+  .tag.warn{background:var(--warn)}
+  .tag code{background:rgba(255,255,255,.2); color:inherit; font-size:inherit; padding:0 3px}
+  table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
+  th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
+  th{background:var(--panel)}
+  .lead{font-size:19px; color:#333}
+  .footnote{color:var(--muted); font-size:15px}
+  ol li,ul li{margin:6px 0}
+  .badge{font-size:13px; color:var(--muted); font-family:monospace}
+  hr{border:none; border-top:1px solid var(--line); margin:32px 0}
+</style>
+</head>
+<body>
+
+<h1>The Continuum Limit</h1>
+<p class="sub">A tutorial: how the discrete pair relations become a local first integral, why bid supports are iso-win-probability sets, the entry curve $t_e=U'$, why exit is a co-equal unknown, the Lu–Parreiras kernel, and the Volterra outlook</p>
+<p class="footnote">Session 2026-07-29. Banked in <code>docs/proofs.tex</code> §<code>sec:continuum</code> (labels cited throughout); dispatched as briefs <code>docs/tasks/2026-07-29-{1,2,3}-*.md</code>. Companion entry point for the discrete machinery: <code>docs/round1_support_structure.html</code> (the guess-and-verify pipeline, the equations (FI), (D), (ODE), ($\star_{uv}$)); cascade note: <code>docs/triangular_cascade.html</code>.</p>
+
+<div class="panel warn">
+<span class="tag warn">status — read this first</span>
+<p style="margin-top:4px">Everything here is either <strong>exact under stated regularity hypotheses</strong> (the envelope arguments) or a <strong>formal limit</strong> of a banked discrete relation (the ladder, the cascade). The continuum equilibrium is <em>not constructed</em>: existence, the boundary layers, the kernel, and well-posedness are the three open briefs. Zhang &amp; Wang's impossibility theorem — no symmetric separating equilibrium under full revelation — is itself stated for a continuum of types, so this limit is not a generalization of the discrete program; it is the road back to the paper's native habitat. The discrete-$K$ solutions ($K=2,3,4$) should ultimately read as finite-difference schemes for the system assembled in §8.</p>
+</div>
+
+<h2>1. Setup — what carries over verbatim</h2>
+<p class="sub">One paragraph of model, one of notation; details in the support-structure note.</p>
+
+<p><strong>Model.</strong> Four players, two rounds. Round&nbsp;1: two pairwise all-pay auctions; all bids publicly revealed. Round&nbsp;2: the two winners meet in an all-pay final worth $v$ to its winner. Types are now i.i.d.&nbsp;draws from a <em>density</em> $f$ on $[\underline v,\bar v]$, private throughout.</p>
+
+<p><strong>Notation (CONT), <span class="badge">def:cont</span>.</strong> Work in the bid quantile $t=G(b)$. The unknown is the <strong>posterior density</strong> $p_t(\cdot)$ — the continuum version of the posterior curve $P(t)$: the density over types of a bidder observed at quantile $t$. Rents are $U(v)$, anchored at $U(\underline v)=0$. The prize is
+$$W\big(v,P(t)\big)=\int_0^1 \Pi_2\big(v;P(t),P(s)\big)\,2s\,ds,$$
+with $\Pi_2$ the Siegel final payoff and $2s\,ds$ the strategy-free opponent-quantile law $\Psi(t)=t^2$ (<span class="badge">lem:sigmainv</span>) — both facts survive the continuum unchanged, since neither ever counted types. Each type mixes over one quantile interval
+$$\operatorname{supp}\sigma_v=[\,t_e(v),\,t_x(v)\,],$$
+the <strong>entry curve</strong> and the <strong>exit curve</strong> — <em>both unknowns of the system</em> (§5). The active set at $t$ is an interval of types (continuum (INT)): $\mathcal A(t)=[a_{\min}(t),a_{\max}(t)]$, with $a_{\max}=t_e^{-1}$ and $a_{\min}=t_x^{-1}$.</p>
+
+<p><strong>The one new symbol.</strong> Everything below is organized around the <em>own-type slope of the prize</em>:
+$$\mathcal W\big(v,P(t)\big)\;:=\;\partial_v W\big(v,P(t)\big).$$</p>
+
+<h2>2. The limit computation — one division, one limit</h2>
+<p class="sub">From the pair conditions to a local condition. <span class="badge">lem:filoc</span></p>
+
+<p>The discrete solve rests on the pair relations: the first integrals (FI), $t\,D_{uv}(t)=k_{uv}=U_u-U_v$, and their bid-space derivative, the single-crossing condition
+$$g(b)\big[W(u,p)-W(v,p)\big]\;+\;G(b)\big[\nabla_p W(u,p)-\nabla_p W(v,p)\big]\cdot p'(b)\;=\;0.\qquad(\star_{uv})$$
+With a continuum of types, take two <em>nearby</em> active types, divide by $u-v$, and let $u\to v$. Every difference of $W$'s becomes a $v$-derivative:</p>
+
+<div class="panel key">
+<span class="tag key">the local single-crossing condition</span>
+$$g(b)\,\mathcal W\big(v,p(b)\big)\;+\;G(b)\,\nabla_p\mathcal W\big(v,p(b)\big)\cdot p'(b)\;=\;0
+\qquad\Longleftrightarrow\qquad
+\frac{d}{db}\Big[\,G(b)\,\mathcal W\big(v,p(b)\big)\Big]\;=\;0 .$$
+<p style="margin:6px 0 0">The left side is a <em>total derivative</em> — so the equation first-integrates on sight. In the quantile coordinate, with the constant identified by dividing (FI) itself by $u-v$:</p>
+$$\boxed{\;t\;\mathcal W\big(v,P(t)\big)\;=\;U'(v)\qquad\text{for every }t\in[\,t_e(v),t_x(v)\,].\;}\qquad\text{(FI-loc)}$$
+</div>
+
+<p><strong>A cleaner derivation, no limit at all.</strong> $U(v)=\sup_b\big[G(b)\,W(v,p(b))-b\big]$, and $v$ enters only through $W$. By the Milgrom–Segal envelope theorem, $U'(v)=G(b)\,\partial_vW(v,p(b))$ at <em>every</em> maximizer $b$. Since every bid in the support of $\sigma_v$ is a maximizer, $t\,\mathcal W$ is constant $=U'(v)$ across the support. The limit computation and the envelope computation agree — the first tells you (FI-loc) is the continuum shadow of the whole discrete pair family $\{t\,D_{uv}=k_{uv}\}$; the second tells you it is exact given differentiability.</p>
+
+<p><strong>What collapsed.</strong> At each $t$ the discrete system carries $|\mathcal A(t)|-1$ pair equations. In the continuum these become the <em>one-parameter family</em> (FI-loc), indexed by $v\in\mathcal A(t)$ — one scalar equation per active type, against one density value $p_t(v)$ per active type. The count is square before any work is done (§6).</p>
+
+<h2>3. What the equation says — supports are iso-win-probability sets</h2>
+<p class="sub">The envelope inside the final gives $\mathcal W$ a name. <span class="badge">lem:winprob</span></p>
+
+<p>The Siegel final is itself an IPV all-pay auction: $\Pi_2(v;p,q)=\max_b\big[v\,H_2(b)-b\big]$ with $H_2$ the opponent's final-bid CDF. Envelope again: $\partial_v\Pi_2 = H_2(b_v)$ — <strong>the probability that a type-$v$ finalist wins the final</strong>. Averaging over the opponent's quantile law,
+$$\mathcal W\big(v,P(t)\big)\;=\;\int_0^1 \Pr\big(v\ \text{wins final}\;\big|\;P(t),P(s)\big)\,2s\,ds
+\;=\;\Pr\big(\text{win final}\;\big|\;\text{advance at }t\big).$$
+Now read (FI-loc) as economics:</p>
+
+<div class="panel focus">
+<span class="tag focus">the whole equation in words</span>
+$$\underbrace{t}_{\Pr(\text{win R1})}\;\times\;\underbrace{\mathcal W\big(v,P(t)\big)}_{\Pr(\text{win final}\,\mid\,\text{advance})}\;=\;\Pr\big(\text{win tournament}\big)\;=\;U'(v).$$
+<p style="margin:6px 0 0">The identity $U'=\Pr(\text{win})$ is the standard Mirrlees/Myerson envelope condition. The content <em>added</em> by co-mixing is its <strong>constancy across the support</strong>: type $v$'s support is an <strong>iso-win-probability set</strong>. Bid higher and your conditional final win probability must fall exactly as $U'(v)/t$ — the signaling penalty of a high bid offsets the Round-1 gain <em>in probability units, not payoff units</em>. This is the continuum face of "high hides, low bluffs": a stronger reputation buys a more aggressive opponent in the final, and the equilibrium prices that aggression so that the total win probability is flat where you mix.</p>
+</div>
+
+<h2>4. The entry curve — the ladder's continuum limit</h2>
+<p class="sub">$t_e(v)=U'(v)$, and the entering type wins the final surely. <span class="badge">cor:entrycurve</span></p>
+
+<p><strong>Recall the discrete ladder</strong> (<span class="badge">thm:floorladder</span>). At type $v$'s entry rung $t_v$, the adjacent gap $D_{vv^-}$ has two computations that must match: <em>below</em> entry, $v$ is absent from the believed support, so Siegel cornering (<span class="badge">lem:corner</span>) gives $D_{vv^-}=v-v^-$ on the whole band; <em>above</em>, both types are active and the first integral gives $D_{vv^-}=(U_v-U_{v^-})/t$. Continuity at $t_v$:
+$$t_v\;=\;\frac{U_v-U_{v^-}}{v-v^-}$$
+(unit spacing hid the denominator in the $K=3$ statement). Let the spacing $v-v^-\to0$: the difference quotient becomes a derivative.</p>
+
+<div class="panel key">
+<span class="tag key">the entry curve is the marginal rent</span>
+$$\boxed{\;t_e(v)\;=\;U'(v)\;}
+\qquad\text{and at entry}\qquad
+\mathcal W\big(v,P(t_e(v))\big)\;=\;1 .$$
+<p style="margin:6px 0 0"><strong>Each type enters at the quantile equal to its own equilibrium tournament win probability.</strong> The second display is (FI-loc) evaluated at $t=t_e(v)$ — and it is exactly the cornering value: at its entry rung, $v$ sits at the top of its own believed support, $v=a_{\max}(t_e(v))$. In an all-pay final the two bid supports share a common top $\bar b$, so the top-believed type bids $\bar b$ and <em>wins with probability one, pointwise in the opponent's posterior</em> — against a stronger opponent it pays a higher $\bar b$, which moves the level $\Pi_2$ but not the $v$-derivative. The two branches of the ladder match in the limit with no tension.</p>
+</div>
+
+<p><strong>Two consistency dividends.</strong> (i)&nbsp;Differentiating: $t_e'(v)=U''(v)$ — the entry curve is increasing iff $U$ is convex, i.e.&nbsp;iff the tournament win probability increases in type. That is the continuum shadow of the monotone posterior (G2). (ii)&nbsp;The discrete rungs are literally difference quotients of $U$: at the repaired $K=3$ (unit spacing), $t_M=U_M-U_L\approx0.095$ and $t_H=U_H-U_M\approx0.333$ (<span class="badge">cor:ladder3</span>), and the $K=4$ floor relation $k_{\text{top}}-k_{\text{2nd}}=t_0=0.408$ is the top rung of the same ladder (<span class="badge">lem:floorK</span>, entry-rung reading).</p>
+
+<p><strong>What happens just above entry.</strong> As $t$ rises past $t_e(v)$, strictly higher types enter above $v$ ($a_{\max}(t)=t_e^{-1}(t)$ climbs), $v$ stops being top-of-support, and $\mathcal W$ decays from $1$ exactly as $U'(v)/t$. In the discrete case the entry crossing is <em>kinked</em> (the top pivot cannot vanish); in the continuum the kinks of successive entrants densify into the smooth frontier $a_{\max}(t)$ — but the local behaviour of $p_t$ near the frontier (the boundary layer) is exactly brief <code>2026-07-29-1</code>.</p>
+
+<h2>5. Exit — the co-equal unknown that keeps getting rug-swept</h2>
+<p class="sub">Standing rule of the project, banked as <span class="badge">rem:exitcont</span>.</p>
+
+<div class="panel warn">
+<span class="tag warn">the standing rule</span>
+<p style="margin-top:4px">At $K=3$ a single type exits, and it was legitimate to demote the exit rung to an ODE output. Several project documents have since treated exit as a detail. <strong>In the continuum that habit is untenable</strong>: the exit curve $t_x(v)$ has exactly the same status as $t_e(v)$ — one full unknown function, one boundary of every type's support. A continuum treatment that specifies entry and stays silent on exit is not a closed system.</p>
+</div>
+
+<p><strong>What survives of the discrete asymmetry</strong> (<span class="badge">rem:noexit</span>). The asymmetry is <em>informational</em>, and it survives:</p>
+<ul>
+<li><strong>Entries are algebraic and kinked.</strong> At an entry the <em>top</em> of the believed support moves, the cornering hypothesis $w\ge a_{\max}$ becomes satisfiable, and one relation per entry appears — in the limit, the whole curve $t_e=U'$.</li>
+<li><strong>Exits are free boundaries and smooth.</strong> At an exit the <em>bottom</em> type leaves; the top of the believed support does not move, cornering never applies, and <em>no algebraic relation is generated</em>. The exit curve is located by the density vanishing, $p_t\big(a_{\min}(t)\big)=0$, crossed $C^1$ (the <span class="badge">prop:sliver</span> mechanism).</li>
+</ul>
+
+<p>So the pair of frontiers enters the system asymmetrically — $t_e$ as <em>data</em> (given $U$), $t_x$ as an <em>output</em> of the march — but both must be carried. Whether $t_x(v)\lt1$ on a positive-measure set of types (genuine staggered exit, the continuum analogue of Low's exit at $t_X\approx0.68$ in the repaired $K=3$) or $t_x\equiv1$ below some threshold (the $K=2$ pattern: nobody exits) is an <em>output</em>, not an assumption. The two solved discrete instances realize both admissible behaviours, which is exactly why neither can be hard-wired.</p>
+
+<p><strong>A third frontier hides at the bottom.</strong> The discrete equilibria carry a zero-bid atom whose carrier is the bottom <em>type</em>. In the continuum the bottom type has measure zero — so does an atom survive at all, and if so, which <em>interval</em> $[\underline v, v_a]$ of types carries it, and what does the zero-atom IC (<span class="badge">lem:atomIC</span>: every carrier needs zero atom prize) force on it? Note the pressure: $t_e(v)=U'(v)$ with $U'(\underline v)\gt0$ leaves the quantile band $[0,t_e(\underline v))$ to be filled by <em>something</em>. Atom fate is sub-check (a) of brief <code>2026-07-29-3</code>.</p>
+
+<h2>6. The Lu–Parreiras kernel — making $\mathcal W$ explicit</h2>
+<p class="sub">The envelope names $\mathcal W$; the $Q$-function machinery computes it. <span class="badge">lem:lpwinprob</span>, <span class="badge">cor:lptri</span></p>
+
+<p>Everything so far rests on the envelope theorem — and the envelope only ever yields <em>derivatives</em>. It says $\mathcal W$ is a win probability (§3); it does not say what that probability <em>is</em> as a functional of the two posteriors, and it is silent on payoff <em>levels</em> (the top bid at cornering, the atom prize in the zero-atom IC, the bid map). The discrete program filled that gap with Siegel's construction and the tropical cell complex. In the continuum the natural replacement is the closed-form machinery of Lu &amp; Parreiras (2017) for <strong>two-player asymmetric all-pay auctions</strong> — which is exactly what the final is, with the posteriors $(p,q)$ as the two type distributions. (Side-by-side comparison of the two machineries: <code>claude-ai-project/siegel_vs_lu_parreiras_comparison.v1.md</code>.)</p>
+
+<p><strong>H-functions and the tying function.</strong> For a posterior $\mu$ on $[\underline v,\bar v]$ define the value-space H-function
+$$H_\mu(v)\;:=\;\int_{[v,\bar v]}\frac{d\mu(u)}{u}\qquad(\text{decreasing, }H_\mu(\bar v)=0).$$
+In the LP equilibrium, bids are increasing in type on each side, at most one side carries a zero-bid atom (the side with the larger $H$ at the bottom: $C=H_p(\underline v)-H_q(\underline v)$ decides), and above the atom coverage each type $v$ <em>ties</em> — bids the same — as the opponent type $y_v$ solving the H-equality
+$$H_q(y_v)\;=\;H_p(v).$$
+Because bids increase in type, $v$ wins exactly against opponent types below its tie:</p>
+
+<div class="panel key">
+<span class="tag key">the tying function is the win-probability map</span>
+$$\boxed{\;\Pr\big(v\ \text{wins final}\;\big|\;p,q\big)\;=\;P_q\big(H_q^{-1}(H_p(v))\big)\;}$$
+<p style="margin:6px 0 0">where $P_q$ is the <em>CDF of the opponent posterior</em> $q$ (not to be confused with the posterior curve $P(t)$). Types whose tie lands inside the opponent's atom-covered range win with probability $0$; the coverage cutoff is LP's $H_A(y^*)=H_N(0)$. $\Psi$-averaging over the opponent's quantile as in §3:</p>
+$$\mathcal W\big(v,P(t)\big)\;=\;\int_0^1 P_{q_s}\!\big(H_{q_s}^{-1}(H_{p_t}(v))\big)\,2s\,ds,
+\qquad p_t=P(t),\ q_s=P(s),$$
+<p style="margin:6px 0 0">with the $s$-integral split wherever $v$'s tie enters atom coverage — the continuum image of the discrete regime census. <strong>Levels too, not just slopes</strong>: $\Pi_2(v;p,q)=v\,P_q(H_q^{-1}(H_p(v)))-b(v)$ with the LP bid map $b(v)=\int_{[\,\cdot\,\le v]}y_u\,dp(u)$ — so both the derivative (the envelope's win probability) and the level (which the envelope alone cannot give) are closed-form. <span class="badge">lem:lpwinprob</span></p>
+</div>
+
+<p><strong>Two one-line consequences</strong> (<span class="badge">cor:lptri</span>):</p>
+<ol>
+<li><strong>The Volterra property is an identity.</strong> $H_p(v)$ integrates $p$ only over $[v,\bar v]$ — it is <em>blind to the believed density below $v$</em>. So at any $v$ above the atom coverage,
+$$\gamma(v,w)\;:=\;\frac{\delta\mathcal W(v,P)}{\delta p(w)}\;=\;0\qquad(w\lt v).$$
+This is the continuum shadow of (TRI) (<span class="badge">conj:triK</span>) <em>proved</em>, not sampled — the very property §7 needs.</li>
+<li><strong>Cornering, hence $\mathcal W=1$ at entry.</strong> If $v\ge a_{\max}$ (top of own believed support) then $H_p(v)=0$, the tie lands at the top of the opponent's support, and the win probability is $P_q(\bar v_q)=1$ <em>pointwise in $q$</em> — <span class="badge">lem:corner</span> and the entry condition of §4, in one line.</li>
+</ol>
+
+<p><strong>The kernel drops out by chain rule.</strong> From the definition, $\delta H_p(v)/\delta p(w)=\mathbf 1_{\{w\ge v\}}/w$, so differentiating the boxed formula through the $\Psi$-average:</p>
+
+<div class="panel focus">
+<span class="tag focus">the explicit cascade kernel</span>
+$$\gamma(v,w)\;=\;\bar\chi'\big(H_{p_t}(v)\big)\,\frac{\mathbf 1_{\{w\ge v\}}}{w},
+\qquad
+\chi_s:=P_{q_s}\circ H_{q_s}^{-1},\quad
+\bar\chi'(h):=\int_0^1\chi_s'(h)\,2s\,ds\;\;(\lt 0).$$
+<p style="margin:6px 0 0">A <strong>bounded</strong> kernel with a single <strong>jump</strong> at the diagonal $w=v$ — <em>no Dirac mass</em>. The sign is right: adding believed mass above $v$ lowers $v$'s win probability. This is the candidate answer to brief 2's diagonal-scaling question; §7 spells out what it means for the march.</p>
+</div>
+
+<h2>7. The Volterra outlook — the cascade in the limit</h2>
+<p class="sub">Kernel explicit via §6; the bookkeeping is brief <code>2026-07-29-2</code>. <span class="badge">rem:volterra</span></p>
+
+<p>Differentiate (FI-loc) in $t$, one equation per active $v$ — the $s$-slot of the $\Psi$-average integrates over <em>all</em> $s$ and does not move with $t$, so only the own-posterior slot differentiates:
+$$\int_v^{a_{\max}(t)}\gamma(v,w)\,\partial_t p_t(w)\,dw\;=\;-\,\frac{U'(v)}{t^2},$$
+where $\gamma(v,w)=\delta\mathcal W(v,P)/\delta p(w)$ is the §6 kernel — the continuum image of the cascade matrix $\Gamma(t)$ (<span class="badge">thm:tricascade</span>) — and the lower limit $w=v$ is the Volterra property, proved in §6. How the two discrete structures pass to the limit:</p>
+
+<ol>
+<li><strong>(TRI) becomes the Volterra property — proved.</strong> The level form (<span class="badge">lem:tricell3</span>, <span class="badge">conj:triK</span>) — shifting believed mass onto $u_j$ moves $\Pi_2(v)$ by the same amount for every $v\ge u_j$ — becomes $\gamma(v,w)=0$ for $w\lt v$, and via LP this is the identity of §6: $H_p(v)$ is blind to $p$ below $v$. The route recorded for the discrete conjecture (in Siegel's top-down sweep, own mass below $v$ enters the opponent's CDF only through its total) is the same argument in Siegel clothing.</li>
+<li><strong>The $\psi$-free spike is the shadow of a jump, not of a Dirac delta.</strong> In the $\psi$-free form (<span class="badge">lem:psifree</span>), $\Gamma=\bar G^\top L^\top$ with $L$ the fixed neighbour-differencing operator, and differencing an indicator gives one spike: $L\,\mathbf 1_{\{v\ge u_j\}}=\varepsilon_j$, which is what puts the pivot on the diagonal. In the limit the kernel itself <em>keeps</em> the indicator: $\gamma\propto\mathbf 1_{\{w\ge v\}}/w$, a bounded <strong>jump</strong> at the diagonal. A Dirac mass appears only when the <em>equation</em> is differentiated once more in $v$ — the continuum image of adjacent-pair differencing, which is exactly the operation that produced the discrete pivot.</li>
+</ol>
+
+<div class="panel mirror">
+<span class="tag mirror">the form of the march</span>
+<p style="margin-top:4px">As written above, the system is <strong>first-kind</strong> Volterra with the jump kernel of §6. One further differentiation in $v$ converts the jump into a local term ($a_{\max}(t)$ does not depend on $v$):</p>
+$$-\,\gamma(v,v)\,\partial_t p_t(v)\;+\;\int_v^{a_{\max}(t)}\partial_v\gamma(v,w)\,\partial_t p_t(w)\,dw
+\;=\;-\,\frac{U''(v)}{t^{2}},
+\qquad
+\gamma(v,v)=\frac{\bar\chi'\big(H_{p_t}(v)\big)}{v}\;\neq\;0:$$
+<p style="margin:6px 0 0">a <strong>second-kind Volterra integro-differential system</strong> with a nonvanishing diagonal coefficient, marched <em>downward from the top</em> $v=a_{\max}(t)$ — the continuum image of the triangular cascade's column-by-column march, with the top-type monotonicity (<span class="badge">cor:topmono</span>) as the boundary behaviour. <strong>Left to brief <code>2026-07-29-2</code>:</strong> the role/atom bookkeeping through the $\Psi$-average (the $s$-split points of §6 move with $p_t$ — Leibniz terms), the entry-flux boundary terms at $w=a_{\max}(t)$, the limit interchange, the behaviour of $\bar\chi'$ at the exit frontier $w\to a_{\min}(t)$ (standing rule of §5), and a machine gate against the discrete $\Gamma$ from <code>siegel_ipv.py</code>.</p>
+</div>
+
+<h2>8. The system assembled, and the three briefs</h2>
+<p class="sub">Unknowns, equations, and where each open piece lives.</p>
+
+<table>
+<tr><th>unknown</th><th>pinned by</th><th>status</th></tr>
+<tr><td>posterior density $p_t(v)$ on $\{(v,t): t_e(v)\le t\le t_x(v)\}$</td><td>(FI-loc) via the Volterra march, from the top frontier down</td><td>kernel explicit (LP, §6); bookkeeping — brief 2</td></tr>
+<tr><td>rents $U(v)$, anchor $U(\underline v)=0$</td><td>Bayes closure $\displaystyle\int_{t_e(v)}^{t_x(v)}p_t(v)\,dt=f(v)$</td><td>counting/uniqueness — brief 3</td></tr>
+<tr><td>entry curve $t_e(v)$</td><td>algebraic: $t_e=U'$, with $\mathcal W=1$ at entry</td><td>banked; boundary layer — brief 1</td></tr>
+<tr><td>exit curve $t_x(v)$</td><td>free boundary: $p_t(a_{\min}(t))=0$, $C^1$, no algebraic relation</td><td>banked as structure; regularity — briefs 1, 3</td></tr>
+<tr><td>atom (existence, carrier interval, posterior)</td><td>zero-atom IC + filling $[0,t_e(\underline v))$</td><td>open — brief 3(a)</td></tr>
+</table>
+
+<p><strong>The three briefs</strong> (all <code>docs/tasks/2026-07-29-*.md</code>, each self-contained with pointers):</p>
+<ol>
+<li><strong>Entry/exit boundary layer.</strong> Do $\{t_e=U',\ \mathcal W=1\text{ at entry}\}$ pin the local behaviour of $p_t$ at the entry frontier without integrating the interior — via the one-Taylor-step LP expansion $1-\mathcal W\approx|\bar\chi'(0)|\,H_{p_t}(v)$ — and what is the (weaker) condition at the exit frontier? Entry and exit treated symmetrically, per the standing rule.</li>
+<li><strong>The Volterra kernel — verify.</strong> The candidate kernel, the Volterra property, and the diagonal verdict (first-kind as written, second-kind after $\partial_v$) are banked from §6; the brief closes the gaps: role/Leibniz bookkeeping through the $\Psi$-average, entry-flux boundary terms, the limit interchange, and the machine gate against $\Gamma$ at $K\in\{3,5\}$ via <code>siegel_ipv.py</code>.</li>
+<li><strong>Well-posedness.</strong> Is the system square and locally unique? Sub-checks: atom fate at the measure-zero bottom; the continuum image of the marginal opponents $s_j(t)$ — concretely, the role flips of $C(t,s)=H_{P(t)}(\underline v)-H_{P(s)}(\underline v)$ and the moving $s$-split points of §6; exit does not over-determine; the $K=2,3,4$ solutions embed as discretizations. Candidate coordinates for the march: $h_t:=H_{p_t}$, in which the tying relation is linear.</li>
+</ol>
+
+<hr>
+<p class="footnote">Provenance: brainstorm session 2026-07-29 (Fable), banked same day in <code>docs/proofs.tex</code> §<code>sec:continuum</code> — <code>def:cont</code>, <code>lem:filoc</code>, <code>lem:winprob</code>, <code>cor:entrycurve</code>, <code>rem:exitcont</code>, <code>rem:volterra</code> (commit <code>9f14ab6</code>); LP kernel section <code>lem:lpwinprob</code>, <code>cor:lptri</code> + the corrected <code>rem:volterra</code> banked the same evening (commit <code>0093448</code>), from the machinery comparison <code>claude-ai-project/siegel_vs_lu_parreiras_comparison.v1.md</code>. Discrete inputs: <code>sec:ladder</code> (floor ladder), <code>sub:tri</code>/<code>thm:tricascade</code> (cascade), <code>lem:atomIC</code> (zero-atom IC). References: Zhang &amp; Wang (2009); Siegel (2009, 2014); Lu &amp; Parreiras (2017); Milgrom &amp; Segal (2002).</p>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  renderMathInElement(document.body,{
+    delimiters:[
+      {left:"$$",right:"$$",display:true},
+      {left:"$",right:"$",display:false}
+    ],
+    throwOnError:false
+  });
+});
+</script>
+</body>
+</html>
