@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where the Delay Comes From, and How a Möbius Map Removes It (K = 3)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#5c5c5c; --line:#e2e2e2; --bg:#fbfbf9;
+    --accent:#7a1f2b; --accent2:#1f4e7a; --good:#1f6b3a; --warn:#8a5a00;
+    --panel:#f4f3ef; --code:#f0efe9;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--bg);
+    max-width:860px; margin:0 auto; padding:48px 28px 120px; line-height:1.62; font-size:18px;
+  }
+  h1{font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em}
+  h2{font-size:23px; margin:46px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); color:var(--accent)}
+  .sub{color:var(--muted); font-style:italic; margin:0 0 8px}
+  p{margin:10px 0}
+  code{background:var(--code); padding:1px 5px; border-radius:4px; font-size:15px; font-family:"SF Mono",Menlo,Consolas,monospace}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin:18px 0}
+  .focus{border-left:5px solid var(--accent); background:#f9f1f1}
+  .key{border-left:5px solid var(--good); background:#eef6f0}
+  .warn{border-left:5px solid var(--warn); background:#faf4e6}
+  .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
+       text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px; background:var(--muted)}
+  .tag.focus{background:var(--accent)} .tag.key{background:var(--good)} .tag.warn{background:var(--warn)}
+  table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
+  th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
+  th{background:var(--panel)}
+  .footnote{color:var(--muted); font-size:15px}
+  ol li,ul li{margin:6px 0}
+  hr{border:none; border-top:1px solid var(--line); margin:32px 0}
+</style>
+</head>
+<body>
+
+<h1>Where the Delay Comes From, and How a Möbius Map Removes It</h1>
+<p class="sub">A step-by-step account of the three-type case: the equilibrium ODE evaluates the solution at a <em>different point</em> — and one change of perspective turns that delay into a fractional-linear map and makes everything elementary.</p>
+
+<div class="panel warn">
+<span class="tag warn">provenance</span>
+<p style="margin:6px 0 0">This chain was derived on the original constructed three-type curve, which was later refuted on separate grounds (an incentive condition at the zero-bid atom). Nothing below is an equilibrium claim. What survives — and the reason to study it — is the <em>machinery</em>: the same shifted-argument structure reappears in the repaired equilibrium and in the continuum limit, and the Möbius cancellation is the one known instance of it being solved exactly.</p>
+</div>
+
+<h2>0. Cast of characters</h2>
+<p>Three valuations $v \in \{1,2,3\}$ (Low, Mid, High), equal priors. Round-one bids are mixed; instead of the bid $b$ we use its quantile $t = G(b) \in [0,1]$ — the probability that a rival's bid falls below yours. The object of interest is the <em>posterior belief attached to each quantile</em>: an observer who sees a first-round bid at quantile $t$ assigns</p>
+$$
+h(t) = \Pr(\text{High}\mid t), \qquad m(t) = \Pr(\text{Mid}\mid t), \qquad \ell(t) = 1 - h(t) - m(t).
+$$
+<p>One combination recurs so often it earns a name:</p>
+$$
+\Phi(t) \;=\; h(t) + \tfrac32\, m(t),
+$$
+<p>a valuation-weighted "strength" of the belief at $t$ (it is the value of $\int dp/u$-type integrals specialised to values $3,2,1$; all that matters here is that walls are level-crossings of $\Phi$ against $h$). Numerical constants of the curve:</p>
+<table>
+<tr><th>symbol</th><th>meaning</th><th>value</th></tr>
+<tr><td>$t_0$</td><td>size of the zero-bid atom (quantiles $[0,t_0]$ bid zero)</td><td>$0.3298456$</td></tr>
+<tr><td>$k_1,\;k_2$</td><td>equilibrium rent of High, of Mid (Low earns $0$)</td><td>$0.4733594,\;0.1435138$</td></tr>
+<tr><td>$t^*$</td><td>quantile where the first "window" opens</td><td>$0.7581022$</td></tr>
+<tr><td>$t^{**}$</td><td>quantile where that window closes on the other branch</td><td>$0.4350939$</td></tr>
+</table>
+
+<h2>1. The engine: indifference makes products constant</h2>
+<p>Each type mixes over an interval of quantiles, and along its support its expected payoff is constant. Taking differences between adjacent types, the envelope argument gives <em>first integrals</em>: with $D_{HM}(t)$ the (opponent-averaged) difference between High's and Mid's continuation payoffs at quantile $t$,</p>
+$$
+t\,D_{HM}(t) \;=\; k_1 - k_2, \qquad t\,D_{ML}(t) \;=\; k_2 \qquad \text{on the common support.}
+$$
+<p>Differentiating these identities in $t$ is what produces the ODEs for $h$ and $m$. So everything hinges on how $D_{HM}$ and $D_{ML}$ depend on the beliefs — and that is where the second round enters.</p>
+
+<h2>2. The opponent's quantile, and the wall</h2>
+<p>Your continuation payoff is a final against the winner of the <em>other</em> semifinal, whose quantile $s$ is drawn with density $2s\,ds$ (they had to beat someone). The final is an all-pay auction under the pair of revealed beliefs, one at your quantile $t$, one at theirs, $s$. Its payoff is <em>piecewise affine</em> in the two belief vectors: the affine formula switches when certain belief levels cross — concretely, when your strength crosses the opponent's High-share, e.g. at the root $s$ of</p>
+$$
+h(s) \;=\; \Phi(t) \;=\; h(t) + \tfrac32 m(t).
+$$
+<p>Averaging over $s$ therefore splits the integral at these crossing points. Call such a crossing point a <b>wall</b>. The crucial feature: <em>a wall is an equation between the solution at two different quantiles.</em> Its root, written $W(t)$, is not a new unknown — it is determined by the same functions $h,m$ the ODE is trying to find, evaluated somewhere else.</p>
+
+<h2>3. The delay ODEs</h2>
+<p>Below $t^*$ no wall is active for the High-share equation, and differentiating $t\,D_{HM}=k_1-k_2$ gives an autonomous ODE with an elementary solution:</p>
+$$
+h'(t) = \frac{3t_0}{t^2\,(3-t^2)},
+\qquad
+h(t) = 1-\frac{t_0}{t}+\frac{t_0}{\sqrt3}\Big(\operatorname{artanh}\tfrac{t}{\sqrt3}-\operatorname{artanh}\tfrac{t_0}{\sqrt3}\Big).
+$$
+<p>Above $t^*$ a window of opponent quantiles $s\in[0,w(t)]$ enters the average with a different affine formula, where $w(t)$ is the wall root read from the other side, $\Phi(w(t)) = h(t)$. The corrected equation is</p>
+<div class="panel focus">
+<span class="tag focus">the delay, exhibited</span>
+$$
+h'(t) \;=\; \frac{3t_0}{t^2\,\big(3-t^2-w(t)^2\big)}\qquad\text{on }[t^*,1],
+$$
+<p style="margin:6px 0 0">The right-hand side at $t$ contains $w(t)$ — defined implicitly through the solution at the point $w(t)\ne t$. This is a functional-differential (delay-type) equation, not an ordinary one: you cannot integrate it forward from $t^*$ without already knowing the solution elsewhere. (At $t^*$ the window snaps open and $h'$ jumps by the factor $(3-t^{*2})/(3-t^{*2}-t_0^2)=1.047$ — the one kink of $h$.)</p>
+</div>
+<p>The Mid-share has a mirror-image problem at the <em>bottom</em>. On $[t_0,t^{**}]$, differentiating $t\,D_{ML}=k_2$ gives</p>
+$$
+3m'(t)+2h'(t) \;=\; \frac{6k_2}{t^2\big(3-t^2-W(t)^2\big)},
+\qquad\text{equivalently}\qquad
+\Phi'(t) \;=\; \frac{3k_2}{t^2\big(3-t^2-W(t)^2\big)},
+$$
+<p>with the wall $h(W(t))=\Phi(t)$. Same disease, other end of the support.</p>
+
+<h2>4. First observation: the two walls are inverse maps</h2>
+<p>Look at the two wall equations side by side:</p>
+$$
+h\big(W(t)\big)=\Phi(t) \qquad\text{and}\qquad \Phi\big(w(y)\big)=h(y).
+$$
+<p>They are the <em>same relation read from its two ends</em>: $W=h^{-1}\!\circ\Phi$ and $w=\Phi^{-1}\!\circ h$. Hence $w$ and $W$ are mutually inverse bijections,</p>
+$$
+w:[t^*,1]\longrightarrow[t_0,t^{**}], \qquad W=w^{-1}, \qquad w(t^*)=t_0,\quad w(1)=t^{**}.
+$$
+<p>This is already useful: the High equation's delay on the top stretch $[t^*,1]$ points exactly into the bottom window $[t_0,t^{**}]$ where the Mid equation runs, and vice versa. It is <em>one</em> coupled system with two branches talking to each other through a single map.</p>
+
+<h2>5. The key step: differentiate the wall itself</h2>
+<p>Instead of attacking either delay ODE, differentiate the wall relation $h(W(t))=\Phi(t)$ by the chain rule:</p>
+$$
+h'\big(W(t)\big)\cdot W'(t) \;=\; \Phi'(t).
+$$
+<p>Now substitute what each branch's own equation says about the two derivatives. From the Mid branch (Step 3, valid at $t\in[t_0,t^{**}]$):</p>
+$$
+\Phi'(t)=\frac{3k_2}{t^2\big(3-t^2-W(t)^2\big)} .
+$$
+<p>From the High branch, evaluated at the point $y=W(t)\in[t^*,1]$ — and here the duality of Step 4 pays off, since $w\big(W(t)\big)=t$:</p>
+$$
+h'\big(W(t)\big)=\frac{3t_0}{W(t)^2\big(3-W(t)^2-t^2\big)} .
+$$
+<div class="panel key">
+<span class="tag key">the cancellation</span>
+<p style="margin:6px 0 0">The bracket $3-t^2-W^2$ is <em>symmetric</em> in the pair $(t,W)$ — economically: the window in which <em>you</em> price the opponent's crossing is the mirror of the window in which <em>they</em> price yours, so the same expression appears on both sides. Dividing, everything involving the unknown functions $h,m$ cancels, leaving a separable ordinary ODE <em>for the wall alone</em>:</p>
+$$
+\frac{t_0\,W'(t)}{W(t)^2} \;=\; \frac{k_2}{t^2}.
+$$
+</div>
+
+<h2>6. Integrate: the wall is a Möbius map</h2>
+<p>Both sides are perfect derivatives ($\mathrm d(-t_0/W)$ and $\mathrm d(-k_2/t)$), so</p>
+$$
+\frac{t_0}{W(t)}-\frac{k_2}{t} \;=\; c \quad\text{(a constant)},
+\qquad\Longrightarrow\qquad
+W(t)=\frac{t_0\,t}{\,k_2+c\,t\,},\qquad w(y)=\frac{k_2\,y}{\,t_0-c\,y\,}.
+$$
+<p>The wall — an implicit, solution-dependent crossing point — is a <b>fractional-linear (Möbius) map</b> of the quantile, with a single free constant. The endpoint dictionary of Step 4 pins it twice over:</p>
+$$
+c \;=\; \frac{t_0}{t^*}-\frac{k_2}{t_0} \;=\; t_0-\frac{k_2}{t^{**}},
+$$
+<p>and plugging the numbers, $0.3298456/0.7581022-0.1435138/0.3298456 = 0.435094-0.435094 \approx 0$. That is no accident: a separate argument proves $c=0$ <em>exactly</em>, so the wall is a pure dilation,</p>
+$$
+W(t)=\frac{t_0}{k_2}\,t \;\approx\; 2.2984\,t,
+\qquad t^*=\frac{t_0^2}{k_2}, \qquad t^{**}=\frac{k_2}{t_0},
+$$
+<p>and the two switching quantiles, found numerically first, turn out to be rational expressions in the rents.</p>
+
+<h2>7. The delay integrates away</h2>
+<p>With $w$ an explicit Möbius map, substitute it back into the High equation of Step 3. The right-hand side becomes a <em>rational function of $t$ alone</em> — with $c=0$, simply</p>
+$$
+h'(y)=\frac{3t_0}{y^2\Big(3-\big(1+\kappa^2\big)\,y^2\Big)},
+\qquad \kappa=\frac{k_2}{t_0},
+$$
+<p>which is the same quadrature as below $t^*$ with $\sqrt3$ rescaled to $\sqrt{3/(1+\kappa^2)}$ — another artanh. The Mid share then needs no ODE at all: it is read off the wall relation algebraically, $m(t)=\tfrac23\big[h(W(t))-h(t)\big]$ on the bottom window, and from an autonomous scalar equation on the middle band. A second wall (governing where Low's presence switches the affine formula) survives on one short band near the top of the support; even there the same substitution removes the shifted argument and leaves a classical scalar ODE — one that happens to have no elementary antiderivative, and is handled by a convergent series. But that is a statement about integrals, not about delays: <em>no functional/delay structure survives anywhere.</em></p>
+
+<h2>8. The moral</h2>
+<p>Three ingredients made the trick work, and they are worth naming because the repaired equilibrium and every $K$ will present the same shape of problem:</p>
+<ol>
+<li><b>Walls are level-crossings of beliefs.</b> The shifted argument is never arbitrary — it is defined by an <em>equality</em> between the solution at two quantiles. Equalities can be differentiated; that converts the implicit definition into a first-order relation between branches.</li>
+<li><b>Duality.</b> The crossing read from your side and from the opponent's side are inverse maps, so each branch's delay points exactly at the other branch's domain, and composing the two substitutions closes the loop ($w(W(t))=t$).</li>
+<li><b>Symmetry of the tying window.</b> The denominators $3-t^2-W^2$ agree on the two branches because tying is mutual — you tie them where they tie you. That symmetry is what cancels the unknown solution and leaves a separable equation for the wall alone.</li>
+</ol>
+<p>None of these ingredients is visibly special to three types. What <em>is</em> special is the accounting: with $K$ types there are $K-2$ nontrivial walls, and the cancellation must close pairwise among them — whether it does at $K=4$ has never been attempted. And even here the method's limit is visible: it removes <em>delays</em>, not <em>non-elementary integrals</em> — the short residual band keeps its series. The continuum limit compresses all the walls back into a single object inside one ODE, which is why the small-$K$ and continuum ends of the problem are both cleaner than the middle.</p>
+
+<hr>
+<p class="footnote">Sources in <code>docs/proofs.tex</code>: the two delay ODEs (<code>thm:hcurve</code>, <code>thm:mmarch</code>), the wall first-integral and Möbius form (<code>lem:wallfirstint</code>), the collapse of the delay structure (<code>cor:nodelay</code>), $c=0$ exact (<code>thm:linwall</code>), the non-elementary residual band (<code>prop:noelemint</code>, <code>prop:bandseries</code>). Machine gates: <code>Python/recompute_hcurve.py</code>, <code>Python/mmarch_forms.py</code>. The shifted-argument warning for the repaired march: <code>rem:omegadelay</code>.</p>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  renderMathInElement(document.body,{
+    delimiters:[
+      {left:"$$",right:"$$",display:true},
+      {left:"$",right:"$",display:false}
+    ],
+    throwOnError:false
+  });
+});
+</script>
+</body>
+</html>
