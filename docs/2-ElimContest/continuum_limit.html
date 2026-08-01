@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Continuum Limit — Local First Integral, Entry Curve, and the Volterra Cascade</title>
+<title>The Continuum Limit — Local First Integral, Entry Curve, and the Certified Cascade Kernel</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -11,6 +11,7 @@
   :root{
     --ink:#1a1a1a; --muted:#5c5c5c; --line:#e2e2e2; --bg:#fbfbf9;
     --accent:#7a1f2b; --accent2:#1f4e7a; --good:#1f6b3a; --warn:#8a5a00;
+    --guess:#5b3a8a; --dead:#6b6b6b;
     --panel:#f4f3ef; --code:#f0efe9;
   }
   *{box-sizing:border-box}
@@ -29,10 +30,15 @@
   .mirror{border-left:5px solid var(--accent2); background:#eef3f8}
   .key{border-left:5px solid var(--good); background:#eef6f0}
   .warn{border-left:5px solid var(--warn); background:#faf4e6}
+  .guess{border-left:5px solid var(--guess); background:#f4effa}
+  .dead{border-left:5px solid var(--dead); background:#f2f2f2; color:#4a4a4a}
   .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
        text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px; background:var(--muted)}
   .tag.focus{background:var(--accent)} .tag.mirror{background:var(--accent2)} .tag.key{background:var(--good)}
-  .tag.warn{background:var(--warn)}
+  .tag.warn{background:var(--warn)} .tag.guess{background:var(--guess)} .tag.dead{background:var(--dead)}
+  .guess dl{margin:8px 0 0; display:grid; grid-template-columns:max-content 1fr; gap:2px 12px}
+  .guess dt{font-variant:small-caps; letter-spacing:.04em; color:var(--guess); font-weight:bold; font-size:15px}
+  .guess dd{margin:0}
   .tag code{background:rgba(255,255,255,.2); color:inherit; font-size:inherit; padding:0 3px}
   table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
   th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
@@ -42,32 +48,84 @@
   ol li,ul li{margin:6px 0}
   .badge{font-size:13px; color:var(--muted); font-family:monospace}
   hr{border:none; border-top:1px solid var(--line); margin:32px 0}
+  .steps{counter-reset:step; list-style:none; padding-left:0}
+  .steps > li{counter-increment:step; position:relative; padding-left:38px; margin:12px 0}
+  .steps > li::before{
+    content:counter(step); position:absolute; left:0; top:2px;
+    width:24px; height:24px; border-radius:50%; background:var(--accent2); color:#fff;
+    font-family:"SF Mono",Menlo,monospace; font-size:13px; line-height:24px; text-align:center;
+  }
 </style>
 </head>
 <body>
 
 <h1>The Continuum Limit</h1>
-<p class="sub">A tutorial: how the discrete pair relations become a local first integral, why bid supports are iso-win-probability sets, the entry curve $t_e=U'$, why exit is a co-equal unknown, the Lu–Parreiras kernel, and the Volterra outlook</p>
-<p class="footnote">Session 2026-07-29. Banked in <code>docs/proofs.tex</code> §<code>sec:continuum</code> (labels cited throughout); dispatched as briefs <code>docs/tasks/2026-07-29-{1,2,3}-*.md</code>. Companion entry point for the discrete machinery: <code>docs/round1_support_structure.html</code> (the guess-and-verify pipeline, the equations (FI), (D), (ODE), ($\star_{uv}$)); cascade note: <code>docs/triangular_cascade.html</code>.</p>
+<p class="sub">A tutorial: how the discrete pair relations become a local first integral, why bid supports are iso-win-probability sets, the entry curve $t_e=U'$, why exit is a co-equal unknown, the Lu–Parreiras tying value, the cascade kernel that inverts in closed form, and the square system it leaves behind</p>
+<p class="footnote">Banked in <code>docs/proofs.tex</code> §<code>sec:continuum</code> — every claim below carries the label of its banked statement, and the label, not this page, is the authority. Companion entry point for the discrete machinery: <code>docs/round1_support_structure.html</code> (the guess-and-verify pipeline, the equations (FI), (D), (ODE), ($\star_{uv}$)); cascade note: <code>docs/triangular_cascade.html</code>.</p>
 
 <div class="panel warn">
 <span class="tag warn">status — read this first</span>
-<p style="margin-top:4px">Everything here is either <strong>exact under stated regularity hypotheses</strong> (the envelope arguments) or a <strong>formal limit</strong> of a banked discrete relation (the ladder, the cascade). The continuum equilibrium is <em>not constructed</em>, but it is now <em>pinned</em>: the kernel inverts in closed form (brief 2, <span class="badge">prop:kernelinv</span>) and the resulting system is square (brief 3, <span class="badge">thm:contsquare</span>). What remains open is existence itself and the boundary layers (brief 1). Zhang &amp; Wang's impossibility theorem — no symmetric separating equilibrium under full revelation — is itself stated for a continuum of types, so this limit is not a generalization of the discrete program; it is the road back to the paper's native habitat. The discrete-$K$ solutions ($K=2,3,4$) should ultimately read as finite-difference schemes for the system assembled in §8.</p>
+<p style="margin-top:4px">Everything here is either <strong>exact under stated regularity hypotheses</strong> (the envelope arguments, the Lu–Parreiras machinery) or a <strong>formal limit</strong> of a banked discrete relation (the ladder, the cascade). The continuum equilibrium is <em>not constructed</em>, but it is now <em>pinned</em>, and the pinning is much sharper than the first draft of this note anticipated:</p>
+<ul style="margin:6px 0 0">
+<li>the cascade kernel is not merely triangular, it is <strong>explicitly invertible</strong>, so there is <em>no march to perform</em> — the posterior density has a closed form (<span class="badge">prop:kernelinv</span>);</li>
+<li>the exit frontier is located, not by a vanishing density, but by <strong>normalisation</strong> in the right coordinate (<span class="badge">cor:exitnorm</span>);</li>
+<li>the Round-1 zero-bid atom <strong>carries no mass</strong> and there is no hole where it used to be (<span class="badge">prop:noatomcont</span>, <span class="badge">rem:atomband</span>);</li>
+<li>in $(v,h)$ coordinates the equilibrium coupling <strong>factorises</strong> into a product measure restricted to a region (<span class="badge">lem:hcoords</span>);</li>
+<li>the resulting system is <strong>square</strong>, with both integration constants supplied by theorems rather than by conventions (<span class="badge">thm:contsquare</span>).</li>
+</ul>
+<p style="margin:8px 0 0">What remains open is <strong>existence itself</strong> — a genuinely global problem, not a missing initial condition (<span class="badge">rem:global</span>). Everything else on the old open list has moved: the free boundary now has <strong>its own ODE</strong>, which turns $h_*'\lt0$ from an assertion into a theorem and gives the exit curve an elasticity law (<span class="badge">lem:hstarode</span>, <span class="badge">cor:exitelas</span> — <em>banked 2026-08-01, formerly guess G4</em>); the "boundary layers" item dissolves into two closed-form evaluations (G2); and the bottom exponent now has a derived candidate (G1) whose remaining hypothesis is <strong>one-sided</strong> — an upper bound on one ratio, the lower side having been closed by the same new corollary. <strong>What is still a guess is marked as such</strong> — see the forward board immediately below, and the purple panels throughout. Zhang &amp; Wang's impossibility theorem — no symmetric separating equilibrium under full revelation — is itself stated for a continuum of types, so this limit is not a generalization of the discrete program; it is the road back to the paper's native habitat. The discrete-$K$ solutions ($K=2,3,4$) should ultimately read as finite-difference schemes for the system assembled in §10.</p>
+</div>
+
+<div class="panel guess">
+<span class="tag guess">live guesses — the forward board</span>
+<p style="margin-top:4px">This document is a <strong>working instrument, not a report</strong>. Everything above the line is banked; what follows is where the next moves are. Each guess below is stated with what it rests on, what would confirm it, and what would kill it. <strong>Purple panels throughout the document are guesses, not results</strong> — they carry no <code>proofs.tex</code> label until they earn one. Grey panels are guesses that already died.</p>
+<table>
+<tr><th>#</th><th>guess</th><th>rests on</th><th>settled by</th><th>§</th></tr>
+<tr><td>G1</td><td><strong>Bottom exponents are $\theta=1$ and $-2/3$</strong>: $U'(v)\sim c(v-\underline v)$ and $p_t(v)\sim(\cdot)\,t^{-1/3}(v-\underline v)^{-2/3}$. Supersedes the recorded $-1/2$ / $-1/3$ dichotomy, whose endpoint branch dropped the $\Psi$-weight.</td><td>$h_*$ decreasing (now <em>proved</em>, <span class="badge">lem:hstarode</span>) $\Rightarrow$ the maximiser is the endpoint $s=0$, where $2s\,ds$ vanishes; plus $\lambda_0=\sup_v t_x/t_e$ finite</td><td><strong>one-sided</strong>: $\theta\lt1$ is already closed (it forces $\lambda\equiv1$, no mixing anywhere, via <span class="badge">cor:exitelas</span>), so only an <em>upper</em> bound on $\lambda$ is owed — and $\lambda$ is non-increasing, so $\lambda_0$ is a sup over the whole leaver block, not a limit at a point. Pencil (STATE <strong>C1</strong>). Laptop: log–log slope on a fine-$K$ ladder — two independent slopes, $-2/3$ in $v$ and $-1/3$ in $t$</td><td>8(d)</td></tr>
+<tr><td>G2</td><td><strong>Both frontier densities are already explicit</strong> — the "boundary layer" item is not open in the form it was written; and the entry-frontier density <em>is</em> the entry flux, third appearance of $\bar y(0)$.</td><td>(DENS) evaluated at $h=0$ and $h=h_*(t)$; nothing new</td><td>nothing to settle — the residue is only whether the expansions are uniform up to the frontier</td><td>8(f)</td></tr>
+<tr><td>G3</td><td><strong>The type space splits at $v_\dagger:=a_{\min}(1)$</strong> into leavers and survivors, with $t_x\equiv1$ above $v_\dagger$; §9's two readings of $H(v)$ are exactly these two pieces. Guessed further: $v_\dagger\gt\underline v$ strictly, i.e. the continuum always has a leaver set.</td><td>the split is immediate from <code>cor:topmono</code>; the strictness is the guess</td><td>pencil: does $a_{\min}(1)=\underline v$ contradict (R1) at $t=1$? (STATE <strong>C3</strong>)</td><td>9</td></tr>
+<tr><td>G4<br><span class="tag key">banked</span></td><td><strong>Differentiating (R1) gives a closed ODE for the free boundary</strong>, which <em>derives</em> $h_*'\lt0$ instead of asserting it, and is the lever for matching <code>cor:exitspacing</code>'s local law. <strong>Settled 2026-08-01</strong>: <span class="badge">lem:hstarode</span> (the ODE, two forms; $h_*\in C^1$ by IFT, so the standing hypothesis weakens from <em>monotone</em> to <em>continuous</em>) and <span class="badge">cor:exitelas</span> ($d\log t_x/d\log t_e=1/(1+\Delta)\in(0,1]$, hence $\lambda=t_x/t_e$ non-increasing).</td><td>(R1) alone; the ODE is written out in §10.2</td><td><em>done</em>, except the scalar dictionary: one $u^2$ factor between $g_j(u)$ and $\Delta$ (<span class="badge">rem:exitelasdict</span>, still <code>\todox</code>; pencil, STATE <strong>C2</strong>)</td><td>10.2</td></tr>
+<tr><td>G5</td><td><strong>The fixed-point map is order-preserving below $v_\dagger$ and order-reversing above it</strong> — mixed, hence no contraction in any uniform norm. Bracket with envelopes; iterate the square on the survivor block.</td><td>sign-chase through (R3)$\to$(R1)$\to$(R2) in §10.3: four links sign cleanly, the fifth ($\Phi\circ H$) splits exactly at $v_\dagger$</td><td>laptop, one run: perturb $\varphi$ upward on a grid and read the sign of the returned $\varphi$ separately on the two blocks (STATE <strong>C4</strong> — it also chooses Sinkhorn vs Newton)</td><td>10.3</td></tr>
+<tr><td>G6</td><td><strong>At fixed $t$ the posterior is $\alpha(v)=vU''(v)$ tilted toward low types</strong>, since $1/\bar y(h_v)$ is decreasing in $v$.</td><td>(DENS) plus $\bar y$ decreasing and $h_v$ decreasing in $v$ — no extra hypothesis</td><td>immediate; stated as a qualitative prediction to check against any solved profile</td><td>8(f)</td></tr>
+</table>
 </div>
 
 <h2>1. Setup — what carries over verbatim</h2>
-<p class="sub">One paragraph of model, one of notation; details in the support-structure note.</p>
+<p class="sub">One paragraph of model, one of notation, and a reference table for the symbols that do the work later.</p>
 
 <p><strong>Model.</strong> Four players, two rounds. Round&nbsp;1: two pairwise all-pay auctions; all bids publicly revealed. Round&nbsp;2: the two winners meet in an all-pay final worth $v$ to its winner. Types are now i.i.d.&nbsp;draws from a <em>density</em> $f$ on $[\underline v,\bar v]$, private throughout.</p>
 
-<p><strong>Notation (CONT), <span class="badge">def:cont</span>.</strong> Work in the bid quantile $t=G(b)$. The unknown is the <strong>posterior density</strong> $p_t(\cdot)$ — the continuum version of the posterior curve $P(t)$: the density over types of a bidder observed at quantile $t$. Rents are $U(v)$, anchored at $U(\underline v)=0$. The prize is
+<p><strong>Notation (CONT), <span class="badge">def:cont</span>.</strong> Work in the bid quantile $t=G(b)$, so that $t$ is <em>the probability of winning Round&nbsp;1</em> against a single symmetric opponent. The unknown is the <strong>posterior density</strong> $p_t(\cdot)$ — the continuum version of the posterior curve $P(t)$: the density over types of a bidder observed at quantile $t$. Rents are $U(v)$, anchored at $U(\underline v)=0$. The prize is
 $$W\big(v,P(t)\big)=\int_0^1 \Pi_2\big(v;P(t),P(s)\big)\,2s\,ds,$$
-with $\Pi_2$ the Siegel final payoff and $2s\,ds$ the strategy-free opponent-quantile law $\Psi(t)=t^2$ (<span class="badge">lem:sigmainv</span>) — both facts survive the continuum unchanged, since neither ever counted types. Each type mixes over one quantile interval
+with $\Pi_2$ the Siegel final payoff and $2s\,ds$ the strategy-free opponent-quantile law $\Psi(t)=t^2$ (<span class="badge">lem:sigmainv</span>).</p>
+
+<div class="panel">
+<p style="margin:0"><strong>Where $2s\,ds$ comes from, since it recurs on every page.</strong> Your opponent in the final is the <em>winner</em> of the other pair. Both members of that pair draw their quantile uniformly on $[0,1]$ and the higher bidder advances, so the finalist's quantile is the maximum of two independent uniforms: CDF $\Psi(s)=s^2$, density $2s$. Nothing in that computation refers to types or to strategies, which is exactly why it survives every change of architecture — the content of <span class="badge">lem:sigmainv</span>. Every average over "the opponent you will face" is therefore $\int_0^1(\cdot)\,2s\,ds$, weighted toward high rungs.</p>
+</div>
+
+<p>Each type mixes over one quantile interval
 $$\operatorname{supp}\sigma_v=[\,t_e(v),\,t_x(v)\,],$$
 the <strong>entry curve</strong> and the <strong>exit curve</strong> — <em>both unknowns of the system</em> (§5). The active set at $t$ is an interval of types (continuum (INT)): $\mathcal A(t)=[a_{\min}(t),a_{\max}(t)]$, with $a_{\max}=t_e^{-1}$ and $a_{\min}=t_x^{-1}$.</p>
 
-<p><strong>The one new symbol.</strong> Everything below is organized around the <em>own-type slope of the prize</em>:
+<p><strong>The one new symbol.</strong> Everything in §§2–5 is organized around the <em>own-type slope of the prize</em>:
 $$\mathcal W\big(v,P(t)\big)\;:=\;\partial_v W\big(v,P(t)\big).$$</p>
+
+<div class="panel mirror">
+<span class="tag mirror">reference — symbols introduced later</span>
+<p style="margin-top:4px">Each is defined again, in context, where it first does work; this table is for looking back.</p>
+<table>
+<tr><th>symbol</th><th>meaning</th><th>first used</th></tr>
+<tr><td>$H_\mu(v)=\int_{[v,\bar v]}d\mu(u)/u$</td><td><em>$H$-level</em> of type $v$ under belief $\mu$ — the Lu–Parreiras reputation index; decreasing in $v$, zero at the top</td><td>§6</td></tr>
+<tr><td>$y_q(h)=H_q^{-1}(h)$</td><td><em>tying value</em>: the opponent type that bids the same as an $H$-level-$h$ type</td><td>§6</td></tr>
+<tr><td>$\chi_q(h)=P_q\big(y_q(h)\big)$</td><td>final win probability of an $H$-level-$h$ type against opponent posterior $q$</td><td>§6</td></tr>
+<tr><td>$h_v(t)=H_{p_t}(v)$</td><td>type $v$'s own $H$-level at rung $t$ — the state variable of the whole system</td><td>§7</td></tr>
+<tr><td>$\bar\chi(h)=\int_0^1\chi_{q_s}(h)\,2s\,ds$</td><td>$\Psi$-averaged win probability; $\bar\chi(0)=1$, decreasing</td><td>§7</td></tr>
+<tr><td>$\bar y(h)=\int_{S(h)}y_{q_s}(h)\,2s\,ds$</td><td>$\Psi$-averaged tying value, $=-\bar\chi'(h)$; $S(h)$ is the set of opponent rungs against which $h$ is not atom-covered</td><td>§7</td></tr>
+<tr><td>$h_*(t)=H_{p_t}\big(a_{\min}(t)\big)$</td><td>the $H$-level of the <em>exit frontier</em> at rung $t$ — the free boundary, in its natural coordinate</td><td>§8</td></tr>
+<tr><td>$H(v)=h_v\big(t_x(v)\big)$</td><td>type $v$'s own $H$-level when it stops mixing (<em>not</em> $h_*(t_x(v))$ — see the caveat in §9)</td><td>§9</td></tr>
+<tr><td>$\varphi=U'$, $\ \Phi(h)=\int_0^h d\xi/\bar\chi(\xi)$</td><td>the marginal rent and its $\bar\chi$-antiderivative; the two objects the final system is written in</td><td>§10</td></tr>
+</table>
+</div>
 
 <h2>2. The limit computation — one division, one limit</h2>
 <p class="sub">From the pair conditions to a local condition. <span class="badge">lem:filoc</span></p>
@@ -85,9 +143,9 @@ $$g(b)\,\mathcal W\big(v,p(b)\big)\;+\;G(b)\,\nabla_p\mathcal W\big(v,p(b)\big)\
 $$\boxed{\;t\;\mathcal W\big(v,P(t)\big)\;=\;U'(v)\qquad\text{for every }t\in[\,t_e(v),t_x(v)\,].\;}\qquad\text{(FI-loc)}$$
 </div>
 
-<p><strong>A cleaner derivation, no limit at all.</strong> $U(v)=\sup_b\big[G(b)\,W(v,p(b))-b\big]$, and $v$ enters only through $W$. By the Milgrom–Segal envelope theorem, $U'(v)=G(b)\,\partial_vW(v,p(b))$ at <em>every</em> maximizer $b$. Since every bid in the support of $\sigma_v$ is a maximizer, $t\,\mathcal W$ is constant $=U'(v)$ across the support. The limit computation and the envelope computation agree — the first tells you (FI-loc) is the continuum shadow of the whole discrete pair family $\{t\,D_{uv}=k_{uv}\}$; the second tells you it is exact given differentiability.</p>
+<p><strong>A cleaner derivation, no limit at all.</strong> $U(v)=\sup_b\big[G(b)\,W(v,p(b))-b\big]$, and $v$ enters only through $W$. By the Milgrom–Segal envelope theorem — which applies at <em>an arbitrary</em> maximizer, not only at a unique one, and this is exactly what a mixed strategy needs — $U'(v)=G(b)\,\partial_vW(v,p(b))$ at <em>every</em> optimal $b$. Since every bid in the support of $\sigma_v$ is optimal, $t\,\mathcal W$ is constant $=U'(v)$ across the support. The two derivations do different jobs: the limit computation tells you (FI-loc) is the continuum shadow of the whole discrete pair family $\{t\,D_{uv}=k_{uv}\}$; the envelope computation tells you it is exact given differentiability, with no limit interchange to justify. That second point matters later — it is why <span class="badge">prop:kernelinv</span> can differentiate (FI-loc) freely.</p>
 
-<p><strong>What collapsed.</strong> At each $t$ the discrete system carries $|\mathcal A(t)|-1$ pair equations. In the continuum these become the <em>one-parameter family</em> (FI-loc), indexed by $v\in\mathcal A(t)$ — one scalar equation per active type, against one density value $p_t(v)$ per active type. The count is square before any work is done (§6).</p>
+<p><strong>What collapsed.</strong> At each $t$ the discrete system carries $|\mathcal A(t)|-1$ pair equations. In the continuum these become the <em>one-parameter family</em> (FI-loc), indexed by $v\in\mathcal A(t)$ — one scalar equation per active type, against one density value $p_t(v)$ per active type. The count is square before any work is done, and §10 shows it stays square after the work is done.</p>
 
 <h2>3. What the equation says — supports are iso-win-probability sets</h2>
 <p class="sub">The envelope inside the final gives $\mathcal W$ a name. <span class="badge">lem:winprob</span></p>
@@ -115,12 +173,21 @@ $$t_v\;=\;\frac{U_v-U_{v^-}}{v-v^-}$$
 $$\boxed{\;t_e(v)\;=\;U'(v)\;}
 \qquad\text{and at entry}\qquad
 \mathcal W\big(v,P(t_e(v))\big)\;=\;1 .$$
-<p style="margin:6px 0 0"><strong>Each type enters at the quantile equal to its own equilibrium tournament win probability.</strong> The second display is (FI-loc) evaluated at $t=t_e(v)$ — and it is exactly the cornering value: at its entry rung, $v$ sits at the top of its own believed support, $v=a_{\max}(t_e(v))$. In an all-pay final the two bid supports share a common top $\bar b$, so the top-believed type bids $\bar b$ and <em>wins with probability one, pointwise in the opponent's posterior</em> — against a stronger opponent it pays a higher $\bar b$, which moves the level $\Pi_2$ but not the $v$-derivative. The two branches of the ladder match in the limit with no tension.</p>
+<p style="margin:6px 0 0"><strong>Each type enters at the quantile equal to its own equilibrium tournament win probability.</strong> The second display is (FI-loc) evaluated at $t=t_e(v)$ — and it is exactly the cornering value: at its entry rung, $v$ sits at the top of its own believed support, $v=a_{\max}(t_e(v))$. In an all-pay final the two bid supports share a common top $\bar b$, so the top-believed type bids $\bar b$ and <em>wins with probability one, pointwise in the opponent's posterior</em>— against a stronger opponent it pays a higher $\bar b$, which moves the level $\Pi_2$ but not the $v$-derivative. The two branches of the ladder match in the limit with no tension.</p>
 </div>
 
-<p><strong>Two consistency dividends.</strong> (i)&nbsp;Differentiating: $t_e'(v)=U''(v)$ — the entry curve is increasing iff $U$ is convex, i.e.&nbsp;iff the tournament win probability increases in type. That is the continuum shadow of the monotone posterior (G2). (ii)&nbsp;The discrete rungs are literally difference quotients of $U$: at the repaired $K=3$ (unit spacing), $t_M=U_M-U_L\approx0.095$ and $t_H=U_H-U_M\approx0.333$ (<span class="badge">cor:ladder3</span>), and the $K=4$ floor relation $k_{\text{top}}-k_{\text{2nd}}=t_0=0.408$ is the top rung of the same ladder (<span class="badge">lem:floorK</span>, entry-rung reading).</p>
+<p><strong>Two consistency dividends.</strong> (i)&nbsp;Differentiating: $t_e'(v)=U''(v)$ — the entry curve is increasing iff $U$ is convex, i.e.&nbsp;iff the tournament win probability increases in type. That is the continuum shadow of the monotone posterior (G2). (ii)&nbsp;The discrete rungs are literally difference quotients of $U$, and both solved instances confirm it exactly. At the repaired $K=3$ (unit spacing, <span class="badge">cor:k3constants</span>),
+$$t_M=U_M-U_L=0.095\,980,\qquad t_H=U_H-U_M=0.331\,287;$$
+at the solved $K=4$ with $v=(4,3,2,1)$ (<span class="badge">thm:k4closure</span>),
+$$t_2=0.046\,361,\qquad t_3=0.195\,230,\qquad t_4=0.409\,663,$$
+whence $U=(0,\;0.046\,361,\;0.241\,591,\;0.651\,254)$ by summation — the ladder $U_v=\sum t$ over entries at or below $v$ (<span class="badge">lem:floorK</span>, entry-rung reading). Each rung is the increment of $U$ across one value step, which is the discrete statement of $t_e=U'$.</p>
 
-<p><strong>What happens just above entry.</strong> As $t$ rises past $t_e(v)$, strictly higher types enter above $v$ ($a_{\max}(t)=t_e^{-1}(t)$ climbs), $v$ stops being top-of-support, and $\mathcal W$ decays from $1$ exactly as $U'(v)/t$. In the discrete case the entry crossing is <em>kinked</em> (the top pivot cannot vanish); in the continuum the kinks of successive entrants densify into the smooth frontier $a_{\max}(t)$ — but the local behaviour of $p_t$ near the frontier (the boundary layer) is exactly brief <code>2026-07-29-1</code>.</p>
+<div class="panel warn">
+<span class="tag warn">do not quote the pre-repair constants</span>
+<p style="margin-top:4px">An earlier version of this paragraph quoted $t_0=0.408$ at $K=4$, from the constructed curve of <span class="badge">prop:k4curve</span>. That curve is <strong>refuted as an equilibrium object</strong> (<span class="badge">cor:atomICfail</span> — the composite Low$+$Mid atom violates zero-atom IC), and its constants must never be quoted as equilibrium values. The live number, $t_4=0.409\,663$, is close enough to the dead one that the substitution will not be caught by eye; it is caught only by checking the label. <span class="badge">lem:floorK</span> itself is unaffected — the <em>relation</em> survives the repair, only the numbers changed.</p>
+</div>
+
+<p><strong>What happens just above entry.</strong> As $t$ rises past $t_e(v)$, strictly higher types enter above $v$ ($a_{\max}(t)=t_e^{-1}(t)$ climbs), $v$ stops being top-of-support, and $\mathcal W$ decays from $1$ exactly as $U'(v)/t$. In the discrete case the entry crossing is <em>kinked</em> — the entry exponent is $\alpha=0$, so the share's density <em>jumps</em> at entry with no smooth take-off (<span class="badge">prop:k3cascade</span>) — and in the continuum the kinks of successive entrants densify into the smooth frontier $a_{\max}(t)$. The local behaviour of $p_t$ near that frontier, the entry boundary layer, is still open; §10 lists it.</p>
 
 <h2>5. Exit — the co-equal unknown that keeps getting rug-swept</h2>
 <p class="sub">Standing rule of the project, banked as <span class="badge">rem:exitcont</span>.</p>
@@ -130,101 +197,644 @@ $$\boxed{\;t_e(v)\;=\;U'(v)\;}
 <p style="margin-top:4px">At $K=3$ a single type exits, and it was legitimate to demote the exit rung to an ODE output. Several project documents have since treated exit as a detail. <strong>In the continuum that habit is untenable</strong>: the exit curve $t_x(v)$ has exactly the same status as $t_e(v)$ — one full unknown function, one boundary of every type's support. A continuum treatment that specifies entry and stays silent on exit is not a closed system.</p>
 </div>
 
-<p><strong>What survives of the discrete asymmetry</strong> (<span class="badge">rem:noexit</span>). The asymmetry is <em>informational</em>, and it survives:</p>
+<p><strong>What survives of the discrete asymmetry</strong> (<span class="badge">rem:noexit</span>). The asymmetry is <em>informational</em>, and it survives — but it is an asymmetry in which crossings generate <em>equations</em>, not in which crossings are smooth:</p>
 <ul>
-<li><strong>Entries are algebraic and kinked.</strong> At an entry the <em>top</em> of the believed support moves, the cornering hypothesis $w\ge a_{\max}$ becomes satisfiable, and one relation per entry appears — in the limit, the whole curve $t_e=U'$.</li>
-<li><strong>Exits are free boundaries, and the leaver jumps.</strong> At an exit the <em>bottom</em> type leaves; the top of the believed support does not move, cornering never applies, and <em>no algebraic relation is generated</em> — that, and only that, is the asymmetry. <strong>Corrected 2026-07-30:</strong> this bullet previously added that the exit curve is located by the density vanishing, $p_t\big(a_{\min}(t)\big)=0$, crossed $C^1$. Both clauses are withdrawn (<span class="badge">cor:exitnorm</span>, <span class="badge">rem:exitjump</span>): the density does <em>not</em> vanish at the frontier, the exiting type's own mass leaves with a <strong>jump</strong>, and what locates the frontier is normalisation in $H$-coordinates. The $C^1$ of <span class="badge">prop:sliver</span> is a property of the <em>surviving</em> branch — it is asserted of $h$, the High share — and the formula for $p_t$ is frontier-free, so at an exit the discontinuity is the support indicator, not the profile.</li>
+<li><strong>Entries are algebraic.</strong> At an entry the <em>top</em> of the believed support moves, the cornering hypothesis $w\ge a_{\max}$ of <span class="badge">lem:corner</span> becomes satisfiable, and one relation per entry appears — in the limit, the whole curve $t_e=U'$.</li>
+<li><strong>Exits are free boundaries.</strong> At an exit the <em>bottom</em> type leaves; the top of the believed support does not move, cornering never applies, and <em>no algebraic relation is generated</em>. A <em>free boundary</em> is a boundary of the region on which the equations hold whose location is itself unknown and must be determined by an extra condition — the standard example is the exercise boundary of an American option. That extra condition is the whole difficulty, and it is <em>not</em> supplied by the pair relations.</li>
 </ul>
 
-<p>So the pair of frontiers enters the system asymmetrically — $t_e$ as <em>data</em> (given $U$), $t_x$ as an <em>output</em> — of the normalisation $\int_0^{h_*(t)}(U')^{-1}(t\bar\chi(h))\,dh=1$, not of a march, which does not exist (<span class="badge">rem:global</span>) — but both must be carried, and in the degree-of-freedom count they cost the same: nothing (<span class="badge">thm:contsquare</span>). Whether $t_x(v)\lt1$ on a positive-measure set of types (genuine staggered exit, the continuum analogue of Low's exit at $t_X\approx0.68$ in the repaired $K=3$) or $t_x\equiv1$ below some threshold (the $K=2$ pattern: nobody exits) is an <em>output</em>, not an assumption. The two solved discrete instances realize both admissible behaviours, which is exactly why neither can be hard-wired.</p>
+<p><strong>Which extra condition?</strong> The first draft of this note guessed the natural one — that the density vanishes at the frontier, $p_t\big(a_{\min}(t)\big)=0$, crossed $C^1$. <strong>That guess is wrong and is withdrawn</strong> (<span class="badge">cor:exitnorm</span>, <span class="badge">rem:exitjump</span>): the density does not vanish there, and the exiting type's own mass leaves with a <strong>jump</strong>. What locates the frontier is normalisation in the right coordinate — but stating that requires a closed form for $p_t$, which we do not have yet. So this section can only pose the question.</p>
 
-<p><strong>A third frontier hid at the bottom — and it dissolves.</strong> The discrete equilibria carry a zero-bid atom whose carrier is the bottom <em>type</em>, which has measure zero in the continuum. <strong>Closed 2026-07-30</strong> (<span class="badge">prop:noatomcont</span>): under (CONT) the atom carries <em>no mass</em>. If a positive-measure set $A$ of types bid $0$, then a positive-mass atom means $t_0=G(0)\gt0$, so with probability $\Psi(t_0)=t_0^2\gt0$ <em>both</em> finalists carry the atom posterior $p_0$ and the final is symmetric; there each type ties with itself, so any carrier $v\gt\inf A$ wins with probability $\mathcal W(v,p_0)=P_{p_0}(v)\gt0$ — a strictly positive atom prize, which <span class="badge">lem:atomIC</span> forbids. Hence the carrier is a single point and $f(A)=0$. No interval hypothesis is needed, so the either/or of <span class="badge">rem:atomcont</span> collapses to its first horn.</p>
+<div class="panel mirror">
+<span class="tag mirror">three questions deferred to §8</span>
+<p style="margin-top:4px">All three are questions about a <em>frontier</em>, and all three need machinery §§6–7 will build. They are answered, in order, in §8.</p>
+<ol>
+<li><strong>Where is the exit frontier?</strong> The free boundary $t_x$, equivalently $a_{\min}$. → §8(a), located by normalisation.</li>
+<li><strong>What happens to the leaver?</strong> Jump or smooth vanishing — and how that squares with the $C^1$ exit asserted elsewhere in the project. → §8(b): both are true, of different objects.</li>
+<li><strong>What happens at the bottom?</strong> The discrete equilibria carry a zero-bid atom whose carrier is the bottom <em>type</em>, which has measure zero in the continuum. Does an atom survive, and if the entry curve starts at $t_e(\underline v)=U'(\underline v)\gt0$, who bids in the stranded quantile band $[0,t_e(\underline v))$? → §8(d)–(e): nobody, because the premise is false.</li>
+</ol>
+</div>
 
-<p>And the <em>pressure</em> this section used to record — that $t_e(v)=U'(v)$ with $U'(\underline v)\gt0$ strands the quantile band $[0,t_e(\underline v))$, to be filled by an atom or a boundary layer — rested on a false premise. <span class="badge">rem:bottomsing</span> gives $U'(\underline v)=0$ (the bottom type is covered against every opponent, so it wins the tournament with probability zero), hence $t_e(\underline v)=0$: the band is empty and there is nothing to fill. What survives of the discrete atom is a <em>collapse</em> — as $t\downarrow0$ the active band pinches onto $\underline v$ and $h_*(t)\to1/\underline v=H_{\delta_{\underline v}}(\underline v)$, exactly the maximal $H$-value that made the discrete pure-Low atom covered against every opponent. Sub-check (a) of brief <code>2026-07-29-3</code> therefore closes as <em>neither</em> (<span class="badge">rem:atomband</span>).</p>
+<p>What §10 will add to the standing rule is sharper than "carry it as an unknown": the exit frontier turns out to cost <em>no integration constant</em>, because its equation is algebraic and pointwise in $t$. Entry and exit are asymmetric in the <em>relations</em> they offer and symmetric in the <em>degrees of freedom</em> they consume. Whether $t_x(v)\lt1$ on a positive-measure set of types (genuine staggered exit, the continuum analogue of Low's exit at $t_X=0.860\,801$ in the solved $K=3$, <span class="badge">cor:k3constants</span>) or $t_x\equiv1$ below some threshold (the $K=2$ pattern: nobody exits) is an <em>output</em>, not an assumption. The two solved discrete instances realize both admissible behaviours, which is exactly why neither can be hard-wired.</p>
 
-<h2>6. The Lu–Parreiras kernel — making $\mathcal W$ explicit</h2>
-<p class="sub">The envelope names $\mathcal W$; the $Q$-function machinery computes it. <span class="badge">lem:lpwinprob</span>, <span class="badge">cor:lptri</span></p>
+<h2>6. The Lu–Parreiras machinery — $H$-levels, the tying value, and (PAIR)</h2>
+<p class="sub">The envelope names $\mathcal W$; the $H$-function machinery computes it — and its derivative turns out to be an elementary object. <span class="badge">lem:lpwinprob</span>, <span class="badge">lem:tievalue</span>, <span class="badge">cor:lptri</span></p>
 
-<p>Everything so far rests on the envelope theorem — and the envelope only ever yields <em>derivatives</em>. It says $\mathcal W$ is a win probability (§3); it does not say what that probability <em>is</em> as a functional of the two posteriors, and it is silent on payoff <em>levels</em> (the top bid at cornering, the atom prize in the zero-atom IC, the bid map). The discrete program filled that gap with Siegel's construction and the tropical cell complex. In the continuum the natural replacement is the closed-form machinery of Lu &amp; Parreiras (2017) for <strong>two-player asymmetric all-pay auctions</strong> — which is exactly what the final is, with the posteriors $(p,q)$ as the two type distributions. (Side-by-side comparison of the two machineries: <code>claude-ai-project/siegel_vs_lu_parreiras_comparison.v1.md</code>.)</p>
+<p>Everything so far rests on the envelope theorem — and the envelope only ever yields <em>derivatives</em>. It says $\mathcal W$ is a win probability (§3); it does not say what that probability <em>is</em> as a functional of the two posteriors, and it is silent on payoff <em>levels</em> (the top bid at cornering, the atom prize in the zero-atom IC, the bid map). The discrete program filled that gap with Siegel's construction and the tropical cell complex. In the continuum the natural replacement is the closed-form machinery of Lu &amp; Parreiras (2017) for <strong>two-player asymmetric all-pay auctions</strong> — which is exactly what the final is, with the posteriors $(p,q)$ as the two type distributions.</p>
 
-<p><strong>H-functions and the tying function.</strong> For a posterior $\mu$ on $[\underline v,\bar v]$ define the value-space H-function
-$$H_\mu(v)\;:=\;\int_{[v,\bar v]}\frac{d\mu(u)}{u}\qquad(\text{decreasing, }H_\mu(\bar v)=0).$$
-In the LP equilibrium, bids are increasing in type on each side, at most one side carries a zero-bid atom (the side with the larger $H$ at the bottom: $C=H_p(\underline v)-H_q(\underline v)$ decides), and above the atom coverage each type $v$ <em>ties</em> — bids the same — as the opponent type $y_v$ solving the H-equality
+<h3>6.1 $H$-functions: the coordinate in which the final is trivial</h3>
+
+<p>For a probability measure $\mu$ on $[\underline v,\bar v]$ define the value-space <strong>$H$-function</strong>
+$$H_\mu(v)\;:=\;\int_{[v,\bar v]}\frac{d\mu(u)}{u}\qquad(\text{decreasing in }v,\ \ H_\mu(\bar v)=0).$$</p>
+
+<div class="panel">
+<p style="margin:0"><strong>What an $H$-function is, for a reader meeting one for the first time.</strong> It is not a CDF and it is not a hazard rate. It is the <em>inverse-value-weighted mass above $v$</em>, and it is the conserved coordinate of the asymmetric all-pay equilibrium: the two sides' first-order conditions, written in percentile coordinates, say precisely that $H$ is equalised across the two bidders at any common bid. Three properties make it the natural state variable here:</p>
+<ul style="margin:6px 0 0">
+<li><strong>It is a reputation index.</strong> $H_\mu(v)=0$ means $v$ is at the top of the believed support — nobody is believed to be above you; large $H_\mu(v)$ means a lot of believed mass sits above you, and (because of the $1/u$ weight) that mass is <em>cheap</em> mass, concentrated on low types. The maximum possible value is $H=1/\underline v$, attained only when the belief is the point mass $\delta_{\underline v}$.</li>
+<li><strong>It is blind downward.</strong> $H_\mu(v)$ integrates $\mu$ only over $[v,\bar v]$. Beliefs about types <em>below</em> $v$ are invisible to it. This one line is the whole triangularity story (§6.4).</li>
+<li><strong>It converts the two-sided equilibrium into one equation.</strong> Two types, one on each side, submit the same bid — <em>tie</em> — exactly when they share an $H$-level.</li>
+</ul>
+</div>
+
+<p>In the Lu–Parreiras equilibrium, bids are increasing in type on each side; at most one side carries a zero-bid atom (the side with the larger $H$ at the bottom — the sign of $C=H_p(\underline v)-H_q(\underline v)$ decides); and above the atom coverage each type $v$ ties with the opponent type $y_v$ solving the <strong>$H$-equality</strong>
 $$H_q(y_v)\;=\;H_p(v).$$
-Because bids increase in type, $v$ wins exactly against opponent types below its tie:</p>
+Because bids increase in type, $v$ wins exactly against opponent types below its tie. Hence:</p>
 
 <div class="panel key">
 <span class="tag key">the tying function is the win-probability map</span>
 $$\boxed{\;\Pr\big(v\ \text{wins final}\;\big|\;p,q\big)\;=\;P_q\big(H_q^{-1}(H_p(v))\big)\;}$$
-<p style="margin:6px 0 0">where $P_q$ is the <em>CDF of the opponent posterior</em> $q$ (not to be confused with the posterior curve $P(t)$). Types whose tie lands inside the opponent's atom-covered range win with probability $0$; the coverage cutoff is LP's $H_A(y^*)=H_N(0)$. $\Psi$-averaging over the opponent's quantile as in §3:</p>
+<p style="margin:6px 0 0">where $P_q$ is the <em>CDF of the opponent posterior</em> $q$ (not to be confused with the posterior curve $P(t)$). Types whose tie lands inside the opponent's atom-covered range win with probability $0$. $\Psi$-averaging over the opponent's quantile as in §3:</p>
 $$\mathcal W\big(v,P(t)\big)\;=\;\int_0^1 P_{q_s}\!\big(H_{q_s}^{-1}(H_{p_t}(v))\big)\,2s\,ds,
 \qquad p_t=P(t),\ q_s=P(s),$$
-<p style="margin:6px 0 0">with the $s$-integral split wherever $v$'s tie enters atom coverage — the continuum image of the discrete regime census. <strong>Levels too, not just slopes</strong>: $\Pi_2(v;p,q)=v\,P_q(H_q^{-1}(H_p(v)))-b(v)$ with the LP bid map $b(v)=\int_{[\,\cdot\,\le v]}y_u\,dp(u)$ — so both the derivative (the envelope's win probability) and the level (which the envelope alone cannot give) are closed-form. <span class="badge">lem:lpwinprob</span></p>
+<p style="margin:6px 0 0">with the $s$-integral split wherever $v$'s tie enters atom coverage — the continuum image of the discrete regime census. <strong>Levels too, not just slopes</strong>: $\Pi_2(v;p,q)=v\,P_q(H_q^{-1}(H_p(v)))-b(v)$ with the Lu–Parreiras bid map $b(v)=\int_{[\,\cdot\,\le v]}y_u\,dp(u)$ — so both the derivative (the envelope's win probability) and the level (which the envelope alone cannot give) are closed-form. <span class="badge">lem:lpwinprob</span></p>
 </div>
 
-<p><strong>Two one-line consequences</strong> (<span class="badge">cor:lptri</span>):</p>
-<ol>
-<li><strong>The Volterra property is an identity.</strong> $H_p(v)$ integrates $p$ only over $[v,\bar v]$ — it is <em>blind to the believed density below $v$</em>. So at any $v$ above the atom coverage,
-$$\gamma(v,w)\;:=\;\frac{\delta\mathcal W(v,P)}{\delta p(w)}\;=\;0\qquad(w\lt v).$$
-This is the continuum shadow of (TRI) (<span class="badge">conj:triK</span>) <em>proved</em>, not sampled — the very property §7 needs.</li>
-<li><strong>Cornering, hence $\mathcal W=1$ at entry.</strong> If $v\ge a_{\max}$ (top of own believed support) then $H_p(v)=0$, the tie lands at the top of the opponent's support, and the win probability is $P_q(\bar v_q)=1$ <em>pointwise in $q$</em> — <span class="badge">lem:corner</span> and the entry condition of §4, in one line.</li>
+<h3>6.2 The tying value is the derivative of the win probability</h3>
+<p class="sub">Two lines, and they carry the rest of the note. <span class="badge">lem:tievalue</span></p>
+
+<p>Fix an opponent posterior $q$ and give the two objects inside the box their own names, as functions of the $H$-level $h$ rather than of the type:
+$$y_q(h):=H_q^{-1}(h)\quad(\text{the \textbf{tying value}}),\qquad
+\chi_q(h):=P_q\big(y_q(h)\big)\quad(\text{the \textbf{win probability}}),$$
+both extended by $0$ for $h\gt H_q(\underline v_q)$ — the <em>atom-covered</em> range, where your tie would have to sit below the opponent's lowest type and you win nothing. Then $\chi_q$ is Lipschitz and decreasing with $\chi_q(0)=1$, and:</p>
+
+<div class="panel focus">
+<span class="tag focus">the identity everything downstream runs on</span>
+$$\boxed{\;\chi_q'(h)\;=\;-\,y_q(h).\;}$$
+<p style="margin:6px 0 0"><strong>The marginal cost of reputation is the type you tie with.</strong> Raise your believed $H$-level by $dh$ — look one notch weaker — and your final win probability falls by exactly the value of the opponent you were tying with. Both sides are pure equilibrium objects, and the relation holds for <em>every</em> opponent posterior, discrete or continuous.</p>
+</div>
+
+<p><strong>Derivation, in two differentiations and one cancellation.</strong></p>
+<ol class="steps">
+<li>Differentiate the $H$-function in its argument. With $q$ also denoting the density, $H_q(y)=\int_{[y,\bar v]}dq(u)/u$ gives $H_q'(y)=-q(y)/y$.</li>
+<li>Differentiate the CDF: $P_q'(y)=q(y)$.</li>
+<li>Divide, using $\chi_q=P_q\circ H_q^{-1}$:
+$$\frac{d\chi_q}{dh}=\frac{dP_q}{dH_q}=\frac{q(y)}{-q(y)/y}=-\,y .$$
+<strong>The density cancels.</strong> That is the whole point: the identity carries no information about $q$ beyond the tying value itself, so it survives every reparametrisation and — crucially — every <em>discretisation</em>. For a step measure $q$ it is the statement that the piecewise-linear percentile $H$-function has slope $-v_q(x)$. Past coverage both sides are $0$.</li>
 </ol>
 
-<p><strong>The kernel drops out by chain rule.</strong> From the definition, $\delta H_p(v)/\delta p(w)=\mathbf 1_{\{w\ge v\}}/w$, so differentiating the boxed formula through the $\Psi$-average:</p>
+<h3>6.3 (PAIR): the payoff difference, with no hypothesis at all</h3>
+
+<p>The boxed formula of §6.1 carries a hypothesis — $v$'s tie must land above the opponent's atom coverage. The <em>difference</em> form does not:</p>
+
+<div class="panel key">
+<span class="tag key">(PAIR) — unconditional</span>
+$$\boxed{\;\Pi_2(v;p,q)-\Pi_2(w;p,q)\;=\;\int_w^v\chi_q\big(H_p(x)\big)\,dx\;}$$
+<p style="margin:6px 0 0">for <em>any</em> $w\lt v$ — adjacent or not, on the grid or off it — with no assumption on atom coverage, spacing, or support. For a discrete $p$ it collapses to $\sum(u_k-u_{k-1})\chi_q(H_p(u_k))$ over grid types in $(w,v]$, and to the single term $(v-w)\chi_q(H_p(v))$ for an adjacent pair.</p>
+</div>
+
+<p><strong>Why it is unconditional</strong>, which is worth seeing because the exception one expects is the one that does not occur. There is a one-line proof and an elementary one, and both earn their keep.</p>
+
+<p><em>The one-line proof.</em> $\Pi_2(x;p,q)=\max_b[x\,H_2(b)-b]$ is a maximum of affine functions of $x$, hence convex and locally Lipschitz, so it equals the integral of its a.e.&nbsp;derivative; by the envelope theorem that derivative is the win probability at $x$'s optimal bid, which §6.1 evaluates as $\chi_q(H_p(x))$. This already covers $x\notin\operatorname{supp}p$ and atom-covered $x$.</p>
+
+<p><em>The elementary proof</em>, case by case, shows <em>why</em> no hypothesis is needed. Let $u\gt v$ be adjacent in $\operatorname{supp}p$ and let $b_j$ be the bid at the percentile boundary the two types share. Every bid in a type's range is optimal, so when both ranges are nondegenerate $\Pi_2(u)=u\,H_2(b_j)-b_j$ and $\Pi_2(v)=v\,H_2(b_j)-b_j$; subtracting gives $(u-v)H_2(b_j)$, and $H_2(b_j)=\chi_q(H_p(u))$ by the tying identity. Three degenerate configurations remain:</p>
+<ul>
+<li><strong>Both types covered.</strong> $\Pi_2(u)=\Pi_2(v)=0$ and $H_p(u)$ exceeds $q$'s total $H$-mass, so $\chi_q=0$. Both sides vanish. ✔</li>
+<li><strong>$v$ partly covered, $u$ not — the <em>straddling</em> pair, the only delicate case.</strong> Here $v$'s percentile range contains the atom cutoff, so $v$ is indifferent between bidding the atom (payoff $0$) and its active bids. Indifference forces $v\,H_2(b_j)=b_j$ <em>exactly</em>. Therefore $\Pi_2(u)-\Pi_2(v)=u\,H_2(b_j)-b_j-0=(u-v)H_2(b_j)$ once more. ✔ <em>This case was predicted to fail and does not</em> — the machine gate isolates $2{,}936$ straddling pairs and they pass at $8.9\times10^{-16}$.</li>
+<li><strong>$v$ fully covered.</strong> Forces $u$ covered as well, which is case one. ✔</li>
+</ul>
+
+<p>So the hypothesis "$v$ tied above the atom-covered range" in <span class="badge">lem:lpwinprob</span> is needed only for the <em>level</em> statement. The difference — hence, in the limit, the derivative $\mathcal W$ — needs no hypothesis at all. Everything in §§7–10 is built on differences, and therefore inherits none.</p>
+
+<h3>6.4 Two one-line consequences, and one discrete theorem</h3>
+
+<p><strong>(i) The Volterra property is an identity</strong> (<span class="badge">cor:lptri</span>). $H_p(v)$ integrates $p$ only over $[v,\bar v]$ — it is <em>blind to the believed density below $v$</em>. So at any $v$ above the atom coverage,
+$$\gamma(v,w)\;:=\;\frac{\delta\mathcal W(v,P)}{\delta p(w)}\;=\;0\qquad(w\lt v).$$
+Here $\delta/\delta p(w)$ is the functional (Gâteaux) derivative: the effect on $\mathcal W(v,\cdot)$ of adding an infinitesimal sliver of believed mass at type $w$. The property that this vanishes for $w\lt v$ is what makes the system <em>Volterra</em> rather than Fredholm — see §7.</p>
+
+<p><strong>(ii) Cornering, hence $\mathcal W=1$ at entry.</strong> If $v\ge a_{\max}$ (top of own believed support) then $H_p(v)=0$, the tie lands at the top of the opponent's support, and the win probability is $P_q(\bar v_q)=1$ <em>pointwise in $q$</em> — <span class="badge">lem:corner</span> and the entry condition of §4, in one line.</p>
+
+<div class="panel key">
+<span class="tag key">(TRI) is now a theorem at every $K$ — not a conjecture</span>
+<p style="margin-top:4px">The discrete original of (i) used to be the conjecture (TRI): shifting believed mass onto $u_j$ moves $\Pi_2(v)$ by the same amount for every $v\ge u_j$. Run the same argument on (PAIR) — the chart direction $e_j$ moves mass from $u_1$ to $u_j$, so $H_p(x)$ is unchanged for every $x\gt u_j$, so the $e_j$-derivative of $\Pi_2(u)=\Pi_2(u_1)+\int_{u_1}^{u_j}+\int_{u_j}^{u}$ is independent of $u$ for $u\ge u_j$ — and the conjecture becomes a theorem, with the gradient <em>explicit</em>:</p>
+$$\Gamma_{ji}=\frac{\partial D_{u_iu_{i-1}}}{\partial e_j}
+=-\,(u_i-u_{i-1})\;y_q\big(H_p(u_i)\big)\;\frac{\mathbf 1_{\{j\ge i\}}}{u_j},
+\qquad
+\Gamma_{ii}=-\,\frac{(u_i-u_{i-1})\,y_q(H_p(u_i))}{u_i}\;\lt\;0 ,$$
+<p style="margin:6px 0 0">for every $K$, every value vector, every pair of posteriors and every cell of the Round-2 complex — no assumption on spacing, on which types carry mass, or on the cell. The pivot vanishes exactly when $u_i$ is atom-covered against $q$. <span class="badge">thm:triLP</span> (the label <code>conj:triK</code> is retained only as an alias). Note the tying value $y_q$ appearing as the pivot: <em>the discrete cascade matrix is built from §6.2's identity</em>, which is why the same object governs both theories.</p>
+</div>
+
+<h2>7. The cascade kernel, certified — and why there is no march</h2>
+<p class="sub">The kernel is explicit, its boundary term is real and pinned, and the operator inverts. <span class="badge">lem:volterrakernel</span>, <span class="badge">prop:kernelinv</span></p>
+
+<h3>7.1 The $\Psi$-averaged objects</h3>
+
+<p>Write $h_v(t):=H_{p_t}(v)$ for type $v$'s own $H$-level at rung $t$ — from here on <em>the</em> state variable — and average §6.2's two objects over the opponent's quantile law:
+$$\bar\chi(h):=\int_0^1\!\chi_{q_s}(h)\,2s\,ds,\qquad
+\bar y(h):=\int_{S(h)}\!y_{q_s}(h)\,2s\,ds,\qquad
+S(h):=\{s:\,h\le H_{q_s}(a_{\min}(s))\},$$
+where $q_s:=P(s)$. The set $S(h)$ is the set of opponent rungs against which level $h$ is <em>not</em> atom-covered — outside it there is no tie to speak of, so nothing to average. Then §6.1 and §6.2 give at once
+$$\mathcal W\big(v,P(t)\big)=\bar\chi\big(h_v(t)\big),\qquad \bar\chi(0)=1,\qquad \bar\chi'=-\bar y\lt0 ,$$
+and (FI-loc) becomes a scalar relation between the state and the rung:
+$$\text{(MASTER)}\qquad t\;\bar\chi\big(h_v(t)\big)\;=\;U'(v).$$
+This is the single most useful equation in the note. Everything below is (MASTER) differentiated in one variable or the other.</p>
+
+<h3>7.2 The kernel, by chain rule</h3>
+
+<p>From the definition, $\delta H_p(v)/\delta p(w)=\mathbf 1_{\{w\ge v\}}/w$ — adding mass at $w$ raises $v$'s $H$-level iff $w$ sits above $v$, by the weight $1/w$. Composing with $\bar\chi'=-\bar y$:</p>
 
 <div class="panel focus">
 <span class="tag focus">the explicit cascade kernel</span>
-$$\gamma(v,w)\;=\;\bar\chi'\big(H_{p_t}(v)\big)\,\frac{\mathbf 1_{\{w\ge v\}}}{w},
-\qquad
-\chi_s:=P_{q_s}\circ H_{q_s}^{-1},\quad
-\bar\chi'(h):=\int_0^1\chi_s'(h)\,2s\,ds\;\;(\lt 0).$$
-<p style="margin:6px 0 0">A <strong>bounded</strong> kernel with a single <strong>jump</strong> at the diagonal $w=v$ — <em>no Dirac mass</em>. The sign is right: adding believed mass above $v$ lowers $v$'s win probability. This is the candidate answer to brief 2's diagonal-scaling question; §7 spells out what it means for the march.</p>
+$$\boxed{\;\gamma(v,w)\;=\;\frac{\delta\mathcal W(v,P)}{\delta p(w)}
+\;=\;-\,\bar y\big(h_v(t)\big)\,\frac{\mathbf 1_{\{w\ge v\}}}{w}\;}$$
+<p style="margin:6px 0 0"><strong>Bounded</strong> (by $\bar v/\underline v$), <strong>vanishing below the diagonal</strong> (§6.4(i)), with a single <strong>jump</strong> at $w=v$ and <strong>no Dirac mass</strong>. The sign is right: believed mass added above $v$ lowers $v$'s win probability, and it does so at the rate of the tying value.</p>
 </div>
 
-<h2>7. The Volterra outlook — the cascade in the limit</h2>
-<p class="sub">Kernel explicit via §6; the bookkeeping is brief <code>2026-07-29-2</code>. <span class="badge">rem:volterra</span></p>
+<p><strong>The system, with the term the first draft omitted.</strong> Differentiate (MASTER) in $t$ at fixed $v$. The $s$-slot of the $\Psi$-average integrates over <em>all</em> $s$ and does not move with $t$, so only the own-posterior slot differentiates; and $h_v(t)=\int_v^{a_{\max}(t)}p_t(w)\,dw/w$ carries a <em>moving upper limit</em>. Leibniz:</p>
+$$\partial_th_v(t)=\underbrace{\int_v^{a_{\max}(t)}\frac{\partial_tp_t(w)}{w}\,dw}_{\text{cascade}}
+\;+\;\underbrace{\frac{p_t\big(a_{\max}(t)\big)\,\dot a_{\max}(t)}{a_{\max}(t)}}_{\text{entry flux}},$$
+$$\text{so}\qquad
+\bar\chi'\big(h_v(t)\big)\Big[\text{cascade}+\text{entry flux}\Big]\;=\;-\,\frac{U'(v)}{t^{2}}
+\qquad\text{(one equation per active }v).$$
 
-<p>Differentiate (FI-loc) in $t$, one equation per active $v$ — the $s$-slot of the $\Psi$-average integrates over <em>all</em> $s$ and does not move with $t$, so only the own-posterior slot differentiates:
-$$\int_v^{a_{\max}(t)}\gamma(v,w)\,\partial_t p_t(w)\,dw\;=\;-\,\frac{U'(v)}{t^2},$$
-where $\gamma(v,w)=\delta\mathcal W(v,P)/\delta p(w)$ is the §6 kernel — the continuum image of the cascade matrix $\Gamma(t)$ (<span class="badge">thm:tricascade</span>) — and the lower limit $w=v$ is the Volterra property, proved in §6. How the two discrete structures pass to the limit:</p>
+<div class="panel warn">
+<span class="tag warn">correction — the entry flux is not optional</span>
+<p style="margin-top:4px">The first draft of this note wrote the displayed equation <em>without</em> the entry-flux term, i.e.&nbsp;as $\int_v^{a_{\max}}\gamma(v,w)\,\partial_tp_t(w)\,dw=-U'(v)/t^2$. That is wrong: $p_t(a_{\max}(t))\gt0$, because the entering type carries zero <em>mass</em> but positive <em>density</em> — which is precisely why entry is continuous in $P$ yet kinked. The omission is not harmless bookkeeping, and §7.4 shows it is in fact a consistency check the structure passes.</p>
+</div>
 
+<h3>7.3 Two bookkeeping items, both settled</h3>
+
+<p><strong>(i) No Leibniz terms from the moving atom-coverage split.</strong> The $s$-integral defining $\bar y$ <em>does</em> split — rungs in $S(h)$ contribute a tie, rungs outside contribute $0$ — and the split point <em>does</em> move with $p_t$. One expects a Leibniz term. There is none, because the integrand is <em>continuous across the split</em>: as $h\uparrow H_{q_s}(a_{\min}(s))$ the tying value reaches $a_{\min}(s)$, the bottom of the opponent's support, and $\chi_s\to P_{q_s}(a_{\min}(s))=0$ — exactly the value of the extension. Under (CONT) every $q_s$ is a density, so it has no atom at the bottom of its support and this is exact. <strong>The boundary is a zero of the integrand, not a jump of it.</strong></p>
+
+<div class="panel mirror">
+<span class="tag mirror">why the discrete theory cannot use derivatives</span>
+<p style="margin-top:4px">The contrast is instructive and explains a structural feature of the whole project. A bottom atom of mass $\alpha\gt0$ in $q_s$ would make $\chi_s$ <em>jump</em> by $\alpha$ at coverage, putting a Dirac into $\bar\chi''$. That is exactly the discrete situation — discrete posteriors are atomic by construction — and exactly why the discrete theory runs on the finite differences of §6.2's (PAIR) rather than on derivatives of $\bar\chi$. Same identity, two regularity regimes.</p>
+</div>
+
+<p><strong>(ii) The entry flux is real, and its value is not free.</strong> Evaluate the displayed system at the top active type $v=a_{\max}(t)$. There the cascade integral is empty and $h_{a_{\max}}=0$, so $\bar\chi'(0)=-\bar y(0)$ and the equation reads $-\bar y(0)\cdot(\text{entry flux})=-U'(a_{\max}(t))/t^2$. But $U'(a_{\max}(t))=t$ by the entry curve (§4). Hence</p>
+$$\frac{p_t(a_{\max})\,\dot a_{\max}}{a_{\max}}
+\;=\;\frac{1}{t\,\bar y(0)},
+\qquad \bar y(0)=\int_0^1 a_{\max}(s)\,2s\,ds .$$
+<p>The term is <em>independent of $v$</em>, so §7.4's inversion annihilates it; and its value is pinned by the structure. §10 recovers the same constant by an entirely independent route — the $h=0$ boundary value of the kernel self-consistency relation (R3) — so the entry flux is <strong>a consistency check the structure passes</strong>, not an extra unknown.</p>
+
+<h3>7.4 The kernel inverts: there is no march</h3>
+
+<div class="panel">
+<p style="margin:0"><strong>Volterra of the first and second kind, for the reader who has not met the distinction.</strong> An integral equation is <em>Volterra</em> when the kernel vanishes on one side of the diagonal, so that the value of the unknown at $v$ depends only on its values on one side of $v$ — the integral operator is "triangular". It is of the <strong>first kind</strong> when the unknown appears only inside the integral, $\int k(v,w)\phi(w)\,dw=\psi(v)$; such equations are typically ill-posed, since the operator smooths and the inverse must differentiate. It is of the <strong>second kind</strong> when the unknown also appears outside, $c(v)\phi(v)+\int\ldots=\psi(v)$ with $c\ne0$; those are well-posed and solvable by a convergent Neumann series, which is the analyst's version of "march from the boundary". The draft of this note classified our system as first kind as written, second kind after one $\partial_v$, and proposed to march it downward from $a_{\max}(t)$. That classification is right; the march is unnecessary.</p>
+</div>
+
+<p>Write the cascade operator explicitly:
+$$(\mathcal I\varphi)(v):=\int_v^{a_{\max}(t)}\varphi(w)\,\frac{dw}{w},
+\qquad\text{so that}\qquad
+\gamma=\operatorname{diag}\big(-\bar y\big)\circ\mathcal I .$$
+Then $\partial_v(\mathcal I\varphi)(v)=-\varphi(v)/v$, i.e.
+$$\boxed{\;(\mathcal I^{-1}\psi)(v)\;=\;-\,v\,\psi'(v).\;}$$
+The operator is not merely triangular with a nonzero diagonal — it is <strong>explicitly invertible, and its inverse is adjacent differencing</strong>. Consequently the system needs no march at all: one differentiation in $v$ solves it, and the result integrates. Better still, one does not even need the $t$-derivative:</p>
+
+<div class="panel focus">
+<span class="tag focus">the cascade, integrated</span>
+<ol class="steps">
+<li><strong>The state, from (MASTER).</strong> $t\,\bar\chi(h_v(t))=U'(v)$ and $\bar\chi$ is strictly decreasing where $\bar y\gt0$, hence invertible:
+$$\boxed{\;h_v(t)\;=\;\bar\chi^{-1}\!\Big(\frac{U'(v)}{t}\Big).\;}$$</li>
+<li><strong>The density, by differentiating (MASTER) in $v$ at fixed $t$.</strong> The definition of $H$ gives $\partial_vh_v(t)=-p_t(v)/v$, so
+$$t\,\bar\chi'(h_v)\,\partial_vh_v=U''(v)
+\quad\Longrightarrow\quad
+t\,\big(-\bar y(h_v)\big)\Big(\!-\frac{p_t(v)}{v}\Big)=U''(v),$$
+$$\boxed{\;p_t(v)\;=\;\frac{v\,U''(v)}{t\;\bar y\big(h_v(t)\big)} .\;}\qquad\text{(DENS)}$$</li>
+<li><strong>The boundary value is the entry curve.</strong> $\bar\chi(0)=\int_0^1\chi_s(0)\,2s\,ds=\int_0^12s\,ds=1$, so $h_v(t)=0\iff U'(v)/t=1\iff t=U'(v)=t_e(v)$. The closed form <em>contains</em> §4 and §6.4(ii) as its boundary value rather than assuming them.</li>
+</ol>
+</div>
+
+<p><strong>Consistency of the two routes is automatic</strong>, and this is where §7.3(ii)'s boundary term goes: $\partial_tp_t=-v\,\partial_v(\partial_th_v)$, and the entry flux, being $v$-independent, is annihilated by $\partial_v$. That is the precise sense in which the omitted term could not have disturbed the march — but it is a theorem, not an excuse for the omission.</p>
+
+<p><strong>No limit interchange is required anywhere</strong>, which was the third loose end of the draft. (FI-loc) is proved <em>directly</em> by Milgrom–Segal (§2), not as a $u\to v$ limit of the pair relations, so no exchange of $u\to v$ with $\partial_t$ is ever invoked. What the $t$-derivative needs is $\bar\chi\in C^1$ with $\bar\chi'\ne0$, and both hold on the support: each $\chi_s$ is Lipschitz uniformly in $s$ (§6.2), and $\bar\chi'=-\bar y\lt0$ strictly whenever $U'(v)\gt0$, since $\bar\chi(h_v)=U'(v)/t\gt0$ already forces $|S(h_v)|\gt0$.</p>
+
+<h3>7.5 What this does to the discrete cascade</h3>
+
+<p>The discrete kernel inherits the same factorisation. With $u_\ell$ the grid types, <span class="badge">thm:triLP</span>'s gradient reads
+$$\Gamma_{m\ell}=-(u_m-u_{m+1})\,y_q\big(H_p(u_m)\big)\,\frac{\mathbf 1_{\{\ell\le m\}}}{u_\ell},
+\qquad\text{i.e.}\qquad
+\Gamma=\operatorname{diag}(a)\;T\;\operatorname{diag}(1/u)$$
+with $T$ the unit upper-triangular all-ones matrix — the discrete image of $\mathcal I$. So the triangular cascade's "$K-1$ scalar ODEs marched column by column" (<span class="badge">thm:tricascade</span>) sharpens to <strong>adjacent differencing in closed form</strong>:
+$$\Lambda_m=-\frac{k_m}{t^2a_m},\qquad
+P'_{u_\ell}=u_\ell\big(\Lambda_\ell-\Lambda_{\ell-1}\big)\ \ (\ell\le K-2),
+\qquad P'_{u_{K-1}}=-\!\!\sum_{\ell\lt K-1}\!P'_{u_\ell},$$
+with no back-substitution loop and no error accumulation; verified to $3.3\times10^{-11}$ against a dense solve (<span class="badge">rem:tridiff</span>). What survives of the cascade is only the <em>nonlinear</em> dependence of $a_m$ on the current $p_t$.</p>
+
+<p><strong>A closed loop worth recording.</strong> The certified kernel reproduces the floor ladder's signature <em>without calling a Round-2 solver at all</em> (<span class="badge">rem:kernelladder</span>): computing $t\,D_{HM}$ on the repaired $K=3$ runs purely through $\bar\chi$ — posteriors from the run, $\Psi$-average by Gauss–Legendre — returns the plateau $D_{HM}\equiv1$ at low $t$ (the cornering fact, which needs the type inactive), breaking inside the already-recorded kink bracket, and above the break $t\,D_{HM}\approx0.35$–$0.38$ against $U_H-U_M=0.3331$. The $5$–$14\%$ level error is quadrature on a coarse grid applied to an unconverged profile, not formula error: against the exact solver the kernel matches pointwise to $5.6\times10^{-16}$.</p>
+
+<h2>8. The frontiers, located</h2>
+<p class="sub">The three questions §5 deferred, answered in order — plus the exit curve's own differential equation.</p>
+
+<h3>8(a). Exit is located by normalisation, not by a vanishing density</h3>
+<p class="sub"><span class="badge">cor:exitnorm</span></p>
+
+<p>Since $\bar y\le\bar v\lt\infty$, (DENS) gives $p_t\big(a_{\min}(t)^+\big)\gt0$ wherever $U''\gt0$: <strong>the posterior density does not vanish at the exit frontier</strong>. It leaves with a jump. §5's guessed locating condition is therefore withdrawn. What locates the frontier is the only condition left once $p_t$ is pinned pointwise — <em>normalisation</em>, $\int p_t=1$ — and it becomes clean in the $H$-coordinate. Substituting $dh=-p_t(v)\,dv/v$ (the defining relation of $H$, i.e. step 2 of §7.4 read backwards):</p>
+
+<div class="panel key">
+<span class="tag key">the free boundary, in one scalar equation per rung</span>
+$$\boxed{\;\int_0^{h_*(t)}(U')^{-1}\!\big(t\,\bar\chi(h)\big)\,dh\;=\;1,
+\qquad h_*(t):=H_{p_t}\big(a_{\min}(t)\big),\;}$$
+<p style="margin:6px 0 0">one scalar equation per $t$, determining $h_*(t)$, after which $a_{\min}(t)=(U')^{-1}\big(t\,\bar\chi(h_*(t))\big)$ and $t_x=a_{\min}^{-1}$. The integrand is $v(h,t)=(U')^{-1}(t\bar\chi(h))$ — the type sitting at $H$-level $h$ when the rung is $t$, read straight off (MASTER) — so the equation says: <em>integrate the types over their own $H$-levels from the top of the active band ($h=0$, where $v=a_{\max}$) down to the frontier, and stop when you have collected unit mass.</em> The integrand is positive, so the left side is strictly increasing in the upper limit and the root is unique.</p>
+</div>
+
+<p><strong>The jump is structural, not numerical.</strong> What makes $p_t(a_{\min}^+)\gt0$ is $\bar y(h_*(t))\gt0$, and that follows from $S(h_*(t))=[0,t]$ — i.e.&nbsp;from $h_*$ being <em>decreasing</em>, so that every earlier rung's opponent still ties $a_{\min}(t)$ strictly inside its range. This page originally argued that monotonicity informally ("as $s$ rises the support slides up and $1/u$ shrinks"). <strong>It is now derived</strong>, by differentiating the boxed equation above and nothing else (<span class="badge">lem:hstarode</span>, §10.2). That matters out of proportion to its size: three separate results were leaning on it — $S(h)=[0,s(h)]$, which is how (R3) is written at all; "rungs above $t$ enter the equation at $t$" (<span class="badge">rem:global</span>); and this jump. On the repaired $K=3$ family the machine check agrees: $\bar y\in[1.000,2.954]$ over every visited $h$ — the kernel does not degenerate at either frontier.</p>
+
+<h3>8(b). The leaver jumps and the survivors are $C^1$ — both, of different objects</h3>
+<p class="sub"><span class="badge">rem:exitjump</span></p>
+
+<p>This looked for a while like a contradiction inside the project: the continuum says the density jumps at exit, while <span class="badge">prop:sliver</span> asserts a $C^1$ crossing. The resolution is to write (DENS) as an <em>analytic branch times a support indicator</em>:</p>
+$$p_t(v)\;=\;\pi(v,t)\,\mathbf 1_{\{a_{\min}(t)\le v\le a_{\max}(t)\}},\qquad
+\pi(v,t):=\frac{v\,U''(v)}{t\,\bar y\big(h_v(t)\big)},\quad
+h_v(t)=\bar\chi^{-1}\big(U'(v)/t\big).$$
+<p>The branch $\pi$ is <strong>frontier-free</strong>: neither $a_{\min}$ nor $a_{\max}$ occurs in it, and it is defined and continuous on a neighbourhood of the closed band, since there $\bar y$ is bounded away from $0$. Three consequences:</p>
 <ol>
-<li><strong>(TRI) becomes the Volterra property — proved.</strong> The level form (<span class="badge">lem:tricell3</span>, <span class="badge">conj:triK</span>) — shifting believed mass onto $u_j$ moves $\Pi_2(v)$ by the same amount for every $v\ge u_j$ — becomes $\gamma(v,w)=0$ for $w\lt v$, and via LP this is the identity of §6: $H_p(v)$ is blind to $p$ below $v$. The route recorded for the discrete conjecture (in Siegel's top-down sweep, own mass below $v$ enters the opponent's CDF only through its total) is the same argument in Siegel clothing.</li>
-<li><strong>The $\psi$-free spike is the shadow of a jump, not of a Dirac delta.</strong> In the $\psi$-free form (<span class="badge">lem:psifree</span>), $\Gamma=\bar G^\top L^\top$ with $L$ the fixed neighbour-differencing operator, and differencing an indicator gives one spike: $L\,\mathbf 1_{\{v\ge u_j\}}=\varepsilon_j$, which is what puts the pivot on the diagonal. In the limit the kernel itself <em>keeps</em> the indicator: $\gamma\propto\mathbf 1_{\{w\ge v\}}/w$, a bounded <strong>jump</strong> at the diagonal. A Dirac mass appears only when the <em>equation</em> is differentiated once more in $v$ — the continuum image of adjacent-pair differencing, which is exactly the operation that produced the discrete pivot.</li>
+<li><strong>At an exit, every discontinuity is the indicator, not the profile.</strong> At $v=a_{\min}(t)$ one has $\pi\gt0$, so $p_t$ jumps in $v$; at fixed $v$, as $t$ crosses $t_x(v)$, $p_t(v)$ falls from $\pi(v,t_x(v))\gt0$ to $0$. The discontinuity is carried entirely by $\mathbf 1$ — a fact about the <em>support</em>, not about the analytic expression for the mass.</li>
+<li><strong>Hence the exiting type's own share need not be $C^1$ across its exit rung, and need not vanish there.</strong></li>
+<li><strong>The surviving types' shares are unaffected</strong> — which is exactly what <span class="badge">prop:sliver</span> asserts, and all it asserts. Its conclusion "$h$ is $C^1$ across $\beta_L$" is about the <em>High</em> share, by the argument that the governing equation above $\beta_L$ does not reference $\beta_L$ — the discrete image of $\pi$ being frontier-free. It says nothing about Low.</li>
 </ol>
 
 <div class="panel mirror">
-<span class="tag mirror">the form of the march</span>
-<p style="margin-top:4px">As written above, the system is <strong>first-kind</strong> Volterra with the jump kernel of §6. One further differentiation in $v$ converts the jump into a local term ($a_{\max}(t)$ does not depend on $v$):</p>
-$$-\,\gamma(v,v)\,\partial_t p_t(v)\;+\;\int_v^{a_{\max}(t)}\partial_v\gamma(v,w)\,\partial_t p_t(w)\,dw
-\;=\;-\,\frac{U''(v)}{t^{2}},
-\qquad
-\gamma(v,v)=\frac{\bar\chi'\big(H_{p_t}(v)\big)}{v}\;\neq\;0:$$
-<p style="margin:6px 0 0">a <strong>second-kind Volterra integro-differential system</strong> with a nonvanishing diagonal coefficient, marched <em>downward from the top</em> $v=a_{\max}(t)$ — the continuum image of the triangular cascade's column-by-column march, with the top-type monotonicity (<span class="badge">cor:topmono</span>) as the boundary behaviour. <strong>Left to brief <code>2026-07-29-2</code>:</strong> the role/atom bookkeeping through the $\Psi$-average (the $s$-split points of §6 move with $p_t$ — Leibniz terms), the entry-flux boundary terms at $w=a_{\max}(t)$, the limit interchange, the behaviour of $\bar\chi'$ at the exit frontier $w\to a_{\min}(t)$ (standing rule of §5), and a machine gate against the discrete $\Gamma$ from <code>siegel_ipv.py</code>.</p>
+<span class="tag mirror">how the discrete and continuum readings coexist</span>
+<p style="margin-top:4px">The two statements are about different objects and both are true. The discrete $P_{u_1}(t)$ is the <em>mass</em> carried by one type; the continuum $p_t(v)$ is a <em>density in $v$</em>. A single type carries zero mass in the continuum, so "the density at the frontier is positive" and "the leaver's share reaches zero" are perfectly compatible — the leaver's share is the mass of a sliver that is itself shrinking to nothing.</p>
+<p style="margin:6px 0 0">The discrete side is now settled in both branches. <span class="badge">lem:exitlevels</span> shows the surviving pairs' first integrals pin the crossing completely: every surviving $H$-level is continuous, and the leaver's share $c:=P_{u_1}(t_X^-)$ transfers <em>entirely to the new bottom type</em>, so all tails are nondecreasing across the exit and FOSD survives with <em>no tangency hypothesis</em> — in either branch, $c=0$ (share reaches zero) or $c\gt0$ (share jumps). Which branch occurs is then a fact about the solved system, not an assumption: at $K=3$ the exit is located by $P_L(t_X)=0\iff w_2(t_X)=t_X$ at $t_X=0.860\,801$ (<span class="badge">lem:k3exit</span>, <span class="badge">cor:k3constants</span>), i.e. $c=0$; at general $K$ the locating equation is $\sum_{l\le j-1}P_l(x)=0$, and its root is <strong>simple</strong> — the contact is transversal, exponent $1$ and not $2$ (<span class="badge">thm:transexit</span>). So the discrete share reaches zero <em>linearly</em>, not tangentially in the second-order sense; the earlier run-based readings of a nonzero share at exit were grid-limited (<span class="badge">rem:k3tX</span>) and are void.</p>
 </div>
 
-<h2>8. The system assembled, and the three briefs</h2>
-<p class="sub">Unknowns, equations, and where each open piece lives.</p>
+<p><strong>The asymmetry of §5, re-stated in the right currency.</strong> Entry versus exit is about which crossings generate an <em>algebraic relation</em> — entries do, exits cannot — <em>not</em> about which are smooth. In the currency of smoothness the two frontiers are alike: the crossing type's density jumps at both, with entry exponent $\alpha=0$ (<span class="badge">prop:k3cascade</span>) and $\pi\gt0$ at exit.</p>
+
+<h3>8(c). The exit curve has an ODE, driven by the entry curve</h3>
+<p class="sub">New: the discrete exit-location programme hands the continuum a differential law. <span class="badge">cor:exitspacing</span></p>
+
+<p>The discrete Phase-G analysis locates each exit by a single quadrature over a window known in advance. Two symbols are needed, both local to one row $j$ of the ladder (<span class="badge">lem:ywindow</span>, <span class="badge">lem:bandformm</span>):</p>
+<ul>
+<li>$\kappa_j:=C_j/v_j\in(0,1)$, where the row's $\Psi$-averaged tying value is $\bar y=v_j-C_jt^2$ with $C_j=\sum_{i\le j}d_i(t_i/t_j)^2$ and $d_i=v_i-v_{i-1}$ the value gaps. So $\kappa_j$ is the <em>curvature-to-value ratio</em>: how fast the tying value falls with the rung, relative to the row's own value.</li>
+<li>$g_j(u):=u^2S_j(u)/t_j\ge0$ with $S_j(u)=\sum_{i\gt j,\,t_i\lt u}d_it_i/\bar Y_i(u)$ — the <em>drag</em> exerted by the rows above $j$ that are already active, each contributing its value gap times its entry rung, divided by its own tying value. It is non-decreasing along the band: rows only switch on as $u$ grows.</li>
+</ul>
+<p>In the variable $Y=u/t$ the band runs over the <em>fixed</em> window $[1,Y_0]$ with $Y_0=t_{j+1}/t_j$ — the rung ratio — and the exit is the diagonal crossing $Y=1$, with
+$$(\mathrm{LOG}_j)\qquad \log\frac{x_j}{x_{j-1}}=\int_1^{Y_0}\frac{Y^2\,dY}{Y^3+g_j(u(Y))\big(Y^2-\kappa_j\big)} .$$
+Now let consecutive rungs close, $Y_0\downarrow1$ — which is exactly the continuum limit, since $Y_0-1=(t_{j+1}-t_j)/t_j$ is the relative rung spacing. Expanding the integrand at $Y=1$:</p>
+
+<div class="panel key">
+<span class="tag key">exit spacing is entry spacing, damped</span>
+$$\log\frac{x_j}{x_{j-1}}
+=\frac{Y_0-1}{1+g_j(u_0)\big(1-\kappa_j\big)}+O\big((Y_0-1)^2\big),
+\qquad\text{whence in the limit}\qquad
+\boxed{\;\frac{d\log x}{dv}=\frac{1}{1+g\,(1-\kappa)}\;\frac{d\log t}{dv}.\;}$$
+<p style="margin:6px 0 0">A <strong>first-order ODE for the exit curve, driven by the entry curve.</strong> Read it as economics: the exit frontier moves in the same direction as the entry frontier and by the same relative amount, <em>damped</em> by the factor $1+g(1-\kappa)$. The damping is the drag of the already-active rows above ($g$) weighted by how much room the tying value still has to fall ($1-\kappa$). With no rows above and no drag, $g=0$: exit spacing equals entry spacing exactly. Every active row above tightens the exit relative to the entry.</p>
+</div>
+
+<p><strong>What this does and does not add.</strong> It does not add an equation to §10's count — $t_x$ is an <em>output</em> there, pinned by §8(a)'s normalisation — so this law is a <em>consistency relation</em> that any solution must satisfy, and it sharpens rather than contradicts squareness. Its practical value is that it is the only <em>local</em> statement about the exit frontier we have: everything else about exit location is either a closed form at the very top of the ladder, a certified bracket, or an asymptotic at the exit's own birth, with <em>nothing elementary in between</em> (<span class="badge">rem:q16</span>). It is a first-order law, so it is informative only where the spacing is small: over the random-ladder sweep the worst relative error falls $1.6\times10^{-2}\to2.1\times10^{-3}\to2.6\times10^{-4}$ as the cut $Y_0-1\lt0.3,\,0.1,\,0.03$ tightens — an envelope exponent $\approx1.8$, consistent with the claimed $O((Y_0-1)^2)$.</p>
+
+<p><strong>It now has a continuum counterpart, derived from the other side.</strong> §10.2 differentiates the exit normalisation (R1) directly and reaches the same shape without ever touching the ladder: $d\log t_x/d\log t_e=1/(1+\Delta)$ with $\Delta\ge0$ an explicit integral (<span class="badge">cor:exitelas</span>). Term by term $\Delta$ <em>is</em> $g(1-\kappa)$ — the sum over active rows above becomes an integral over active types above, the value gap $d_i$ becomes $dw$, the entry rung $t_i$ becomes $U'(w)$ — with one scalar factor still unreconciled. So this law is on its way from "a consistency relation any solution must satisfy" to "a relation the continuum system implies", which is a stronger status; what stands between the two is <span class="badge">rem:exitelasdict</span>.</p>
+
+<h3>8(d). The bottom: where the kernel degenerates, and why that is the right place</h3>
+<p class="sub"><span class="badge">rem:bottomsing</span></p>
+
+<p>$\bar y(h)\to0$ exactly as $h\uparrow h^{\max}:=\sup_sH_{q_s}(a_{\min}(s))$ — i.e.&nbsp;where the type is atom-covered in the final against <em>every</em> opponent quantile. By (MASTER) that happens iff $U'(v)/t=\bar\chi(h)=0$, i.e.&nbsp;only at the bottom type:
+$$\boxed{\;U'(\underline v)=0.\;}$$
+So the sole degeneracy of the kernel sits at $\underline v$, and it is precisely the continuum shadow of the zero-atom IC $\mathcal W(\underline v,p_0)=0$ (<span class="badge">lem:atomIC</span>): <strong>the bottom type wins the tournament with probability zero because it is covered everywhere.</strong> Since $p_t\propto1/\bar y$, the density blows up there; the question is with what exponent, and whether mass is lost.</p>
+
+<p><strong>The recorded answer was a dichotomy — and it can now be collapsed.</strong> <span class="badge">rem:bottomsing</span> records $(v-\underline v)^{-1/2}$ if $s\mapsto H_{q_s}(a_{\min}(s))=h_*(s)$ attains its maximum at an <em>endpoint</em>, $(v-\underline v)^{-1/3}$ if at an <em>interior</em> $s$. Two facts already proved above decide it:</p>
+<ol class="steps">
+<li><strong>$h_*$ is decreasing in $s$</strong> — no longer an assertion but a theorem, <span class="badge">lem:hstarode</span> (§10.2) — so the maximiser is the endpoint $s=0$ and the interior branch is dead. Note the order of business: this step is what makes the whole dichotomy collapse, and until 2026-08-01 it was resting on a sentence in §8(a).</li>
+<li><strong>The endpoint is $s=0$, where the $\Psi$-weight $2s\,ds$ vanishes.</strong> This is what the recorded endpoint branch missed: it measured $S(h)$ by its <em>length</em>, giving $\bar y\asymp|S(h)|\asymp(h^{\max}-h)$. But $S(h)=[0,s(h)]$ and the weight kills two more powers,
+$$\bar y(h)=\int_0^{s(h)}y_s(h)\,2s\,ds\;\sim\;\underline v\,s(h)^2 ,$$
+because $y_s(h)\to\underline v$ as $s\to0$ (the band pinches onto $\underline v$, §8(e)). So the exponent is $2$, not $1$.</li>
+</ol>
+
+<div class="panel guess">
+<span class="tag guess">G1 — bottom exponents</span>
+<p style="margin-top:4px">Posit $U'(v)\sim c\,(v-\underline v)^{\theta}$ as $v\downarrow\underline v$ (some $\theta\gt0$, since $U'(\underline v)=0$) and run it through the closed forms.</p>
+<ol class="steps">
+<li><strong>Rate at which the frontier reaches the top $H$-level.</strong> Expand (R1) about $t=0$, where the integrand tends to $\underline v$:
+$$\frac1{\underline v}-h_*(t)=\frac1{\underline v}\int_0^{h_*}\!\!\big[v(h,t)-\underline v\big]dh
+\;\sim\;A\,t^{1/\theta},\qquad
+A=\frac1{\underline v}\Big(\tfrac1c\Big)^{1/\theta}\!\!\int_0^{1/\underline v}\!\!\bar\chi(h)^{1/\theta}dh .$$
+Inverting, $s(h)\sim\big((h^{\max}-h)/A\big)^{\theta}$.</li>
+<li><strong>Hence the kernel's decay.</strong> $\bar y(h)\sim\underline v A^{-2\theta}(h^{\max}-h)^{2\theta}$, and integrating $\bar\chi'=-\bar y$ from $\bar\chi(h^{\max})=0$,
+$$\bar\chi(h)\sim B\,(h^{\max}-h)^{2\theta+1},\qquad B=\frac{\underline v\,A^{-2\theta}}{2\theta+1}.$$</li>
+<li><strong>Hence the state and the density.</strong> (MASTER) says $\bar\chi(h_v(t))=U'(v)/t$, so inverting step&nbsp;2's $\bar\chi\sim B\varepsilon^{2\theta+1}$ at $\varepsilon=h^{\max}-h_v(t)$,
+$$h^{\max}-h_v(t)\;\sim\;\Big(\frac{c\,(v-\underline v)^{\theta}}{tB}\Big)^{1/(2\theta+1)}
+\qquad\Longrightarrow\qquad
+\bar y\big(h_v(t)\big)\;\propto\;(v-\underline v)^{\frac{2\theta^{2}}{2\theta+1}} ,$$
+the second by step&nbsp;2's $\bar y\propto\varepsilon^{2\theta}$. Feed both into (DENS), $p_t=vU''(v)/\big(t\,\bar y(h_v)\big)$ with $U''\sim c\theta(v-\underline v)^{\theta-1}$:
+$$p_t(v)\;\propto\;(v-\underline v)^{\,\theta-1-\frac{2\theta^2}{2\theta+1}}=(v-\underline v)^{-\frac{\theta+1}{2\theta+1}} .$$</li>
+<li><strong>Close the loop with (R2), and $\theta$ is forced.</strong> Evaluating $H(v)=h_v(t_x(v))$ at $t_x(v)=\lambda(v)\,t_e(v)$,
+$$h^{\max}-H(v)\;\sim\;\big(\lambda(v)\,B\big)^{-1/(2\theta+1)} ,$$
+<em>the $v$-dependence cancels exactly</em>. So if $\lambda$ stays bounded, $\Phi(H(v))\to\Phi_0\in(0,\infty)$, and (R2) reads $\underline v\,c\,\theta\,(v-\underline v)^{\theta-1}\Phi_0=f(\underline v)$ — finite and nonzero — which forces $\boxed{\theta=1}$, with the constant $c=U''(\underline v)=f(\underline v)/(\underline v\,\Phi_0)$ as a bonus.</li>
+</ol>
+<p style="margin:8px 0 0">At $\theta=1$ the exponent in step 3 is $-2/3$, and carrying the constants through:</p>
+$$\boxed{\;U'(v)\sim c\,(v-\underline v),
+\qquad
+p_t(v)\;\sim\;\Big(\frac{c\,A^{2}\,\underline v^{2}}{9\,t}\Big)^{1/3}(v-\underline v)^{-2/3}.\;}$$
+<dl>
+<dt>rests on</dt><dd>only that $\lambda(v)=t_x(v)/t_e(v)$ stays bounded as $v\downarrow\underline v$ — the bottom band pinches <em>self-similarly</em> rather than blowing open. Everything else is (R1)–(R3) plus proved facts.</dd>
+<dt>why the hypothesis is not free</dt><dd>if $\lambda\to\infty$ then $\Phi(H(v))\to\infty$, (R2) forces $U''\to0$, hence $\theta\gt1$; running the same loop gives the consistency condition $\lambda(v)\asymp(v-\underline v)^{-(\theta-1)(2\theta+1)/(2\theta)}$. So there is a <em>one-parameter family</em> of self-consistent bottom exponents indexed by $\theta\ge1$, and $\theta=1$ is the one with a bounded band. Pinning $\lambda$ is the whole content of the guess.</dd>
+<dt>the hypothesis is now <em>one-sided</em> — this is new</dt><dd><span class="badge">cor:exitelas</span> (§10.2) does two things here. <em>First</em>, it closes the $\theta\lt1$ side outright: $\theta\lt1$ needs $\Phi_0=0$, hence $\lambda_0=1$; but $\lambda$ is non-increasing and $\lambda\ge1$ everywhere, so $\lambda_0=1$ would force $\lambda\equiv1$ — no type mixes over any stretch of rungs at all, contradicting the very existence of a leaver block. <em>Second</em>, because $\lambda$ is non-increasing, $\lambda_0=\lambda(\underline v^+)$ is a <strong>supremum over the whole leaver block</strong>, not a limit at a point: any global upper bound on $\lambda$ anywhere is a bound at the bottom. What used to be "control a ratio in an unknown limit" is now "bound one monotone function above" — a strictly easier statement, and the reason this is ranked first.</dd>
+<dt>confirmed by</dt><dd>a pencil upper bound on $\lambda=t_x/t_e$ — the cheapest decisive move on this page (STATE <strong>C1</strong>). Failing that, two independent log–log slopes on a fine-$K$ ladder: $-2/3$ in $(v-\underline v)$ at fixed $t$, <em>and</em> $-1/3$ in $t$ at fixed $(v-\underline v)$. The second slope is the sharper test, since it is a prediction no cruder argument makes.</dd>
+<dt>refuted by</dt><dd>any measured exponent in $(-1/2,-2/3)$ open interval, which would say $\lambda$ diverges and $\theta\gt1$; or a measured $-1/2$, which would say the $\Psi$-weight argument in step&nbsp;2 is wrong.</dd>
+<dt>either way</dt><dd>$\theta\mapsto-(\theta+1)/(2\theta+1)$ is increasing, so every $\theta\ge1$ gives an exponent in $[-2/3,-1/2)$ — $-2/3$ at $\theta=1$, rising toward $-1/2$ as $\theta\to\infty$ but never reaching it. The blow-up is <strong>integrable in every branch</strong> and no mass is lost. That part of <span class="badge">rem:bottomsing</span> stands regardless, and it is worth seeing that the old dichotomy's two answers, $-1/2$ and $-1/3$, are respectively the unattainable edge of this family and outside it altogether.</dd>
+</dl>
+</div>
+
+<div class="panel key">
+<span class="tag key">settled — this page's correction is now in <code>proofs.tex</code></span>
+<p style="margin-top:4px"><span class="badge">rem:bottomsing</span> used to record a dichotomy: $-1/2$ if the maximiser of $h_*$ is an endpoint, $-1/3$ if interior. Step&nbsp;1 kills the interior branch; step&nbsp;2 shows the endpoint branch measured $S(h)$ by its <em>length</em>, dropping the $\Psi$-weight $2s\,ds$ that vanishes at exactly the endpoint that wins. <strong>The remark was rewritten on 2026-08-01</strong> to carry the family above, with two things worth flagging for anyone reading the older text:</p>
+<ul style="margin:6px 0 0">
+<li>the exponent family must be parameterised on the <em>primitive</em> $U'\sim c(v-\underline v)^\theta$, as it is here. Parameterising on $h_*$ instead and converting with a <em>linear</em> $U'$ is legitimate only at $\theta=1$ and yields a different — wrong — family away from it;</li>
+<li>"$\theta\ge1$ because $U'$ is Lipschitz" is <em>not</em> an argument: it needs $U''$ bounded below, which is the $\theta=1$ case itself. $\theta\ge1$ does hold, but by the $\lambda$-monotonicity route above, which is independent.</li>
+</ul>
+</div>
+
+<h3>8(e). The atom dissolves — and leaves no hole</h3>
+<p class="sub"><span class="badge">prop:noatomcont</span>, <span class="badge">rem:atomband</span></p>
+
+<p><strong>Claim.</strong> Let $A:=\{v:\sigma_v(\{0\})\gt0\}$ be the set of types placing positive Round-1 mass on the bid $0$. Then $f(A)=0$: under (CONT) the Round-1 zero-bid atom carries no mass.</p>
+
+<p><em>Proof, in four steps.</em></p>
+<ol class="steps">
+<li>Suppose $f(A)\gt0$ and put $a:=\inf A$. Since $f$ is atomless, $f(A)\gt0$ forces $A$ to contain some $v\gt a$; fix one. Let $p_0$ be the posterior at bid $0$, so $\operatorname{supp}p_0=\overline A$ and $\inf\operatorname{supp}p_0=a$.</li>
+<li>A positive-mass atom means $t_0:=G(0)\gt0$. The opponent's rung is $\Psi$-distributed, and every rung $s\le t_0$ also bids $0$ — so with probability $\Psi(t_0)=t_0^2\gt0$ <em>both</em> finalists carry the posterior $p_0$ and <strong>the final is symmetric</strong>.</li>
+<li>In a symmetric final each type ties with <em>itself</em>: $y_{p_0}\big(H_{p_0}(v)\big)=v$. So §6.2 evaluates the final win probability at
+$$\mathcal W(v,p_0)\;=\;\chi_{p_0}\big(H_{p_0}(v)\big)\;=\;P_{p_0}(v)\;\gt\;0,$$
+strictly, because $v\gt a=\inf\operatorname{supp}p_0$ leaves positive $p_0$-mass strictly below $v$.</li>
+<li>That contradicts <span class="badge">lem:atomIC</span>, which requires $\mathcal W(v,p_0)=0$ at <em>every</em> carrier of a zero-bid atom. Hence $A\subseteq\{a\}$, and $f(A)=0$ since $f$ is atomless. $\ \blacksquare$</li>
+</ol>
+
+<p>Note what the argument does <em>not</em> use: no interval hypothesis on the carrier, no cornering, no top carrier. It supersedes the earlier either/or of <span class="badge">rem:atomcont</span> by closing its first horn outright.</p>
+
+<p><strong>And the hole one expects is not there.</strong> §5's third deferred question rested on a false premise: that $t_e=U'$ with $U'(\underline v)\gt0$ would strand the quantile band $[0,t_e(\underline v))$, to be filled by an atom or a boundary layer. But §8(d) gives $U'(\underline v)=0$, hence $t_e(\underline v)=0$. <strong>The band is empty; there is nothing to fill.</strong></p>
+
+<div class="panel focus">
+<span class="tag focus">what survives of the discrete atom: a collapse, not a mass</span>
+<p style="margin-top:4px">Since $t_e=U'$ is increasing, $a_{\max}(t)=(U')^{-1}(t)\downarrow\underline v$ as $t\downarrow0$: the active band <em>pinches onto the bottom type</em>. §8(a)'s normalisation agrees quantitatively — from $0\le\bar\chi\le1$ and $\underline v\le(U')^{-1}(t\bar\chi(h))\le(U')^{-1}(t)$ the integrand converges to $\underline v$ uniformly in $h$, so $\int_0^{h_*(t)}(U')^{-1}(t\bar\chi(h))\,dh=1$ forces</p>
+$$h_*(t)\;\longrightarrow\;\frac1{\underline v}\;=\;H_{\delta_{\underline v}}(\underline v)
+\qquad(t\downarrow0),$$
+<p style="margin:6px 0 0">precisely the maximal $H$-value — the one attainable only by a point mass — that made the discrete pure-Low atom covered against every opponent, and precisely where $\bar y$ degenerates. So the discrete atom is the $t\downarrow0$ <em>limit</em> of the continuum family rather than an object inside it, and the three continuum facts</p>
+$$U'(\underline v)=0,\qquad h^{\max}=1/\underline v,\qquad \mathcal W(\underline v,p_0)=0$$
+<p style="margin:6px 0 0">are one fact seen three ways.</p>
+</div>
+
+<h3>8(f). Both frontier densities are explicit — and the entry one is the entry flux</h3>
+<p class="sub">A guess the closed forms answer before it can be posed.</p>
+
+<p>The open list used to carry "entry and exit boundary layers" as a route needing its own analysis: expand $1-\mathcal W\approx|\bar\chi'(0)|H_{p_t}(v)$ near entry and see whether the local behaviour of $p_t$ can be pinned without integrating the interior. With (DENS) in hand the expansion is unnecessary — <strong>just evaluate at $h=0$ and $h=h_*(t)$</strong>:</p>
+
+<div class="panel guess">
+<span class="tag guess">G2 — the frontier values, and a constant's third appearance</span>
+$$\boxed{\;p_t\big(a_{\max}(t)^-\big)=\frac{a_{\max}(t)\,U''(a_{\max}(t))}{t\;\bar y(0)},
+\qquad
+p_t\big(a_{\min}(t)^+\big)=\frac{a_{\min}(t)\,U''(a_{\min}(t))}{t\;\bar y\big(h_*(t)\big)} .\;}$$
+<p style="margin:6px 0 0">Both are finite and strictly positive. Now differentiate the entry curve: $U'(a_{\max}(t))=t$ gives $U''(a_{\max})\,\dot a_{\max}=1$, so the first display rearranges to</p>
+$$\frac{p_t(a_{\max})\,\dot a_{\max}}{a_{\max}}=\frac{1}{t\,\bar y(0)},$$
+<p style="margin:6px 0 0"><strong>which is verbatim the entry flux of §7.3(ii).</strong> The two are the same identity. So §7.3(ii)'s "the flux is pinned, not free" and §10's "the frontier density is determined" are one statement, and $\bar y(0)=\int_0^1a_{\max}(s)\,2s\,ds$ now appears in three independently derived places: the $t$-differentiated cascade at the top active type, the $h=0$ boundary value of (R3), and here.</p>
+<dl>
+<dt>rests on</dt><dd>nothing new — (DENS) and the entry curve. This is a guess only in the sense that it re-scopes a route that was listed as open.</dd>
+<dt>what it settles</dt><dd>the entry frontier is <em>not</em> a boundary layer needing separate treatment, and entry is qualitatively identical to exit: the crossing type's density jumps at both, confirming §8(b)'s symmetry claim and giving $\alpha=0$ of <span class="badge">prop:k3cascade</span> a value, not just a sign.</dd>
+<dt>what is actually still open there</dt><dd>only <em>uniformity</em>: whether the expansions hold up to the frontier rather than pointwise inside it, i.e. whether $a_{\min},a_{\max}$ are $C^1$. That is a regularity question about the free boundary, not a missing local law — a much smaller target than the item it replaces.</dd>
+</dl>
+</div>
+
+<p><strong>The shape across the band, as a free corollary.</strong> Write (DENS) as $p_t(v)=\alpha(v)\big/\big(t\,\bar y(h_v(t))\big)$ with $\alpha(v)=v\,U''(v)$ — the same $\alpha$ that §9 will meet as the type factor of the coupling. Since $h_v(t)$ is <em>decreasing</em> in $v$ (higher type, less believed mass above it) and $\bar y$ is <em>decreasing</em> in $h$, the composite $\bar y(h_v(t))$ is <em>increasing</em> in $v$:</p>
+
+<div class="panel guess">
+<span class="tag guess">G6 — the posterior is $\alpha$ tilted low</span>
+<p style="margin-top:4px">At any fixed rung $t$, the posterior density is the rent-curvature profile $\alpha(v)=vU''(v)$ multiplied by a factor $1/\bar y(h_v(t))$ that <strong>strictly decreases in $v$ across the band</strong>. So relative to $\alpha$, every posterior leans toward low types, and the lean is strongest where the band is widest.</p>
+<dl>
+<dt>reading</dt><dd>the tilt factor is $1/\bar y$, and $\bar y$ is the <em>marginal cost of reputation</em> of §6.2. Low types inside the band sit where that cost is small, so the same rent curvature buys them more believed mass. This is the density-level counterpart of "low bluffs".</dd>
+<dt>rests on</dt><dd>(DENS), $\bar y$ decreasing, $h_v$ decreasing in $v$ — all banked. The only reason it is a guess and not a corollary is that the frontier ratio $\bar y(0)/\bar y(h_*(t))\gt1$ competes with the shape of $\alpha$, so the <em>monotonicity of $p_t$ itself</em> is not implied — only the tilt relative to $\alpha$.</dd>
+<dt>confirmed or refuted by</dt><dd>plotting $p_t(v)\,\bar y(h_v(t))$ against $vU''(v)$ on any solved profile: the guess says they coincide up to the factor $1/t$, exactly and not approximately.</dd>
+</dl>
+</div>
+
+<h2>9. $(v,h)$ coordinates — the equilibrium is a factorised coupling</h2>
+<p class="sub">Change the rung for the $H$-level and the type-coupling disappears. <span class="badge">lem:hcoords</span></p>
+
+<div class="panel">
+<p style="margin:0"><strong>Coupling, and why the word is the right one.</strong> Since $G$ is the quantile map, the rung $t$ is uniform on $(0,1]$ by construction. So the joint law of (type, rung) has density $\rho(v,t)=p_t(v)$, and it is a <em>coupling</em> — a joint distribution with both marginals prescribed: the type marginal is the prior $f$, and the rung marginal is uniform. Equivalently $\rho=f(v)\,\sigma(t\mid v)$, the mixed strategy read as a conditional law. Every equilibrium condition we have is a statement about this one object.</p>
+</div>
+
+<p>Replace the rung $t$ by the type's own $H$-level $h=h_v(t)$ from §7.4. The change of variable is read off (MASTER) by differentiating in $t$ at fixed $v$:
+$$0=\bar\chi(h)+t\,\bar\chi'(h)\,h'(t)=\bar\chi(h)-t\,\bar y(h)\,h'(t)
+\qquad\Longrightarrow\qquad
+dt=\frac{t\,\bar y(h)}{\bar\chi(h)}\;dh,$$
+legitimate because $\bar y\gt0$ on the support (§8(a)). Multiply by (DENS) and watch the cancellation:
+$$p_t(v)\,dt=\frac{v\,U''(v)}{t\,\bar y(h)}\cdot\frac{t\,\bar y(h)}{\bar\chi(h)}\,dh
+=\frac{v\,U''(v)}{\bar\chi(h)}\,dh .$$</p>
+
+<div class="panel key">
+<span class="tag key">the coupling factorises</span>
+$$\boxed{\;\tilde\rho(v,h)\;=\;\alpha(v)\,\beta(h)\,\mathbf 1_{\{0\le h\le H(v)\}},
+\qquad \alpha(v)=v\,U''(v),\qquad \beta(h)=\frac1{\bar\chi(h)} .\;}$$
+<p style="margin:6px 0 0"><strong>$\bar y$ — the one object that couples different types — cancels exactly.</strong> What is left is a <em>product measure restricted to a region</em>: a factor in $v$ times a factor in $h$, with an indicator. The lower edge $h=0$ is the entry curve (§4); the upper edge is $H(v):=h_v\big(t_x(v)\big)$, type $v$'s own $H$-level when it stops mixing.</p>
+</div>
+
+<div class="panel mirror">
+<span class="tag mirror">the shape has a name</span>
+<p style="margin-top:4px">A density of the form $a(x)\,b(y)\,k(x,y)$ is the signature of a <strong>Schrödinger bridge</strong> / <strong>Sinkhorn</strong> (iterative proportional fitting) solution: the entropically optimal coupling of two prescribed marginals through a reference kernel $k$ is always a product of one-variable factors times $k$, and $a,b$ are found by alternately rescaling rows and columns. Our $k$ is a $0/1$ <em>indicator of a region</em> — the degenerate case where the reference kernel is a hard constraint rather than a soft cost. So the equilibrium is, structurally, the unique coupling of $f$ with the uniform rung law supported on the region $\{0\le h\le H(v)\}$; and <strong>all the equilibrium content has been pushed into the shape of that region</strong>, i.e.&nbsp;into the two frontiers. That is a genuinely different way to look for the equilibrium than marching a cascade, and §10's obstruction is exactly that the region depends on the unknowns.</p>
+</div>
+
+<div class="panel warn">
+<span class="tag warn">caveat on $H(v)$ — where the first machine check failed</span>
+<p style="margin-top:4px">$H(v)=h_*\big(t_x(v)\big)$ holds only for a type that <em>genuinely exits</em>. A <strong>survivor</strong> — and the top active type never exits (<span class="badge">cor:topmono</span>) — stops at $t_x=1$ strictly <em>below</em> the frontier, with $H(v)=\bar\chi^{-1}(U'(v))\lt h_*(1)$. The definition to carry is always $h_v(t_x)$, never $h_*(t_x)$. This is not a hypothetical: the first run of the verification failed at exactly the survivor type, which is how the caveat was found.</p>
+</div>
+
+<div class="panel guess">
+<span class="tag guess">G3 — the caveat is a partition, with a named threshold</span>
+<p style="margin-top:4px">The caveat is not a list of exceptions. Set
+$$v_\dagger\;:=\;a_{\min}(1),$$
+the bottom of the active band at the <em>last</em> rung. Then the type space splits cleanly and the two readings of $H$ are exactly the two blocks:</p>
+<table>
+<tr><th></th><th>leavers $[\underline v,v_\dagger)$</th><th>survivors $[v_\dagger,\bar v]$</th></tr>
+<tr><td>exit rung</td><td>$t_x(v)=a_{\min}^{-1}(v)\lt1$</td><td>$t_x(v)=1$ identically</td></tr>
+<tr><td>own $H$-level at stop</td><td>$H(v)=h_*\big(t_x(v)\big)$ — on the frontier</td><td>$H(v)=\bar\chi^{-1}\big(U'(v)\big)\lt h_*(1)$ — strictly inside</td></tr>
+<tr><td>why</td><td>overtaken from below; the band's bottom passes them</td><td>the band never reaches them from below before $t$ runs out</td></tr>
+</table>
+<p style="margin:8px 0 0">The <em>partition</em> is immediate — $t_x(v)=1$ for every $v$ in $[a_{\min}(1),\bar v]$ by definition of the band at $t=1$, and $v_\dagger\lt\bar v$ because the band at $t=1$ is nondegenerate. Two things are guesses:</p>
+<dl>
+<dt>guess (a)</dt><dd><strong>$v_\dagger\gt\underline v$ strictly</strong> — the continuum <em>always</em> has a leaver set of positive prior mass, so the $K=2$ pattern ("nobody exits") does not survive the limit. Reason to believe it: at the bottom the band pinches, $a_{\min}(t),a_{\max}(t)\to\underline v$, so $a_{\min}$ is not flat at $\underline v$ and $a_{\min}(1)\gt\underline v$ unless $a_{\min}\equiv\underline v$ throughout — which would mean the bottom type stays active at every rung, contradicting $t_e(\underline v)=U'(\underline v)=0$ combined with a nondegenerate band.</dd>
+<dt>guess (b)</dt><dd><strong>$v_\dagger$ is the continuum image of the discrete exit rung.</strong> At $K=3$ the single leaver is Low, exiting at $t_X=0.860\,801$; the continuum counterpart is not a rung but the <em>type</em> $v_\dagger$, with the discrete $t_X$ appearing as $t_x(v)$ for the one type that happens to be represented. This is what makes the $K=2$/$K=3$ split of §5 a statement about <em>how much</em> mass sits below $v_\dagger$, not about whether exit occurs.</dd>
+<dt>settled by</dt><dd>pencil, and cheap: does $a_{\min}(1)=\underline v$ contradict (R1) at $t=1$? If the band at $t=1$ ran all the way to $\underline v$, the integrand of (R1) would be $\varphi^{-1}(\bar\chi(h))$ over the full range $[0,h^{\max})$, and the question is whether that integral can equal $1$.</dd>
+<dt>why it matters downstream</dt><dd>$v_\dagger$ is where §10's (R2) changes character: $\Phi(H(v))$ is evaluated on the frontier below it and strictly inside above it. Any numerical scheme that does not know $v_\dagger$ will use the wrong branch of $H$ on half the type space — which is precisely how the first machine check failed.</dd>
+</dl>
+</div>
+
+<p><strong>The same change of variable, read at fixed $t$.</strong> Differentiating (MASTER) in $v$ instead gives $dv/dh=t\,\bar\chi'(h)/U''(v)=-t\,\bar y/U''(v)$, so $p_t(v)\,|dv|=v\,dh$, i.e.&nbsp;$dh=-\,dH_{p_t}(v)$ — the defining relation of $H$, and the substitution already used in §8(a). So the row reading and the column reading are one change of variable, and the region is consistently oriented.</p>
+
+<h2>10. The system assembled — square, and what is still open</h2>
+<p class="sub">Three unknown functions, three relations, two constants needed and two supplied by theorems. <span class="badge">thm:contsquare</span></p>
+
+<p>Under the architecture now banked — active set $[a_{\min}(t),a_{\max}(t)]$ at each rung, no atom (§8(e)) — the continuum equilibrium is carried by exactly <strong>three unknown functions</strong>:
+$$\varphi:=U'\ \text{on }[\underline v,\bar v],\qquad
+\bar\chi\ \text{on }[0,h^{\max}),\qquad
+h_*\ \text{on }(0,1],\qquad h^{\max}=1/\underline v .$$
+<strong>The exit data is not among them</strong>: $t_x=a_{\min}^{-1}$ is an output of $h_*$. They are determined by three relations, one algebraic and two first-order:</p>
+
+<div class="panel focus">
+<span class="tag focus">the three relations</span>
+$$\text{(R1) row marginal}\qquad
+\int_0^{h_*(t)}\varphi^{-1}\!\big(t\,\bar\chi(h)\big)\,dh=1
+\qquad\text{for each }t\in(0,1],$$
+$$\text{(R2) column marginal}\qquad
+v\,\varphi'(v)\,\Phi\big(H(v)\big)=f(v),\qquad
+\Phi(h):=\int_0^h\frac{d\xi}{\bar\chi(\xi)},$$
+$$\text{(R3) kernel self-consistency}\qquad
+-\bar\chi'(h)=\int_0^{s(h)}\varphi^{-1}\!\big(s\,\bar\chi(h)\big)\,2s\,ds,
+\qquad s(h)=\min\{1,h_*^{-1}(h)\} .$$
+</div>
+
+<p><strong>Where each comes from.</strong></p>
+<ul>
+<li><strong>(R1) is §8(a) verbatim</strong> — the normalisation that locates the free boundary. It is <em>algebraic and pointwise in $t$</em>: its integrand is positive, so the left side is strictly increasing in the upper limit and the equation determines $h_*(t)$ for each $t$ <em>separately</em>. It is implicit, not closed-form — but it carries <strong>no integration constant</strong>, which is all the count needs.</li>
+<li><strong>(R2) is Bayes closure in $h$-coordinates.</strong> Since $\rho=f\,\sigma(\cdot\mid v)$ with $\sigma(\cdot\mid v)$ a probability, the column of $\rho$ integrates to $f(v)$: $\int_{t_e(v)}^{t_x(v)}p_t(v)\,dt=f(v)$. By §9 the left side is $v\,U''(v)\int_0^{H(v)}dh/\bar\chi(h)=v\,U''(v)\,\Phi(H(v))$. Given $(\bar\chi,h_*)$ this determines $\varphi$ up to <strong>one</strong> constant: $\varphi'$ enters linearly and pointwise, so integrating up from $\underline v$ costs exactly one constant — even though the coefficient $\Phi(H(v))$ depends on $\varphi$ nonlocally through $H$.</li>
+<li><strong>(R3) is the definition of $\bar y$ made explicit.</strong> By (MASTER), $H_{p_s}(v)=h\iff U'(v)=s\,\bar\chi(h)\iff v=\varphi^{-1}(s\bar\chi(h))$, so the inverse $H$-function is $y_s(h)=\varphi^{-1}(s\,\bar\chi(h))$ in closed form. The averaging set is $S(h)=\{s:h_*(s)\ge h\}=[0,s(h)]$ because $h_*$ decreases (§8(a)), with $s(h)=1$ once $h\le h_*(1)$. Substitute into $\bar y=\int_{S(h)}y_s\,2s\,ds$ and use $\bar\chi'=-\bar y$: a first-order ODE in $h$, <strong>one</strong> constant.</li>
+</ul>
+
+<div class="panel key">
+<span class="tag key">two constants needed, two supplied — by theorems, not conventions</span>
+$$\bar\chi(0)=1\quad(\text{cornering: \S4, \S6.4(ii)}),
+\qquad
+\varphi(\underline v)=U'(\underline v)=0\quad(\text{\S8(d)}).$$
+<p style="margin:6px 0 0"><strong>The system is square.</strong> Neither constant is a normalisation chosen for convenience; both are proved facts about the equilibrium. And $U'(\bar v)=1$ is <em>forced</em>, not imposed: (R1)'s integrand at $h=0$ is $\varphi^{-1}(t\,\bar\chi(0))=\varphi^{-1}(t)$, which must be a legal type for every rung $t\in(0,1]$, so $U'(\bar v)\ge1$; and $U'\le1$ because it is a probability (§3). A third normalisation would over-determine the system, so it had better be a consequence — and it is.</p>
+</div>
+
+<p><strong>The cross-check at $h=0$.</strong> $s(0)=1$ and $\bar\chi(0)=1$ turn (R3) into $\bar y(0)=\int_0^1\varphi^{-1}(s)\,2s\,ds=\int_0^1a_{\max}(s)\,2s\,ds$ — which is exactly the entry-flux constant of §7.3(ii), derived there by a completely different route (evaluating the $t$-differentiated cascade at the top active type). <em>Two independently banked routes to the same constant agree.</em> This is the check §7.3(ii) promised.</p>
+
+<p><strong>Where the redundancy enters.</strong> $\rho$ is a coupling with <em>both</em> marginals prescribed: $\int\rho\,dv=1$ at each $t$ (R1) and $\int\rho\,dt=f(v)$ at each $v$ (R2). The two families are not independent — integrating the first over $t$ and the second over $v$ both return the total mass, $\iint\rho=1=\int f$. That single scalar identity is the compatibility condition of the coupling problem, and it holds <em>identically</em>, which is precisely why imposing both marginals in full is consistent rather than one condition too many. The count above is its quantitative form: two marginals, one redundancy, two constants.</p>
+
+<div class="panel warn">
+<span class="tag warn">the rent anchor is inert — the natural guess is wrong</span>
+<p style="margin-top:4px">One expects $U(\underline v)=0$ to be the scalar that closes the system. It is not, and the reason changes what one looks for: <strong>$U$ itself never appears in (R1)–(R3)</strong> — only $U'$, through $\varphi$ and $\varphi^{-1}$, and $U''$, through $\alpha=v\,U''$. The system is a system for the <em>marginal</em> rent, so an additive constant in $U$ is invisible to it. The anchor does exactly one thing, and it is downstream: it turns the solved $\varphi$ into a rent level, $U(v)=\int_{\underline v}^v\varphi$. What closes the system is the pair $\bar\chi(0)=1$ and $U'(\underline v)=0$, and both are theorems. Their discrete counterparts are the same two facts: cornering below the entry rung is what makes the entry rungs <em>determined</em> rather than unknowns (<span class="badge">thm:floorladder</span>), and $U'(\underline v)=0$ is the shadow of the atom-IC requirement $\mathcal W(\underline v,p_0)=0$. <span class="badge">rem:anchorinert</span></p>
+</div>
+
+<h3>10.1 The discrete mirror of the count</h3>
+<p class="sub"><span class="badge">rem:discretecount</span></p>
+
+<p>At $K$ types the same count reads: the unknowns are the $K-1$ rent differences $U_{u_i}-U_{u_{i-1}}$ — entry rungs are <em>not</em> unknowns, since <span class="badge">thm:floorladder</span> pins $t_{u_i}=U_{u_i}-U_{u_{i-1}}$; exit rungs are outputs; shares come from the cascade. The equations are the $K$ prior conditions $\int_0^1P_{u_i}(t)\,dt=f_i$, of which exactly one is redundant because $\sum_iP_{u_i}(t)\equiv1$, leaving $K-1$. Square, by the same mass redundancy — the discrete form of the coupling compatibility above.</p>
+
+<p><em>The atom is a matched pair.</em> In the unrepaired problem the atom mass $t_0=G(0)$ is a genuine extra unknown, and atom-IC is its equation. §8(e) removes the unknown and its equation <strong>together</strong>, so the count is unchanged and survives the continuum limit — which is why the $K=3$ tally (three unknowns $U_H,U_M,t_0$ against two independent prior closures plus atom-IC) is this same statement at $K=3$.</p>
+
+<h3>10.2 The free boundary has its own ODE — and it meets <code>cor:exitspacing</code></h3>
+<p class="sub">Was guess G4; <strong>banked 2026-08-01</strong> as <span class="badge">lem:hstarode</span> and <span class="badge">cor:exitelas</span>. Differentiate (R1). Two facts fall out, one of them a proof of something §8(a) only asserted.</p>
+
+<p>(R1) holds <em>identically</em> in $t$, so it may be differentiated. Write $v(h,t)=\varphi^{-1}(t\bar\chi(h))$ for the type at level $h$ and rung $t$, and note $v(h_*(t),t)=a_{\min}(t)$. Then</p>
+$$0=\frac{d}{dt}\int_0^{h_*(t)}v(h,t)\,dh
+=a_{\min}(t)\,h_*'(t)+\int_0^{h_*(t)}\frac{\bar\chi(h)}{\varphi'\big(v(h,t)\big)}\,dh .$$
+<p>That is already the ODE. It can also be pushed back into type space, by the substitution used twice before, $dh=-p_t(v)\,dv/v$, together with $\bar\chi(h_v)=U'(v)/t$ from (MASTER) and $p_t(v)/v=U''(v)/\big(t\,\bar y(h_v)\big)$ from (DENS) — the $U''$ cancels against $\varphi'=U''$ and what is left is startlingly clean:</p>
+
+<div class="panel key">
+<span class="tag key">the exit frontier, differentiated — two forms</span>
+$$\boxed{\;a_{\min}(t)\;h_*'(t)\;=\;-\int_0^{h_*(t)}\frac{\bar\chi(h)}{U''\big(v(h,t)\big)}\,dh\;=\;-\,\frac{1}{t^{2}}\int_{a_{\min}(t)}^{a_{\max}(t)}\frac{U'(v)}{\bar y\big(h_v(t)\big)}\,dv\;}$$
+<p style="margin:6px 0 0">The two forms have different uses. The <strong>first</strong> is the one to differentiate with: no $\bar y$ appears, so it cannot be circular, and its integrand is manifestly finite. The <strong>second</strong> has no $f$, no $\Phi$, no $H$, no $U''$ — the free boundary moves under a drive built only from the marginal rent and the kernel, integrated over the <em>currently active band</em> — and it is the one that compares to the discrete law.</p>
+<dl>
+<dt>first dividend</dt><dd>both right sides are strictly negative, so <strong>$h_*'\lt0$ is derived, not assumed</strong>. §8(a) asserted "$h_*$ is decreasing (as $s$ rises the support slides up and $1/u$ shrinks)" and used it to get $S(h)=[0,s(h)]$ — which the whole of (R3) rests on. That hand-wave is now discharged by (R1) alone.</dd>
+<dt>a second thing that came free</dt><dd>differentiability of $h_*$ was never needed as a hypothesis. Apply the implicit function theorem to $F(t,H)=\int_0^H\varphi^{-1}(t\bar\chi)\,dh-1$: the Jacobian $\partial_HF=v(H,t)\ge\underline v\gt0$ never degenerates, so $h_*\in C^1$ is a <em>conclusion</em>. What the architecture must assume about $h_*$ drops from <em>monotone</em> to merely <em>continuous</em> — and continuity is what makes $\bar\chi$ invertible on the open band in the first place, so the bootstrap runs continuity → ODE → monotonicity → frontier positivity, never the reverse.</dd>
+<dt>second dividend</dt><dd>it is the missing link to <span class="badge">cor:exitspacing</span>. Differentiating $a_{\min}(t)=\varphi^{-1}\big(t\bar\chi(h_*(t))\big)$ and comparing with the entry side $\dot a_{\max}=1/U''(a_{\max})$ gives, at a type $v$ that exits at $t_x(v)$,
+$$\frac{d\log t_x}{d\log t_e}
+=\Bigg[1+\underbrace{\frac{\bar y\big(h_*(t_x)\big)}{v\,U'(v)}\int_v^{a_{\max}(t_x)}\frac{U'(w)}{\bar y\big(h_w(t_x)\big)}\,dw}_{\text{a nonnegative drag}}\Bigg]^{-1},$$
+which is <em>exactly</em> §8(c)'s shape $1/\big(1+g(1-\kappa)\big)$, damping factor and all.</dd>
+</dl>
+</div>
+
+<div class="panel focus">
+<span class="tag focus">the economics: the exit curve is flatter than the entry curve, always</span>
+<p style="margin-top:4px">Read the box as a statement about <em>elasticities</em>. The drag is nonnegative, so $d\log t_x/d\log t_e\in(0,1]$: a proportional shift in when a type <em>enters</em> produces a smaller proportional shift in when it <em>leaves</em>. The exit curve can never overtake the entry curve in log–log, and the two can only run parallel where the drag vanishes — that is, where no type above is still active.</p>
+<p style="margin:8px 0 0">The immediate corollary is the one that pays. Define the type's <strong>active span</strong> $\lambda(v):=t_x(v)/t_e(v)\ge1$ — how many times its own entry rung a type stays in the market. Then</p>
+$$\frac{d\log\lambda}{d\log v}=\frac{d\log t_x}{d\log v}-\frac{d\log t_e}{d\log v}\le0,$$
+<p style="margin:6px 0 0">so <strong>$\lambda$ is non-increasing in $v$: low types mix over proportionally longer stretches of the rung range than high types do.</strong> High types enter late and leave almost at once; low types enter first and linger. The two exponent programmes on this page turn out to need the same object from opposite ends — and because $\lambda$ falls, $\lambda_0:=\lambda(\underline v^+)$ is a <em>supremum over the whole leaver block</em>, not a delicate limit at a point. That is what makes G1's remaining hypothesis one-sided; see §8(d).</p>
+</div>
+
+<div class="panel guess">
+<span class="tag guess">what is still owed — the dictionary, not the ODE</span>
+<p style="margin:8px 0 0">The ODE and the elasticity are banked; what is <em>not</em> yet banked is that the drag above is literally the same object as the discrete one, and that is the last open piece of G4 (<span class="badge">rem:exitelasdict</span>, still <code>\todox</code>; STATE row <strong>C2</strong>). <strong>The dictionary already matches term by term.</strong> The discrete drag is $S_j(u)=\sum_{i\gt j,\,t_i\lt u}d_i\,t_i/\bar Y_i(u)$ — a sum over the rows <em>above</em> $j$ already active at the rung, each contributing its value gap times its entry rung, divided by its own tying value. Read the integral the same way:</p>
+<table>
+<tr><th>discrete (<span class="badge">lem:ywindow</span>)</th><th>continuum (above)</th></tr>
+<tr><td>sum over rows $i\gt j$ with $t_i\lt u$</td><td>$\int_v^{a_{\max}(t_x)}$ — types above $v$, active at $v$'s exit rung</td></tr>
+<tr><td>value gap $d_i=v_i-v_{i-1}$</td><td>$dw$</td></tr>
+<tr><td>entry rung $t_i$</td><td>$U'(w)=t_e(w)$</td></tr>
+<tr><td>own tying value $\bar Y_i(u)$</td><td>$\bar y\big(h_w(t_x)\big)$</td></tr>
+<tr><td>$1-\kappa_j=\bar y_j/v_j$</td><td>$\bar y\big(h_*(t_x)\big)\big/v$</td></tr>
+</table>
+<dl>
+<dt>what is left to check</dt><dd>the scalar normalisation only: the discrete $g_j(u)=u^2S_j(u)/t_j$ carries a factor $u^2$ where the continuum prefactor carries $1/U'(v)$. With $t_j\leftrightarrow U'(v)$ the $1/t_j$ matches; the $u^2$ is the one piece unaccounted for, and it should come out of the rung convention in $\bar Y_i(u)$ versus $\bar y(h_w)$. <strong>This is the next pencil move on the exit curve</strong>, and it is small and bounded: one factor, not a derivation.</dd>
+<dt>if it matches</dt><dd><span class="badge">cor:exitspacing</span> stops being an isolated asymptotic from the discrete ladder and becomes the first-order form of a relation the continuum system implies — which is what §10.6's "continuum exit curve" item was asking for.</dd>
+<dt>if it does not</dt><dd>one of the two is wrong about which rung $\bar y$ is evaluated at, and the discrepancy localises it immediately.</dd>
+</dl>
+</div>
+
+<h3>10.3 The fixed point is not a contraction — and the mixed sign is informative</h3>
+<p class="sub">Guess G5: chase the signs before choosing an algorithm.</p>
+
+<p>§10.4 will say the obstruction is global, so the object to look for is a fixed point of the composite $\varphi\mapsto\bar\chi\mapsto h_*\mapsto\varphi$ built from (R3), (R1), (R2). Before hunting for a Lipschitz constant it is worth signing each link — four of the five sign cleanly, in elementary one-liners:</p>
+<table>
+<tr><th>link</th><th>perturbation</th><th>sign</th></tr>
+<tr><td>(R3)</td><td>$\varphi\uparrow$ pointwise $\Rightarrow\varphi^{-1}\downarrow\Rightarrow\bar y\downarrow$</td><td>$\bar\chi\uparrow$ ✔</td></tr>
+<tr><td>(R1)</td><td>$\bar\chi\uparrow\Rightarrow$ integrand $\varphi^{-1}(t\bar\chi)\uparrow\Rightarrow$ shorter range needed</td><td>$h_*\downarrow$ ✔</td></tr>
+<tr><td>(R3) again</td><td>$h_*\downarrow\Rightarrow s(h)=\min\{1,h_*^{-1}(h)\}\downarrow\Rightarrow\bar y\downarrow$</td><td>$\bar\chi\uparrow$ ✔ — <em>reinforcing</em></td></tr>
+<tr><td>(R2)</td><td>$\Phi(H(v))\uparrow\Rightarrow\varphi'=f/(v\Phi)\downarrow$, anchored at $\varphi(\underline v)=0$</td><td>$\varphi\downarrow$ ✔</td></tr>
+<tr><td>$\Phi\circ H$</td><td>$\bar\chi\uparrow$ pushes $1/\bar\chi\downarrow$; $H$ moves the upper limit</td><td><strong>the only ambiguous link</strong></td></tr>
+</table>
+
+<div class="panel guess">
+<span class="tag guess">G5 — order structure, and what it says about the algorithm</span>
+<p style="margin-top:4px">Resolve the last row using G3's partition and the ambiguity <em>disappears on one block and survives on the other</em>:</p>
+<ul style="margin:6px 0">
+<li><strong>Leavers $v\lt v_\dagger$:</strong> $H(v)=h_*(t_x(v))$, which <em>falls</em> when $h_*$ falls. So both effects push $\Phi(H(v))\downarrow$, hence $\varphi\uparrow$. The composite is <strong>order-preserving</strong> on the leaver block.</li>
+<li><strong>Survivors $v\ge v_\dagger$:</strong> $H(v)=\bar\chi^{-1}(U'(v))$ with <em>both</em> $\bar\chi$ and $U'$ rising, and $\bar\chi^{-1}$ decreasing — the two effects oppose, and the sign is genuinely open.</li>
+</ul>
+<dl>
+<dt>guess</dt><dd>the composite is order-preserving below $v_\dagger$ and order-<em>reversing</em> above it. If so, no contraction exists in any uniform norm, and looking for one is wasted effort.</dd>
+<dt>what to do instead</dt><dd>on the leavers, monotone (Tarski) iteration: start from a sub-solution and a super-solution, iterate both, and they bracket — no metric needed. On the survivors, iterate the <em>square</em> of the map, which is order-preserving whichever way the single link signs. Either way <strong>the right numerical object is a bracketing pair of envelopes, not a single iterate with a residual</strong>.</dd>
+<dt>confirmed or refuted by</dt><dd>cheap and immediate: discretise $(\varphi,\bar\chi,h_*)$, perturb $\varphi$ upward on a fine grid, and read off the sign of the returned $\varphi$ separately on the two blocks. One run answers it.</dd>
+<dt>why this is the useful form of the question</dt><dd>a mixed sign that changes exactly at $v_\dagger$ would say the leaver and survivor blocks are <em>different problems glued at a free point</em> — which is also what G3 says about $H$, what §8(b) says about the exit, and what §9's caveat says about the coupling region. Four independent readings of one threshold is either a real structural fact or a shared error, and it is worth knowing which.</dd>
+</dl>
+</div>
+
+<h3>10.4 What squareness does not give, and why the obstruction is global</h3>
+<p class="sub"><span class="badge">rem:global</span></p>
+
+<div class="panel warn">
+<span class="tag warn">there is no march in $t$ — and that is a feature of the model</span>
+<p style="margin-top:4px">The closed form $p_t(v)=v\,U''(v)/\big(t\,\bar y(h_v(t))\big)$ is explicit <em>given</em> $\bar y$ — and $\bar y$ is a functional of the whole family $\{p_s\}_{s\in[0,1]}$. Precisely: with $S(h)=\{s:h_*(s)\ge h\}$ and $h_*$ decreasing (<span class="badge">lem:hstarode</span>), $S(h_v(t))=[0,s_v]$ where $h_*(s_v)=h_v(t)\le h_*(t)$, so $s_v\ge t$ — <strong>rungs above $t$ enter the equation at $t$</strong>. There is therefore no initial-value march in $t$ at all: the system is a <em>global fixed point</em> in $(\varphi,\bar\chi,h_*)$.</p>
+<p style="margin:6px 0 0">This is not a defect of the kernel. It is $\sigma$-invariance (<span class="badge">lem:sigmainv</span>): the $\Psi$-average $2s\,ds$ over the <em>whole</em> rung range is what makes the opponent law universal, and a quantity averaged over all rungs cannot simultaneously be causal in $t$. The discrete theory has the same feature and merely hides it — the entries of $\Gamma(t)$ depend on $\bar G(t)$, built from the same global average.</p>
+</div>
+
+<p>So squareness is a <em>count</em>, not an existence theorem: it says the system has no free parameter and no leftover condition, not that it has a solution. The right remaining target is a fixed-point or implicit-function statement in $(\varphi,\bar\chi,h_*)$ — never a Picard march.</p>
+
+<h3>10.5 The board</h3>
 
 <table>
 <tr><th>unknown</th><th>pinned by</th><th>status</th></tr>
-<tr><td>posterior density $p_t(v)$ on $\{(v,t): t_e(v)\le t\le t_x(v)\}$</td><td><em>no march needed</em>: the kernel inverts, $p_t(v)=v\,U''(v)/\big(t\,\bar y(h_v)\big)$ with $h_v=\bar\chi^{-1}(U'(v)/t)$</td><td>closed form, <span class="badge">prop:kernelinv</span> — brief 2 DONE; residual is the global $\bar y$ fixed point (<span class="badge">rem:global</span>)</td></tr>
-<tr><td>marginal rent $U'(v)$ — <em>not</em> $U$, and <em>not</em> the anchor</td><td>Bayes closure $\displaystyle\int_{t_e(v)}^{t_x(v)}p_t(v)\,dt=f(v)$, which in $h$-coordinates is the first-order ODE $v\,U''(v)\,\Phi\big(H(v)\big)=f(v)$, $\Phi(h)=\int_0^h d\xi/\bar\chi(\xi)$; closed by $U'(\underline v)=0$</td><td>SQUARE, counted 2026-07-30 — <span class="badge">thm:contsquare</span>, <span class="badge">lem:hcoords</span>; the anchor $U(\underline v)=0$ is <em>inert</em> (<span class="badge">rem:anchorinert</span>)</td></tr>
-<tr><td>averaged tying value $\bar\chi(h)$</td><td>self-consistency $-\bar\chi'(h)=\int_0^{s(h)}(U')^{-1}\big(s\bar\chi(h)\big)\,2s\,ds$; closed by cornering $\bar\chi(0)=1$</td><td>the third relation of the square count — <span class="badge">thm:contsquare</span> (R3)</td></tr>
-<tr><td>entry curve $t_e(v)$</td><td>algebraic: $t_e=U'$, with $\mathcal W=1$ at entry</td><td>banked; boundary layer — brief 1</td></tr>
-<tr><td>exit curve $t_x(v)$</td><td>free boundary, located by $H$-normalisation $\int_0^{h_*(t)}(U')^{-1}\big(t\bar\chi(h)\big)\,dh=1$; leaver's mass jumps; still no algebraic relation</td><td>corrected 2026-07-30 — <span class="badge">cor:exitnorm</span>, <span class="badge">rem:exitjump</span>; discrete locating condition still owed</td></tr>
-<tr><td>atom (existence, carrier, posterior)</td><td>zero-atom IC ⇒ carrier is a single point ⇒ <em>no mass</em>; nothing to fill, since $U'(\underline v)=0$</td><td>CLOSED 2026-07-30 — <span class="badge">prop:noatomcont</span>, <span class="badge">rem:atomband</span></td></tr>
+<tr><td>posterior density $p_t(v)$ on $\{(v,t): t_e(v)\le t\le t_x(v)\}$</td><td><em>no march needed</em>: the kernel inverts, $p_t(v)=v\,U''(v)/\big(t\,\bar y(h_v)\big)$ with $h_v=\bar\chi^{-1}(U'(v)/t)$</td><td>closed form — <span class="badge">prop:kernelinv</span>; residual is the global $\bar y$ fixed point (<span class="badge">rem:global</span>)</td></tr>
+<tr><td>marginal rent $U'(v)$ — <em>not</em> $U$, and <em>not</em> the anchor</td><td>(R2), Bayes closure in $h$-coordinates; closed by $U'(\underline v)=0$</td><td>SQUARE — <span class="badge">thm:contsquare</span>, <span class="badge">lem:hcoords</span>; the anchor $U(\underline v)=0$ is <em>inert</em> (<span class="badge">rem:anchorinert</span>)</td></tr>
+<tr><td>averaged tying value $\bar\chi(h)$ (equivalently $\bar y=-\bar\chi'$)</td><td>(R3), kernel self-consistency; closed by cornering $\bar\chi(0)=1$</td><td>the third relation of the square count — <span class="badge">thm:contsquare</span></td></tr>
+<tr><td>entry curve $t_e(v)$</td><td>algebraic: $t_e=U'$, with $\mathcal W=1$ at entry</td><td>banked — <span class="badge">cor:entrycurve</span>; entry boundary layer open</td></tr>
+<tr><td>exit frontier $h_*(t)$, equivalently $t_x(v)$</td><td>free boundary located by (R1), $H$-normalisation; leaver's density jumps; local law $d\log x/dv=(d\log t/dv)/(1+g(1-\kappa))$</td><td>located <em>and now differentiated</em> — <span class="badge">cor:exitnorm</span>, <span class="badge">rem:exitjump</span>, <span class="badge">cor:exitspacing</span>, and (new) <span class="badge">lem:hstarode</span> + <span class="badge">cor:exitelas</span>: the ODE for $h_*$, which <em>derives</em> $h_*'\lt0$, gets $h_*\in C^1$ free from the IFT, and gives $d\log t_x/d\log t_e\in(0,1]$ so that $\lambda=t_x/t_e$ is non-increasing. Costs no integration constant. Residue: the $u^2$ in the discrete dictionary (<span class="badge">rem:exitelasdict</span>)</td></tr>
+<tr><td>atom (existence, carrier, posterior)</td><td>zero-atom IC $\Rightarrow$ carrier is a single point $\Rightarrow$ <em>no mass</em>; nothing to fill, since $U'(\underline v)=0$</td><td>CLOSED — <span class="badge">prop:noatomcont</span>, <span class="badge">rem:atomband</span></td></tr>
+<tr><td>bottom behaviour of $p_t$</td><td>$\bar y\to0$ only at $\underline v$; blow-up $(v-\underline v)^{-(\theta+1)/(2\theta+1)}$, integrable for every $\theta\ge1$</td><td>mechanism proved; <strong>exponent guessed $-2/3$</strong> with $U'\sim c(v-\underline v)$ — G1, §8(d). Now pending only an <em>upper</em> bound on $\lambda=t_x/t_e$: the $\theta\lt1$ side is closed by <span class="badge">cor:exitelas</span>, and $\lambda$ being non-increasing turns $\lambda_0$ into a sup over the leaver block. <span class="badge">rem:bottomsing</span> rewritten 2026-08-01; the old $-1/2$/$-1/3$ dichotomy is retired</td></tr>
 </table>
 
-<p><strong>The three briefs</strong> (all <code>docs/tasks/2026-07-29-*.md</code>, each self-contained with pointers):</p>
+<h3>10.6 What is open — ranked, with the current guess attached to each</h3>
+<p class="sub">Ordered by unblock-value ÷ cost, which is not the order they were discovered in. The first two are pencil and cheap; the third is a single laptop run; the fourth is the theorem. The list shortened on 2026-08-01 — the free-boundary ODE graduated out of it, taking most of the old item 4 with it.</p>
+
 <ol>
-<li><strong>Entry/exit boundary layer.</strong> Do $\{t_e=U',\ \mathcal W=1\text{ at entry}\}$ pin the local behaviour of $p_t$ at the entry frontier without integrating the interior — via the one-Taylor-step LP expansion $1-\mathcal W\approx|\bar\chi'(0)|\,H_{p_t}(v)$ — and what is the (weaker) condition at the exit frontier? Entry and exit treated symmetrically, per the standing rule.</li>
-<li><strong>The Volterra kernel — verify.</strong> The candidate kernel, the Volterra property, and the diagonal verdict (first-kind as written, second-kind after $\partial_v$) are banked from §6; the brief closes the gaps: role/Leibniz bookkeeping through the $\Psi$-average, entry-flux boundary terms, the limit interchange, and the machine gate against $\Gamma$ at $K\in\{3,5\}$ via <code>siegel_ipv.py</code>.</li>
-<li><strong>Well-posedness — CLOSED 2026-07-30, and squareness holds.</strong> The candidate coordinates were the right ones, but they do more than linearise the tying relation: in $(v,h)$ the joint law of (type, rung) <em>factorises</em>. Differentiating (MASTER) at fixed $v$ gives $dt=t\,\bar y/\bar\chi\,dh$, which cancels the $t\,\bar y$ in (DENS), so $\tilde\rho(v,h)=\big[v\,U''(v)\big]\cdot\big[1/\bar\chi(h)\big]$ on $\{0\le h\le H(v)\}$ — a product measure restricted to a region, with $\bar y$, the one object coupling different types, gone (<span class="badge">lem:hcoords</span>). Then the count is clean: three unknown functions $U',\bar\chi,h_*$ against one algebraic relation (normalisation, costing no constant) and two first-order ODEs (costing one each), with the two constants supplied by the already-proved $\bar\chi(0)=1$ and $U'(\underline v)=0$. Square (<span class="badge">thm:contsquare</span>). Sub-checks: the atom is <em>neither</em> mass nor boundary layer; exit is carried as a full unknown function and still costs nothing, because its equation is algebraic; the discrete $K$ mirror is $K-1$ rent differences against $K$ prior conditions minus the redundancy $\sum_vP_v\equiv1$, with the atom entering as a matched unknown/equation pair (<span class="badge">rem:discretecount</span>). Two things the brief got wrong and this corrects: the anchor $U(\underline v)=0$ does <em>not</em> close the system — it never appears in it — and there is no march to find coordinates for (<span class="badge">rem:global</span>). What squareness does <em>not</em> give is existence; the right remaining target is a fixed point in $(U',\bar\chi,h_*)$.</li>
+<li><strong>Bound $\lambda(v)=t_x(v)/t_e(v)$ from above.</strong> <em>Pencil, cheapest decisive move on the page</em> (STATE <strong>C1</strong>). A bound closes G1 outright: $\theta=1$, $U''(\underline v)=f(\underline v)/(\underline v\Phi_0)$ finite and positive, $p_t\sim(\cdot)t^{-1/3}(v-\underline v)^{-2/3}$. Unbounded $\lambda$ opens the one-parameter family $\theta\ge1$ instead — still integrable, but the constant $c$ is lost. <strong>What changed on 2026-08-01:</strong> the statement went from two-sided to one-sided. <span class="badge">cor:exitelas</span> closes $\theta\lt1$ (it would force $\lambda\equiv1$, i.e.&nbsp;no mixing anywhere) and makes $\lambda$ non-increasing, so a bound <em>anywhere</em> on the leaver block is a bound at the bottom. One monotone function, bounded above — that is the whole remaining ask.</li>
+
+<li><strong>The $u^2$ in the <code>cor:exitspacing</code> dictionary.</strong> <em>Pencil, bounded: one factor</em> (STATE <strong>C2</strong>; the statement is parked as <span class="badge">rem:exitelasdict</span>). This is now the <em>only</em> open piece of the old G4: the ODE and the elasticity are banked, and the dictionary matches term by term except for a rung normalisation. Closing it converts <span class="badge">cor:exitspacing</span> from an isolated discrete asymptotic into a consequence of (R1), which is what item 4 of the old list was actually asking for — that item is now this one.</li>
+
+<li><strong>Sign the composite map on each block.</strong> <em>Laptop, one run.</em> G5 says order-preserving below $v_\dagger$, ambiguous above. The answer chooses the algorithm — bracketing envelopes versus iterating the square — and, if the sign really flips at $v_\dagger$, corroborates the threshold that G3, §8(b) and §9's caveat all independently point at.</li>
+
+<li><strong>Existence.</strong> <em>The real target; everything above is scaffolding for it.</em> A fixed point in $(\varphi,\bar\chi,h_*)$ for (R1)–(R3) under the two proved boundary conditions. The obstruction is global (§10.4), so no Picard march. Current best route: the $(v,h)$ factorisation of §9, which recasts the problem as <strong>finding the region of a product coupling</strong> — and G3 says that region is two blocks glued at $v_\dagger$. Combined with G5, the shape of the argument to aim for is a monotone iteration on the leaver block and a squared-map argument on the survivor block, matched at $v_\dagger$.</li>
 </ol>
 
+<p><strong>Re-scoped, not solved:</strong> "boundary layers at entry and exit" is gone from this list. G2 gives both frontier densities in closed form and shows the entry one <em>is</em> the entry flux, so what remains there is only whether $a_{\min},a_{\max}$ are $C^1$ — a regularity question about the free boundary, which is properly part of item 4 rather than a route of its own.</p>
+
+<h3>10.7 Guesses that died — do not re-derive</h3>
+<p class="sub">The most expensive thing a research document can do is let a refuted guess look plausible again.</p>
+
+<div class="panel dead">
+<span class="tag dead">dead</span>
+<dl style="display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; margin:6px 0 0">
+<dt><strong>D1</strong></dt><dd><strong>"The density vanishes at the exit frontier, crossed $C^1$."</strong> Killed by (DENS): $\bar y$ is bounded, so $p_t(a_{\min}^+)\gt0$ whenever $U''\gt0$. The frontier is located by normalisation instead (§8(a)). The $C^1$ statement that made this plausible, <span class="badge">prop:sliver</span>, is about the <em>surviving</em> types and says nothing about the leaver.</dd>
+<dt><strong>D2</strong></dt><dd><strong>"March the cascade downward from $a_{\max}(t)$."</strong> Not wrong, just unnecessary: $\mathcal I^{-1}\psi=-v\psi'$, so the operator inverts in closed form and the march has nothing to compute (§7.4). The discrete version dies the same way — adjacent differencing, no back-substitution loop (§7.5).</dd>
+<dt><strong>D3</strong></dt><dd><strong>"An atom survives the limit, or a boundary layer fills the band $[0,t_e(\underline v))$."</strong> Both rest on $U'(\underline v)\gt0$, which is false (§8(d)). The band is empty; the discrete atom is the $t\downarrow0$ limit of the family, not an object inside it (§8(e)).</dd>
+<dt><strong>D4</strong></dt><dd><strong>"The maximiser of $h_*$ could be interior."</strong> Killed by $h_*$ decreasing — and that monotonicity is itself now <em>derived</em> rather than asserted (<span class="badge">lem:hstarode</span>, §10.2), which is what makes this kill load-bearing rather than circular. Only the endpoint $s=0$ survives, and the $\Psi$-weight there is what makes the exponent $2$ rather than $1$.</dd>
+<dt><strong>D5</strong></dt><dd><strong>"The rent anchor $U(\underline v)=0$ closes the system."</strong> $U$ never appears in (R1)–(R3) — only $U'$ and $U''$. The anchor is inert; the closing constants are $\bar\chi(0)=1$ and $U'(\underline v)=0$, both theorems (<span class="badge">rem:anchorinert</span>).</dd>
+<dt><strong>D6</strong></dt><dd><strong>"(TRI) is a conjecture, and the exit ladder needs the $K=4$ constructed curve."</strong> (TRI) is <span class="badge">thm:triLP</span> at every $K$; the $K=4$ curve is refuted as an equilibrium object (<span class="badge">cor:atomICfail</span>) and its constants — notably $0.408$ — must never be quoted (§4).</dd>
+</dl>
+</div>
+
 <hr>
-<p class="footnote">Provenance: brainstorm session 2026-07-29 (Fable), banked same day in <code>docs/proofs.tex</code> §<code>sec:continuum</code> — <code>def:cont</code>, <code>lem:filoc</code>, <code>lem:winprob</code>, <code>cor:entrycurve</code>, <code>rem:exitcont</code>, <code>rem:volterra</code> (commit <code>9f14ab6</code>); LP kernel section <code>lem:lpwinprob</code>, <code>cor:lptri</code> + the corrected <code>rem:volterra</code> banked the same evening (commit <code>0093448</code>), from the machinery comparison <code>claude-ai-project/siegel_vs_lu_parreiras_comparison.v1.md</code>. Discrete inputs: <code>sec:ladder</code> (floor ladder), <code>sub:tri</code>/<code>thm:tricascade</code> (cascade), <code>lem:atomIC</code> (zero-atom IC). References: Zhang &amp; Wang (2009); Siegel (2009, 2014); Lu &amp; Parreiras (2017); Milgrom &amp; Segal (2002).</p>
+<p class="footnote">Provenance: sessions 2026-07-29 to 2026-08-01, banked in <code>docs/proofs.tex</code> §<code>sec:continuum</code>. Core labels: <code>def:cont</code>, <code>lem:filoc</code>, <code>lem:winprob</code>, <code>lem:lpwinprob</code>, <code>cor:lptri</code>, <code>cor:entrycurve</code>, <code>rem:exitcont</code>; the certified-kernel subsection <code>sub:volterra</code> — <code>lem:tievalue</code>, <code>lem:volterrakernel</code>, <code>prop:kernelinv</code>, <code>rem:tridiff</code>, <code>cor:exitnorm</code>, <code>lem:hstarode</code>, <code>cor:exitelas</code>, <code>rem:exitelasdict</code>, <code>rem:exitjump</code>, <code>rem:global</code>, <code>rem:bottomsing</code>, <code>prop:noatomcont</code>, <code>rem:atomband</code>, <code>lem:hcoords</code>, <code>thm:contsquare</code>, <code>rem:anchorinert</code>, <code>rem:discretecount</code>, <code>rem:kernelladder</code>; the superseded first draft is retained as <code>rem:volterra</code>. Discrete inputs: <code>sec:ladder</code> (floor ladder), <code>sub:tri</code>/<code>thm:tricascade</code>/<code>thm:triLP</code> (cascade and (TRI)), <code>lem:atomIC</code> (zero-atom IC), <code>lem:exitlevels</code>/<code>thm:transexit</code>/<code>lem:k3exit</code> (the discrete exit), <code>lem:ywindow</code>/<code>cor:exitspacing</code> (exit location and spacing). Machine gates live in <code>Python/check_volterra_kernel.py</code>, <code>Python/check_hcoords.py</code> and the Phase-G artifacts under <code>docs/data/</code>. References: Zhang &amp; Wang (2009); Siegel (2009, 2014); Lu &amp; Parreiras (2017); Milgrom &amp; Segal (2002).</p>
 
 <script>
 document.addEventListener("DOMContentLoaded",function(){

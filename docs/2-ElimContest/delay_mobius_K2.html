@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where the Delay Would Come From, and Why It Cannot (K = 2)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#5c5c5c; --line:#e2e2e2; --bg:#fbfbf9;
+    --accent:#7a1f2b; --accent2:#1f4e7a; --good:#1f6b3a; --warn:#8a5a00;
+    --panel:#f4f3ef; --code:#f0efe9;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Georgia,"Times New Roman",serif; color:var(--ink); background:var(--bg);
+    max-width:860px; margin:0 auto; padding:48px 28px 120px; line-height:1.62; font-size:18px;
+  }
+  h1{font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em}
+  h2{font-size:23px; margin:46px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); color:var(--accent)}
+  .sub{color:var(--muted); font-style:italic; margin:0 0 8px}
+  p{margin:10px 0}
+  code{background:var(--code); padding:1px 5px; border-radius:4px; font-size:15px; font-family:"SF Mono",Menlo,Consolas,monospace}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin:18px 0}
+  .focus{border-left:5px solid var(--accent); background:#f9f1f1}
+  .key{border-left:5px solid var(--good); background:#eef6f0}
+  .warn{border-left:5px solid var(--warn); background:#faf4e6}
+  .tag{display:inline-block; font-family:"SF Mono",Menlo,monospace; font-size:12px; letter-spacing:.08em;
+       text-transform:uppercase; padding:2px 8px; border-radius:20px; color:#fff; margin-bottom:6px; background:var(--muted)}
+  .tag.focus{background:var(--accent)} .tag.key{background:var(--good)} .tag.warn{background:var(--warn)}
+  table{border-collapse:collapse; width:100%; margin:16px 0; font-size:15px}
+  th,td{border:1px solid var(--line); padding:7px 11px; text-align:left}
+  th{background:var(--panel)}
+  .footnote{color:var(--muted); font-size:15px}
+  ol li,ul li{margin:6px 0}
+  hr{border:none; border-top:1px solid var(--line); margin:32px 0}
+</style>
+</head>
+<body>
+
+<h1>Where the Delay Would Come From, and Why It Cannot</h1>
+<p class="sub">The same seven steps, run on the two-type case in the same notation: the wall exists, the duality holds, the cancellation happens — and every one of them is degenerate, because $m\equiv0$ collapses $\Phi$ onto $h$ and there is no second level left for a rival's belief to cross.</p>
+
+<div class="panel key">
+<span class="tag key">provenance</span>
+<p style="margin:6px 0 0">Unlike its three-type companion, everything below <em>is</em> an equilibrium claim. The binary equilibrium is banked and was not touched by the incentive failure that refuted the constructed three-type curve: its zero-bid atom is carried by Low alone at posterior $h=0$, so the atom prize is $0$ and the zero-atom incentive condition is satisfied — the binary case is in fact the $K=2$ instance of that condition, not a casualty of it. Read this document as the base case: the one place in the programme where the shifted argument is provably absent, and therefore the sanity check every general-$K$ formula has to pass. Notation is the companion's throughout, specialised by $m\equiv0$; the source file <code>proofs.tex</code> writes the binary posterior as $\mu$, and $\mu\equiv h$.</p>
+</div>
+
+<h2>0. Cast of characters</h2>
+<p>Two valuations $v\in\{1,3\}$ (Low, High), equal priors. Round-one bids are mixed; instead of the bid $b$ we use its quantile $t=G(b)\in[0,1]$ — the probability that a rival's bid falls below yours. The object of interest is the <em>posterior belief attached to each quantile</em>: an observer who sees a first-round bid at quantile $t$ assigns</p>
+$$
+h(t) = \Pr(\text{High}\mid t), \qquad m(t) \equiv 0, \qquad \ell(t) = 1 - h(t) - m(t) = 1-h(t).
+$$
+<p>Every definition of the three-type case survives verbatim; the two-type case <em>is</em> the three-type case at $m\equiv0$. In particular the combination that recurs so often it earned a name,</p>
+$$
+\Phi(t) \;=\; h(t) + \tfrac32\, m(t),
+$$
+<p>is perfectly well defined here, and this is the whole content of the document:</p>
+<div class="panel focus">
+<span class="tag focus">the thesis, in one line</span>
+$$
+m\equiv0 \quad\Longrightarrow\quad \Phi \;=\; h \quad\text{identically.}
+$$
+<p style="margin:6px 0 0">The three-type wall is $h(s)=\Phi(t)$ — an equation between the High-share at the opponent's quantile $s$ and a level of the own posterior at $t$. With $\Phi=h$ it reads $h(s)=h(t)$, whose root is $s=t$. The delay is not removed by a change of variables; it is never created, because the level that the opponent's High-share is asked to reach is the opponent-side reading of the <em>same</em> quantity, at the <em>same</em> height.</p>
+</div>
+<p>The same collapse in the language of the belief ladder. The walls of the Round-2 complex are level-crossings between rungs of $H_p(v)=\int_{[v,\bar v]}dp/u$, rescaled by $3$; at $K=3$ the three rungs are</p>
+$$
+h, \qquad \underbrace{h+\tfrac32 m}_{\Phi}, \qquad h+\tfrac32 m + 3\ell ,
+$$
+<p>and at $m\equiv0$ the middle rung <em>merges into the top one</em>, leaving two distinct levels, $h$ and $h+3\ell$. Numerical constants of the curve, at $(v_H,v_L)=(3,1)$ with equal priors:</p>
+<table>
+<tr><th>symbol</th><th>meaning</th><th>value</th></tr>
+<tr><td>$t_0$</td><td>size of the zero-bid atom (quantiles $[0,t_0]$ bid zero, all Low); also High's entry rung</td><td>$0.2221296$</td></tr>
+<tr><td>$k_1$</td><td>equilibrium rent of High, $=2t_0$ (Low earns $0$; there is no $k_2$)</td><td>$0.4442592$</td></tr>
+<tr><td>$h(1)$</td><td>belief at the top of the support — never reaches $1$</td><td>$0.9524950$</td></tr>
+<tr><td>$b_{top}$</td><td>top of the bid support</td><td>$0.1746246$</td></tr>
+<tr><td>$t^*,\;t^{**}$</td><td>quantiles where a window opens / closes</td><td><em>do not exist</em></td></tr>
+</table>
+<p>Two remarks on this table. First, $t_0$ is the companion's $t_0$, not a renaming: in the general-spacing form of the floor relation, $t_v=(U_v-U_{v^-})/(v-v^-)$, the top type's entry rung is $t_0=(U_H-U_L)/(v_H-v_L)=k_1/2$, which is exactly the atom's quantile mass $G(0)$. (At $K=3$ that relation reads $t_0=(U_H-U_M)/(v_H-v_M)=k_1-k_2$ because the values are unit-spaced there.) The floor relation's scope caveat — its $t_0$ is the top type's entry rung and coincides with the atom edge only when the two happen to agree — is satisfied here legitimately: the atom is pure Low and High enters exactly where the atom ends. Second, the last row is not an omission. In the three-type case $t^*,t^{**}$ are the quantiles at which a wall switches on and off, and they cut the support into branches. Here no wall ever switches, the support has one co-mixing branch, and there is nothing to name.</p>
+
+<h2>1. The engine: indifference makes products constant</h2>
+<p>Each type mixes over an interval of quantiles, and along its support its expected payoff is constant. Taking differences between adjacent types, the envelope argument gives <em>first integrals</em>. At $K=3$ there were two, one per adjacent pair,</p>
+$$
+t\,D_{HM}(t) \;=\; k_1 - k_2, \qquad t\,D_{ML}(t) \;=\; k_2 ,
+$$
+<p>and it is the interplay between those two branches that Steps 4–6 exploit. At $K=2$ there is one adjacent pair, $(H,L)$, and therefore one first integral:</p>
+$$
+t\,D_{HL}(t) \;=\; k_1 \qquad \text{on the common support.}
+$$
+<p>Written out in the beliefs — with $\Delta=v_H-v_L=2$ and $Y(h)=\int_0^h G^2$ the opponent-reputation integral induced by the fact that your final opponent is the <em>maximum of two</em> draws from $G$ — this is the conserved quantity</p>
+$$
+\Pi \;=\; G\Big[(1-h)+\tfrac{\Delta}{3}\,Y(h)\Big] \;=\; t_0 ,
+\qquad\text{with}\qquad t\,D_{HL}=\Delta\,\Pi , \quad\text{so } k_1=\Delta\,t_0 = 2t_0 .
+$$
+<p>Differentiating this identity in $t$ is what produces the ODE for $h$. So everything hinges on how $D_{HL}$ depends on the beliefs — and that is where the second round enters.</p>
+
+<h2>2. The opponent's quantile, and the wall</h2>
+<p>Your continuation payoff is a final against the winner of the <em>other</em> semifinal, whose quantile $s$ is drawn with density $2s\,ds$ (they had to beat someone). The final is an all-pay auction under the pair of revealed beliefs, one at your quantile $t$, one at theirs, $s$. Its payoff is <em>piecewise affine</em> in the two belief vectors: the affine formula switches when belief levels cross. Here the whole cell complex is visible at once — with two types there is a single ratio comparison, so there are exactly two cells and the two affine forms glue into one expression,</p>
+$$
+\Pi_2(H;h,h_{\text{opp}})=\Delta\big(1-\min(h,h_{\text{opp}})\big),
+\qquad
+\Pi_2(L;h,h_{\text{opp}})=\tfrac{\Delta}{3}\,(h-h_{\text{opp}})^+ ,
+$$
+<p>the $\min$ <em>being</em> the entire word, with unique kink locus the diagonal $h=h_{\text{opp}}$. (At $K=3$ the word has length $4$ or $5$ across ten cells and no single $\min$ reproduces it: the collapse is a degree-one accident.)</p>
+<p>Now run the wall census the way the three-type case forces one to. The companion has two own-behind walls, with <em>complementary</em> necessity conditions coming from the a-priori bound $h(s)\le1$:</p>
+$$
+h(W)=h+\tfrac32m=\Phi \ \text{ needs }\ m\le2\ell,
+\qquad
+h(s_3)=h+3\ell \ \text{ needs }\ 2\ell\le m .
+$$
+<div class="panel focus">
+<span class="tag focus">the wall census, in full</span>
+<p style="margin:6px 0 6px">Set $m\equiv0$ in both.</p>
+<p style="margin:6px 0 0"><b>(a) The $\Phi$-wall survives, as the diagonal.</b> Its necessity $m\le2\ell$ becomes $0\le2\ell$, vacuously true — the wall is active everywhere. And its equation becomes $h(s)=\Phi(t)=h(t)$, root</p>
+$$
+W(t)=t .
+$$
+<p style="margin:6px 0 0"><b>(b) The $s_3$-wall dies.</b> Its necessity $2\ell\le m$ becomes $2\ell\le0$, i.e. $\ell=0$ — satisfiable only on the degenerate pure-High posterior $h=1$, which the equilibrium never reaches. Equivalently and directly: the crossing of your <em>bottom</em> rung against the opponent's <em>top</em> rung asks for</p>
+$$
+h(s)=h(t)+\frac{v_H}{v_L}\big(1-h(t)\big) \;\gt\; 1 \quad\text{whenever } h(t)\lt1,
+$$
+<p style="margin:6px 0 0">refused by $h(s)\le1$ for <em>every</em> value ratio $v_H/v_L$ — no solution, no numerics, no architecture involved. (The companion's knife-edge $(v_H-v_M)(v_H-v_L)=v_Mv_L$, which decides whether the two necessities are complementary at $K=3$, has nothing to arbitrate here: one of the two walls is identically active and the other identically dead.)</p>
+<p style="margin:10px 0 0">A wall is supposed to be an equation between the solution at two <em>different</em> quantiles. The one surviving wall is an equation between the solution and itself. Its root is not a new unknown for the ordinary reason — that it is $h$ evaluated somewhere else — but for a stronger one: it is not evaluated somewhere else.</p>
+</div>
+
+<h2>3. The delay ODE — and the slot where the delay would sit</h2>
+<p>Average the pair difference over the opponent. Writing $\chi_q$ for the tying value and $\bar y=-\bar\chi'$ for its $\Psi$-average, the first integral of §1 differentiates to</p>
+$$
+h'(t) \;=\; \frac{3\,t_0}{t^2\,\bar y(t)} ,
+\qquad
+\bar y(t)=\int_0^1 y_s\big(h(t)/3\big)\,2s\,ds .
+$$
+<p>The integrand $y_s$ is a step function of $s$: it equals $3$ while the opponent's ladder sits above your level and drops to $1$ once it does not, the step occurring exactly at the wall of §2, $s=t$. So the two pieces are $[t,1]$ and $[0,t]$, and</p>
+$$
+\bar y(t)\;=\;3\,(1-t^2)\;+\;1\cdot t^2\;=\;3-2t^2 .
+$$
+<p>Hence the equilibrium ODE, elementary and <em>autonomous</em>:</p>
+$$
+h'(t) \;=\; \frac{3\,t_0}{t^2\,\big(3-2t^2\big)}\qquad\text{on }[t_0,1].
+$$
+<p>Set this beside the three-type pair, in which the averaged tying value carried <em>two</em> crossovers — your own rung, where $y$ steps $3\to2$, and a second one $\omega(t)$ where it steps $2\to1$ — giving $\bar y=3-t^2-\omega(t)^2$. The numerators are the same symbol, $3t_0$; only the bracket differs.</p>
+<div class="panel key">
+<span class="tag key">the delay, and its absence</span>
+$$
+\underbrace{h'=\frac{3t_0}{t^2\,(3-t^2)}}_{K=3,\ \text{below }t^*}
+\qquad
+\underbrace{h'=\frac{3t_0}{t^2\,\big(3-t^2-w(t)^2\big)}}_{K=3,\ \text{above }t^*}
+\qquad
+\underbrace{h'=\frac{3t_0}{t^2\,\big(3-t^2-t^2\big)}}_{K=2,\ \text{everywhere}}
+$$
+<p style="margin:6px 0 0">The binary bracket $3-2t^2$ is <em>the same expression</em> $3-t^2-\omega^2$ with $\omega\equiv t$. The second crossover has not been assumed away and has not been approximated: it has <b>collapsed onto the diagonal</b>, because a step from $v_M$ down to $v_L$ requires a $v_M$. A shifted argument with zero shift is not a shifted argument. That is the precise sense in which the binary chain is autonomous — and note what it does <em>not</em> rest on: $\bar y$ depends on the solution only through the <em>measure</em> of the level set $\{s:h(s)\le h(t)\}$, so even without monotonicity of the belief there is no $h$ composed with a shifted point. Monotonicity is used only to evaluate that measure as $t^2$.</p>
+</div>
+<p>The quadrature is then the companion's, unchanged. With $s:=\sqrt{\Delta/3}$, partial fractions give $\int dt\big/t^2(1-s^2t^2)=-1/t+s\operatorname{artanh}(st)$, and anchoring at $h(t_0)=0$ — the belief at the top of the pure-Low atom —</p>
+$$
+h(t)\;=\;1-\frac{t_0}{t}+t_0\,s\big[\operatorname{artanh}(st)-\operatorname{artanh}(st_0)\big],
+\qquad s=\sqrt{\tfrac{\Delta}{3}} .
+$$
+<p>This is <em>verbatim</em> the three-type formula below $t^*$, symbol for symbol, and the one constant that differs differs legibly: in both cases $s^2=(v_H-v_{2\mathrm{nd}})/v_H$, the gap from the top value to the value immediately below it, over the top value. At $K=3$, $v_{2\mathrm{nd}}=v_M=2$ and $s=1/\sqrt3$; at $K=2$, $v_{2\mathrm{nd}}=v_L=1$ and $s=\sqrt{2/3}$. The binary curve is not an analogue of the three-type delay-free branch. It <em>is</em> that branch, with the ladder's middle rung deleted.</p>
+
+<h2>4. First observation: the two walls are inverse maps</h2>
+<p>At $K=3$ the two readings of the wall,</p>
+$$
+h\big(W(t)\big)=\Phi(t) \qquad\text{and}\qquad \Phi\big(w(y)\big)=h(y),
+$$
+<p>are the same relation read from its two ends, so $W=h^{-1}\!\circ\Phi$ and $w=\Phi^{-1}\!\circ h$ are mutually inverse bijections between the top stretch $[t^*,1]$ and the bottom window $[t_0,t^{**}]$ — each branch's delay pointing exactly into the other branch's domain.</p>
+<p>Here $\Phi=h$, so the two readings are literally the same equation, and the duality is satisfied in the only way available to it:</p>
+$$
+w = W = h^{-1}\!\circ h = \mathrm{id}, \qquad W=w^{-1} \ \checkmark, \qquad w\big(W(t)\big)=t \ \checkmark .
+$$
+<p>Both statements are true and neither carries information. The structural difference is worth naming precisely: at $K=3$ the map $w$ is a bijection between two <em>disjoint</em> stretches of the support, which is why the system is genuinely coupled and why $t^*,t^{**}$ exist at all as the images of the endpoints ($w(t^*)=t_0$, $w(1)=t^{**}$). At $K=2$ it is a bijection of the support with itself fixing every point. One branch, talking to itself, at the point where it already is.</p>
+
+<h2>5. The key step: differentiate the wall itself</h2>
+<p>Follow the recipe anyway. Differentiate $h(W(t))=\Phi(t)$ by the chain rule:</p>
+$$
+h'\big(W(t)\big)\cdot W'(t) \;=\; \Phi'(t).
+$$
+<p>Now substitute what each branch's own equation says about the two derivatives. At $K=3$ this was the load-bearing step, because the two derivatives came from <em>different</em> branches — the Mid equation supplying $\Phi'(t)=3k_2/t^2(3-t^2-W^2)$ on $[t_0,t^{**}]$, the High equation supplying $h'(W(t))=3t_0/W^2(3-W^2-t^2)$ on $[t^*,1]$. Here $\Phi'=h'$ and both derivatives come from the single equation of §3:</p>
+$$
+\Phi'(t)=h'(t)=\frac{3t_0}{t^2\big(3-t^2-W(t)^2\big)},
+\qquad
+h'\big(W(t)\big)=\frac{3t_0}{W(t)^2\big(3-W(t)^2-t^2\big)} .
+$$
+<div class="panel key">
+<span class="tag key">the cancellation, degenerate</span>
+<p style="margin:6px 0 0">The bracket $3-t^2-W^2$ is symmetric in the pair $(t,W)$ for exactly the reason it was at $K=3$: the window in which <em>you</em> price the opponent's crossing is the mirror of the window in which <em>they</em> price yours. Dividing, everything involving the unknown $h$ cancels — the mechanism is intact — and what is left is</p>
+$$
+\frac{t_0\,W'(t)}{W(t)^2}\;=\;\frac{t_0}{t^2}
+\qquad\text{i.e.}\qquad
+\frac{W'}{W^2}=\frac{1}{t^2}.
+$$
+<p style="margin:6px 0 0">Compare the three-type outcome, $t_0W'/W^2=k_2/t^2$. The two constants weighting the two sides there are the two adjacent-pair first integrals, $t_0=k_1-k_2$ and $k_2$. With one adjacent pair there is one constant; it appears on both sides and cancels along with everything else. The separable ODE for the wall alone survives — it just has unit coefficients.</p>
+</div>
+
+<h2>6. Integrate: the wall is a Möbius map</h2>
+<p>Both sides are perfect derivatives ($\mathrm d(-1/W)$ and $\mathrm d(-1/t)$), so</p>
+$$
+\frac{1}{W(t)}-\frac{1}{t}\;=\;c \quad\text{(a constant)},
+\qquad\Longrightarrow\qquad
+W(t)=\frac{t}{\,1+c\,t\,},
+$$
+<p>the same fractional-linear family as at $K=3$, where it read $W(t)=t_0t/(k_2+ct)$. And here the constant is pinned without any endpoint dictionary, because §2 already produced the root: $W=\mathrm{id}$ forces</p>
+$$
+c=0, \qquad W=\mathrm{id},
+$$
+<p>the <b>identity element of the Möbius group</b> — the degenerate member of the family, a dilation by $1$. At $K=3$ the corresponding statement is $W(t)=(t_0/k_2)\,t\approx2.2984\,t$, a pure dilation whose factor $t_0/k_2=(k_1-k_2)/k_2$ measures the <em>ratio of the two adjacent-pair rent constants</em>. With one adjacent pair there is no ratio to measure, and the factor is $1$.</p>
+<p>The consequence for the geometry of the support is immediate. A dilation by $\lambda\ne1$ has exactly two fixed points, $0$ and $\infty$, so no interior quantile is its own wall root and the support is genuinely cut into branches — indeed at $K=3$ the two switching quantiles turn out to be rational in the rents, $t^*=t_0^2/k_2$ and $t^{**}=k_2/t_0$. The identity fixes <em>every</em> point. That is the geometric restatement of the empty row in §0's table: with every quantile its own wall root, there is nothing for a switching quantile to switch.</p>
+
+<h2>7. The delay integrates away</h2>
+<p>At $K=3$ this step did the work: substituting the explicit Möbius $w(y)=\kappa y$, $\kappa=k_2/t_0$, back into the High equation turned a functional-differential equation into a rational one,</p>
+$$
+h'(y)=\frac{3t_0}{y^2\big(3-(1+\kappa^2)\,y^2\big)} ,
+$$
+<p>the same quadrature as below $t^*$ with $\sqrt3$ rescaled to $\sqrt{3/(1+\kappa^2)}$. That single formula in fact covers all three brackets of §3, and it locates the binary case exactly:</p>
+<div class="panel key">
+<span class="tag key">one bracket, three values of the dilation</span>
+<table style="margin:10px 0 0">
+<tr><th>regime</th><th>window $[0,w(t)]$</th><th>$\kappa=w(t)/t$</th><th>bracket $3-(1+\kappa^2)t^2$</th></tr>
+<tr><td>$K=3$, below $t^*$</td><td>empty</td><td>$0$</td><td>$3-t^2$</td></tr>
+<tr><td>$K=3$, above $t^*$</td><td>$[0,\kappa t]$, $\kappa=k_2/t_0$</td><td>$0.4351$</td><td>$3-1.1893\,t^2$</td></tr>
+<tr><td>$K=2$, everywhere</td><td>$[0,t]$</td><td>$1$</td><td>$3-2t^2$</td></tr>
+</table>
+<p style="margin:10px 0 0">Since the two crossovers are ordered, $\omega(t)\le t$, the dilation satisfies $\kappa\in[0,1]$ — and both endpoints are realised. $\kappa=0$ is the three-type delay-free stretch, where the window is empty. $\kappa=1$ is the binary case, where the window is <em>as large as it can be</em>: the whole interval below your own quantile. The binary case is not the trivial corner of this family; it is the opposite extreme from the delay-free one, reached by the window growing until its moving endpoint catches the fixed one.</p>
+</div>
+<p>So substituting $W=\mathrm{id}$ into the equation of §3 returns the equation of §3. Nothing is removed because nothing was there, and the rescaling $\sqrt{3/(1+\kappa^2)}=\sqrt{3/2}$ is present from the start rather than manufactured by the substitution — it is $\Delta=v_H-v_L=2$, the gap the single adjacent pair spans.</p>
+<p>Two further contrasts close the accounting, and both run in the binary case's favour.</p>
+<ul>
+<li><b>No residual band.</b> At $K=3$ a short stretch near the top of the support keeps a scalar ODE with no elementary antiderivative, handled by a convergent series; the method removes <em>delays</em>, not <em>non-elementary integrals</em>. That band is the $s_3$-wall's territory — and §2 killed the $s_3$-wall outright at $m\equiv0$. So $h$ is elementary on the whole support, and the only transcendence left in the problem is the single scalar $t_0$, pinned by the prior through $\int_{t_0}^{1}h\,dG=\tfrac12$: one equation, one unknown, and the belief never reaches $1$, so there is no High-only tail to accommodate.</li>
+<li><b>Even the wide-gap regime stays delay-free.</b> Past $v_H/v_L=4.2286$ a third region appears on top of the two: a High-only cap on which $h\equiv1$. It adds no wall. On the cap only High bids, the continuation $\widetilde W_H$ is <em>constant</em>, and the indifference condition degenerates to the uniformity relation $g=1/\widetilde W$ — a linear bid schedule, no ODE at all, hence nothing for a shifted argument to enter. The diagonal level set fattens to all of $[0,1]$ and still never moves off the diagonal.</li>
+</ul>
+
+<h2>8. The moral</h2>
+<p>The companion named three ingredients that made the Möbius trick work. Run them down; all three hold at $K=2$, and all three are degenerate, each for a reason traceable to the single hypothesis $m\equiv0$.</p>
+<ol>
+<li><b>Walls are level-crossings of beliefs.</b> True here — but $m\equiv0$ merges the middle rung into the top, so $\Phi=h$ and the surviving wall $h(s)=\Phi(t)$ is the diagonal. The one crossing that would relate <em>different</em> rungs, $h(s)=h(t)+(v_H/v_L)(1-h(t))$, needs a right-hand side above $1$, refused by $h\le1$ for every value ratio.</li>
+<li><b>Duality.</b> True here — $\Phi=h$ makes $w=W=\mathrm{id}$, its own inverse, and $w(W(t))=t$ holds. But the two branches it relates are one branch, so composing the substitutions closes a loop of length zero.</li>
+<li><b>Symmetry of the tying window.</b> True here, and total: the bracket is symmetric in $(t,t)$. You tie them where they tie you, at the same quantile.</li>
+</ol>
+<p>So the autonomy of the binary chain is <em>structural, not lucky</em>. It does not depend on the values, on the prior, on the architecture of the support, or on any property of the solution — not even on monotonicity of the belief: it follows from counting rungs on the ladder and applying $h\le1$. The companion's own accounting predicts this exactly: with $K$ types there are $K-2$ nontrivial walls, and $K-2=0$.</p>
+<p>Which is also the warning. The delay is not an artifact of the three-type case that a better change of variables might have avoided; it is what a third value <em>creates</em>, by inserting an intermediate rung — $\Phi$ strictly between $h$ and $h+3\ell$ — that a rival's High-share can actually reach. It arrives at $K=3$ and, off the knife-edge $(v_H-v_M)(v_H-v_L)=v_Mv_L$ satisfied by $(1,2,3)$, it arrives in a less orderly form, with a gap where no wall binds or an overlap where two do. Everything the binary case teaches is therefore about the <em>shape of the answer</em> — the conserved product $tD=k$, the artanh quadrature, the pure-Low zero atom, the single scalar pinned by the prior — and nothing it teaches is about handling a shifted argument, because it never had to. For that, $K=3$ is the smallest honest laboratory, and the repaired equilibrium and the continuum limit are where the lesson has to be spent.</p>
+
+<hr>
+<p class="footnote">Sources in <code>docs/proofs.tex</code>: the first integral and the artanh closed form (<code>thm:firstint</code>), the pure-Low atom with $h_0=0$ (<code>lem:blo</code>, the $K=2$ instance of <code>lem:atomIC</code>), no High-only tail and the two-region support (<code>lem:notail</code>, <code>thm:tworegion</code>), the closure $\int h\,dG=\tfrac12$ and the constants (<code>thm:closure</code>), the wide-gap cap (<code>thm:widegapcap</code>), $F=G^2$ (<code>lem:FG2</code>), the Round-2 payoffs and continuations (<code>lem:R2closed</code>, <code>lem:Wtilde</code>), the two-cell collapse and its $\min$-form (<code>lem:twotypecollapse</code>), the general-spacing floor relation behind $t_0=k_1/2$ (<code>lem:floorK</code>, <code>thm:floorladder</code>, <code>cor:entrycurve</code>), and — the load-bearing statement of §2 — the a-priori wall census with its complementary necessities (<code>rem:wallreach</code>, part (i) for $K=2$, part (ii) for the two walls specialised here). §3's averaged tying value is <code>cor:ybark2</code> (banked 2026-07-30: $\bar y=v_H-\Delta\,\Psi(\{s:h(s)\le h(t)\})$, unconditional; $=3-2t^2$ under <code>lem:mumono</code>), built on <code>lem:tievalue</code> and <code>lem:volterrakernel</code> and specialising the two-crossover form $\bar y=3-t^2-\omega^2$ of <code>prop:k3cascade</code>. The companion document is <code>docs/delay_mobius_K3.html</code>; its shifted-argument warning for the repaired march is <code>rem:omegadelay</code>. Machine gates: <code>Python/verify_first_integral.py</code>, <code>Python/no_tail.py</code>, <code>Python/general_v_solution.py</code>, <code>Python/verify_k2_general_notation.py</code>, <code>Python/wide_gap_closure.py</code>. Notation: <code>proofs.tex</code> writes the binary posterior as $\mu$; here it is $h$, the companion's symbol, and $\mu\equiv h$.</p>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  renderMathInElement(document.body,{
+    delimiters:[
+      {left:"$$",right:"$$",display:true},
+      {left:"$",right:"$",display:false}
+    ],
+    throwOnError:false
+  });
+});
+</script>
+</body>
+</html>

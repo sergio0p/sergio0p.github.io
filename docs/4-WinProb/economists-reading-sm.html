@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An economist's reading of shadow monotonicity</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+/* house style: white/grey on black, Palatino prose, KaTeX math.
+   Hierarchy is SIZE ONLY — no bold, no italics. Inlined from
+   dotfiles-claude/skills/research/math-output.css so the file travels. */
+html{font-size:16px}
+body{max-width:820px;margin:2rem auto;padding:0 1.2rem;background:#0c0c0c;color:#e6e6e6;
+     font-weight:400;line-height:1.65;
+     font-family:Palatino,'Palatino Linotype','Book Antiqua',Georgia,serif}
+strong,b,em,i{font-weight:inherit;font-style:normal}
+.title{font-size:1.44rem;font-weight:400;line-height:1.25;margin:0 0 1.1rem}
+.section{font-size:1.2rem;font-weight:400;line-height:1.3;margin:1.8rem 0 .5rem}
+.note{font-size:.833rem;font-weight:400}
+h1{font-size:1.44rem;font-weight:400;line-height:1.25;margin:0 0 1.1rem}
+h2,h3{font-size:1.2rem;font-weight:400;line-height:1.3;margin:1.8rem 0 .5rem}
+a{color:#cfcfcf;text-decoration:underline}
+code{background:#1e1e1e;padding:.05rem .3rem;border-radius:3px;font-size:.92em;font-family:Menlo,Consolas,monospace}
+.katex{color:#f2f2f2}
+.box{background:#161616;border:1px solid #333;border-radius:6px;padding:.5rem 1rem;margin:1rem 0}
+.key{background:#1c1c1c;border-color:#888}
+/* tables: same palette, size-only, no rules beyond a hairline */
+table{border-collapse:collapse;margin:1rem 0;width:100%;font-size:.95rem}
+th,td{border-top:1px solid #333;padding:.35rem .6rem;text-align:left;vertical-align:top;font-weight:400}
+th{color:#cfcfcf}
+.overflow{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<p class="title">An economist's reading of shadow monotonicity</p>
+
+<p>Quota games, Owen's multilinear extension, and pivotality premia — a companion to
+<code>Docs/proofs.tex</code> §<code>sec:SM</code> and §<code>sec:odrop</code>. Nothing here is new
+mathematics: every statement is one already banked, restated in the language of contests and power
+indices, with the derivations written out in full. The point is that the whole (SM) layer, which
+reads as opaque probability algebra, is a sequence of statements about <em>who competes with whom
+for the last prize</em>.</p>
+
+<p>Every identity below was checked over the exact rationals —
+<code>Docs/data/econ_reading_ids.jl</code>, 23 664 checks, 0 failures, boards $3\le m\le 8$, all
+levels $k$, Julia 1.12.6, no floating point anywhere.</p>
+
+<p class="section">1. The contest is a quota game</p>
+
+<p>There are $m$ contestants and $k$ prizes. Fix a reference level $c$ — a score, a grade, a
+threshold. Each contestant $\ell$ draws independently and lands</p>
+
+<div class="box">
+<p><em>below</em> $c$ with probability $x_\ell = G_\ell(c)\in(0,1)$ — $\ell$ does not outrank the
+reference;<br>
+<em>above</em> $c$ with probability $1-x_\ell$ — $\ell$ does outrank it.</p>
+</div>
+
+<p>So $x_\ell$ is contestant $\ell$'s own CDF value at $c$: high $x_\ell$ means $\ell$ is
+<em>weak</em> — likely to fall short — and $1-x_\ell$ is $\ell$'s <em>threat</em>.</p>
+
+<p>Now put contestant $i$ at the reference level and ask for the probability that $i$ takes a prize.
+Contestant $i$ finishes in the top $k$ exactly when at most $k-1$ rivals outrank him:</p>
+
+$$W_i(x) \;=\; \Pr\big[\,\#\{\ell\ne i:\ \ell \text{ above}\}\le k-1\,\big].$$
+
+<p>Two features of this object drive everything that follows, and both are economic, not technical.</p>
+
+<p>First, $W_i$ does not contain $x_i$. Contestant $i$'s own quality has been used up in placing him
+at $c$; what is left to determine is only what the <em>others</em> do. This is why the diagonal of
+every derivative matrix below is zero, and why one player can be added to the board without changing
+his own prospects.</p>
+
+<p>Second, $W_i$ is increasing in every $x_j$, $j\ne i$: a weaker rival is good news. So the
+$m$-vector $W(x)=(W_1(x),\dots,W_m(x))$ is a monotone summary of the field, and the project's
+headline question — is $W$ injective on $(0,1)^m$? — asks whether a contest's outcome statistics
+recover its contestants' quantiles.</p>
+
+<p class="section">2. Owen's multilinear extension, in two lines</p>
+
+<p>Let $v:2^{N}\to\{0,1\}$ be a simple game on $N$ — $v(S)=1$ if coalition $S$ wins. Owen (1972)
+defined its <em>multilinear extension</em> by letting each player join independently, $i$ with
+probability $x_i$:</p>
+
+$$f(x)\;=\;\sum_{S\subseteq N}\Big(\prod_{i\in S}x_i\prod_{i\notin S}(1-x_i)\Big)\,v(S)
+\;=\;\mathbb E\big[v(\tilde S)\big]\;=\;\Pr[\tilde S\text{ wins}].$$
+
+<p>The only structural fact we need is visible from the sum: $f$ is <em>affine in each coordinate
+separately</em> (each $x_i$ appears to the first power). Splitting the sum according to whether
+$i\in S$,</p>
+
+$$f(x)\;=\;x_i\,f(x\mid x_i{=}1)\;+\;(1-x_i)\,f(x\mid x_i{=}0). \tag{2.1}$$
+
+<p>Specialise to the symmetric quota game on $d$ players with quota $q$ — $v(S)=1$ iff $|S|\ge q$.
+Then $f(z)=\Pr[\#\{\text{joiners}\}\ge q]$, the Poisson–binomial upper tail.</p>
+
+<p>Our contest is exactly this game, with the "coalition" being the set of contestants who
+<em>fall short</em>. On a board of $d$ contestants, write $A$ for the number above. Then</p>
+
+$$\Psi_k^{(d)}(z)\;:=\;\Pr[A\le k-1]\;=\;\Pr\big[\#\{\text{below}\}\ \ge\ d-k+1\big],$$
+
+<p>so $\Psi_k^{(d)}$ is Owen's multilinear extension of the quota game $(d;\,g+1)$, where</p>
+
+<div class="box key">
+$$g \;:=\; d-k \qquad\text{— the number of non-prize slots, and the quota is }g+1.$$
+<p>In words: the prize is released iff at least $g+1$ of the $d$ fall short — equivalently, iff at
+most $k-1$ of them clear the bar. $g$ is the depth of the losing tail, and it is the invariant that
+organises the whole proof (§12).</p>
+</div>
+
+<p class="section">3. One extension, evaluated $m$ times</p>
+
+<p>Compare the two displays. On a board of $m$, contestant $i$'s rivals number $m-1$, and $i$ wins
+iff at most $k-1$ of them are above. That is the same functional, one board down:</p>
+
+<div class="box key">
+$$W_i^{(k,m)}(x)\;=\;\Psi_k^{(m-1)}(x_{-i}),\qquad x_{-i}:=(x_\ell)_{\ell\ne i}.$$
+<p>The win-probability map is a single Owen extension evaluated at the $m$ leave-one-out profiles.
+Every contestant reports the field <em>minus himself</em>.</p>
+</div>
+
+<p>Worked example, $m=3$, $k=2$ (so $g=1$; a rival pair blocks you only if both clear the bar). With
+$x=(\tfrac12,\tfrac13,\tfrac14)$ the above-probabilities are $(\tfrac12,\tfrac23,\tfrac34)$ and</p>
+
+$$W_1=1-\tfrac23\cdot\tfrac34=\tfrac12,\qquad
+  W_2=1-\tfrac12\cdot\tfrac34=\tfrac58,\qquad
+  W_3=1-\tfrac12\cdot\tfrac23=\tfrac23,$$
+
+<p>while the full-board value is $\Psi_2^{(3)}(x)=\Pr[A\le1]=\tfrac1{24}+\tfrac14=\tfrac7{24}$. Hold
+on to these numbers; §7 explains why $\Psi$ is smaller than every one of the $W_i$.</p>
+
+<p class="section">4. Owen's derivative is a power index</p>
+
+<p>Differentiate (2.1) — the coefficient of $x_i$ is what is left:</p>
+
+$$\frac{\partial f}{\partial x_i}(x)\;=\;f(x\mid x_i{=}1)-f(x\mid x_i{=}0)
+ \;=\;\Pr[\,i\text{ is pivotal}\,]. \tag{4.1}$$
+
+<p>This is Owen's identity, and it is the reason multilinear extensions belong to economics rather
+than to combinatorics: the gradient of $f$ is the vector of <em>probabilistic power indices</em>.
+Evaluate it at $x=(\tfrac12,\dots,\tfrac12)$ and you get the Banzhaf index; integrate it along the
+diagonal $x=t\mathbf 1$, $t\in[0,1]$, and you get the Shapley–Shubik index. Both classical indices
+are readings of the same derivative at different participation profiles.</p>
+
+<p>For our quota game, $j$ is pivotal exactly when the last prize hangs on $j$'s own draw — when
+exactly $k-1$ of the <em>others</em> are above, so that $j$ going above pushes the count to $k$ and
+closes the prize:</p>
+
+<div class="box">
+$$p_j\;:=\;\frac{\partial \Psi_k^{(d)}}{\partial z_j}(z)\;=\;\Pr\big[A_{z_{-j}}=k-1\big]\;&gt;\;0 .
+\tag{4.2}$$
+</div>
+
+<p>Economically $p_j$ is <em>$j$'s pivotality</em>: the probability that the contest is on a knife
+edge at $j$. It is strictly positive at every interior profile, which is the analytic reason
+$\Psi_k$ is strictly increasing — every contestant always has some power.</p>
+
+<p class="section">5. The Jacobian is a matrix of rivalries</p>
+
+<p>Chain (4.2) through §3. For $j\ne i$,</p>
+
+$$M_{ij}\;:=\;\frac{\partial W_i}{\partial x_j}(x)
+ \;=\;\Pr\big[A_{x_{-\{i,j\}}}=k-1\big],\qquad M_{ii}=0 . \tag{5.1}$$
+
+<p>Read the right-hand side: it is the probability that, with $i$ and $j$ both set aside, exactly
+$k-1$ of the remaining field is above — that is, the probability that <em>$i$ and $j$ are competing
+for the last prize</em>. So $M$ is a matrix of head-to-head rivalry intensities. Three consequences
+are immediate and each is a familiar structural fact wearing economic clothes:</p>
+
+<ul>
+<li>$M_{ij}=M_{ji}$: rivalry is mutual. Hence $M$ is symmetric and $W$ is a gradient field.</li>
+<li>$M_{ii}=0$: you are never your own rival. This is the zero diagonal.</li>
+<li>$M_{ij}&gt;0$: everyone competes with everyone, at every interior profile.</li>
+</ul>
+
+<p>The potential is worth naming. Let $A$ be the number of contestants above the bar on the full
+board and put</p>
+
+$$F(x)\;:=\;\mathbb E\big[(k-A)_+\big]\qquad\text{— the expected number of unfilled prize slots.}$$
+
+<p>$F$ is multilinear, so by (2.1) its derivative is a difference; and since $(a+1)_+-(a)_+=1\{a\ge0\}$
+for integer $a$, writing $A_{-i}$ for the above-count excluding $i$,</p>
+
+$$\frac{\partial F}{\partial x_i}
+ =\mathbb E\big[(k-A_{-i})_+-(k-1-A_{-i})_+\big]
+ =\Pr[A_{-i}\le k-1]=W_i .$$
+
+<div class="box key">
+<p>$W=\nabla F$ and $M=\nabla^2F$ with $F=\mathbb E[(k-A)_+]$: a contestant's win probability is the
+marginal effect of his own weakness on the expected slack in the prize schedule, and rivalry is the
+cross-effect. The whole model is the Hessian of one scalar — the expected shortfall of the quota.</p>
+</div>
+
+<p>One further fact, imported rather than derived: $M$ has inertia $(1,m-1,0)$ at every interior
+profile — one positive direction and $m-1$ negative ones (<code>lem:signature</code>, from
+Murai–Nagaoka–Yazawa's strict log-concavity theorem). The positive direction is the common one:
+everybody getting weaker together raises everybody's odds. Every other perturbation of the field is
+a reallocation, and reallocations trade off. That is the sense in which the contest has exactly one
+aggregate and $m-1$ compositional dimensions.</p>
+
+<p class="section">6. The shadow: who is $\Psi$ on the full board?</p>
+
+<p>$W_i$ evaluates $\Psi_k$ at the $m-1$ rivals of $i$. What object is $\Psi_k^{(m)}$ evaluated at
+all $m$?</p>
+
+<p>Add a hypothetical contestant $0$ at the same reference level $c$, making a board of $m+1$. His
+win probability is $\Pr[\text{at most }k-1\text{ of the }m\text{ incumbents are above}]$, which is
+$\Psi_k^{(m)}(x)$ — and, by the first structural fact of §1, it does not depend on his own type at
+all.</p>
+
+<div class="box key">
+<p>$\Psi_k^{(m)}(x)$ is the win probability of an <em>entrant</em> facing the field $x$: a
+contestant who counts for the others' arithmetic but whose own quality is invisible to his own
+payoff. That is the shadow. "Shadow monotonicity" is a statement relating what happens to the $m$
+insiders to what happens to this one outsider.</p>
+</div>
+
+<p class="section">7. The pivotality premium — the one identity to remember</p>
+
+<p>Incumbents and the entrant face the same field, but the incumbent gets to omit himself. Exactly
+how much is that worth? Write $A_{-j}$ for the above-count over the field minus $j$. The event
+"$j$ wins" is $\{A_{-j}\le k-1\}$; the event "the entrant wins" is $\{A\le k-1\}$ with
+$A=A_{-j}+1\{j\text{ above}\}$. So the first event contains the second, and the difference is
+precisely</p>
+
+$$\{A_{-j}\le k-1\}\setminus\{A\le k-1\}\;=\;\{A_{-j}=k-1\}\cap\{j\text{ above}\},$$
+
+<p>because losing $j$'s own contribution can only matter at the knife edge. Taking probabilities and
+using independence and (4.2):</p>
+
+<div class="box key">
+$$\boxed{\;W_j(x)\;-\;\Psi_k^{(m)}(x)\;=\;\underbrace{(1-x_j)}_{j\text{'s threat}}\cdot
+ \underbrace{p_j}_{j\text{'s pivotality}}\;\ge\;0\;} \tag{7.1}$$
+<p>The incumbent's edge over the entrant is his own threat probability times his own pivotality: the
+value of not having to compete against yourself, which bites exactly when you would have been the
+marginal rival.</p>
+</div>
+
+<p>This is <code>lem:odropid</code>(e) in <code>proofs.tex</code> — the "cap-gap identity" — and it is
+the single most useful sentence in the whole layer. Three corollaries fall out at once.</p>
+
+<p>(a) <em>The entrant is the worst-placed player in the room:</em> $\Psi_k^{(m)}(x)\le\min_j W_j(x)$.
+Check it on §3's numbers: $\tfrac7{24}\approx0.29$ against $\min(\tfrac12,\tfrac58,\tfrac23)=\tfrac12$.
+The premia are $\tfrac5{24},\tfrac13,\tfrac38$, and indeed $\tfrac12-\tfrac7{24}=\tfrac5{24}
+=\tfrac12\cdot\tfrac5{12}$.</p>
+
+<p>(b) <em>Equality holds iff $x_j=1$.</em> A contestant who is certain to fall short has zero threat,
+hence zero premium: he <em>is</em> the entrant. Keep this — it is the hinge of §14.</p>
+
+<p>(c) <em>A sum rule.</em> Rewrite one premium as a joint probability,
+$(1-x_j)\,\Pr[A_{-j}=k-1]=\Pr[\,j\text{ above},\,A=k\,]$, and add over $j$. The sum counts the
+above-contestants on the event $\{A=k\}$, which is $k$ of them:</p>
+
+$$\sum_{j=1}^m W_j(x)\;=\;m\,\Psi_k^{(m)}(x)\;+\;k\,\Pr[A=k]. \tag{7.2}$$
+
+<p>On §3's numbers: $\tfrac12+\tfrac58+\tfrac23=\tfrac{43}{24}$ and
+$3\cdot\tfrac7{24}+2\cdot\tfrac{11}{24}=\tfrac{43}{24}$. In words: the average incumbent beats the
+entrant by $(k/m)\Pr[\text{the prizes are exactly filled}]$. All the aggregate advantage of
+incumbency lives on the knife-edge event where the field exactly exhausts the prize schedule.</p>
+
+<p class="section">8. Shadow monotonicity, stated in economics</p>
+
+<p>Here is <code>def:SM</code> verbatim: at $(k,m)$, if $W(z)&lt;W(y)$ coordinatewise then
+$\Psi_k(z)&lt;\Psi_k(y)$. Translated:</p>
+
+<div class="box key">
+<p>If every incumbent's prize probability is strictly lower in field $z$ than in field $y$, then an
+entrant's is too.</p>
+<p>Contrapositive: if an outsider does at least as well against $z$ as against $y$, then at least one
+insider does too. The outsider is never the odd one out.</p>
+</div>
+
+<p>It is a no-composition-paradox statement, and it is not obvious, for a reason that is easy to state
+and hard to dismiss: the hypothesis is $m$ <em>leave-one-out</em> comparisons and the conclusion is a
+<em>leave-none-out</em> comparison. Each incumbent grades the field with himself excised, and no two
+incumbents excise the same player. Whether $m$ such comparisons aggregate to a statement about the
+whole field is exactly a Simpson's-paradox question.</p>
+
+<p>The naive argument is unavailable, and it is worth seeing why. One would like to say: $W$ is
+increasing, so $W(z)&lt;W(y)$ gives $z&lt;y$, and $\Psi_k$ is increasing, so we are done. The first step is
+false — indeed it is equivalent to the injectivity theorem the whole project is trying to prove.
+Concretely, at $m=3$, $k=2$, take</p>
+
+$$z=\big(\tfrac35,\tfrac3{10},\tfrac3{10}\big),\qquad y=\big(\tfrac12,\tfrac12,\tfrac12\big).$$
+
+<p>Then $W(z)=(\tfrac{51}{100},\tfrac{18}{25},\tfrac{18}{25})&lt;(\tfrac34,\tfrac34,\tfrac34)=W(y)$ in
+every coordinate — yet $z_1=\tfrac35&gt;\tfrac12=y_1$. Contestant 1 became <em>weaker</em> while every
+incumbent's odds fell, because 2 and 3 became much stronger and each incumbent's odds are read off
+the others. ((SM) survives anyway here: $\Psi_2^{(3)}(z)=\tfrac{171}{500}&lt;\tfrac12$.) So the
+hypothesis of (SM) genuinely does not pin down the field coordinatewise, and any proof must work with
+the $W$-data alone.</p>
+
+<p class="section">9. What a violation would have to look like</p>
+
+<p>The premium identity turns (SM) into a sharp statement about who would have to be doing what.
+Suppose $W_j(z)&lt;W_j(y)$ for all $j$ but $\Psi_k(z)\ge\Psi_k(y)$. Writing $P_j:=W_j-\Psi_k$ for the
+premium of (7.1),</p>
+
+$$P_j(z)=W_j(z)-\Psi_k(z)\;&lt;\;W_j(y)-\Psi_k(z)\;\le\;W_j(y)-\Psi_k(y)=P_j(y)
+\qquad\text{for every }j,$$
+
+<p>and, feeding $\sum_j W_j(z)&lt;\sum_j W_j(y)$ into the sum rule (7.2),
+$k\Pr_z[A=k] &lt; k\Pr_y[A=k] - m(\Psi_k(z)-\Psi_k(y)) \le k\Pr_y[A=k]$. So a counterexample must
+satisfy both of:</p>
+
+<div class="box">
+<p>every contestant's pivotality premium $(1-x_j)p_j$ strictly falls, and<br>
+the probability that the prizes are <em>exactly</em> filled strictly rises.</p>
+</div>
+
+<p>That is, the field would have to become simultaneously less pivotal for every single member and
+more precisely sized. This is the economic content of why the conjecture is believed and why it
+resists: the obstruction would be a knife-edge coincidence, not a robust mechanism — which is also
+why the project's falsification searches keep coming back clean.</p>
+
+<p class="section">10. The program form: the shadow set</p>
+
+<p>To prove (SM) one turns it into an optimisation. Fix the reference field $y$ and let</p>
+
+$$K(y)\;:=\;\{x\in[0,1]^m:\ W(x)\le W(y)\ \text{componentwise}\}$$
+
+<p>— the set of fields that are weakly worse than $y$ <em>for every incumbent at once</em>. Because
+$W$ is coordinatewise increasing, $K(y)$ is a down-set. Then (<code>lem:SMinterior</code>)</p>
+
+$$(\mathrm{SM})\iff \max_{K(y)}\Psi_k \;=\;\Psi_k(y).$$
+
+<p>In words: among all fields that no incumbent prefers to $y$, none gives an entrant better odds
+than $y$ does. The forward direction is the definition; the converse is a one-line perturbation
+(shift $x$ down by $\varepsilon\mathbf 1$ to make every inequality strict, apply (SM), let
+$\varepsilon\downarrow0$).</p>
+
+<p>The interior case is settled by a multiplier computation with an economic reading. At an interior
+maximiser, KKT gives $\nabla\Psi_k=M\lambda$; the Euler identity for $\Psi_k$ gives
+$\nabla\Psi_k=Mx^*/(m-k)$; and $M$ is invertible, so</p>
+
+$$\lambda\;=\;\frac{x^*}{m-k}\;&gt;\;0\quad\text{strictly, coordinate by coordinate.}$$
+
+<p>Every shadow price is strictly positive, so by complementary slackness <em>every</em> incumbent's
+constraint binds: $W(x^*)=W(y)$. There is no such thing as an optimum at which somebody still has
+room. Injectivity in dimension $m$ then forces $x^*=y$. So (SM) can only fail on the boundary of the
+cube — and the boundary, it turns out, is where the economics gets interesting.</p>
+
+<p class="section">11. The boundary is a smaller contest</p>
+
+<p>What does a boundary point mean? Set $x_j$ to an endpoint and read off the count.</p>
+
+<div class="overflow">
+<table>
+<tr><th>pin</th><th>who $j$ is</th><th>what happens to the count</th><th>reduced contest</th></tr>
+<tr>
+  <td>$x_j=1$</td>
+  <td>a certain loser — surely below, never outranks anyone</td>
+  <td>$j$ contributes $0$ to every above-count, in every event</td>
+  <td>$(k,d)\to(k,d-1)$: delete $j$, keep all $k$ prizes</td>
+</tr>
+<tr>
+  <td>$x_j=0$</td>
+  <td>a certain winner — surely above, always takes a slot</td>
+  <td>$j$ contributes $1$ to every above-count, in every event</td>
+  <td>$(k,d)\to(k-1,d-1)$: delete $j$ and one prize</td>
+</tr>
+</table>
+</div>
+
+<p>Both lines are one-line computations. If $x_j=1$ then $A=A_{-j}$, so
+$\Psi_k^{(d)}(x)=\Psi_k^{(d-1)}(x_{-j})$. If $x_j=0$ then $A=A_{-j}+1$, so
+$\{A\le k-1\}=\{A_{-j}\le k-2\}$ and $\Psi_k^{(d)}(x)=\Psi_{k-1}^{(d-1)}(x_{-j})$. In the project's
+notation the $x=1$ block is called $O$ and the $x=0$ block $Z$; on a face with $z$ zeros pinned, the
+surviving level is $\kappa=k-z$.</p>
+
+<div class="box key">
+<p>The invariant. Recall $g=d-k$, the depth of the losing tail. A certain loser consumes a body only,
+so $g$ drops by one. A certain winner consumes a body <em>and</em> a prize, so $g$ is unchanged:
+$(d-1)-(k-1)=d-k$. This is the scope invariant $g=n-k$ that keeps recurring in the project's
+bookkeeping — locks preserve the losing-tail depth, phantoms shorten it. And the closed cases $g=1$
+and $g=n-1$ are exactly $k=n-1$ and $k=1$, the two levels where the contest degenerates to
+"everyone but one wins" and "one wins".</p>
+</div>
+
+<p class="section">12. Why (SM) is exactly what identification needs</p>
+
+<p>The headline conjecture is that $W$ is injective on $(0,1)^m$: outcome statistics recover the
+contestants. The local half is a theorem ($\det M\ne0$ everywhere), but local injectivity is not
+global — the missing ingredient, properness (P), says that the image of the open cube never meets the
+image of the boundary. Given §11, that is a statement with a plain economic content:</p>
+
+<div class="box key">
+<p>No field of genuine competitors produces the same win-probability vector as a field containing a
+phantom or a lock. You can never mistake a real contest for a degenerate one.</p>
+</div>
+
+<p>And (SM) is precisely the lever (<code>lem:facetred</code>). Suppose an interior field $y$
+reproduced the win vector of a field $x^*$ containing a phantom $x^*_n=1$. Condition on contestant
+$n$ under $y$, where he is above with probability $s=1-y_n\in(0,1)$. For $i\ne n$ the reference
+splits as a mixture of the two reduced contests of §11,</p>
+
+$$W_i(y)=(1-s)\,W_i^{(k,m-1)}(y_{-n})+s\,W_i^{(k-1,m-1)}(y_{-n})\;&lt;\;W_i^{(k,m-1)}(y_{-n}),$$
+
+<p>strictly, because a real rival is worse for $i$ than no rival. Meanwhile $x^*$'s phantom is
+already absent from the arithmetic, so $W_i(x^*)=W_i^{(k,m-1)}(x^*_{-n})$. Equating the two win
+vectors therefore gives, on the board of $m-1$,</p>
+
+$$W^{(k,m-1)}(x^*_{-n})\;&lt;\;W^{(k,m-1)}(y_{-n})\ \text{coordinatewise}
+\qquad\text{and}\qquad \Psi_k(x^*_{-n})=\Psi_k(y_{-n}),$$
+
+<p>the second because the $n$-th coordinate of the win vector is the entrant's value on both sides.
+(SM) at $(k,m-1)$ says the first display forces $\Psi_k(x^*_{-n})&lt;\Psi_k(y_{-n})$, contradicting the
+second. Deleting a phantom leaves a field that is strictly worse for everyone yet gives an entrant
+identical odds — and that is what (SM) forbids.</p>
+
+<p class="section">13. The asymmetry: phantoms are deletable, locks are not</p>
+
+<p>This is the content of <code>sec:odrop</code>, and it explains the shape of everything still open.</p>
+
+<p>Start from §7(b): a phantom has zero premium, so his row of the win vector <em>is</em> the entrant's
+value, $W_{\hat\jmath}(x)=\Psi_k^{(m)}(x)$ whenever $x_{\hat\jmath}=1$. Now compare the two deletions
+at a candidate optimum $x$ with reference $y$ interior.</p>
+
+<p><em>Delete a phantom.</em> For the survivors $i\ne\hat\jmath$, deleting $\hat\jmath$ changes nothing
+at $x$ (he was inert) but strictly <em>helps</em> at $y$ (he was a real rival there) — quantitatively,</p>
+
+$$W_i^{(k,m-1)}(y_{-\hat\jmath})-W_i^{(k,m)}(y)=(1-y_{\hat\jmath})\Pr\big[A_y([m]\setminus\{i,\hat\jmath\})=k-1\big]&gt;0,$$
+
+<p>which is the premium identity again, now with the pair $\{i,\hat\jmath\}$ set aside. So mere
+feasibility $W_i(x)\le W_i(y)$ upgrades to a <em>strict</em> inequality on the smaller board, which is
+exactly the hypothesis of (SM) at $(k,m-1)$. Conclusion (<code>lem:oslack</code>): at every feasible
+point carrying a phantom, the phantom's own row is strictly slack. No maximality, no stationarity, no
+regularity is used — this is pencil, and it is why a maximiser cannot carry a phantom
+(<code>thm:noone</code>): the multiplier sum forces some phantom row to bind, and it cannot.</p>
+
+<p><em>Delete a lock.</em> Now the reference moves the wrong way. Deleting a certain winner also
+deletes a prize, so the survivors are compared against a <em>different contest</em>:</p>
+
+$$W_i^{(k,m)}(y)=y_{\hat\jmath}W_i^{(k,m-1)}(y_{-\hat\jmath})+(1-y_{\hat\jmath})W_i^{(k-1,m-1)}(y_{-\hat\jmath})
+\;&gt;\;W_i^{(k-1,m-1)}(y_{-\hat\jmath}),$$
+
+<p>so feasibility yields nothing at all and one needs the constraints to <em>bind</em>, which at
+codimension $\ge2$ is unavailable (the $x=0$ multipliers vanish, leaving the other locks unhandled).</p>
+
+<div class="box key">
+<p>A phantom can be shown the door: removing him leaves the same contest with one fewer body, and
+everyone left is strictly better off in the reference. A lock cannot: removing him changes the prize
+count, so the survivors are no longer playing the same game.</p>
+<p>This one-sidedness is why the open residual (GAP 3) lives entirely on <em>pure-lock</em> faces, and
+why the branch with any phantom in it is empty.</p>
+</div>
+
+<p class="section">14. Dictionary</p>
+
+<div class="overflow">
+<table>
+<tr><th>object</th><th>label</th><th>economic content</th></tr>
+<tr><td>$x_\ell$</td><td>—</td><td>$\ell$'s CDF value at the reference; probability $\ell$ falls short. High $=$ weak</td></tr>
+<tr><td>$1-x_\ell$</td><td>—</td><td>$\ell$'s threat: probability $\ell$ outranks the reference and consumes a slot</td></tr>
+<tr><td>$\Psi_k^{(d)}$</td><td><code>def:SM</code></td><td>Owen's multilinear extension of the quota game $(d;g{+}1)$ — an entrant's prize probability</td></tr>
+<tr><td>$W_i=\Psi_k(x_{-i})$</td><td>—</td><td>incumbent $i$'s prize probability: the same extension, field minus himself</td></tr>
+<tr><td>$p_j=\partial\Psi_k/\partial x_j$</td><td><code>lem:coord</code></td><td>$j$'s pivotality — a probabilistic power index (Banzhaf at $x=\tfrac12$, Shapley–Shubik on the diagonal)</td></tr>
+<tr><td>$M_{ij}$</td><td><code>lem:signature</code></td><td>head-to-head rivalry intensity: $i$ and $j$ contest the last prize. Symmetric, zero diagonal, inertia $(1,m{-}1,0)$</td></tr>
+<tr><td>$F=\mathbb E[(k-A)_+]$</td><td>—</td><td>expected unfilled quota; $W=\nabla F$, $M=\nabla^2F$</td></tr>
+<tr><td>$W_j-\Psi_k=(1-x_j)p_j$</td><td><code>lem:odropid</code>(e)</td><td>incumbency premium $=$ threat $\times$ pivotality; the "cap gap"</td></tr>
+<tr><td>$g=d-k$</td><td><code>rem:gscope</code></td><td>depth of the losing tail; quota $=g+1$. Preserved by locks, cut by phantoms</td></tr>
+<tr><td>$K(y)$</td><td><code>lem:SMinterior</code></td><td>the shadow set: fields no incumbent prefers to $y$</td></tr>
+<tr><td>$x_j=1$ ($O$ block)</td><td><code>sec:odrop</code></td><td>a phantom: certain loser, zero premium, deletable</td></tr>
+<tr><td>$x_j=0$ ($Z$ block)</td><td><code>lem:codim2schur</code></td><td>a lock: certain winner, consumes a prize, not deletable</td></tr>
+<tr><td>(P)</td><td><code>lem:facetred</code></td><td>a real contest is never mistaken for a degenerate one</td></tr>
+<tr><td>(SM)</td><td><code>def:SM</code></td><td>insiders all worse off $\Rightarrow$ the outsider is worse off</td></tr>
+</table>
+</div>
+
+<p class="section">15. Where the residual sits</p>
+
+<p>Assembling: the interior of the cube is closed by the multiplier argument of §10; codimension-1
+boundary points are closed by the facet template; every point carrying a phantom is closed by §13.
+What is left is fields that pin two or more contestants at $x=0$ — two or more certain winners — with
+the rest of the field interior. On such a face the contest reduces to $\kappa=k-z$ prizes among
+$d=m-z$ genuine contestants, at unchanged losing-tail depth $g$, and the surviving question is
+whether the entrant's odds can be pushed above the reference while every remaining incumbent stays
+weakly worse off. That is the open problem, and it is now a question about contests with a known
+number of guaranteed winners in the room.</p>
+
+<p class="note">Sources. Model and identities: <code>Docs/proofs.tex</code> §<code>sec:SM</code>
+(<code>def:SM</code>, <code>lem:SMinterior</code>, <code>lem:SMfacets</code>,
+<code>thm:SMcodim1</code>), §<code>sec:odrop</code> (<code>lem:odropid</code>,
+<code>lem:oslack</code>, <code>rem:whyonesided</code>, <code>thm:noone</code>,
+<code>cor:gap3pureZ</code>), and <code>lem:facetred</code>, <code>lem:signature</code>. Owen's
+multilinear extension: G. Owen, "Multilinear extensions of games", Management Science 18 (1972)
+64–79, and "Multilinear extensions and the Banzhaf value", Naval Research Logistics 22 (1975)
+741–750. Strict log-concavity input: Murai–Nagaoka–Yazawa, JCTA 181 (2021) 105351, Thm 1.1(i)
+(<code>Muraietal2021</code>). Verification of every identity displayed above:
+<code>Docs/data/econ_reading_ids.jl</code>, exact $\mathbb Q$, 23 664 checks, 0 failures,
+$3\le m\le8$, all $k$, Julia 1.12.6, 2026-07-30. The sum rule (7.2) and the two-condition
+characterisation of §9 are elementary consequences of <code>lem:odropid</code>(e) recorded here for
+the reading; they are not separately banked in <code>proofs.tex</code>.</p>
+
+</body>
+</html>
