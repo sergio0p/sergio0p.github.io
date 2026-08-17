@@ -40,7 +40,6 @@ const GRAB_PAD = 8, DRAG_PX = 6;
 // a row costs 150ms a tile, so a seat you walked over must not grab you.  Stand
 // still on one this long and the question comes anyway.
 const DWELL_MS = 1600;
-const CLAIM_KEY = 'econ416-seat';
 
 // --- the font atlas ----------------------------------------------------------
 // Emitted by `tools/nes_text.py --atlas`: 44 glyphs, 16 per row, 8px cells, so
@@ -62,6 +61,11 @@ const ART = {
   moblinUp: 'assets/tiles/moblin-up.png',
   moblinRight1: 'assets/tiles/moblin-right-1.png',
   moblinRight2: 'assets/tiles/moblin-right-2.png',
+  // room.png bakes in the seats as they were when the art was cut, so a seat
+  // claimed by someone else *while you are looking at it* has to be painted
+  // over the top. Same tiles the cutter used, so the overlay is invisible.
+  seatClosedLeft: 'assets/tiles/seat-closed-left.png',
+  seatClosedRight: 'assets/tiles/seat-closed-right.png',
 };
 
 // Neither sheet has a left-facing side pose — both were ripped facing right.
@@ -86,6 +90,38 @@ const hintCtx = hintCanvas.getContext('2d');
 let layout, seatsByCell, seatsById, ICOLS, IROWS, R0, C0;
 let ENTRANCE, MOBLIN_ROW = 0, MOBLIN_START = 0;
 
+/* Online means the service answered `GET api/me`: we are behind the gate and
+ * every claim is a server transaction. Offline is the static copy on GitHub
+ * Pages with no service behind it -- the map still works as a demo and claims
+ * are remembered on the device only, which is exactly what this file did
+ * before Phase 2. One flag, so neither mode is a special case anywhere else. */
+let online = false;
+let deadline = null;
+
+/* Demo mode is simply "no service behind the page" -- the static copy on
+ * GitHub Pages. The whole GUI works: walk, zoom, drag, dialogs, the death.
+ * The one difference is that nothing is claimed, anywhere, and the hint says
+ * so. There is no code to enter because there is nothing to protect: the demo
+ * never talks to Firestore, so it holds no seat data and no identifiers. */
+const demo = () => !online;
+
+const api = {
+  async get(path) {
+    const r = await fetch(path, { credentials: 'same-origin' });
+    if (!r.ok) throw new Error(`${path} -> ${r.status}`);
+    return r.json();
+  },
+  async post(path, body) {
+    const r = await fetch(path, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}),
+    });
+    return { status: r.status, data: await r.json().catch(() => ({})) };
+  },
+};
+
 const game = {
   state: 'IDLE',                // IDLE WALKING DRAGGING DIALOG SEATED DYING GAMEOVER
   link: { x: 0, y: 0, facing: 'down', walked: 0, path: [] },
@@ -94,6 +130,7 @@ const game = {
   deathT: 0,
   steered: false,               // did the player drive the last step themselves?
   pending: null,                // { seat, t } — a seat waiting out its dwell
+  mySeat: null,                 // the seat id this student holds, or null
 };
 
 // --- loading -----------------------------------------------------------------
@@ -108,16 +145,21 @@ function loadImage(src) {
 }
 
 async function boot() {
-  const [json] = await Promise.all([
+  const [json, me] = await Promise.all([
     fetch('data/room-layout.json').then(r => r.json()),
+    // A 404 here is not an error: it is the static copy, with no service
+    // behind it. Anything else that fails falls back the same way.
+    api.get('api/me').then(m => { online = true; return m; }).catch(() => null),
     ...Object.entries(ART).map(([key, src]) =>
       loadImage(src).then(img => { art[key] = img; })),
   ]);
-  setup(json);
+  if (me) deadline = me.deadline;
+  setup(json, me);
+  if (online) pollSeats();
   requestAnimationFrame(frame);
 }
 
-function setup(json) {
+function setup(json, me) {
   layout = json;
   const [r0, r1] = layout.grid.seat_rows, [c0, c1] = layout.grid.seat_cols;
   R0 = r0; C0 = c0;
@@ -154,7 +196,7 @@ function setup(json) {
   spawnMoblin();
 
   placeLink(ENTRANCE);
-  restoreClaim();
+  restoreClaim(me);
   // TAP or CLICK — and it re-draws if the device changes its mind (a tablet
   // gaining a mouse, or devtools switching to responsive mode).
   COARSE.addEventListener('change', drawHint);
@@ -169,7 +211,7 @@ const cellX = ic => WALL + ic * T;
 const cellY = ir => WALL + ir * T;
 const inRoom = (ic, ir) => ic >= 0 && ic < ICOLS && ir >= 0 && ir < IROWS;
 const seatAt = (ic, ir) => seatsByCell.get(cellKey(ic, ir));
-const isOpen = seat => !!seat && seat.usable && !seat.reserved;
+const isOpen = seat => !!seat && seat.usable && !seat.reserved && !seat.taken;
 
 function linkCell() {
   return { ic: Math.round((game.link.x - WALL) / T), ir: Math.round((game.link.y - WALL) / T) };
@@ -251,11 +293,20 @@ const textWidth = text => text.length * GLYPH;
 
 const COARSE = matchMedia('(pointer: coarse)');
 
-function drawHint() {
-  // Nothing to tap while you are dying or dead, so the line goes quiet.
-  const text = game.state === 'SEATED' ? 'SEAT CLAIMED'
-    : game.state === 'DYING' || game.state === 'GAMEOVER' ? ''
+/* The one line under the map.  Nothing to tap while you are dying or dead, so
+ * it goes quiet there.  There is no colon in the NES charset and 36 glyphs is
+ * the full width of the room, so every string here is written to fit both. */
+function hintText() {
+  return  game.state === 'DYING' || game.state === 'GAMEOVER' ? ''
+    : demo() ? 'DEMO - SEAT CANNOT BE CLAIMED'
+    // Holding a seat: say so, and say it can still be moved.
+    : game.mySeat ? (COARSE.matches ? 'SEAT CLAIMED - TAP TO MOVE'
+                                    : 'SEAT CLAIMED - CLICK TO MOVE')
     : COARSE.matches ? 'TAP A SEAT' : 'CLICK A SEAT';
+}
+
+function drawHint() {
+  const text = hintText();
   hintCtx.clearRect(0, 0, hintCanvas.width, hintCanvas.height);
   drawText(hintCtx, text, (hintCanvas.width - textWidth(text)) >> 1, 4);
 }
@@ -367,11 +418,27 @@ function checkCollision() {
 
 function draw() {
   ctx.drawImage(art.room, 0, 0);
+  drawTakenSeats();
   drawMoblin();
   if (linkVisible()) drawLink();
   if (game.state === 'DYING') drawDeath();
   if (game.state === 'GAMEOVER') wash('#000', 1);
   if (game.dialog) drawDialog();
+}
+
+/* A seat someone else claimed gets the bevelled tile painted over the flat one
+ * room.png baked in.  Availability is texture, handedness is colour (GUI.md),
+ * so a taken seat reads exactly like a blocked one — which is the point: you
+ * cannot claim either. Our own seat is skipped; Link is standing on it. */
+function drawTakenSeats() {
+  if (!seatsById) return;
+  for (const seat of seatsById.values()) {
+    if (!seat.taken || seat.id === game.mySeat) continue;
+    if (!seat.usable || seat.reserved) continue;   // already bevelled in the art
+    const { ic, ir } = seatCell(seat);
+    const tile = seat.handed === 'left' ? art.seatClosedLeft : art.seatClosedRight;
+    if (tile) ctx.drawImage(tile, cellX(ic), cellY(ir));
+  }
 }
 
 // He spins for DEATH_MS and is gone from there on — the fade happens on an
@@ -495,9 +562,27 @@ function openDialog(seat) {
     // The layout's own coordinates: rows from the board, columns from the
     // instructor's right.  No colon in the charset, so words and digits it is.
     title: `ROW ${seat.row} SEAT ${seat.col}`,
-    prompt: 'SIT HERE?',
+    // Moving is a different act from choosing, and the word is free.
+    prompt: game.mySeat ? 'MOVE HERE?' : 'SIT HERE?',
     choice: 'YES',
     options: [{ label: 'YES' }, { label: 'NO' }],
+  };
+}
+
+/* A one-option message box.  Same furniture as the seat dialog so it reads as
+ * part of the same game rather than a browser alert. */
+function openMessage(title, prompt, returnState = 'IDLE') {
+  game.state = 'DIALOG';
+  game.pending = null;
+  suspendZoom();
+  game.link.path.length = 0;
+  game.dialog = {
+    kind: 'MSG',
+    title,
+    prompt,
+    choice: 'OK',
+    options: [{ label: 'OK' }],
+    returnState,
   };
 }
 
@@ -514,6 +599,16 @@ function openGameOver() {
 }
 
 async function answerDialog(choice) {
+  if (game.dialog.kind === 'MSG') {
+    // Nothing to decide — it says what happened and goes away.  The seat it
+    // was about is already greyed out, so the player just picks another.
+    const back = game.dialog.returnState || 'IDLE';
+    game.dialog = null;
+    resumeZoom();
+    game.state = back;
+    drawHint();
+    return;
+  }
   if (game.dialog.kind === 'GAMEOVER') {
     // NO is not a way out — there is nothing behind this screen but the room
     // you just died in, so the menu simply stays up until you retry.
@@ -537,41 +632,123 @@ async function answerDialog(choice) {
     game.pending = null;
     return;
   }
-  game.state = 'SEATED';                  // optimistic; the stub cannot fail
+  // Optimistic: Link sits down while the request is in flight, because the
+  // common case is that it succeeds and a lag between tapping YES and sitting
+  // would read as a broken button.  Every failure below puts him back.
+  const previous = game.mySeat;
+  game.state = 'SEATED';
   placeLink(seatCell(seat));
   drawHint();
-  if (!await claimSeat(seat.id)) {        // Phase 2: a lost race lands here
-    game.state = 'IDLE';                  // stay put; the room is still open
+
+  const result = await claimSeat(seat.id);
+  if (result === 'ok') {
+    // Unlimited moves: a claim does not lock the session.  Every move is one
+    // atomic server transaction that frees the old seat, so re-choosing can
+    // never double-book; the only thing given up is treating YES as final.
+    game.state = 'IDLE';
     drawHint();
+    return;
   }
+
+  // Lost it.  Put him back where he was — on his old seat if he had one,
+  // otherwise standing in the room — and say which of the two things happened.
+  const back = previous && seatsById.get(previous);
+  if (back) placeLink(seatCell(back));
+  // Losing a race is not the end of the visit — you may pick again.  A closed
+  // deadline is, so that one locks.
+  game.state = 'IDLE';
+  drawHint();
+  if (result === 'taken') openMessage('SEAT TAKEN', 'PICK ANOTHER', 'IDLE');
+  else if (result === 'closed')
+    openMessage('TIME IS UP', 'SEATING IS CLOSED', previous ? 'SEATED' : 'IDLE');
+  else openMessage('NO CONNECTION', 'TRY AGAIN', 'IDLE');
 }
 
-/* THE seam for Phase 2.  Today it writes the claim to this device so a reload
- * shows Link on the seat; tomorrow it runs the Firestore transaction against
- * the signed-in student's PID and returns whether the claim won.  Everything
- * else in this file already treats it as async and failable. */
+/* The seam Phase 2 was built around.  Online it is one Firestore transaction
+ * behind `POST api/claim`, which is where no-double-booking is actually
+ * decided; offline it falls back to this device, as it did before there was a
+ * server.  Returns a reason string the caller turns into a dialog, not a
+ * boolean, because "someone beat you to it" and "claiming has closed" need
+ * different words on the screen. */
 async function claimSeat(seatId) {
-  try {
-    localStorage.setItem(CLAIM_KEY, seatId);
-  } catch (err) {
-    console.warn('claim not stored', err);   // private browsing; still seated
+  if (demo()) {
+    // Nothing is written -- not to a server, not even to this device. Sitting
+    // down is real for as long as the tab is open and no longer than that.
+    if (game.mySeat) {
+      const old = seatsById.get(game.mySeat);
+      if (old) old.taken = false;
+    }
+    const seat = seatsById.get(seatId);
+    if (seat) seat.taken = true;
+    game.mySeat = seatId;
+    return 'ok';
   }
-  return true;
+  let res;
+  try {
+    res = await api.post('api/claim', { seatId });
+  } catch (err) {
+    console.warn('claim failed', err);
+    return 'error';                          // offline mid-claim; nothing changed
+  }
+  if (res.status === 200) {
+    // The seat we just left is free again — the server did it in the same
+    // transaction, so reflect it here rather than waiting for the next poll.
+    if (game.mySeat && game.mySeat !== seatId) {
+      const old = seatsById.get(game.mySeat);
+      if (old) old.taken = false;
+    }
+    game.mySeat = seatId;
+    const seat = seatsById.get(seatId);
+    if (seat) seat.taken = true;
+    return 'ok';
+  }
+  if (res.status === 403) return 'closed';
+  if (res.status === 409) {
+    const seat = seatsById.get(seatId);       // it is gone; grey it out at once
+    if (seat) seat.taken = true;
+    return 'taken';
+  }
+  return 'error';
 }
 
-function restoreClaim() {
-  // `?reset` starts from zero.  A phone has no console to type seating.reset()
-  // into, and the claim survives a reload by design, so testing on a real device
-  // needs a way in through the URL.  It stays on until the query is dropped.
-  if (/[?&]reset\b/.test(location.search)) {
-    try { localStorage.removeItem(CLAIM_KEY); } catch (err) { /* ignore */ }
-  }
-  let seatId = null;
-  try { seatId = localStorage.getItem(CLAIM_KEY); } catch (err) { /* ignore */ }
+function restoreClaim(me) {
+  // The server is the record.  A different phone, a cleared browser, a new
+  // laptop — the seat follows the student, not the device.  In demo mode
+  // there is nothing to restore: a reload starts the room over.
+  const seatId = online ? (me && me.seatId) : null;
   const seat = seatId && seatsById.get(seatId);
   if (!seat) return;
+  game.mySeat = seat.id;
+  seat.taken = true;
   placeLink(seatCell(seat));
-  game.state = 'SEATED';
+  // IDLE, not SEATED: opening the link again is how a student changes seats.
+  // Within a session a claim is final — SEATED stops any further tap — but a
+  // fresh visit starts you sitting where you are and lets you move once more.
+  // The confirm dialog therefore still means something, and nobody is stuck
+  // with a mis-tap forever.
+  game.state = 'IDLE';
+}
+
+/* The live map.  Polling rather than a Firestore subscription: at 52 students
+ * the traffic is nothing, and it keeps the Firebase SDK — and any public read
+ * path — off the page entirely.  The service is the only thing that talks to
+ * the database. */
+const POLL_MS = 5000;
+
+async function pollSeats() {
+  for (;;) {
+    await new Promise(r => setTimeout(r, POLL_MS));
+    if (document.hidden) continue;          // a backgrounded tab polls nothing
+    try {
+      const { seats } = await api.get('api/seats');
+      for (const [id, s] of Object.entries(seats)) {
+        const seat = seatsById.get(id);
+        if (seat && id !== game.mySeat) seat.taken = s.taken;
+      }
+    } catch (err) {
+      /* a dropped poll is not worth telling the student about; try again */
+    }
+  }
 }
 
 // --- the view ----------------------------------------------------------------
@@ -863,9 +1040,12 @@ window.addEventListener('keydown', ev => {
     if (ev.key === 'Enter' || ev.key === ' ') {
       answerDialog(game.dialog.choice);
     } else if (ev.key === 'Escape') {
-      answerDialog('NO');
+      answerDialog(game.dialog.kind === 'MSG' ? 'OK' : 'NO');
     } else if (DIRECTIONS[ev.key]) {
-      game.dialog.choice = game.dialog.choice === 'YES' ? 'NO' : 'YES';
+      // A message box has one option; there is nothing to move between.
+      if (game.dialog.options.length > 1) {
+        game.dialog.choice = game.dialog.choice === 'YES' ? 'NO' : 'YES';
+      }
     } else {
       return;
     }
@@ -880,9 +1060,19 @@ window.addEventListener('keydown', ev => {
 
 // For testing a second claim on the same device — not part of the student flow.
 window.seating = {
-  reset() { localStorage.removeItem(CLAIM_KEY); location.reload(); },
+  // Online this really releases the seat (the same transaction the server runs
+  // for a change of seat), because there is no local state left to clear.
+  async reset() {
+    // Online this really releases the seat; in demo there is nothing stored,
+    // so a reload is the reset.
+    if (online) await api.post('api/release');
+    location.reload();
+  },
   game,
   view,
+  seat: id => seatsById.get(id),   // read a seat's live state, for tests
+  hint: hintText,                  // the line under the map, for tests
+  isDemo: demo,
   zoom(z) { zoomAt(z, stageBox().width / 2, stageBox().height / 2); },
 };
 
