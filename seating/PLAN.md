@@ -138,17 +138,19 @@ pictures of the room have no business on a public URL. They stay on disk; their
 README ships so the geometry they settled is still on the record.
 
 ## Inputs still needed (all have defaults in README.md)
-- Reserved-seat set (default: seats nearest the back-left cave)
+- ~~Reserved-seat set~~ — instructor-set in `room-layout.json`: `0_4`, `0_10`,
+  `0_11`, `1_13`, `2_13`, `3_13` (6 seats, all right-handed).
 - Front monster: Moblin vs Aquamentus (cosmetic, swappable)
 - ~~Door/seat reconcile~~ — settled: photos show both doors on the left at front
   and back, neither on a tiered row. Default stands, no seat data changes.
-- **Row/column count** — must be verified in the room before Phase 2 seeds.
+- ~~Row/column count~~ — settled: the layout is fixed in `room-layout.json`
+  (row 0 = 4 floor seats, rows 1-10 = 13 wide, 134 total) and re-verified
+  2026-08-16. See `PHASE2-PLAN.md`.
 - **GCP project** — fresh `econ416-seating`, or reuse `ldb-form-test`; and
   billing enabled either way (Cloud Run requires it; usage here is free-tier).
-- **Claim deadline** — a date and time. Every link expires against it.
+- ~~Claim deadline~~ — **2026-08-27T00:00 America/New_York** (midnight ending Aug 26).
 - ~~Code enforcement~~ — settled: server-side on Cloud Run. See `PHASE2-PLAN.md`.
-- The unlabelled blue seat (back-centre): mark it explicitly, or leave it covered
-  by the rows 7-10 block.
+- ~~The unlabelled blue seat~~ — left covered by the rows 7-10 `usable:false` block.
 
 ## Status
 - [x] Project skeleton + README + this plan
@@ -165,7 +167,21 @@ README ships so the geometry they settled is still on the record.
   - [x] seat + room tiles — settled: colour = handedness, texture = availability
   - [x] `data/tile-manifest.json` — every shipping asset → sheet + measured coords
         (`room_kit.py --emit`)
-- [ ] Phase 2 — seed + rules
+- [x] Phase 2 — identity, claiming, the server
+  - [x] GCP `econ416-seating` provisioned; 134 seats seeded (2026-08-16)
+  - [x] Firestore rules: deny-everything to clients, probed unauthenticated
+  - [x] Cloud Run service deployed — gate, session cookie, `/api/claim`
+        transaction, static serving behind the cookie (2026-08-17)
+  - [x] App wired: `claimSeat()` -> the API, `api/me` on load, polled live map,
+        `SEAT TAKEN` / `TIME IS UP` dialogs
+  - [x] Tests: `server/test_service.py` (53 local / 48 remote),
+        `server/test_browser.py` (23, real Chrome) — all passing
+  - [x] `issue_codes.py`, `send_codes.py`, `revoke_code.py` written and
+        exercised against a synthetic roster
+  - [x] Roster settled: Canvas only, pulled live (50 students); the merged
+        CC roster is not used — see `PHASE2-PLAN.md` "The roster"
+  - [ ] Issue real codes (`python3 tools/issue_codes.py`) — ready, not run
+  - [ ] Send through Canvas (instructor-triggered; test send to yourself first)
 - [x] Phase 3 — the app (claim stubbed at `claimSeat()` until Phase 2 lands)
 - [ ] Phase 4 — export bridge
 - [ ] Phase 5 — deploy

@@ -1,0 +1,15 @@
+# The build context is this directory; keep the upload to what the image needs.
+.git/
+.gitignore
+.venv/
+__pycache__/
+*.pyc
+tools/
+reference/
+docs/
+data/room-photos/
+data/codes-local.json
+data/codes-*.json
+*.md
+firebase.json
+firestore.rules

@@ -97,6 +97,7 @@ let ENTRANCE, MOBLIN_ROW = 0, MOBLIN_START = 0;
  * before Phase 2. One flag, so neither mode is a special case anywhere else. */
 let online = false;
 let deadline = null;
+let closed = false;      // past the claim deadline: seats frozen, room still open
 
 /* Demo mode is simply "no service behind the page" -- the static copy on
  * GitHub Pages. The whole GUI works: walk, zoom, drag, dialogs, the death.
@@ -153,7 +154,7 @@ async function boot() {
     ...Object.entries(ART).map(([key, src]) =>
       loadImage(src).then(img => { art[key] = img; })),
   ]);
-  if (me) deadline = me.deadline;
+  if (me) { deadline = me.deadline; closed = !!me.closed; }
   setup(json, me);
   if (online) pollSeats();
   requestAnimationFrame(frame);
@@ -291,6 +292,34 @@ function drawText(target, text, x, y) {
 
 const textWidth = text => text.length * GLYPH;
 
+/* The deadline as a student thinks of it.  `2026-08-31T00:00-04:00` is midnight
+ * ENDING Sunday the 30th, so the day to name is the last instant before it, not
+ * the timestamp's own date -- the exact trap that put the wrong day in a comment
+ * in `server/main.py`.  Formatted in the course's timezone, not the viewer's,
+ * and uppercased because the NES charset has no lower case. */
+const DEADLINE_TZ = 'America/New_York';
+
+function deadlineLabel() {
+  if (!deadline) return null;
+  const t = Date.parse(deadline);
+  if (Number.isNaN(t)) return null;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: DEADLINE_TZ, weekday: 'short', day: 'numeric', month: 'short',
+  }).formatToParts(new Date(t - 1));
+  const get = type => (parts.find(p => p.type === type) || {}).value || '';
+  return `${get('weekday')} ${get('day')} ${get('month')}`.toUpperCase();
+}
+
+/* One wording for "you are past the deadline", shared by the two places that
+ * can discover it: tapping a seat in a session that already knows, and a 403
+ * coming back mid-claim.  Naming the day is the whole point -- `TIME IS UP`
+ * alone left students reporting that the click had simply not registered. */
+function closedMessage() {
+  const when = deadlineLabel();
+  openMessage('SEATING IS CLOSED',
+              when ? `DEADLINE WAS ${when}` : 'NO MORE SEAT CHANGES', 'IDLE');
+}
+
 const COARSE = matchMedia('(pointer: coarse)');
 
 /* The one line under the map.  Nothing to tap while you are dying or dead, so
@@ -299,6 +328,9 @@ const COARSE = matchMedia('(pointer: coarse)');
 function hintText() {
   return  game.state === 'DYING' || game.state === 'GAMEOVER' ? ''
     : demo() ? 'DEMO - SEAT CANNOT BE CLAIMED'
+    // Past the deadline: the seats are frozen but the room is still yours to
+    // walk around and look at.
+    : closed ? (game.mySeat ? 'SEATING CLOSED - YOUR SEAT' : 'SEATING CLOSED')
     // Holding a seat: say so, and say it can still be moved.
     : game.mySeat ? (COARSE.matches ? 'SEAT CLAIMED - TAP TO MOVE'
                                     : 'SEAT CLAIMED - CLICK TO MOVE')
@@ -551,6 +583,10 @@ function drawCursor(x, y) {
 // --- the dialog --------------------------------------------------------------
 
 function openDialog(seat) {
+  // Past the deadline there is nothing to confirm.  Say so here rather than
+  // accepting YES, walking Link onto the seat, and snapping him back when the
+  // 403 lands -- that sequence is what students read as "it did not change".
+  if (closed) return closedMessage();
   game.state = 'DIALOG';
   game.pending = null;
   suspendZoom();
@@ -659,8 +695,12 @@ async function answerDialog(choice) {
   game.state = 'IDLE';
   drawHint();
   if (result === 'taken') openMessage('SEAT TAKEN', 'PICK ANOTHER', 'IDLE');
-  else if (result === 'closed')
-    openMessage('TIME IS UP', 'SEATING IS CLOSED', previous ? 'SEATED' : 'IDLE');
+  else if (result === 'closed') {
+    // Frozen, not locked: you can still walk the room and see every seat,
+    // you simply cannot take one.
+    closed = true;
+    closedMessage();
+  }
   else openMessage('NO CONNECTION', 'TRY AGAIN', 'IDLE');
 }
 
@@ -740,7 +780,23 @@ async function pollSeats() {
     await new Promise(r => setTimeout(r, POLL_MS));
     if (document.hidden) continue;          // a backgrounded tab polls nothing
     try {
-      const { seats } = await api.get('api/seats');
+      const { seats, mine } = await api.get('api/seats');
+
+      // The server is the record for our own seat too. Move on your phone and
+      // the laptop follows, instead of sitting there showing a seat you gave
+      // up ten minutes ago.
+      if (mine !== undefined && mine !== game.mySeat) {
+        const old = game.mySeat && seatsById.get(game.mySeat);
+        if (old) old.taken = false;
+        game.mySeat = mine || null;
+        const now = mine && seatsById.get(mine);
+        if (now) now.taken = true;
+        // Only walk him over if the player is not in the middle of something;
+        // yanking Link out of a dialog or a walk would be worse than stale.
+        if (now && !game.dialog && game.state === 'IDLE') placeLink(seatCell(now));
+        drawHint();
+      }
+
       for (const [id, s] of Object.entries(seats)) {
         const seat = seatsById.get(id);
         if (seat && id !== game.mySeat) seat.taken = s.taken;

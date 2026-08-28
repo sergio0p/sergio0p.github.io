@@ -45,7 +45,8 @@ remember (bump `?v=` in `index.html` when the CSS or the JS changes).
   so there is nothing to type and an unknown link 404s before any app file is
   served. The link opens an ongoing scoped session (check my seat, change my
   seat, come back later), not a one-shot claim, and everything expires at the
-  claim deadline. Roster is `Teaching/416/Data/416_roster.json` (52 students; `CanvasId` is the
+  claim deadline. Roster is `Teaching/416/Data/416_roster.json` (52 rows but **51 distinct
+  students** — one PID is duplicated; see `PHASE2-PLAN.md`. `CanvasId` is the
   send target, `PID` stays the seat key). Onyen is not in the roster file but is
   available from Canvas on demand as the user's `login_id` — pull it at issue
   time if the codes want a human-readable handle.

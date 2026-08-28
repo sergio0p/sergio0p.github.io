@@ -4,6 +4,7 @@
 .DS_Store
 __pycache__/
 *.pyc
+.venv/
 
 # The access-code table: 52 working credentials.  The one genuinely secret file
 # in this project — committing it would publish every student's link.  See

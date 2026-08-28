@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// ECON 416 seating -- no client touches this database. At all.
+//
+// The original design had the browser reading `seats` directly via onSnapshot,
+// which needed a public read rule. Phase 2 chose polling through the Cloud Run
+// service instead (one less public surface, and no Firebase SDK on the page),
+// which makes even that read unnecessary. So the posture is now the strongest
+// one available: every client read and every client write is denied, and the
+// service -- which authenticates with admin credentials and bypasses rules
+// entirely -- is the only thing that ever touches the data.
+//
+// Enforcement lives in ordinary Python in `server/main.py`, where it can be
+// read, tested and reasoned about, rather than in this DSL.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}
