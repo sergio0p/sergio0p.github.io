@@ -14,8 +14,19 @@ _ref=_db.collection("submissions").document("02_101166")
 for _v in _ref.collection("versions").stream(): _v.reference.delete()
 _ref.delete()
 print("cleared submissions/02_101166\n")
-SERGIO=("PID_INSTRUCTOR","5256","Sergio Parreiras")
-TOBIAS=("PID_TA","104516","Tobias Wang")
+# Read from the frozen snapshot rather than written down. Two reasons, and the
+# first is the important one: this repository is public and ships to GitHub
+# Pages, so a PID typed into a test file is a student identifier published on
+# the web. The second is that the staff group can be recut like any other, and a
+# hard-coded pair goes quietly stale when it is.
+def _staff_pair():
+    from google.cloud import firestore
+    doc = (firestore.Client(project="econ416-seating")
+           .collection("psGroups").document("02").get().to_dict())
+    g = next(x for x in doc["groups"] if "Parreiras" in x["groupName"])
+    return [(m["pid"], str(m["canvasId"]), m["name"]) for m in g["members"]]
+
+SERGIO, TOBIAS = _staff_pair()
 ok=True
 def check(n,c,d=""):
     global ok
