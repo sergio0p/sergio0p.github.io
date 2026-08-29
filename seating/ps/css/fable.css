@@ -1,0 +1,609 @@
+/* PS 02, Part II -- The Fox and the Fallen Grapes.
+ *
+ * Deliberately not the crane theme. The lecture pages are amber on white and
+ * announce themselves; a problem set built around a 1919 book plate should look
+ * like the book, and then like the desk the book was put down on.
+ *
+ * PALETTE. Sampled from svg/fox-and-grapes.jpg rather than chosen: quantized to
+ * twelve colours, every one of them lands in hue 25-45 at 9-22% saturation. The
+ * plate is warm umber and almost nothing else -- the greens and purples the eye
+ * reports are not measurably there. So the fable is set in the plate's own ink,
+ * on the plate's own paper, and the one colour on the page that the book does
+ * NOT contain is reserved for the working half: --pen, a cold blue that could
+ * not have come off Winter's brush. Question numbers, inputs and controls are
+ * the only things wearing it, which is what makes "this part is yours to fill
+ * in" legible without a single instruction.
+ *
+ * STRUCTURE. The book, then the desk. The plate holds the title, the fable runs
+ * on paper beneath it, and at the moral the ground turns plain white and the
+ * type turns from Caslon to a working sans. The fox changes her verdict when
+ * the grapes come within reach; the page changes register when the reading
+ * stops and the answering starts.
+ */
+
+:root {
+  /* the plate */
+  --paper:      #e9e4da;   /* its light, opened up far enough to set text on */
+  --paper-deep: #d9d2c5;
+  --ink:        #2b211a;   /* its darkest pixels, #240a00 warmed a little */
+  --ink-soft:   #5c4e41;
+  --umber:      #867360;   /* the dominant colour, 12.6% of the image */
+  --russet:     #a8785a;   /* the fox: the most saturated family in the plate */
+
+  /* the desk -- none of this is in the image */
+  --desk:       #ffffff;
+  --desk-line:  #e3e6ea;
+  --pen:        #1c3f5f;
+  --pen-bright: #2f6a99;
+  --pen-wash:   #f2f6fa;
+
+  --measure: 34rem;
+  --serif: 'Libre Caslon Text', Georgia, 'Times New Roman', serif;
+  --display: 'Libre Caslon Display', Georgia, serif;
+  --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+/* ============================================================ THE PLATE ==== */
+
+/* The illustration is 354x605 and there is no larger scan of it in existence --
+   Gutenberg ships the same thumbnail. So it is never scaled up: it is painted at
+   1:1 on its own layer, sharp, and the plate is made taller than the image so
+   there is paper above and below it. Blowing it up to full bleed would have
+   turned Winter's brushwork to mush to cover pixels nobody looks at. */
+.plate {
+  position: relative;
+  min-height: 680px;
+  display: flex;
+  /* Bottom, not centre. Centring a short title block inside a plate as tall as
+     the illustration parked ~200px of blank paper between the credit line and
+     the first sentence. Hung from the bottom, the air collects above the title
+     -- where it reads as the top margin of the page -- and the story starts
+     directly under the words that introduce it. */
+  align-items: flex-end;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+/* A plate printed on the page, not a photograph laid on top of it: the mask
+   dissolves all four edges of the rectangle into the paper, hardest on the left
+   where the title runs alongside it. Two mask layers intersected -- without the
+   composite a browser unions them and the fade disappears, which is a graceful
+   enough failure to be worth the risk. */
+.plate::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 8vw;
+  transform: translateY(-50%);
+  width: 354px;
+  height: 605px;
+  background: url('../svg/fox-and-grapes.jpg') no-repeat center / 354px 605px;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, #000 34%, #000 93%, transparent 100%),
+    linear-gradient(0deg,  transparent 0%, #000 11%, #000 89%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, #000 34%, #000 93%, transparent 100%),
+    linear-gradient(0deg,  transparent 0%, #000 11%, #000 89%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.plate-inner {
+  position: relative;
+  z-index: 1;
+  padding: 2rem 2rem 2.75rem 8vw;
+  max-width: 32rem;
+}
+
+.eyebrow {
+  margin: 0 0 1.4rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--umber);
+}
+
+.plate h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 6.2vw, 4.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+
+.plate .credit {
+  margin: 1.5rem 0 0;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+/* ============================================================ THE FABLE ==== */
+
+/* The title sits on an 8vw axis and the illustration weights the right side, so
+   the text hangs from that same axis rather than centring in the page. A centred
+   measure under a hard-left title reads as two unrelated layouts. */
+.fable {
+  max-width: calc(var(--measure) + 8vw + 1.5rem);
+  padding: 0 1.5rem 1.75rem 8vw;
+}
+
+.fable p {
+  margin: 0 0 1.5rem;
+  font-size: 1.12rem;
+  line-height: 1.85;
+}
+
+/* The opening sentence carries the whole setup, so it gets the one typographic
+   flourish on the page and nothing else does. */
+.fable p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--display);
+  font-size: 4.1rem;
+  line-height: 0.82;
+  padding: 0.14em 0.1em 0 0;
+  color: var(--russet);
+}
+
+/* The crow and the fox trade four short lines. Indented and a shade lighter,
+   they read as an exchange rather than four more paragraphs of narration. */
+.fable .said {
+  margin-left: 1.75rem;
+  margin-bottom: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.moral {
+  max-width: calc(var(--measure) + 8vw + 1.5rem);
+  padding: 0 1.5rem 0 8vw;
+}
+
+.moral p {
+  margin: 0;
+  padding: 1.6rem 0 0;
+  border-top: 1px solid var(--paper-deep);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+
+.moral em { font-style: normal; font-weight: 700; color: var(--ink); }
+
+/* ============================================================= THE DESK ==== */
+
+/* Where the book stops. The ground goes white, the type goes sans, and the
+   accent becomes a colour the plate does not contain. */
+/* The gap here is doing one job -- marking that the ground changed -- and it
+   only needs enough air to read as a break. Sized for the full fable it left a
+   void at stage one, where a single paragraph sat above 160px of blank paper. */
+.desk {
+  margin-top: 1.75rem;
+  padding: 2.5rem 1.5rem 3.5rem;
+  background: var(--desk);
+  border-top: 1px solid var(--paper-deep);
+  font-family: var(--sans);
+  color: #23282d;
+}
+
+.desk-inner { max-width: calc(44rem + 8vw); padding-left: calc(8vw - 1.5rem); }
+
+.desk h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pen);
+}
+
+.desk-lede {
+  margin: 0 0 1.9rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4a5157;
+}
+
+/* One question. The number is the only saturated mark in the block, which is
+   the same job the arrow colours do in Part I. */
+.q {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0 1rem;
+  padding: 1.6rem 0;
+  border-top: 1px solid var(--desk-line);
+}
+
+.q-num {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--pen);
+  padding-top: 0.15rem;
+}
+
+.q-body { min-width: 0; font-size: 0.98rem; line-height: 1.7; }
+.q-body > :first-child { margin-top: 0; }
+.q-body > :last-child { margin-bottom: 0; }
+
+.q textarea,
+.q input[type="text"] {
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: #23282d;
+  background: var(--pen-wash);
+  border: 1px solid #d7e0e8;
+  border-radius: 4px;
+}
+
+.q textarea { min-height: 6.5rem; resize: vertical; line-height: 1.65; }
+
+.q textarea:focus,
+.q input[type="text"]:focus {
+  outline: 2px solid var(--pen-bright);
+  outline-offset: 1px;
+  background: var(--desk);
+}
+
+/* --- one question at a time ---------------------------------------------- */
+
+.qcard {
+  padding: 1.9rem 1.9rem 1.6rem;
+  background: var(--pen-wash);
+  border: 1px solid #dde6ee;
+  border-radius: 6px;
+}
+
+.qstep {
+  margin: 0 0 1rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--pen);
+}
+
+.qstep span { color: #8fa4b5; }
+
+.qprompt {
+  margin: 0 0 1.5rem;
+  font-size: 1.12rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #1b2126;
+}
+
+/* The emphasis in "stated preferences" is the whole question, so it is set in
+   the book's serif italic -- the one place the fable's voice reaches across into
+   the working half of the page. Italic and colour carry it; no size change,
+   which only made the word tower over the sentence it belongs to. */
+.qprompt em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--russet);
+}
+
+.opts { display: flex; flex-direction: column; gap: 0.55rem; }
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font: inherit;
+  font-size: 1rem;
+  text-align: left;
+  color: #23282d;
+  background: var(--desk);
+  border: 1px solid #d7e0e8;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+/* The radio dot, drawn rather than native so it can carry the pen colour. */
+.opt::before {
+  content: '';
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid #b3c3d1;
+  border-radius: 50%;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.opt:hover { border-color: var(--pen-bright); background: #fbfdff; }
+.opt:hover::before { border-color: var(--pen-bright); }
+
+.opt:focus-visible {
+  outline: 2px solid var(--pen-bright);
+  outline-offset: 2px;
+}
+
+.opt[aria-checked="true"] {
+  border-color: var(--pen);
+  background: var(--desk);
+}
+
+.opt[aria-checked="true"]::before {
+  border-color: var(--pen);
+  box-shadow: inset 0 0 0 3.5px var(--desk), inset 0 0 0 15px var(--pen);
+}
+
+/* The relation is the only thing that differs between the three options, so it
+   is the only thing given colour and size. Reading down the column, the eye
+   compares the symbols and nothing else. */
+.opt .rel {
+  display: inline-block;
+  margin: 0 0.55rem;
+  color: var(--pen);
+}
+
+/* KaTeX sets its own size relative to the container; this keeps the operator a
+   touch larger than the words around it without letting it tower over them. */
+.opt .rel .katex { font-size: 1.16em; }
+
+/* Only reached if KaTeX failed to load. */
+.opt .rel-plain { font-size: 1.25em; line-height: 1; vertical-align: -0.06em; }
+
+.qnav { margin: 1.4rem 0 0; }
+
+.qnav .back {
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--pen);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.qnav .back:hover { text-decoration: underline; }
+
+.qcard-done { background: var(--desk); border-style: dashed; }
+
+.done-note { margin: 0; font-size: 0.95rem; line-height: 1.65; color: #4a5157; }
+
+/* --- what has been answered so far --------------------------------------- */
+
+.record { list-style: none; margin: 1.6rem 0 0; padding: 0; }
+
+.record-row + .record-row { border-top: 1px solid var(--desk-line); }
+
+.record-row button {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr auto;
+  gap: 0 1rem;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.85rem 0.4rem;
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.record-row button:hover { background: var(--pen-wash); }
+
+.record-row button:focus-visible {
+  outline: 2px solid var(--pen-bright);
+  outline-offset: -2px;
+}
+
+.record-n {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: #8fa4b5;
+}
+
+.record-q { font-size: 0.9rem; color: #5c666e; }
+
+.record-a {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--pen);
+  white-space: nowrap;
+}
+
+/* ========================================================== RESPONSIVE ===== */
+
+@media (max-width: 860px) {
+  /* The image stops being a background and becomes the top of the page: at this
+     width there is no paper to its left to hold the title. */
+  .plate { display: block; min-height: 0; padding-top: 330px; }
+  .plate::before {
+    top: 0;
+    right: 50%;
+    transform: translateX(50%) scale(0.62);
+    transform-origin: top center;
+  }
+  .plate-inner { padding: 0 1.5rem 2.5rem; max-width: none; }
+  .fable, .moral { padding-left: 1.5rem; max-width: none; }
+  .desk-inner { padding-left: 0; }
+  .fable p { font-size: 1.05rem; }
+  .fable .said { margin-left: 1rem; }
+}
+
+/* Nothing on this page moves for decoration. This one fade is functional: when
+   the second half of the story appears above the question the student is looking
+   at, something has to say that the page changed, or the new paragraphs read as
+   text that was always there and simply missed. */
+@media (prefers-reduced-motion: no-preference) {
+  .fable p.just-revealed { animation: settle 0.55s ease-out both; }
+}
+
+@keyframes settle {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --- handing it in ------------------------------------------------------- */
+
+.desk-submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem 1.5rem;
+  margin: 2rem 0 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--desk-line);
+}
+
+/* Part I is one link away, and following it costs nothing: the two parts can be
+   done in either order and neither has to be submitted to reach the other. */
+.desk-back {
+  font-size: 0.85rem;
+  color: var(--pen);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.desk-back:hover { border-bottom-color: var(--pen-bright); }
+.desk-back:focus-visible { outline: 2px solid var(--pen-bright); outline-offset: 3px; }
+
+.desk-status { flex: 1 0 100%; }
+
+.desk-submit[hidden] { display: none; }
+
+/* The only filled control on the page, and it appears only when there is
+   something to hand in. */
+.q-submit {
+  padding: 0.6rem 1.4rem;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--desk);
+  background: var(--pen);
+  border: 1px solid var(--pen);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+
+.q-submit:hover { background: var(--pen-bright); border-color: var(--pen-bright); }
+.q-submit:focus-visible { outline: 2px solid var(--pen-bright); outline-offset: 2px; }
+
+.desk-status {
+  margin: 0.9rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #4a5157;
+}
+
+.desk-status-ok { color: #1f6b3a; }
+
+.q-confirm {
+  /* Flush to both screen edges reads as a takeover and clips the corners. */
+  max-width: min(30rem, calc(100vw - 2.5rem));
+  padding: 1.6rem 1.7rem 1.3rem;
+  font-family: var(--sans);
+  color: #23282d;
+  background: var(--desk);
+  border: 1px solid var(--desk-line);
+  border-radius: 8px;
+  box-shadow: 0 18px 48px rgba(23, 19, 16, 0.2);
+}
+
+.q-confirm::backdrop { background: rgba(43, 33, 27, 0.4); }
+
+.q-confirm h3 { margin: 0 0 0.9rem; font-size: 1rem; }
+.q-confirm p { margin: 0 0 0.7rem; font-size: 0.9rem; line-height: 1.6; }
+.q-confirm strong { color: var(--pen); }
+.q-confirm-note { color: #5c666e; font-size: 0.82rem; }
+
+.q-confirm menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin: 1.3rem 0 0;
+  padding: 0;
+}
+
+.q-confirm button {
+  padding: 0.45rem 1.1rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.q-confirm-no { color: #23282d; background: var(--desk); border: 1px solid #d7e0e8; }
+.q-confirm-yes { color: var(--desk); background: var(--pen); border: 1px solid var(--pen); }
+
+/* Raised only at the final hand-in, so it has to be seen when it is. */
+.q-confirm-warn {
+  padding: 0.7rem 0.85rem;
+  background: #fdf3e7;
+  border-left: 3px solid #b06a1f;
+  color: #6b4413;
+  font-size: 0.88rem;
+}
+
+.q-confirm-warn strong { color: #6b4413; }
+.q-confirm-warn[hidden] { display: none; }
+
+/* A way out to the answer key, which is not on the site until the due date has
+   passed. The link is here beforehand on purpose: the page it reaches says when
+   the answers arrive, and a missing link says nothing at all. Quiet, in the
+   plate's own umber -- the cold --pen is reserved for the working half. */
+.desk-answers-link {
+  display: block;
+  width: fit-content;
+  margin: 2rem auto 3rem;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.desk-answers-link:hover {
+  color: var(--russet);
+  border-bottom-color: var(--russet);
+}
+
+.desk-answers-link:focus-visible {
+  outline: 2px solid var(--pen);
+  outline-offset: 3px;
+}
+
+/* Same three dead ends as Part I, in the plate's own umber. */
+.desk-blocked {
+  max-width: 44ch;
+  margin: 2rem auto;
+  padding: 1.1rem 1.3rem;
+  border-left: 3px solid var(--russet);
+  background: rgba(168, 120, 90, 0.08);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--ink);
+}

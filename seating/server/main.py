@@ -89,7 +89,7 @@ SESSION_UNTIL = datetime.fromisoformat(
 # Deliberately not tied to DEADLINE: that one closes seat claiming and has
 # nothing to do with when a problem set is due.
 PS_SETS = json.loads(os.environ.get(
-    "PS_SETS", '{"02": {"due": null, "parts": ["I", "II"]}}'))
+    "PS_SETS", '{"02": {"due": "2026-09-01T23:59:59-04:00", "parts": ["I", "II"]}}'))
 
 # Enough for any answer these pages produce -- Part I is three lists of at most
 # twelve short strings -- and far under Firestore's 1 MiB document cap. A body
@@ -753,6 +753,57 @@ def api_ps_submit(ps: str) -> Response:
     return {"ok": True, "version": n, "late": late,
             "group": g.get("groupName"),
             "parts": sorted(set((body.get("known") or []) + [part]))}
+
+
+@app.get("/api/ps/<ps>/key")
+def api_ps_key(ps: str) -> Response:
+    """The answer key, and not one second before the due date.
+
+    The key ships inside the container rather than the web root, and this is the
+    only way to it: the static route below refuses .json outright. Before the
+    deadline this returns the byte-identical 404 that everything else refuses
+    with, so a student cannot even learn that a key exists yet.
+
+    That is the whole reason the check lives here. On a static host the only
+    enforceable "not yet" is a file that does not exist; on a server it is a
+    clock, which is better -- nothing has to be copied anywhere at the deadline.
+    """
+    s = current()
+    if not s or not ps_config(ps) or not ps_closed(ps):
+        return not_found()
+    path = APP_DIR / "ps" / "keys" / f"PS{ps}.json"
+    if not path.exists():
+        return not_found()
+    return send_from_directory(path.parent, path.name,
+                               mimetype="application/json")
+
+
+# --- the problem-set pages, behind the same cookie as everything else --------
+
+# Extensions a signed-in student may fetch out of ps/. An allow-list, and .json
+# is deliberately absent: keys/PS02.json lives in this tree and must only ever
+# be reachable through the dated route above.
+PS_EXTS = {".html", ".css", ".js", ".jpg", ".jpeg", ".png", ".svg",
+           ".woff", ".woff2"}
+
+
+@app.get("/ps")
+@app.get("/ps/")
+def ps_index() -> Response:
+    if not current():
+        return not_found()
+    return redirect("/ps/ps02-part1.html", code=302)
+
+
+@app.get("/ps/<path:filename>")
+def ps_file(filename: str) -> Response:
+    if not current():
+        return not_found()
+    if ".." in filename or filename.startswith("/"):
+        return not_found()
+    if Path(filename).suffix.lower() not in PS_EXTS:
+        return not_found()
+    return send_from_directory(APP_DIR / "ps", filename)
 
 
 # NOT /healthz: Google Frontend intercepts that exact path on Cloud Run and

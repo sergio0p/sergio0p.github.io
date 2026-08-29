@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PS 02 Part I | ECON 416</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@15.1.1/lib/browser/math.js"></script>
+<script type="importmap">
+{ "imports": { "mathjs": "./tikz-svg/examples-v2/mathjs-shim.js" } }
+</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/beamer-theme.css">
+<link rel="stylesheet" href="css/problem-set.css?v=16">
+</head>
+<!-- The group is a placeholder until the submission service is wired: it will
+     come from the frozen psGroups snapshot, keyed by the student's token. Until
+     then ?group= overrides it so the confirmation can be exercised. -->
+<body class="ps-page" data-group="Angstadt &amp; Waller">
+
+<section class="frame">
+  <div class="frame-title-bar">
+    <h2 class="frame-title" id="title">PS 02 - Part I.i</h2>
+  </div>
+  <div class="frame-content">
+
+    <div id="items"></div>
+
+    <!-- Under the controls, quieter than them: moving between items is not the
+         action of this page, submitting is. Each one names where it goes. -->
+    <nav class="ps-itemnav" id="itemnav" aria-label="move between items"></nav>
+
+  </div>
+</section>
+
+<p class="ps-status" id="status" role="status"></p>
+
+<!-- The key is not on the site until after the due date; this points at the
+     page that says so, which explains the wait better than an absent link. -->
+<a class="ps-answers-link" href="ps02-answers.html">Answers &mdash; posted after the due date</a>
+
+<!-- One student hands the set in for the pair, so the group is confirmed by
+     name. It asks once, when both parts are in -- not twice, and not while half
+     the work is still outstanding. -->
+<dialog id="confirm" class="ps-confirm">
+  <form method="dialog">
+    <h3>Hand in PS 02</h3>
+    <p>You are handing <strong>PS 02</strong> in for
+      <strong class="ps-confirm-group" data-confirm-group></strong>.</p>
+    <p class="ps-confirm-warn" data-confirm-warning hidden></p>
+    <p class="ps-confirm-note">You can submit again as often as you like before
+      the due date, and the last submission is the one that gets graded.</p>
+    <menu>
+      <button value="cancel" class="ps-confirm-no" data-confirm-cancel></button>
+      <button value="yes" class="ps-confirm-yes" data-confirm-yes></button>
+    </menu>
+  </form>
+</dialog>
+
+<output id="answer" style="position:absolute; left:-9999px;"></output>
+
+<script type="module">
+import { createPartOne, ITEMS } from './js/ps02-part1.js';
+import { prepareConfirm } from './js/ps-confirm.js';
+import { psInit, psSubmit, psGroupName, psIsComplete, psBlanks,
+         psAnswers, psSubmittedBy, psBlockingMessage } from './js/ps-api.js';
+
+const PS = '02';
+const PARTS = ['I', 'II'];
+
+// One round trip before anything is drawn. The group, and whatever the group
+// has already filed, are the server's to say -- there is no ?group= any more,
+// because a student cannot be the one who names the group they submit for.
+await psInit(PS);
+const group = psGroupName();
+
+const out = document.getElementById('answer');
+const title = document.getElementById('title');
+const nav = document.getElementById('itemnav');
+const status = document.getElementById('status');
+const confirm = document.getElementById('confirm');
+
+// No session, no group, or no server: all three are dead ends, and each needs
+// to say what to do rather than present a form that cannot be submitted.
+const blocked = psBlockingMessage();
+if (blocked) {
+  document.getElementById('items').innerHTML =
+    `<p class="ps-blocked">${blocked}</p>`;
+  document.getElementById('itemnav').remove();
+  status.textContent = '';
+  throw new Error(blocked);          // stops the module; nothing else renders
+}
+
+const ps = createPartOne({
+  mount: document.getElementById('items'),
+  onTitle: t => { title.textContent = t; },
+  onChange: s => { out.textContent = JSON.stringify(s); },
+  // Part I is in. The group acknowledgement belongs to the whole problem set,
+  // so it only appears once Part II is in as well.
+  onFinal: async state => {
+    // Blank items are reported, not blocked: an unfinished set may be handed in
+    // and finished later.
+    const blank = ITEMS.map(x => x.id)
+      .filter(id => !(state.answers[id] || []).length)
+      .map(id => `Part ${id}`);
+    const r = await psSubmit('I', state.answers, blank);
+    if (!r.ok) {
+      status.className = 'ps-status ps-error';
+      status.textContent = r.error === 'offline'
+        ? 'Could not reach the server — nothing was submitted. Try again.'
+        : `Submission refused (${r.error}). Nothing was stored.`;
+      return;
+    }
+    if (!psIsComplete(PARTS)) { ps.accept(); return; }
+    prepareConfirm(confirm, { group, blanks: psBlanks(PARTS) });
+    confirm.showModal();
+  },
+  onRender: s => {
+    // Only the moves that exist. A greyed-out link pointing at no item is
+    // chrome; leaving it out says the same thing and says it quietly.
+    // Still rendered after handing in: resubmission is open until the due date,
+    // so the student must be able to walk back and change an answer.
+    //
+    // Past the last item the trail continues into Part II as an ordinary link.
+    // Nothing has to be submitted to follow it -- a student is allowed to read
+    // ahead, or to start with the fable and come back.
+    nav.innerHTML = '';
+    if (s.index > 0) nav.appendChild(move('prev', `\u2190\u00a0Part ${ITEMS[s.index - 1].id}`));
+    if (s.index < ITEMS.length - 1) {
+      nav.appendChild(move('next', `Part ${ITEMS[s.index + 1].id}\u00a0\u2192`));
+    } else {
+      const on = document.createElement('a');
+      on.className = 'ps-move';
+      on.id = 'to-part-2';
+      on.href = 'ps02-part2.html' + location.search;
+      on.textContent = 'Part II\u00a0\u2192';
+      nav.appendChild(on);
+    }
+    status.className = 'ps-status' + (s.submitted ? ' ps-ok' : '');
+    status.textContent = statusLine(s);
+  },
+});
+
+function move(dir, text) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.id = dir;
+  b.className = 'ps-move';
+  b.textContent = text;
+  b.addEventListener('click', () => (dir === 'prev' ? ps.prev() : ps.next()));
+  return b;
+}
+
+// Says which items are in and which are not, rather than a bare count -- the
+// student's next move depends on which one is missing, not on how many are.
+function series(ids) {
+  const n = ids.map(x => `Part ${x}`);
+  return n.length < 2 ? n.join('') : n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1];
+}
+
+function statusLine(s) {
+  if (s.submitted) {
+    return psIsComplete(PARTS)
+      ? `PS 02 handed in for ${group}. You can submit again until the due date.`
+      : 'Part I submitted. Part II is still outstanding.';
+  }
+  // What the GROUP has on record comes first, because it may be your partner's
+  // work and not yours -- the difference between "nothing here" and "your
+  // partner did this an hour ago". It has to be checked BEFORE the filed count:
+  // answers loaded from the server arrive already marked filed, so testing the
+  // count first hid the partner's name behind "Submitted: Part I-I", which
+  // reads as though you had done it yourself.
+  const by = psSubmittedBy();
+  if (by) {
+    return psIsComplete(PARTS)
+      ? `PS 02 is in for ${group}, submitted by ${by}. You can change it until the due date.`
+      : `Part I is in for ${group}, submitted by ${by}. Part II is still outstanding.`;
+  }
+  const open = ITEMS.map(x => x.id).filter(id => !s.filed.includes(id));
+  if (!s.filed.length) return 'Nothing submitted yet.';
+  if (!open.length) return 'All three items submitted. Confirm your group to hand PS 02 in.';
+  return `Submitted: ${series(s.filed)}. Still open: ${series(open)}.`;
+}
+
+confirm.addEventListener('close', () => {
+  if (confirm.returnValue === 'yes') ps.accept();
+});
+
+// Whatever the group last filed for Part I, so a partner opening this page sees
+// the work rather than a blank triangle -- and so "revisit" and "resubmit" are
+// the same act.
+const prior = psAnswers('I');
+if (prior) ps.set({ answers: prior, filed: Object.keys(prior).filter(k => prior[k].length) });
+
+window.__ps1 = ps;                      // the browser test drives through this
+</script>
+
+</body>
+</html>

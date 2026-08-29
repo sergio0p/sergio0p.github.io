@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PS 02 Part II — The Fox and the Fallen Grapes | ECON 416</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<link rel="stylesheet" href="css/fable.css?v=10">
+</head>
+<body data-group="Angstadt &amp; Waller">
+
+<!-- The book. -->
+<header class="plate">
+  <div class="plate-inner">
+    <p class="eyebrow">ECON 416 &middot; Problem Set 02 &middot; Part II</p>
+    <h1>The Fox and the Fallen Grapes</h1>
+    <p class="credit">After Aesop. Plate by Milo Winter, from <i>The Aesop for
+      Children</i>, 1919.</p>
+  </div>
+</header>
+
+<!-- The story arrives in two instalments. Everything in stage 2 is hidden until
+     the first pair of questions has been answered: the whole exercise is that
+     the same question gets a different answer once the grapes are within reach,
+     and a student who has read the ending cannot answer the first pair honestly. -->
+<article class="fable">
+  <p data-stage="1">A fox came upon a vine of grapes hanging high above her head.
+    She leapt once, twice, a third time, and each time her jaws closed on nothing
+    but air. At last she walked away with her nose in the air, announcing to the
+    empty road, &ldquo;No matter. They were sour anyway &mdash; hard and green and
+    fit only for wasps.&rdquo;</p>
+
+  <p data-stage="2" hidden>She had gone barely twenty paces when a gust of wind
+    came down the hill, shook the vine, and sent the whole cluster tumbling into
+    the dust behind her.</p>
+
+  <p data-stage="2" hidden>The fox stopped. She looked back. Then she turned and
+    ran, and fell upon the grapes, and ate them down to the last one, stem and
+    skin and seed, licking the juice from her whiskers when she was done.</p>
+
+  <p data-stage="2" hidden>A crow who had watched the whole business from a
+    branch called down, &ldquo;Sour, were they?&rdquo;</p>
+
+  <p class="said" data-stage="2" hidden>&ldquo;Sweet,&rdquo; said the fox,
+    without looking up. &ldquo;Wonderfully sweet.&rdquo;</p>
+
+  <p class="said" data-stage="2" hidden>&ldquo;But you said&mdash;&rdquo;</p>
+
+  <p class="said" data-stage="2" hidden>&ldquo;I said what I needed to say when I
+    could not have them,&rdquo; said the fox. &ldquo;Now I can have them. A
+    creature who cannot change her opinion as fast as her luck changes will go
+    hungry twice.&rdquo;</p>
+</article>
+
+<!-- The moral states the lesson the questions are asking the student to find,
+     so it waits until all four are answered. -->
+<div class="moral" id="moral" hidden>
+  <p><em>Moral:</em> Some people despise only what they cannot reach &mdash; and
+    the moment it falls within reach, the contempt falls away with it.</p>
+</div>
+
+<!-- The desk. -->
+<section class="desk">
+  <div class="desk-inner">
+    <h2>Questions</h2>
+    <p class="desk-lede">One at a time. Your answers are kept as you go and you
+      can return to any of them &mdash; nothing is final until you submit the
+      problem set.</p>
+
+    <div id="questions"></div>
+
+    <!-- Always available, answered or not. A group that wants to hand in what
+         they have, or nothing at all, is allowed to; the last submission before
+         the due date is the one that counts. -->
+    <div class="desk-submit" id="submitbar">
+      <button type="button" class="q-submit" id="submit">Submit Part II</button>
+      <a class="desk-back" id="to-part-1" href="ps02-part1.html">&larr;&nbsp;Back to Part I</a>
+      <p class="desk-status" id="status" role="status"></p>
+    </div>
+
+    <!-- The stored encoding, kept for the browser test. Never shown. -->
+    <output id="answer" style="position:absolute; left:-9999px;"></output>
+
+<!-- Asked once, by whichever part completes the set. -->
+<dialog id="confirm" class="q-confirm">
+  <form method="dialog">
+    <h3>Hand in PS 02</h3>
+    <p>You are handing <strong>PS 02</strong> in for
+      <strong data-confirm-group></strong>.</p>
+    <p class="q-confirm-warn" data-confirm-warning hidden></p>
+    <p class="q-confirm-note">You can submit again as often as you like before
+      the due date, and the last submission is the one that gets graded.</p>
+    <menu>
+      <button value="cancel" class="q-confirm-no" data-confirm-cancel></button>
+      <button value="yes" class="q-confirm-yes" data-confirm-yes></button>
+    </menu>
+  </form>
+</dialog>
+  </div>
+</section>
+
+<!-- Same link as Part I, same reason. -->
+<a class="desk-answers-link" href="ps02-answers.html">Answers &mdash; posted after the due date</a>
+
+<script type="module">
+import { createFableQuestions, STEPS } from './js/fable-questions.js';
+import { prepareConfirm } from './js/ps-confirm.js';
+import { psInit, psSubmit, psGroupName, psIsComplete, psBlanks,
+         psAnswers, psSubmittedBy, psBlockingMessage } from './js/ps-api.js';
+
+const PS = '02';
+const PARTS = ['I', 'II'];
+
+await psInit(PS);
+const group = psGroupName();
+
+const out = document.getElementById('answer');
+const moral = document.getElementById('moral');
+const staged = [...document.querySelectorAll('.fable [data-stage]')];
+const submitbar = document.getElementById('submitbar');
+const status = document.getElementById('status');
+const confirmDialog = document.getElementById('confirm');
+
+const blocked = psBlockingMessage();
+if (blocked) {
+  document.getElementById('questions').innerHTML =
+    `<p class="desk-blocked">${blocked}</p>`;
+  submitbar.remove();
+  throw new Error(blocked);
+}
+
+const w = createFableQuestions(document.getElementById('questions'), {
+  onChange: a => { out.textContent = JSON.stringify(a); },
+  onStage: stage => {
+    for (const p of staged) {
+      if (Number(p.dataset.stage) > stage || !p.hidden) continue;
+      p.hidden = false;
+      p.classList.add('just-revealed');
+    }
+  },
+  // The moral is the payoff for finishing, so it still waits for all four.
+  // Submitting does not: see the submit bar.
+  onDone: done => { moral.hidden = !done; },
+
+  // Put the student back at the top of the material the next question is about.
+  // At step three that matters most: the rest of the story lands ABOVE the card
+  // they are looking at, so without this the page silently grows upward and the
+  // new instalment is never seen.
+  onAdvance: step => {
+    const target = step
+      ? document.querySelector(`.fable [data-stage="${step.stage}"]`)
+      : moral;                       // finished: the moral is the payoff
+    if (!target) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({
+      top: target.getBoundingClientRect().top + window.scrollY - 40,
+      behavior: still ? 'auto' : 'smooth',
+    });
+  },
+});
+
+document.getElementById('submit').addEventListener('click', async () => {
+  const done = w.get().map(s => s.split(':')[0]);
+  const blank = STEPS
+    .map((step, n) => ({ n, step }))
+    .filter(x => !done.includes(x.step.id))
+    .map(x => `Part II, question ${x.n + 1}`);
+
+  const r = await psSubmit('II', w.get(), blank);
+  if (!r.ok) {
+    say(r.error === 'offline'
+      ? 'Could not reach the server \u2014 nothing was submitted. Try again.'
+      : `Submission refused (${r.error}). Nothing was stored.`);
+    return;
+  }
+
+  const answered = STEPS.length - blank.length;
+
+  // The group acknowledgement belongs to the problem set, so it is asked by
+  // whichever part finishes the pair -- once, not twice.
+  if (psIsComplete(PARTS)) {
+    prepareConfirm(confirmDialog, { group, blanks: psBlanks(PARTS) });
+    confirmDialog.showModal();
+  } else {
+    say(`Part II submitted \u2014 ${answered} of ${STEPS.length} answered. `
+      + 'Part I is still outstanding.');
+  }
+});
+
+confirmDialog.addEventListener('close', () => {
+  if (confirmDialog.returnValue === 'yes') {
+    say(`PS 02 handed in for ${group}. You can submit again until the due date.`, true);
+  }
+});
+
+function say(text, ok) {
+  status.textContent = text;
+  status.className = 'desk-status' + (ok ? ' desk-status-ok' : '');
+}
+
+// What the group last filed, which may be the partner's work.
+const prior = psAnswers('II');
+if (prior && prior.length) w.set(prior);
+const by = psSubmittedBy();
+if (by && prior && prior.length) {
+  say(`Part II is in for ${group}, submitted by ${by}. `
+    + 'You can change it until the due date.');
+}
+
+window.__ps2 = w;                      // the browser test drives through this
+out.textContent = JSON.stringify(w.get());
+</script>
+
+</body>
+</html>

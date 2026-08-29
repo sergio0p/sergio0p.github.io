@@ -1,0 +1,817 @@
+/* Problem set pages. Loaded after beamer-theme.css, which owns the palette,
+   the frames and the typography -- this file adds only what a problem set has
+   that a lecture does not: answer inputs, the relation grids, and the submit
+   bar. Nothing here restyles a lecture element. */
+
+/* --- the group banner ---------------------------------------------------- */
+
+.ps-identity {
+  max-width: var(--frame-max-width);
+  margin: 1rem auto 0;
+  padding: 0.85rem 1.1rem;
+  background: #f7e9d6;
+  border-left: 4px solid var(--crane-amber);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.ps-identity strong { color: var(--crane-amber-dark); }
+
+.ps-identity .ps-members {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.ps-identity.ps-warn {
+  background: #fdecea;
+  border-left-color: #c62828;
+}
+
+/* --- numeric basket answers ---------------------------------------------- */
+
+.ps-baskets {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 0.6rem 0.9rem;
+  align-items: center;
+  margin: 1rem 0 0.5rem;
+  width: fit-content;
+}
+
+.ps-baskets label {
+  font-weight: 600;
+  color: var(--crane-amber-dark);
+  justify-self: end;
+}
+
+.ps-baskets input {
+  width: 5.5rem;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+}
+
+.ps-baskets input:focus {
+  outline: 2px solid var(--crane-amber);
+  outline-offset: 1px;
+  border-color: var(--crane-amber-dark);
+}
+
+.ps-baskets .ps-unit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* --- relation grids ------------------------------------------------------ */
+
+.ps-grid {
+  border-collapse: collapse;
+  margin: 0.9rem 0 1.4rem;
+  font-size: 0.9rem;
+}
+
+.ps-grid caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 600;
+  color: var(--crane-amber-dark);
+  padding-bottom: 0.35rem;
+}
+
+.ps-grid th,
+.ps-grid td {
+  border: 1px solid #ccc;
+  padding: 0;
+  text-align: center;
+}
+
+.ps-grid th {
+  background: #f5f5f5;
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+}
+
+.ps-grid td.ps-diag { background: #ececec; }
+
+/* Three states, because "not answered" has to be visible: a student who never
+   touched a cell must not look like one who judged the relation false. */
+.ps-cell {
+  display: block;
+  width: 100%;
+  min-width: 7.5rem;
+  padding: 0.5rem 0.4rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: #fff;
+  border: 0;
+  cursor: pointer;
+}
+
+.ps-cell:hover { background: #f0f0f0; }
+
+.ps-cell:focus-visible {
+  outline: 2px solid var(--crane-amber);
+  outline-offset: -2px;
+}
+
+.ps-cell[data-state="true"] {
+  background: #e3f2fd;
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+.ps-cell[data-state="false"] {
+  background: #fdecea;
+  color: #b71c1c;
+  font-weight: 600;
+  text-decoration: line-through;
+}
+
+.ps-cell .ps-mark {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-decoration: none;
+  color: var(--text-muted);
+}
+
+.ps-cell[data-state="true"] .ps-mark { color: #0d47a1; }
+.ps-cell[data-state="false"] .ps-mark { color: #b71c1c; }
+
+/* --- submit bar ---------------------------------------------------------- */
+
+.ps-submit-bar {
+  max-width: var(--frame-max-width);
+  margin: 1.5rem auto 3rem;
+  padding: 1rem 1.1rem;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.ps-submit-bar button {
+  padding: 0.55rem 1.4rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--crane-amber-dark);
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.ps-submit-bar button:hover:not(:disabled) { background: #a06500; }
+
+.ps-submit-bar button:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
+.ps-status.ps-ok    { color: #2e7d32; }
+.ps-status.ps-error { color: #c62828; }
+
+/* --- answer key, revealed only after the deadline ------------------------ */
+
+.ps-key {
+  max-width: var(--frame-max-width);
+  margin: 1rem auto;
+  padding: 1rem 1.1rem;
+  background: #e8f5e9;
+  border-left: 4px solid #2e7d32;
+  color: var(--text-primary);
+}
+
+.ps-key h3 { color: #1b5e20; margin-top: 0; }
+
+@media (max-width: 768px) {
+  .ps-baskets { grid-template-columns: auto auto; }
+  .ps-cell { min-width: 5.5rem; font-size: 0.8rem; }
+}
+
+/* --- revealed-preference triangle widget ---------------------------------
+ *
+ * One thing is big: the figure. Beside it sits a rail carrying what the student
+ * consults while working -- the observations and the key -- narrow, quiet and
+ * unboxed, so it never reads as a peer of the drawing. Under both, spanning the
+ * width, the summary states in words what the arrows state in the figure.
+ *
+ * The three saturated colours belong to the arrows and to nothing else on the
+ * page. That is what lets the rankings rail read as a legend: the same marks, in
+ * the same colours, as the thing it explains.
+ */
+
+.rp-widget {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 19.5rem;
+  grid-template-areas:
+    "stage   rail"
+    "summary summary";
+  column-gap: 2.5rem;
+  row-gap: 0.5rem;
+  align-items: start;
+  margin: 0.5rem 0 1rem;
+}
+
+.rp-stage       { grid-area: stage; min-width: 0; }
+.rp-rail        { grid-area: rail;  min-width: 0; }
+.rp-summary-row { grid-area: summary; }
+
+/* --- the figure ---------------------------------------------------------- */
+
+/* A quiet warm ground so the white baskets sit on something and the figure
+   reads as one object rather than marks floating on the page. */
+.rp-stage-ground {
+  background: #faf4e9;
+  border: 1px solid #ece0c9;
+  border-radius: 14px;
+  padding: 1rem 0.6rem 1.2rem;
+}
+
+/* px, not rem: beamer-theme scales the root font size with the viewport, so a
+   rem cap here would grow the figure on exactly the screens where the column
+   holding it is already the constraint. 760 is above the column width at 1280,
+   which is the point -- the figure fills its column instead of stopping short
+   of it, and only stops growing on genuinely wide screens. */
+.rp-svg {
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  touch-action: manipulation;
+}
+
+.rp-prompt {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+  min-height: 2.4em;
+}
+
+.rp-prompt strong { color: var(--crane-amber-dark); }
+
+/* --- the rail ------------------------------------------------------------ */
+
+/* Landmarks, not prose: uppercase and tracked so they are found rather than
+   read. Held at 12px even so -- nothing on the page goes below it. */
+.rp-rail-label {
+  margin: 1.5rem 0 0.55rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #e3d6bc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5a5a5a;
+}
+
+.rp-rail-label:first-child { margin-top: 0.15rem; }
+
+/* Reference material. The amber slab this used to be announced itself as the
+   headline of the exercise, which it is not -- the figure is. */
+.rp-data {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+.rp-data li {
+  margin: 0 0 0.55rem;
+  color: #333333;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.rp-data li::before { content: none; }
+
+/* Rows on a hairline, not three cards. Each row is the arrow it draws. */
+.rp-palette { display: flex; flex-direction: column; }
+
+.rp-rank {
+  display: grid;
+  grid-template-columns: 48px auto;
+  grid-template-rows: auto auto;
+  gap: 0 0.55rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0.4rem 0.5rem 0.5rem;
+  font: inherit;
+  text-align: left;
+  color: var(--text-primary);
+  background: none;
+  border: 0;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+
+.rp-rank + .rp-rank { border-top: 1px solid #f0e6d4; }
+
+.rp-rank svg { grid-row: 1 / span 2; width: 48px; height: 16px; }
+.rp-rank-key { font-weight: 700; font-size: 0.82rem; letter-spacing: 0.02em; }
+.rp-rank-label { font-size: 0.75rem; color: #444444; }
+
+.rp-rank:hover:not(:disabled) { background: #fbf3e7; }
+
+.rp-rank:focus-visible {
+  outline: 2px solid var(--crane-amber);
+  outline-offset: -2px;
+}
+
+/* A legend first, a control second. Dimming it while no pair is picked -- which is
+   the state the student opens the page in -- would mean the legend to the
+   figure is faint exactly when it is being read for the first time. The rows
+   stay at full strength and simply stop responding; the prompt under the figure
+   is what says a pair has to be picked. */
+.rp-rank:disabled { cursor: default; }
+
+.rp-rank-on {
+  background: #f7e9d6;
+  border-left-color: var(--crane-amber);
+}
+
+/* --- the sentence -------------------------------------------------------- */
+
+/* Baseline, not centre: the control sits on the sentence's first line whether
+   that sentence is one line or three. */
+.rp-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem 1.5rem;
+  margin: 0.4rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid #ece0c9;
+}
+
+.rp-summary {
+  flex: 1 1 15rem;
+  margin: 0;
+  max-width: 42rem;
+  font-size: 0.95rem;
+  line-height: 2.3;          /* the underset labels are tall */
+  color: var(--text-primary);
+}
+
+.rp-actions { flex: none; }
+
+/* Breathing room around each claim, so a comma is a pause and not a collision */
+.rp-summary .rp-rel { margin: 0 0.12rem; white-space: nowrap; }
+
+.rp-summary-empty {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.rp-block { margin: 1rem 0; }
+
+/* One column once the rail would squeeze the figure. Source order already puts
+   the figure first, so the areas simply stack. */
+@media (max-width: 900px) {
+  .rp-widget {
+    grid-template-columns: 1fr;
+    grid-template-areas: "stage" "rail" "summary";
+  }
+  .rp-rail { max-width: 34rem; }
+}
+
+/* --- compact type --------------------------------------------------------
+ *
+ * Problem set prose sets below lecture prose so that the figure, which keeps
+ * its own size, is unambiguously the largest thing on screen. Scoped to
+ * .ps-page: the lecture pages share this stylesheet's siblings and must not
+ * shrink. The widget sets its own scale above and is left alone here.
+ */
+/* A problem set is a working surface, not a slide: the frame runs wider and the
+   chrome around it is thinner, so the width goes to the figure and the rail.
+ *
+ * The palette is the course site's, soparreiras.org/E416 -- Attic black-figure
+ * pottery: fired clay, soot, and the cream of unpainted slip. The lecture pages
+ * keep their crane amber; a problem set is a different surface and can carry the
+ * course's own colours instead. The theme's amber tokens are remapped rather
+ * than overridden one selector at a time, so the frame, the focus rings and the
+ * selected states all follow from these six values. */
+.ps-page {
+  --attic-black:    #171310;
+  --soot:           #2b211b;
+  --terracotta:     #b55232;
+  --clay-highlight: #d07852;
+  --deep-oxide:     #71311f;
+  --ancient-cream:  #e6d1ad;
+
+  --crane-amber:      var(--terracotta);
+  --crane-amber-dark: var(--deep-oxide);
+  --frame-title-bg:   var(--terracotta);
+
+  --frame-max-width: 95%;
+  --frame-padding: 1.5rem;
+}
+
+/* Cinzel is the course site's display face, used in exactly one place here --
+   the title of the item you are working on -- and nowhere else. */
+.ps-page .frame-title {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--ancient-cream);
+}
+
+.ps-page .frame-title    { font-size: 1.12rem; }   /* theme 1.4rem  */
+.ps-page .frame-subtitle { font-size: 0.92rem; }   /* theme 1.15rem */
+.ps-page .frame-content  { font-size: 0.8rem; }
+
+/* The title bar is sized for a title and a subtitle. With the subtitle gone it
+   was holding a band of empty amber under a single line. */
+.ps-page .frame-title-bar { padding-top: 0.55rem; padding-bottom: 0.55rem; }
+
+.ps-page .ps-baskets input,
+.ps-page .ps-cell        { font-size: 0.72rem; }
+
+/* The figure is the exception, and has to be insulated deliberately: its basket
+ * labels are KaTeX inside a foreignObject and would otherwise inherit the
+ * page's reduction along with everything else. 19.2px is 16 + 20%, matched to
+ * the baskets' own 20% -- the label has to grow with the circle it sits in. The
+ * viewBox does not change, so the baskets grow into the gaps between them
+ * rather than the figure growing on the page. */
+.ps-page .rp-svg { font-size: 19.2px; }
+
+/* --- the two controls on the summary line -------------------------------- */
+
+/* Clear and Submit are the same object. Submit was filled amber and it made a
+   press that files one item look like the press that ends the problem set;
+   both are now outlines that light on hover, and the label carries the weight
+   instead -- "Submit Part I" on the last item is the one that leaves the page. */
+.rp-clear,
+.rp-submit {
+  padding: 0.3rem 0.85rem;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid #e3d6bc;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.rp-clear:hover:not(:disabled),
+.rp-submit:hover:not(:disabled) {
+  color: var(--crane-amber-dark);
+  border-color: #cdba98;
+  background: #fbf3e7;
+}
+
+.rp-clear:focus-visible,
+.rp-submit:focus-visible {
+  outline: 2px solid var(--crane-amber);
+  outline-offset: 2px;
+}
+
+.rp-clear:disabled,
+.rp-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* --- moving between the three items -------------------------------------- */
+
+/* Below the controls and smaller than them. Two circled arrows and a row of
+   numbered pills was pagination furniture bolted to the top of a problem; this
+   is a pair of links that say where they go. */
+.ps-itemnav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.4rem;
+  margin: 0.55rem 0 0;
+}
+
+.ps-move {
+  display: inline-block;
+  padding: 0.15rem 0;
+  text-decoration: none;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+  color: var(--text-muted);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  transition: color 0.14s ease, border-color 0.14s ease;
+}
+
+.ps-move:hover {
+  color: var(--crane-amber-dark);
+  border-bottom-color: var(--crane-amber);
+}
+
+.ps-move:focus-visible { outline: 2px solid var(--crane-amber); outline-offset: 3px; }
+
+/* --- confirming the group ------------------------------------------------ */
+
+.ps-confirm {
+  /* A dialog flush to both screen edges reads as a takeover, and its rounded
+     corners get clipped away. */
+  max-width: min(30rem, calc(100vw - 2.5rem));
+  padding: 1.6rem 1.7rem 1.3rem;
+  color: var(--text-primary);
+  background: #fff;
+  border: 1px solid #e3d6bc;
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+}
+
+.ps-confirm::backdrop { background: rgba(43, 43, 43, 0.38); }
+
+.ps-confirm h3 {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.ps-confirm p { margin: 0 0 0.7rem; font-size: 0.88rem; line-height: 1.6; }
+
+.ps-confirm-group { color: var(--crane-amber-dark); }
+
+.ps-confirm-note { color: var(--text-muted); font-size: 0.8rem; }
+
+.ps-confirm menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin: 1.3rem 0 0;
+  padding: 0;
+}
+
+.ps-confirm button {
+  padding: 0.45rem 1.1rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.ps-confirm-no {
+  color: var(--text-primary);
+  background: #fff;
+  border: 1px solid #cdba98;
+}
+
+.ps-confirm-yes {
+  color: #fff;
+  background: var(--crane-amber-dark);
+  border: 1px solid var(--crane-amber-dark);
+}
+
+.ps-status {
+  max-width: var(--frame-max-width);
+  margin: 0.9rem auto 3rem;
+  padding-left: 0.2rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* Raised only at the final hand-in, so it has to be seen when it is. */
+.ps-confirm-warn {
+  padding: 0.7rem 0.85rem;
+  background: #fdf3e7;
+  border-left: 3px solid var(--terracotta);
+  color: #6b3216;
+  font-size: 0.88rem;
+}
+
+.ps-confirm-warn strong { color: #6b3216; }
+.ps-confirm-warn[hidden] { display: none; }
+
+/* --- the answers page ------------------------------------------------------
+ *
+ * A reading surface, not a working one. The figures are the same widget the
+ * students answered in, holding the right answer instead of theirs, so the
+ * comparison is drawing against drawing and nobody has to translate a list of
+ * strings back into arrows. Everything interactive is stood down: the palette
+ * stays, because next to a finished figure it stops being a toolbar and reads
+ * as the legend it was always drawn as.
+ */
+.rp-readonly .rp-svg { pointer-events: none; }
+.rp-readonly .rp-rank { cursor: default; }
+.rp-readonly .rp-summary-row { border-top: none; }
+.rp-readonly .rp-actions { display: none; }
+
+.ps-answers-lede {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.95rem;
+  color: var(--deep-oxide);
+  margin: 0 0 0.9rem;
+}
+
+/* How the marks are made, said once, at the top. Students ask; this answers it
+   before they have to. */
+.ps-answers-marking {
+  margin: 0 0 2rem;
+  padding: 0.7rem 0.95rem;
+  border-left: 3px solid var(--terracotta);
+  background: rgba(181, 82, 50, 0.06);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: var(--soot);
+  max-width: 60ch;
+}
+
+.ps-answers-part { margin: 0 0 2.6rem; }
+
+.ps-answers-parttitle {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  letter-spacing: 0.03em;
+  color: var(--attic-black);
+  margin: 0 0 1.2rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(23, 19, 16, 0.14);
+}
+
+.ps-answers-q { margin: 0 0 2.4rem; }
+
+.ps-answers-qid {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.86rem;
+  color: var(--deep-oxide);
+  margin: 0 0 0.5rem;
+}
+
+/* The count is the first thing worth knowing about an item -- most of what goes
+   wrong is drawing too few arrows or too many -- so it sits in the heading
+   rather than at the end of the explanation. */
+.ps-answers-count {
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ancient-cream);
+  background: var(--terracotta);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+}
+
+.ps-answers-fig { margin: 0 0 0.6rem; }
+
+.ps-answers-explain {
+  max-width: 62ch;
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.75;
+  color: var(--soot);
+}
+
+.ps-answers-steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0;
+  padding: 0;
+}
+
+.ps-answers-step {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 1.4rem 2.2rem;
+  margin: 0 0 1.4rem;
+  border-bottom: 1px solid rgba(23, 19, 16, 0.08);
+}
+
+.ps-answers-step:last-child { border-bottom: none; margin-bottom: 0; }
+
+/* The theme draws ol markers as filled amber circles hung in the left margin
+   with a negative margin-left. That is right for a lecture list and wrong here:
+   these four are a sequence, not four bullets, and the marker belongs inside
+   the measure. Every one of the theme's circle properties has to be undone --
+   leaving any of them turns the numeral back into a disc parked off-page. */
+.ps-answers-step::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  width: 1.6rem;
+  text-align: left;
+  line-height: 1.5;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--terracotta);
+}
+
+.ps-answers-prompt {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  color: var(--attic-black);
+}
+
+/* The answer, and it should be findable at a glance from halfway down the page. */
+.ps-answers-said {
+  margin: 0 0 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--deep-oxide);
+}
+
+/* Before the key is published this is the whole page, so it has to say what is
+   going on rather than look like a failure. */
+.ps-answers-embargo {
+  max-width: 46ch;
+  margin: 1.5rem auto 2.5rem;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid rgba(23, 19, 16, 0.16);
+  border-radius: 6px;
+  background: rgba(230, 209, 173, 0.28);
+  text-align: center;
+}
+
+.ps-answers-embargo h3 {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.03em;
+  color: var(--deep-oxide);
+  margin: 0 0 0.6rem;
+}
+
+.ps-answers-embargo p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--soot);
+}
+
+.ps-answers-loading,
+.ps-answers-why {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.ps-answers-why { margin-top: 0.8rem; }
+
+/* A link to the answers sits at the foot of both halves of the problem set. It
+   is there before the key is, because the page it points at explains the wait
+   better than an absent link does. */
+.ps-answers-link {
+  display: block;
+  text-align: center;
+  margin: 1.6rem auto 2.5rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  color: var(--deep-oxide);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  width: fit-content;
+}
+
+.ps-answers-link:hover { border-bottom-color: var(--terracotta); }
+.ps-answers-link:focus-visible {
+  outline: 2px solid var(--crane-amber);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .ps-answers-step { padding-left: 1.7rem; }
+  .ps-answers-marking { padding: 0.6rem 0.75rem; }
+  .ps-answers-embargo { padding: 1.1rem 1rem; }
+}
+
+/* Dead ends: no session, no group, no server. Each one has to say what to do,
+   because none of them is the student's fault and all three look like a broken
+   page if the form simply fails to appear. */
+.ps-blocked, .ps-error {
+  max-width: 44ch;
+  margin: 2rem auto;
+  padding: 1.1rem 1.3rem;
+  border-left: 3px solid var(--deep-oxide);
+  background: rgba(181, 82, 50, 0.07);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--soot);
+}
+.ps-status.ps-error { border: none; background: none; padding: 0; color: var(--deep-oxide); }

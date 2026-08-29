@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PS 02 Answers | ECON 416</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@15.1.1/lib/browser/math.js"></script>
+<script type="importmap">
+{ "imports": { "mathjs": "./tikz-svg/examples-v2/mathjs-shim.js" } }
+</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/beamer-theme.css">
+<link rel="stylesheet" href="css/problem-set.css?v=16">
+</head>
+
+<!-- The answers live in keys/PS02.json, and that file is not here until the due
+     date has passed -- Canvas/Grading/publish_key.py puts it there. That is the
+     whole of the embargo, and it is a file copy on purpose: this is a static
+     site, so a date check in this page would be four seconds of devtools away
+     from handing the class the answer key early. Before publication the fetch
+     below 404s and the page says so. -->
+<body class="ps-page ps-answers">
+
+<section class="frame">
+  <div class="frame-title-bar">
+    <h2 class="frame-title" id="title">PS 02 &mdash; Answers</h2>
+  </div>
+  <div class="frame-content">
+    <div id="key" aria-live="polite">
+      <p class="ps-answers-loading">Looking for the answer key&hellip;</p>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+import { createRPTriangle } from './js/rp-triangle.js';
+import { ITEMS } from './js/ps02-part1.js';
+
+// Served by the service, not sitting in the web root. The route answers the
+// identical 404 until the due date has passed, so the embargo is enforced where
+// the clock is -- not by a check in this page, which any student could step
+// past in devtools.
+const KEY_URL = '/api/ps/02/key';
+const mount = document.getElementById('key');
+const byId = Object.fromEntries(ITEMS.map(x => [x.id, x]));
+const figures = {};        // the browser test drives through window.__answers
+
+function el(tag, cls, html) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (html != null) n.innerHTML = html;
+  return n;
+}
+
+function notYet(why) {
+  mount.replaceChildren(el('div', 'ps-answers-embargo',
+    '<h3>Not yet</h3>' +
+    '<p>The answers go up after the due date. Come back once the problem set ' +
+    'has closed &mdash; this page will have the full key, with the working ' +
+    'behind every answer.</p>' +
+    (why ? `<p class="ps-answers-why">${why}</p>` : '')));
+}
+
+/* The same widget the students answered in, holding the right answer. Showing
+   the key as a list of strings would make them translate it back into arrows
+   before they could compare it with what they drew; showing it as the drawing
+   they would have made removes that step entirely. */
+function triangle(host, item, arrows) {
+  const w = createRPTriangle(host, { observations: item.observations });
+  w.set(arrows);
+  // The instruction is spent -- there is nothing here to click. The palette
+  // stays: on this page it stops being a toolbar and reads as the legend it
+  // was drawn as, which is exactly what is wanted next to a finished figure.
+  const p = host.querySelector('.rp-prompt');
+  if (p) p.remove();
+  host.classList.add('rp-readonly');
+  return w;
+}
+
+function partOne(part) {
+  const box = el('section', 'ps-answers-part');
+  box.appendChild(el('h3', 'ps-answers-parttitle',
+    `Part I &middot; ${part.title}`));
+  for (const [qid, q] of Object.entries(part.questions)) {
+    const item = byId[qid];
+    const sec = el('article', 'ps-answers-q');
+    sec.appendChild(el('h4', 'ps-answers-qid',
+      `Part ${qid} <span class="ps-answers-count">` +
+      `${q.answer.length} arrow${q.answer.length === 1 ? '' : 's'}</span>`));
+    if (!item) {
+      sec.appendChild(el('p', 'ps-answers-why',
+        `No observations on file for ${qid} &mdash; the key has an item this page does not.`));
+    } else {
+      const host = el('div', 'ps-answers-fig');
+      sec.appendChild(host);
+      figures[qid] = triangle(host, item, q.answer);
+    }
+    if (q.explain) sec.appendChild(el('p', 'ps-answers-explain', q.explain));
+    box.appendChild(sec);
+  }
+  return box;
+}
+
+function partTwo(part) {
+  const box = el('section', 'ps-answers-part');
+  box.appendChild(el('h3', 'ps-answers-parttitle',
+    `Part II &middot; ${part.title}`));
+  const list = el('ol', 'ps-answers-steps');
+  for (const q of Object.values(part.questions)) {
+    const li = el('li', 'ps-answers-step');
+    if (q.prompt) li.appendChild(el('p', 'ps-answers-prompt', q.prompt));
+    li.appendChild(el('p', 'ps-answers-said',
+      q.answerText || String(q.answer)));
+    if (q.explain) li.appendChild(el('p', 'ps-answers-explain', q.explain));
+    list.appendChild(li);
+  }
+  box.appendChild(list);
+  return box;
+}
+
+function marking(key) {
+  const parts = Object.entries(key.parts)
+    .map(([id, p]) => `Part ${id} is worth ${p.points}`)
+    .join(', ');
+  const how = key.grade && key.grade.combine === 'mean'
+    ? 'and the mark for the set is the average of the two'
+    : 'and the mark for the set is their total';
+  return el('p', 'ps-answers-marking',
+    `${parts}, ${how}. Within Part I each item counts the same and each ` +
+    `arrow within an item counts the same; within Part II each question is ` +
+    `worth one point.`);
+}
+
+function render(key) {
+  mount.replaceChildren();
+  if (key.title) mount.appendChild(el('p', 'ps-answers-lede', key.title));
+  mount.appendChild(marking(key));
+  for (const [pid, part] of Object.entries(key.parts)) {
+    mount.appendChild(pid === 'I' ? partOne(part) : partTwo(part));
+  }
+  window.__answers = { key, figures };     // for the browser test
+  if (window.renderMathInElement) {
+    renderMathInElement(mount, {
+      delimiters: [{ left: '$', right: '$', display: false }],
+      throwOnError: false,
+    });
+  }
+}
+
+fetch(KEY_URL, { cache: 'no-store' })
+  .then(r => {
+    if (r.status === 404) return null;          // not published: the normal case
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    return r.json();
+  })
+  .then(key => {
+    if (!key) { notYet(); return; }
+    render(key);
+  })
+  .catch(err => notYet(`Could not read the key: ${err.message}`));
+</script>
+
+</body>
+</html>
