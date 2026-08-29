@@ -71,6 +71,20 @@ def render(link: str, template: Path = None, partner: str = None,
     return body
 
 
+def link_for(row: dict, args) -> str:
+    """The link that goes in the message.
+
+    The table's stored `link` is a snapshot of whatever host was current when
+    the code was issued, so it goes stale the moment the service moves -- which
+    is exactly what happened: codes issued against the run.app hostname would
+    have gone out carrying it, after the custom domain was already live. The
+    token is the durable part; the URL around it is not.
+    """
+    if args.base:
+        return f"{args.base.rstrip('/')}/{args.path}/{row['token']}"
+    return row["link"] + (f"?next={args.next}" if args.next else "")
+
+
 def partners_for(ps: str) -> dict:
     """{pid: (partner sentence, group name)} from the frozen psGroups snapshot.
 
@@ -126,6 +140,14 @@ def main() -> None:
     ap.add_argument("--template", type=Path, default=TEMPLATE,
                     help="message body file (default message.tex)")
     ap.add_argument("--subject", default=SUBJECT)
+    ap.add_argument("--base", metavar="URL",
+                    help="rebuild each link on this host, e.g. "
+                         "https://e416ps.soparreiras.org -- the table stores "
+                         "whatever host was current when the code was issued, "
+                         "which goes stale the moment the domain changes")
+    ap.add_argument("--path", default="go", choices=["go", "c"],
+                    help="gate path when --base is used: go lands on the "
+                         "problem set, c on the seat map (default: go)")
     ap.add_argument("--next", choices=["app", "ps"], default=None,
                     help="where the link lands after the gate: 'ps' opens the "
                          "problem set, the default opens the seat map")
@@ -188,7 +210,7 @@ def main() -> None:
             "canvasId": v["canvasId"],
             "name": v["name"],
             "subject": args.subject,
-            "body": render(v["link"] + (f"?next={args.next}" if args.next else ""),
+            "body": render(link_for(v, args),
                            args.template,
                            partner=pairs.get(v["pid"], (None, None))[0],
                            group=pairs.get(v["pid"], (None, None))[1]),

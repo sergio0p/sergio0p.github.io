@@ -48,7 +48,12 @@ COURSE_ID = 128467
 KEYRING_SERVICE, KEYRING_USER = "canvas", "access-token"
 
 PROJECT = "econ416-seating"
-SERVICE_URL = "https://econ416-seating-273200940906.us-east1.run.app"
+# The custom domain, not the run.app hostname. A link students are asked to
+# trust should not look like a random Google-generated string, and /go/ lands on
+# the problem set rather than the seat map. The run.app host still works and
+# every link already in an inbox keeps working -- this only affects new ones.
+SERVICE_URL = "https://e416ps.soparreiras.org"
+GATE_PATH = "go"
 
 # Claiming closes at midnight ending Sun 30 Aug 2026 (America/New_York).
 DEADLINE = datetime.fromisoformat("2026-08-31T00:00:00-04:00")
@@ -222,7 +227,7 @@ def main() -> None:
             "revoked": False,
         })
         table[pid] = {**student, "token": token,
-                      "link": f"{args.url.rstrip('/')}/c/{token}",
+                      "link": f"{args.url.rstrip('/')}/{GATE_PATH}/{token}",
                       "issuedAt": datetime.now(timezone.utc).isoformat()}
         issued += 1
 
