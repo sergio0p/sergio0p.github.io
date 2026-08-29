@@ -20,3 +20,13 @@ data/room-photos/*.heic
 data/room-photos/*.jpg
 data/room-photos/*.jpeg
 data/room-photos/*.mov
+
+# The answer keys. This directory ships as-is to GitHub Pages, so a key
+# committed here is a key published at soparreiras.org/seating/ps/keys/ --
+# downloadable by the class, before the due date, defeating the whole point of
+# serving it through the dated /api/ps/<ps>/key route.
+#
+# They are deploy artifacts, not source. The originals live in the Canvas repo
+# at Grading/keys/, which is private and is where they are edited; they are
+# copied here only so the Dockerfile can COPY them into the image.
+ps/keys/
