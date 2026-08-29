@@ -60,8 +60,18 @@ DEADLINE = datetime.fromisoformat("2026-08-31T00:00:00-04:00")
 CODE_EXPIRES = DEADLINE + timedelta(days=7)
 
 
-def fetch_students(course_id: int) -> list[dict]:
-    """The Canvas section roster, validated hard enough to send from."""
+def fetch_students(course_id: int, include_staff: bool = False) -> list[dict]:
+    """The Canvas section roster, validated hard enough to send from.
+
+    With include_staff, the instructor and TA come too. They need codes for the
+    same reason students do -- the problem-set app is behind the same gate -- and
+    without one there is no way to exercise a problem set end to end except by
+    borrowing a student's credential, which is exactly what nobody should do.
+
+    Canvas will not help here any other way: its Test Student is refused by the
+    group memberships endpoint outright, has no sis_user_id to key on, and never
+    appears in the roster.
+    """
     import keyring
     import requests
 
@@ -77,7 +87,8 @@ def fetch_students(course_id: int) -> list[dict]:
     # answers 400), so issuing them a code produces a credential nobody can
     # deliver -- while a student who enrolled since the last run is exactly the
     # one who must not be missed.
-    params: dict | None = {"enrollment_type[]": "student",
+    types = ["student"] + (["teacher", "ta"] if include_staff else [])
+    params: dict | None = {"enrollment_type[]": types,
                            "enrollment_state[]": ["active", "invited"],
                            "per_page": 100}
     while url:
@@ -128,6 +139,12 @@ def fetch_students(course_id: int) -> list[dict]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--project", default=PROJECT)
+    ap.add_argument("--include-staff", action="store_true",
+                    help="issue to the instructor and TA as well as students")
+    ap.add_argument("--expires",
+                    help="override the code expiry, ISO 8601 with an offset "
+                         "(the default is the seating deadline plus a week, "
+                         "which is far too short for problem sets)")
     ap.add_argument("--course", type=int, default=COURSE_ID)
     ap.add_argument("--url", default=SERVICE_URL)
     ap.add_argument("--table", type=Path, default=LOCAL_TABLE)
@@ -136,9 +153,14 @@ def main() -> None:
                     help="revoke this student's existing code and issue a new one")
     args = ap.parse_args()
 
-    roster = fetch_students(args.course)
-    print(f"canvas: {len(roster)} students in course {args.course}")
-    print(f"codes expire {CODE_EXPIRES.isoformat()} "
+    expires = (datetime.fromisoformat(args.expires) if args.expires
+               else CODE_EXPIRES)
+    if expires.tzinfo is None:
+        sys.exit("--expires needs a UTC offset")
+    roster = fetch_students(args.course, include_staff=args.include_staff)
+    print(f"canvas: {len(roster)} people in course {args.course}"
+          f"{' (students + staff)' if args.include_staff else ' (students)'}")
+    print(f"codes expire {expires.isoformat()} "
           f"(claiming closes {DEADLINE.isoformat()})")
 
     if args.dry_run:
@@ -196,7 +218,7 @@ def main() -> None:
             "canvasId": student["canvasId"],
             "name": student["name"],
             "issuedAt": datetime.now(timezone.utc),
-            "expiresAt": CODE_EXPIRES,
+            "expiresAt": expires,
             "revoked": False,
         })
         table[pid] = {**student, "token": token,

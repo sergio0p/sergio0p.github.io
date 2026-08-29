@@ -17,6 +17,12 @@ COPY js/                  js/
 COPY assets/              assets/
 COPY data/room-layout.json data/room-layout.json
 
+# The problem-set pages, and the answer keys they are graded against. The keys
+# are reachable only through /api/ps/<ps>/key, which refuses until the due date;
+# the static route serving this directory rejects .json outright, so shipping
+# them here does not expose them.
+COPY ps/                  ps/
+
 ENV PORT=8080
 EXPOSE 8080
 CMD exec gunicorn --bind :$PORT --workers 2 --threads 8 --timeout 30 \
