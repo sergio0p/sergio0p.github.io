@@ -360,6 +360,24 @@ def landing() -> Response:
     return make_response(LANDING, 200)
 
 
+# Where the gate may send someone, by name. An ALLOW-LIST, and it has to stay
+# one: taking a path or URL from the query string and redirecting to it is an
+# open redirect, and an open redirect on the one endpoint that hands out session
+# cookies is the worst possible place to have it. Unknown or absent means /app.
+NEXT_BY_NAME = {"app": "/app", "ps": "/ps"}
+
+
+def gate_destination() -> str:
+    """/c/<token>?next=ps lands on the problem set instead of the seat map.
+
+    One token, two things behind it, and a student should not have to know that
+    -- the link in their inbox decides where they arrive. Without this, a message
+    saying "open this and do PS 02" drops them on the seat map with no route to
+    the problem set except editing the address bar.
+    """
+    return NEXT_BY_NAME.get(request.args.get("next", ""), "/app")
+
+
 @app.get("/c/<token>")
 def gate(token: str) -> Response:
     """THE GATE. The only place a token is accepted, ever."""
@@ -404,7 +422,7 @@ def gate(token: str) -> Response:
         # expose. Logged so a real fault is still visible in Cloud Logging.
         app.logger.exception("gate: session issue failed")
         return not_found()
-    r = redirect("/app", code=302)
+    r = redirect(gate_destination(), code=302)
     r.set_cookie(
         COOKIE, session,
         max_age=COOKIE_MAX_AGE,

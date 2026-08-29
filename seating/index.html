@@ -11,7 +11,7 @@
 <!-- ?v= is the cache buster.  GitHub Pages serves these with a ten-minute TTL,
      so without it a fix pushed mid-class reaches a phone whenever the phone
      feels like it.  Bump the number in both places on every deploy. -->
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <main id="screen">
@@ -26,7 +26,12 @@
                         claim it."></canvas>
   </div>
   <noscript>This page needs JavaScript. Email the instructor for a seat.</noscript>
+  <!-- One token, two things behind it. The cookie already grants both, but
+       without this link whichever page a student lands on is the only one they
+       can find -- and a link that opens the seat map would leave them unable to
+       reach the problem set, and the reverse. -->
+  <nav id="elsewhere"><a href="/ps">Problem Set 02 &rarr;</a></nav>
 </main>
-<script src="js/seating.js?v=7"></script>
+<script src="js/seating.js?v=8"></script>
 </body>
 </html>

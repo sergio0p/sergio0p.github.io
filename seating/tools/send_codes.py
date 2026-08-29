@@ -38,6 +38,7 @@ from pathlib import Path
 SECURE_DIR = Path.home() / "Dropbox/Teaching/416/Data"
 LOCAL_TABLE = SECURE_DIR / "416_seating_codes.json"
 OUTBOX = SECURE_DIR / "416_seating_outbox.json"
+PROJECT = "econ416-seating"
 SENT_LOG = SECURE_DIR / "416_seating_sent.json"
 
 SUBJECT = "ECON 416 — claim your seat"
@@ -47,15 +48,61 @@ SUBJECT = "ECON 416 — claim your seat"
 # placeholder below is replaced with that student's personal link.
 TEMPLATE = Path(__file__).resolve().parents[1] / "message.tex"
 PLACEHOLDER = "[SEAT RESERVATION LINK]"
+PARTNER_PLACEHOLDER = "[PARTNER]"
+GROUP_PLACEHOLDER = "[GROUP]"
 
 
-def render(link: str, template: Path = None) -> str:
+def render(link: str, template: Path = None, partner: str = None,
+           group: str = None) -> str:
     template = template or TEMPLATE
     body = template.read_text()
     if PLACEHOLDER not in body:
         sys.exit(f"{template} has no {PLACEHOLDER} to put the link in -- "
                  f"refusing to send a message with no link in it")
-    return body.replace(PLACEHOLDER, link)
+    body = body.replace(PLACEHOLDER, link)
+    if PARTNER_PLACEHOLDER in body:
+        if partner is None:
+            sys.exit(f"{template} asks for {PARTNER_PLACEHOLDER} but no group "
+                     f"snapshot was given -- pass --ps so partners can be "
+                     f"looked up, or take the placeholder out")
+        body = body.replace(PARTNER_PLACEHOLDER, partner)
+    if GROUP_PLACEHOLDER in body:
+        body = body.replace(GROUP_PLACEHOLDER, group or "")
+    return body
+
+
+def partners_for(ps: str) -> dict:
+    """{pid: (partner sentence, group name)} from the frozen psGroups snapshot.
+
+    Students cannot reliably work out who they are paired with -- the group
+    exists in Canvas but nobody goes looking -- and an unanswered "who is my
+    partner" is an unsubmitted problem set. Naming them in the message costs
+    nothing and removes the whole class of confusion.
+
+    Read from the frozen snapshot rather than live Canvas for the same reason
+    submissions are: the groups are recut every round, and this message is about
+    one particular round.
+    """
+    from google.cloud import firestore
+    doc = (firestore.Client(project=PROJECT)
+           .collection("psGroups").document(ps).get())
+    if not doc.exists:
+        sys.exit(f"no psGroups/{ps} snapshot -- run freeze_ps_groups.py first")
+    out = {}
+    for g in doc.to_dict().get("groups") or []:
+        members = g.get("members") or []
+        for m in members:
+            others = [x["name"] for x in members if x["pid"] != m["pid"]]
+            if not others:
+                # A group of one is a real state, not an error. Say so plainly
+                # rather than leaving a gap where a name should be.
+                sentence = ("You are the only member of your group for this "
+                            "problem set, so submit on your own.")
+            else:
+                sentence = ("You are working with "
+                            + " and ".join(others) + ".")
+            out[str(m["pid"])] = (sentence, g.get("groupName", ""))
+    return out
 
 
 def load_json(path: Path, default):
@@ -79,6 +126,12 @@ def main() -> None:
     ap.add_argument("--template", type=Path, default=TEMPLATE,
                     help="message body file (default message.tex)")
     ap.add_argument("--subject", default=SUBJECT)
+    ap.add_argument("--next", choices=["app", "ps"], default=None,
+                    help="where the link lands after the gate: 'ps' opens the "
+                         "problem set, the default opens the seat map")
+    ap.add_argument("--ps", metavar="NN",
+                    help="problem set number, e.g. 02 -- looks up each "
+                         "student's partner for [PARTNER] in the template")
     ap.add_argument("--sent-log", type=Path, default=SENT_LOG,
                     help="which send log to read and write (one per campaign)")
     ap.add_argument("--resend", action="store_true",
@@ -115,6 +168,7 @@ def main() -> None:
         return
 
     if args.prepare:
+        pairs = partners_for(args.ps) if args.ps else {}
         skip = {str(p) for p in args.skip}
         pending = [v for pid, v in sorted(table.items())
                    if (args.resend or pid not in sent)
@@ -122,12 +176,22 @@ def main() -> None:
                    and (not args.only or pid == args.only)]
         if args.only and not pending:
             sys.exit(f"PID {args.only} is not pending (unknown, or already sent)")
+        missing = [v["name"] for v in pending if pairs and v["pid"] not in pairs]
+        if missing:
+            # Someone with a code but no group in this round. They would get a
+            # message with a blank where the partner should be, so refuse rather
+            # than send it -- usually it means they dropped and should be skipped.
+            sys.exit("no group in PS " + args.ps + " for: " + ", ".join(missing)
+                     + "\n  --skip them, or re-freeze the snapshot")
         messages = [{
             "pid": v["pid"],
             "canvasId": v["canvasId"],
             "name": v["name"],
             "subject": args.subject,
-            "body": render(v["link"], args.template),
+            "body": render(v["link"] + (f"?next={args.next}" if args.next else ""),
+                           args.template,
+                           partner=pairs.get(v["pid"], (None, None))[0],
+                           group=pairs.get(v["pid"], (None, None))[1]),
         } for v in pending]
         OUTBOX.write_text(json.dumps(messages, indent=2))
         OUTBOX.chmod(0o600)          # every body contains a working credential

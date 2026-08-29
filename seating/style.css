@@ -74,3 +74,21 @@ noscript {
   padding: 1rem;
   text-align: center;
 }
+
+
+/* The way across to the problem set. Deliberately plain: this page is a pixel-art
+   room and a styled button would read as part of the game rather than a way out
+   of it. */
+#elsewhere {
+  margin: 0.9rem auto 1.4rem;
+  text-align: center;
+  font: 13px/1.5 system-ui, sans-serif;
+}
+#elsewhere a {
+  color: #7c7cfc;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+}
+#elsewhere a:hover { border-bottom-color: #7c7cfc; }
+#elsewhere a:focus-visible { outline: 2px solid #7c7cfc; outline-offset: 3px; }
