@@ -73,6 +73,29 @@ DEADLINE = datetime.fromisoformat(DEADLINE_ISO)
 SESSION_UNTIL = datetime.fromisoformat(
     os.environ.get("SESSION_UNTIL", "2027-01-01T00:00:00-05:00"))
 
+# The problem sets, and when each one closes.
+#
+# A whitelist, and that is the point: a problem set not listed here does not
+# exist as far as this service is concerned, and asking about it returns the
+# same 404 as everything else. A student poking at /api/ps/09 must not learn
+# that PS 09 is coming, and `ps` never reaches a path or a query except through
+# this dict.
+#
+# `due` is ISO 8601 with an offset, or null while it is still unset. Null means
+# nothing is ever marked late and the answer key is never served -- it must not
+# quietly degrade into "no deadline" in one place and "the deadline has passed"
+# in another, which is the reading that would publish the key to the class.
+#
+# Deliberately not tied to DEADLINE: that one closes seat claiming and has
+# nothing to do with when a problem set is due.
+PS_SETS = json.loads(os.environ.get(
+    "PS_SETS", '{"02": {"due": null, "parts": ["I", "II"]}}'))
+
+# Enough for any answer these pages produce -- Part I is three lists of at most
+# twelve short strings -- and far under Firestore's 1 MiB document cap. A body
+# larger than this is a bug or an attack, and either way is not a submission.
+MAX_ANSWER_BYTES = 64 * 1024
+
 DEV = os.environ.get("DEV") == "1"          # http instead of https, for local tests
 COOKIE = "s416"
 COOKIE_MAX_AGE = 60 * 60 * 24 * 30
@@ -213,6 +236,79 @@ def current() -> dict | None:
 
 def past_deadline() -> bool:
     return datetime.now(timezone.utc) >= DEADLINE
+
+
+# ---------------------------------------------------------------------------
+# Problem sets
+# ---------------------------------------------------------------------------
+
+def ps_config(ps: str) -> dict | None:
+    """The problem set's entry, or None if there is no such problem set."""
+    cfg = PS_SETS.get(ps)
+    return cfg if isinstance(cfg, dict) else None
+
+
+def ps_due(ps: str) -> datetime | None:
+    cfg = ps_config(ps) or {}
+    raw = cfg.get("due")
+    return datetime.fromisoformat(raw) if raw else None
+
+
+def ps_closed(ps: str) -> bool:
+    """True only when a due date is set and has passed. Unset is never closed."""
+    due = ps_due(ps)
+    return bool(due and datetime.now(timezone.utc) >= due)
+
+
+def group_for(ps: str, pid: str) -> dict | None:
+    """The group this student was in *for this problem set*, from the frozen snapshot.
+
+    Never asks Canvas. Groups are recut every round, so resolving against live
+    Canvas would re-attribute PS 02 answers to the PS 03 pairing the moment the
+    next round is made -- and a regrade in November has to reach the pair that
+    actually did the work. `tools/freeze_ps_groups.py` writes this once.
+
+    Returning None is a real, expected answer, not an error: a student who
+    enrolled after the groups were cut, or whose partner dropped, has no group
+    for this problem set and the page has to say so.
+    """
+    snap = db().collection("psGroups").document(ps).get()
+    if not snap.exists:
+        return None
+    for g in snap.to_dict().get("groups") or []:
+        for m in g.get("members") or []:
+            if str(m.get("pid")) == str(pid):
+                return g
+    return None
+
+
+def _group_public(g: dict) -> dict:
+    """What the page is allowed to see about its own group.
+
+    Names, because the confirmation has to name who it is submitting for and
+    surnames alone go ambiguous. Not PIDs: the page never needs one, and a PID
+    on the wire is a PID in a screenshot.
+    """
+    return {
+        "groupId": g.get("groupId"),
+        "groupName": g.get("groupName"),
+        "members": [{"name": m.get("name")} for m in g.get("members") or []],
+    }
+
+
+def submission_ref(ps: str, group_id):
+    return db().collection("submissions").document(f"{ps}_{group_id}")
+
+
+def version_id(n: int) -> str:
+    """Zero-padded, so a listing sorts the way a human reads it.
+
+    The plan writes `versions/{n}`; the pad is the one deviation, and it is here
+    because Firestore orders document ids as strings -- unpadded, version 10
+    sorts between 1 and 2, and the export would silently hand the grader the
+    wrong "last" submission.
+    """
+    return f"{n:04d}"
 
 
 # ---------------------------------------------------------------------------
@@ -486,6 +582,177 @@ def api_release() -> Response:
 
     status, code = run(client.transaction())
     return ({"ok": True}, 200) if code == 200 else ({"error": status}, code)
+
+
+# --- problem sets ------------------------------------------------------------
+
+@app.get("/api/ps/<ps>/me")
+def api_ps_me(ps: str) -> Response:
+    """Everything this student's page needs: their group, and what the GROUP has filed.
+
+    The word "group" is the whole reason this route exists. Answers used to live
+    in the browser's localStorage, which is per device: one partner submitted
+    Part I, the other opened the page on their own laptop and saw an empty form
+    and the message "Part I is still outstanding" -- false, and confusing at the
+    worst possible moment. Reading the group's record from here means either
+    partner sees the same state, on any machine, in any browser.
+    """
+    s = current()
+    if not s or not ps_config(ps):
+        return not_found()
+
+    due = ps_due(ps)
+    out = {
+        "ps": ps,
+        "due": due.isoformat() if due else None,
+        "closed": ps_closed(ps),
+        "parts": (ps_config(ps) or {}).get("parts", []),
+        "you": s.get("n", ""),
+    }
+
+    g = group_for(ps, s["pid"])
+    if not g:
+        # A defined state, not a failure. Say so plainly and let the page say it
+        # to the student, rather than 404ing at someone who is properly enrolled.
+        out["group"] = None
+        out["submission"] = None
+        return out
+
+    out["group"] = _group_public(g)
+    parent = submission_ref(ps, g["groupId"]).get()
+    if not parent.exists:
+        out["submission"] = None
+        return out
+
+    d = parent.to_dict()
+    latest = d.get("latest") or 0
+    ver = (submission_ref(ps, g["groupId"])
+           .collection("versions").document(version_id(latest)).get()) if latest else None
+    v = ver.to_dict() if (ver and ver.exists) else {}
+    out["submission"] = {
+        "version": latest,
+        "count": d.get("count") or 0,
+        # Who filed it, because "did my partner already hand this in?" is the
+        # question the old design could not answer at all.
+        "submittedBy": (v.get("submittedBy") or {}).get("name"),
+        "submittedAt": v["submittedAt"].isoformat() if v.get("submittedAt") else None,
+        "late": bool(v.get("late")),
+        "parts": sorted((v.get("answers") or {}).keys()),
+        "answers": v.get("answers") or {},
+    }
+    return out
+
+
+@app.post("/api/ps/<ps>/submit")
+def api_ps_submit(ps: str) -> Response:
+    """Append one version. Never overwrites, never refuses for lateness.
+
+    A submission carries the WHOLE problem set, not the part that was just
+    filed: the new version is the previous version's answers with this part
+    written over the top. That is what makes either partner's page complete --
+    whoever submits second does not wipe what the first one did, and version N
+    is always a full picture of the set rather than a fragment needing assembly
+    at grading time.
+
+    Late work is stored and marked, not turned away. A student emailing about a
+    deadline should be discussing a record that exists.
+    """
+    s = current()
+    cfg = ps_config(ps)
+    if not s or not cfg:
+        return not_found()
+
+    body = request.get_json(silent=True) or {}
+    part = body.get("part")
+    if part not in (cfg.get("parts") or []):
+        return {"error": "bad_part"}, 400
+    if "answers" not in body:
+        return {"error": "bad_request"}, 400
+    answers = body["answers"]
+    blanks = body.get("blanks") or []
+    if not isinstance(blanks, list):
+        return {"error": "bad_request"}, 400
+    if len(json.dumps({"a": answers, "b": blanks}).encode()) > MAX_ANSWER_BYTES:
+        return {"error": "too_large"}, 413
+
+    g = group_for(ps, s["pid"])
+    if not g:
+        # Accepting this would create a submission attributable to nobody.
+        return {"error": "no_group"}, 409
+
+    from google.cloud import firestore
+    parent_ref = submission_ref(ps, g["groupId"])
+    late = ps_closed(ps)
+    who = {"pid": str(s["pid"]), "name": s.get("n", "")}
+
+    @firestore.transactional
+    def run(tx):
+        # Every read before every write, as in api_claim. The race here is two
+        # partners pressing submit at the same moment: without the transaction
+        # both read count=3, both write version 4, and one of them vanishes.
+        parent = parent_ref.get(transaction=tx)
+        prior = parent.to_dict() if parent.exists else {}
+        count = int(prior.get("count") or 0)
+
+        previous = {}
+        if count:
+            last = (parent_ref.collection("versions")
+                    .document(version_id(count)).get(transaction=tx))
+            previous = (last.to_dict() or {}).get("answers") or {}
+
+        n = count + 1
+        merged = dict(previous)
+        merged[part] = answers
+        blank_map = dict(prior.get("blanks") or {})
+        blank_map[part] = blanks
+
+        tx.set(parent_ref, {
+            "ps": ps,
+            "groupId": g.get("groupId"),
+            "groupName": g.get("groupName"),
+            "members": g.get("members") or [],
+            "latest": n,
+            "count": n,
+            "blanks": blank_map,
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        }, merge=True)
+        tx.set(parent_ref.collection("versions").document(version_id(n)), {
+            "n": n,
+            "part": part,                      # which part this press filed
+            "answers": merged,                 # the whole set, as of now
+            "blanks": blank_map,
+            "submittedBy": who,
+            "submittedAt": firestore.SERVER_TIMESTAMP,
+            "late": late,
+        })
+        return n
+
+    # Contention is not a failure, it is the expected outcome of two partners
+    # pressing submit together: Firestore aborts one transaction to keep them
+    # serialisable and expects the loser to try again. Treating that abort as an
+    # error -- which this did until the race test caught it -- returns a 500 to
+    # a student whose work was simply second in the queue, and drops the
+    # submission on the floor. Each attempt needs a fresh transaction object; a
+    # used one cannot be replayed.
+    from google.api_core.exceptions import Aborted
+
+    n = None
+    for attempt in range(5):
+        try:
+            n = run(db().transaction())
+            break
+        except Aborted:
+            if attempt == 4:
+                app.logger.warning("ps submit: gave up after contention")
+                return {"error": "busy"}, 503
+            time.sleep(0.05 * (2 ** attempt) + secrets.randbelow(50) / 1000)
+        except Exception:
+            app.logger.exception("ps submit failed")
+            return {"error": "write_failed"}, 500
+
+    return {"ok": True, "version": n, "late": late,
+            "group": g.get("groupName"),
+            "parts": sorted(set((body.get("known") or []) + [part]))}
 
 
 # NOT /healthz: Google Frontend intercepts that exact path on Cloud Run and

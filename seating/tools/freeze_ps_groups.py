@@ -87,6 +87,30 @@ def main() -> None:
     pids = {u["id"]: str(u["sis_user_id"]) for u in users if u.get("sis_user_id")}
     print(f"active students: {len(pids)}")
 
+    # The instructor and the TA, so a staff group can be frozen like any other.
+    #
+    # There has to be one group that can be exercised end to end without using a
+    # student's credential, and Canvas will not provide it: the Test Student is
+    # refused outright by POST /groups/:id/memberships ("user not authorized to
+    # perform that action"), has no sis_user_id to key on, and does not appear
+    # in the student roster at all. Staff have real PIDs and join groups
+    # normally, so the test group is a real group and the path under test is the
+    # real path.
+    #
+    # Kept in a separate map from `pids` on purpose. `ungrouped` below reports
+    # students who will see the no-group page, and staff who happen not to be in
+    # a group are not that -- folding them together would put the instructor in
+    # a list of students to chase.
+    staff = paged(s, f"{API}/courses/{args.course}/users",
+                  {"per_page": 100, "enrollment_type[]": ["teacher", "ta"],
+                   "enrollment_state[]": "active"})
+    staff_pids = {u["id"]: str(u["sis_user_id"]) for u in staff
+                  if u.get("sis_user_id") and u["id"] not in pids}
+    if staff_pids:
+        print(f"staff: {len(staff_pids)} "
+              f"({', '.join(u['name'] for u in staff if u['id'] in staff_pids)})")
+    known = {**pids, **staff_pids}
+
     groups_raw = paged(s, f"{API}/group_categories/{cat['id']}/groups", {"per_page": 100})
     groups, by_pid, problems = [], {}, []
 
@@ -95,7 +119,7 @@ def main() -> None:
                         {"per_page": 100, "exclude_inactive": "true"})
         rows = []
         for m in members:
-            pid = pids.get(m["id"])
+            pid = known.get(m["id"])
             if not pid:
                 problems.append(f"{m.get('name')} in {g['name']} is not an "
                                 f"active student -- excluded")
@@ -111,7 +135,7 @@ def main() -> None:
                        "members": rows})
 
     placed = {p for p in by_pid}
-    ungrouped = sorted(set(pids.values()) - placed)
+    ungrouped = sorted(set(pids.values()) - placed)      # students only
     name_of = {str(u.get("sis_user_id")): u.get("name") for u in users}
 
     print(f"\ngroups: {len(groups)}   students placed: {len(placed)}")
