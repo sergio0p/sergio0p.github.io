@@ -367,7 +367,7 @@ def landing() -> Response:
 NEXT_BY_NAME = {"app": "/app", "ps": "/ps"}
 
 
-def gate_destination() -> str:
+def gate_destination(default: str = "app") -> str:
     """/c/<token>?next=ps lands on the problem set instead of the seat map.
 
     One token, two things behind it, and a student should not have to know that
@@ -375,11 +375,35 @@ def gate_destination() -> str:
     saying "open this and do PS 02" drops them on the seat map with no route to
     the problem set except editing the address bar.
     """
-    return NEXT_BY_NAME.get(request.args.get("next", ""), "/app")
+    # An unrecognised ?next= falls back to the route's own default, not to a
+    # hardcoded /app -- otherwise a stray query string silently sends a /go/
+    # link to the seat map, which is the one thing that link exists to avoid.
+    name = request.args.get("next") or default
+    return NEXT_BY_NAME.get(name) or NEXT_BY_NAME.get(default) or "/app"
+
+
+@app.get("/go/<token>")
+def gate_ps(token: str) -> Response:
+    """The gate, landing on the problem set.
+
+    Exists so a link can read
+        https://e416ps.soparreiras.org/go/<token>
+    instead of
+        https://econ416-seating-....run.app/c/<token>?next=ps
+
+    That is not only cosmetics. A message asking students to click an
+    unfamiliar host with a random string on the end is indistinguishable from a
+    phishing attempt, and the run.app hostname is the least trustworthy-looking
+    part of it. The query string is the second least.
+
+    Same gate, same checks, same identical 404 on every failure -- only the
+    destination differs.
+    """
+    return gate(token, default_next="ps")
 
 
 @app.get("/c/<token>")
-def gate(token: str) -> Response:
+def gate(token: str, default_next: str = "app") -> Response:
     """THE GATE. The only place a token is accepted, ever."""
     ip = client_ip()
     if rate_limited(ip):
@@ -422,7 +446,7 @@ def gate(token: str) -> Response:
         # expose. Logged so a real fault is still visible in Cloud Logging.
         app.logger.exception("gate: session issue failed")
         return not_found()
-    r = redirect(gate_destination(), code=302)
+    r = redirect(gate_destination(default_next), code=302)
     r.set_cookie(
         COOKIE, session,
         max_age=COOKIE_MAX_AGE,
