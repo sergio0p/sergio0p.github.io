@@ -21,6 +21,10 @@ import { render } from '../tikz-svg/dist/tikz-svg.min.js';
  * the only difference, so the three relations read as one family. */
 const ARROW_WIDTH = 2.6;
 
+/* Every widget on the page needs its own marker id namespace. See
+ * namespaceMarkers() below for why. */
+let instanceCount = 0;
+
 /* Bend, in degrees, and not the library's default 30.
  *
  * tikz-svg departs an edge at (baseAngle - bend) and arrives at
@@ -126,6 +130,7 @@ export function createRPTriangle(host, opts) {
   opts = opts || {};
   const ids = opts.baskets || ['a', 'b', 'c'];
   const onChange = opts.onChange || function () {};
+  const uid = 'rp' + (++instanceCount);   // this widget's marker id namespace
 
   // answers: array of { from, to, rel }, at most one per ordered pair
   let answers = [];
@@ -285,6 +290,7 @@ export function createRPTriangle(host, opts) {
     }
 
     render(svg, { scale: 1, originX: 0, originY: 0, draw: drawList });
+    namespaceMarkers();          // before the first paint, not after it
 
     // render() rebuilds the node <g> elements again, asynchronously, once KaTeX
     // has laid the labels out -- so anything attached to the elements it returns
@@ -303,6 +309,41 @@ export function createRPTriangle(host, opts) {
    * required: a fill of "none" or "transparent" is not painted, so the default
    * visiblePainted would ignore it. */
   const HIT_RADIUS = 36;
+
+  /* Give this widget's arrowheads ids nobody else on the page can claim.
+   *
+   * tikz-svg names a marker after what it looks like -- `arrow-stealth-9-268bd2`
+   * is "stealth tip, size 9, in blue" -- so two diagrams that use the same
+   * arrow in the same colour emit the same id. Part I keeps all three items in
+   * one document and hides the ones you are not on, and `url(#id)` takes the
+   * FIRST match in the document: on item I-II every blue and green arrowhead was
+   * resolving to item I-I's marker, sitting inside a `hidden` div. Chrome and
+   * Firefox will not paint a marker out of a display:none subtree, so the heads
+   * silently disappeared while the shortened line stayed -- and the head that
+   * happened to be a colour the earlier item had not used still worked, which is
+   * what made it look random. (Safari paints them, which is why it was the one
+   * browser without this bug and the only one with the label bug.)
+   *
+   * Idempotent, and it re-checks the references rather than trusting the rename:
+   * render() rebuilds this subtree on its own schedule once KaTeX has measured
+   * the labels, so this runs again from the MutationObserver below and has to
+   * cope with defs and paths being replaced independently. */
+  function namespaceMarkers() {
+    for (const m of svg.querySelectorAll('defs marker')) {
+      if (m.id && !m.id.startsWith(uid + '-')) m.id = uid + '-' + m.id;
+    }
+    for (const el of svg.querySelectorAll('[marker-end], [marker-start]')) {
+      for (const attr of ['marker-end', 'marker-start']) {
+        const ref = /^url\(#(.+)\)$/.exec(el.getAttribute(attr) || '');
+        if (!ref || ref[1].startsWith(uid + '-')) continue;
+        // Only if this widget really owns a marker by that name -- a reference
+        // we cannot satisfy locally is better left pointing where it did.
+        if (svg.querySelector('marker[id="' + uid + '-' + ref[1] + '"]')) {
+          el.setAttribute(attr, 'url(#' + uid + '-' + ref[1] + ')');
+        }
+      }
+    }
+  }
 
   function decorate() {
     for (const id of ids) {
@@ -401,7 +442,7 @@ export function createRPTriangle(host, opts) {
   // controls, so re-decorating on a timer would be a race. Watch the subtree
   // instead and re-apply whenever children are swapped. childList only --
   // observing attributes would retrigger on our own writes.
-  new MutationObserver(function () { decorate(); })
+  new MutationObserver(function () { namespaceMarkers(); decorate(); })
     .observe(svg, { childList: true, subtree: true });
 
   svg.addEventListener('click', function (ev) {

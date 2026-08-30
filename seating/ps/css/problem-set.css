@@ -250,7 +250,24 @@
   display: block;
   margin: 0 auto;
   touch-action: manipulation;
+  /* The whole figure is tapped, never read. Without this, clicking a basket
+     puts a text selection inside the label's foreignObject and Chrome paints a
+     blue highlight over the letter for as long as the selection lasts. */
+  -webkit-user-select: none;
+  user-select: none;
 }
+
+/* WebKit does not paint position:relative content inside <foreignObject>, and
+   KaTeX wraps every expression in `.base { position: relative }` -- so in Safari
+   the basket letters vanished while the same KaTeX in ordinary HTML (the rail,
+   the summary line) rendered fine. The absolutely-positioned MathML twin was
+   escaping to the SVG origin at the same time, which is the stray glyph that
+   showed in the panel's top-left corner.
+
+   Scoped to this widget on purpose: the lecture pages render richer math through
+   the same library, and there `position: relative` is load-bearing for stacked
+   constructions (sub/superscripts, fractions). A basket label is one letter. */
+.rp-svg foreignObject .katex .base { position: static; }
 
 .rp-prompt {
   margin: 0.65rem 0 0;
